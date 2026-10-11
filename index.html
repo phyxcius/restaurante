@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Menú Digital QR & Pedidos | Inka Bistro Cusco</title>
+  <title>Menú QR Gourmet & Pedidos | Inka Bistro Cusco</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
     :root {
@@ -12,17 +12,13 @@
       --accent: #f59e0b;          /* Ámbar / Dorado */
       --accent-hover: #d97706;
       --bg-warm: #1a1311;         /* Tostado gourmet */
-      --card-bg: #261c18;
       --glass-panel: rgba(38, 28, 24, 0.88);
       --glass-border: rgba(245, 158, 11, 0.28);
       --text-main: #fffdfa;
       --text-muted: #d6cbbf;
       --gold-badge: #fbbf24;
       --yape-purple: #742284;
-      --plin-cyan: #00adb5;
       --whatsapp-green: #25d366;
-      --danger: #ef4444;
-      --success: #15803d;
     }
 
     * {
@@ -42,7 +38,7 @@
       color: var(--text-main);
     }
 
-    /* FEED VERTICAL TIPO TIKTOK CON SCROLL SNAP */
+    /* FEED VERTICAL TIKTOK */
     .app-container {
       width: 100%;
       max-width: 480px;
@@ -57,7 +53,7 @@
       display: none;
     }
 
-    /* CABECERA SUPERIOR: MARCA, IDIOMAS, MONEDA Y AUDIO */
+    /* CABECERA SUPERIOR */
     .top-header {
       position: fixed;
       top: 0;
@@ -153,9 +149,6 @@
       cursor: pointer;
       transition: transform 0.15s;
     }
-    .icon-pill-btn:active {
-      transform: scale(0.92);
-    }
 
     /* FILTROS DE CATEGORÍAS */
     .category-chips {
@@ -190,7 +183,7 @@
       box-shadow: 0 3px 12px rgba(194, 65, 12, 0.45);
     }
 
-    /* SLIDE TIKTOK CON VIDEO Y POSTER FALLBACK */
+    /* REEL / SLIDE TIKTOK */
     .video-slide {
       width: 100%;
       height: 100dvh;
@@ -217,21 +210,21 @@
       position: absolute;
       inset: 0;
       background: linear-gradient(180deg, 
-        rgba(26, 19, 17, 0.45) 0%, 
+        rgba(26, 19, 17, 0.4) 0%, 
         rgba(26, 19, 17, 0.05) 50%, 
         rgba(26, 19, 17, 0.92) 100%);
       pointer-events: none;
     }
 
-    /* BOTONES LATERALES ESTILO TIKTOK */
+    /* ACCIONES LATERALES TIKTOK */
     .side-actions {
       position: absolute;
       right: 12px;
-      bottom: 125px;
+      bottom: 110px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 16px;
+      gap: 15px;
       z-index: 10;
     }
 
@@ -256,7 +249,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 19px;
+      font-size: 18px;
       color: #fff;
       transition: transform 0.15s ease;
     }
@@ -271,6 +264,11 @@
       background: linear-gradient(135deg, var(--yape-purple), #9d2cb3);
       border: 1px solid #d946ef;
     }
+    .action-icon.comment-icon {
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid #38bdf8;
+      color: #38bdf8;
+    }
 
     .action-label {
       font-size: 11px;
@@ -279,11 +277,11 @@
       color: var(--text-muted);
     }
 
-    /* INFORMACIÓN DEL PLATO */
+    /* INFO DEL PLATO */
     .dish-info {
       position: relative;
       z-index: 10;
-      padding: 0 70px 98px 16px;
+      padding: 0 75px 90px 16px;
       width: 100%;
     }
 
@@ -358,119 +356,84 @@
       transform: scale(0.96);
     }
 
-    /* BARRA INFERIOR FLOTANTE TIPO POPUP: "PEDIDOS" */
-    .floating-orders-bar {
+    /* BOTÓN FLOTANTE INFERIOR DERECHO: "PEDIDOS" */
+    .chat-bubble-container {
       position: fixed;
-      bottom: 18px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: calc(100% - 28px);
-      max-width: 450px;
-      z-index: 150;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 16px;
-      background: rgba(33, 24, 20, 0.94);
-      backdrop-filter: blur(18px);
-      border: 1.5px solid rgba(245, 158, 11, 0.4);
-      border-radius: 36px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55), 0 0 15px rgba(194, 65, 12, 0.3);
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    .floating-orders-bar:active {
-      transform: translateX(-50%) scale(0.98);
-    }
-
-    .orders-bar-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .orders-icon-wrap {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), var(--primary));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      color: #fff;
-      box-shadow: 0 2px 10px rgba(194, 65, 12, 0.4);
-      position: relative;
-    }
-
-    .orders-count-badge {
-      position: absolute;
-      top: -3px;
-      right: -3px;
-      background: #dc2626;
-      color: #fff;
-      font-size: 11px;
-      font-weight: 800;
-      min-width: 18px;
-      height: 18px;
-      line-height: 18px;
-      text-align: center;
-      border-radius: 50%;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-    }
-
-    .orders-text-wrap {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .orders-title-text {
-      font-size: 14px;
-      font-weight: 900;
-      color: #fff;
-      letter-spacing: 0.3px;
-      text-transform: uppercase;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .orders-sub-text {
-      font-size: 11px;
-      color: #d6cbbf;
-    }
-
-    .orders-bar-right {
+      bottom: 22px;
+      right: 20px;
       display: flex;
       align-items: center;
       gap: 8px;
+      z-index: 1500;
+      cursor: pointer;
+      user-select: none;
     }
 
-    .orders-total-highlight {
-      font-size: 16px;
+    .chat-bubble-label {
+      background: linear-gradient(135deg, #fef08a 0%, #fde047 100%);
+      color: #78350f;
       font-weight: 900;
-      color: #fde047;
+      font-size: 13px;
+      padding: 8px 14px;
+      border-radius: 20px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      border: 2px solid var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      animation: pulseOrders 2.4s infinite;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
-    .orders-open-arrow {
-      width: 28px;
-      height: 28px;
+    @keyframes pulseOrders {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .chat-bubble-btn {
+      position: relative;
+      width: 58px;
+      height: 58px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
       border-radius: 50%;
-      background: rgba(255,255,255,0.1);
+      box-shadow: 0 6px 20px rgba(194, 65, 12, 0.5);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
+      border: 2px solid #facc15;
+    }
+
+    .chat-bubble-btn i {
+      font-size: 22px;
       color: #fff;
     }
 
-    /* MODAL POPUP CHECKOUT / COMANDA */
+    .chat-badge {
+      position: absolute;
+      top: -3px;
+      right: -3px;
+      background-color: #ef4444;
+      color: #fff;
+      border: 2px solid #fff;
+      font-size: 11px;
+      font-weight: 800;
+      min-width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    /* MODAL POPUP CHECKOUT */
     .popup-modal {
       position: fixed;
       inset: 0;
-      background: rgba(18, 12, 10, 0.82);
+      background: rgba(18, 12, 10, 0.85);
       backdrop-filter: blur(6px);
-      z-index: 250;
+      z-index: 2000;
       display: none;
       align-items: flex-end;
       justify-content: center;
@@ -484,16 +447,15 @@
       width: 100%;
       max-width: 480px;
       max-height: 90dvh;
-      border-radius: 26px 26px 0 0;
-      padding: 20px 18px 24px;
+      border-radius: 24px 24px 0 0;
+      padding: 18px 18px 24px;
       display: flex;
       flex-direction: column;
-      animation: slideUpSheet 0.25s ease-out;
+      animation: slideUp 0.25s ease-out;
       border-top: 1.5px solid var(--glass-border);
-      box-shadow: 0 -10px 40px rgba(0,0,0,0.6);
       overflow-y: auto;
     }
-    @keyframes slideUpSheet {
+    @keyframes slideUp {
       from { transform: translateY(100%); }
       to { transform: translateY(0); }
     }
@@ -536,7 +498,6 @@
       cursor: pointer;
     }
 
-    /* LISTA DE PLATOS DENTRO DEL POPUP */
     .order-items-list {
       overflow-y: auto;
       max-height: 22dvh;
@@ -544,7 +505,6 @@
       flex-direction: column;
       gap: 8px;
       margin-bottom: 12px;
-      padding-right: 2px;
     }
 
     .order-item-row {
@@ -552,7 +512,7 @@
       justify-content: space-between;
       align-items: center;
       background: #2d211b;
-      padding: 9px 12px;
+      padding: 8px 12px;
       border-radius: 12px;
       border: 1px solid rgba(255,255,255,0.06);
     }
@@ -567,7 +527,7 @@
       color: #fff;
     }
     .item-row-sub {
-      font-size: 11.5px;
+      font-size: 11px;
       color: #d1c7be;
       margin-top: 2px;
     }
@@ -592,15 +552,6 @@
       justify-content: center;
     }
 
-    .btn-trash-item {
-      background: none;
-      border: none;
-      color: #94a3b8;
-      font-size: 14px;
-      cursor: pointer;
-      margin-left: 6px;
-    }
-
     .popup-section-label {
       font-size: 11px;
       text-transform: uppercase;
@@ -610,7 +561,6 @@
       margin-bottom: 5px;
     }
 
-    /* MÉTODOS DE PAGO DEL PROYECTO */
     .grid-payments {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -634,8 +584,9 @@
       color: #fff;
     }
 
-    /* CAJA DESPLEGABLE DE EFECTIVO Y VUELTO AUTOMÁTICO */
+    /* CALCULADORA DE VUELTO VISIBLE */
     .cash-box-drawer {
+      display: block; /* Siempre visible cuando se elige efectivo */
       background: #2b1f1a;
       border: 1.5px dashed rgba(245, 158, 11, 0.4);
       border-radius: 10px;
@@ -682,24 +633,23 @@
 
     .vuelto-badge-box {
       margin-top: 8px;
-      padding: 7px 10px;
+      padding: 8px 10px;
       border-radius: 8px;
       font-size: 12px;
       font-weight: 800;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(21, 128, 61, 0.2);
+      background: rgba(21, 128, 61, 0.25);
       color: #86efac;
       border: 1px solid #15803d;
     }
     .vuelto-badge-box.alerta {
-      background: rgba(220, 38, 38, 0.2);
+      background: rgba(220, 38, 38, 0.25);
       color: #fca5a5;
       border-color: #dc2626;
     }
 
-    /* MESA / DELIVERY Y GEOLOCALIZACIÓN */
     .order-form-inputs {
       display: flex;
       flex-direction: column;
@@ -718,42 +668,6 @@
     }
     .custom-input:focus {
       border-color: var(--accent);
-    }
-
-    .geo-box {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      background: #2b1f1a;
-      border: 1px solid rgba(245, 158, 11, 0.2);
-      padding: 8px 12px;
-      border-radius: 10px;
-      margin-bottom: 12px;
-    }
-
-    .btn-geo {
-      background: linear-gradient(135deg, var(--accent), var(--primary));
-      color: #fff;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-
-    .geo-status {
-      font-size: 11px;
-      color: #a89f97;
-      text-align: center;
-    }
-    .geo-status.ready {
-      color: #86efac;
-      font-weight: bold;
     }
 
     .order-totals-bar {
@@ -787,40 +701,48 @@
       box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4);
     }
 
-    /* MODAL DE PAGO DIRECTO YAPE / PLIN */
-    .qr-modal-body {
+    /* MODAL DE RESEÑAS / COMENTARIOS */
+    .comments-list {
+      max-height: 200px;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .comment-card {
+      background: #2a1f19;
+      border-radius: 10px;
+      padding: 10px 12px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .comment-header {
+      display: flex;
+      justify-content: space-between;
       align-items: center;
-      text-align: center;
-      gap: 12px;
-      padding: 10px 0;
+      margin-bottom: 4px;
     }
-    .qr-box-image {
-      width: 180px;
-      height: 180px;
-      background: #fff;
-      border-radius: 14px;
-      padding: 10px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    .comment-user {
+      font-size: 12px;
+      font-weight: 700;
+      color: #fbbf24;
     }
-    .qr-box-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
+    .comment-stars {
+      color: #f59e0b;
+      font-size: 11px;
+    }
+    .comment-text {
+      font-size: 12px;
+      color: #e5e7eb;
     }
 
-    .copy-phone-pill {
-      background: #2f231d;
-      border: 1px solid var(--glass-border);
-      padding: 8px 16px;
-      border-radius: 20px;
+    .star-rating-select {
       display: flex;
-      align-items: center;
-      gap: 10px;
+      gap: 6px;
+      font-size: 20px;
+      color: #f59e0b;
       cursor: pointer;
-      font-weight: 700;
-      font-size: 14px;
+      margin-bottom: 8px;
     }
   </style>
 </head>
@@ -833,12 +755,12 @@
         <div class="brand-icon">🍽️</div>
         <div class="brand-text">
           <h1>Inka Bistro</h1>
-          <span>Cusco • Gourmet & Express</span>
+          <span>Cusco • Gourmet Experience</span>
         </div>
       </div>
 
       <div class="header-controls">
-        <!-- Selector Idioma -->
+        <!-- Idiomas -->
         <select class="select-pill" id="langSelector" onchange="changeLanguage(this.value)">
           <option value="es" selected>🇪🇸 ES</option>
           <option value="en">🇬🇧 EN</option>
@@ -846,7 +768,7 @@
           <option value="pt">🇧🇷 PT</option>
         </select>
 
-        <!-- Selector Moneda -->
+        <!-- Monedas -->
         <select class="select-pill" id="currencySelector" onchange="changeCurrency(this.value)">
           <option value="PEN" selected>S/ (PEN)</option>
           <option value="USD">$ (USD)</option>
@@ -866,29 +788,18 @@
   <!-- FEED VERTICAL TIKTOK DE PLATOS -->
   <div class="app-container" id="feedContainer"></div>
 
-  <!-- BARRA INFERIOR FLOTANTE: "PEDIDOS" -->
-  <div class="floating-orders-bar" onclick="openOrdersPopup()">
-    <div class="orders-bar-left">
-      <div class="orders-icon-wrap">
-        <i class="fa-solid fa-bell-concierge"></i>
-        <span class="orders-count-badge" id="ordersBadgeCount">0</span>
-      </div>
-      <div class="orders-text-wrap">
-        <span class="orders-title-text" id="ui_ordersBtnText">
-          Pedidos <i class="fa-solid fa-chevron-up" style="font-size:10px; color:#f59e0b;"></i>
-        </span>
-        <span class="orders-sub-text" id="ui_ordersSubText">Toca para revisar comanda y pagar</span>
-      </div>
+  <!-- BOTÓN FLOTANTE INFERIOR DERECHO: "PEDIDOS" -->
+  <div class="chat-bubble-container" id="btnFlotantePedidos" onclick="openOrdersPopup()">
+    <div class="chat-bubble-label">
+      <span>🔥 Pedidos</span>
     </div>
-    <div class="orders-bar-right">
-      <span class="orders-total-highlight" id="ordersBarTotal">S/ 0.00</span>
-      <div class="orders-open-arrow">
-        <i class="fa-solid fa-arrow-right"></i>
-      </div>
+    <div class="chat-bubble-btn">
+      <i class="fa-solid fa-bell-concierge"></i>
+      <div class="chat-badge" id="ordersBadgeCount">0</div>
     </div>
   </div>
 
-  <!-- MODAL / POPUP DE CHECKOUT -->
+  <!-- MODAL / POPUP DE CHECKOUT (PEDIDOS) -->
   <div class="popup-modal" id="ordersPopupModal" onclick="closeOrdersPopup(event)">
     <div class="popup-sheet" onclick="event.stopPropagation()">
       <div class="sheet-header">
@@ -899,11 +810,10 @@
         </div>
       </div>
 
-      <!-- Platos seleccionados -->
-      <div class="popup-section-label">Platos / Bebidas:</div>
+      <div class="popup-section-label">Platos / Bebidas seleccionadas:</div>
       <div class="order-items-list" id="orderItemsList"></div>
 
-      <!-- Métodos de pago (Efectivo con cálculo de vuelto, Yape, Plin, Tarjeta) -->
+      <!-- FORMA DE PAGO -->
       <div class="popup-section-label">Forma de Pago:</div>
       <div class="grid-payments">
         <button type="button" class="btn-pay-option active" id="btnPayEfectivo" onclick="elegirPago('Efectivo', this)">💵 Efectivo</button>
@@ -912,7 +822,7 @@
         <button type="button" class="btn-pay-option" onclick="elegirPago('Tarjeta POS', this)">💳 POS</button>
       </div>
 
-      <!-- Caja desplegable de vuelto en efectivo adaptada de LeoGas -->
+      <!-- CALCULADORA DE VUELTO EN EFECTIVO -->
       <div class="cash-box-drawer" id="cajaEfectivoDesplegable">
         <div style="font-size: 11.5px; font-weight: 800; color: #fde047;">💵 ¿Con cuánto en efectivo pagarás?</div>
         <div class="cash-input-row">
@@ -931,20 +841,15 @@
         </div>
       </div>
 
-      <!-- Mesa o Dirección y GPS -->
+      <!-- MESA O HABITACIÓN (SIN GPS) -->
       <div class="order-form-inputs">
-        <div class="popup-section-label">Mesa o Datos de Entrega:</div>
-        <input type="text" id="tableOrAddressInput" class="custom-input" placeholder="Mesa Nº (ej: Mesa 05) o Dirección de Hotel" />
-        <input type="text" id="clientNameInput" class="custom-input" placeholder="Nombre del cliente o huésped" />
-        <input type="text" id="notesInput" class="custom-input" placeholder="Notas: término medio, sin cebolla, etc." />
+        <div class="popup-section-label">Identificación de Mesa o Entrega:</div>
+        <input type="text" id="tableOrAddressInput" class="custom-input" placeholder="Nº de Mesa (ej: Mesa 04 / Terraza) o Habitación de Hotel" />
+        <input type="text" id="clientNameInput" class="custom-input" placeholder="Nombre de quien ordena (opcional)" />
+        <input type="text" id="notesInput" class="custom-input" placeholder="Especificaciones (término de carne, alergias, etc.)" />
       </div>
 
-      <div class="geo-box">
-        <button type="button" class="btn-geo" onclick="capturarGPSCliente()">📍 Activar mi ubicación exacta (Delivery / Hotel)</button>
-        <span class="geo-status" id="geoStatus">Opcional para turistas pidiendo a su hotel o Airbnb</span>
-      </div>
-
-      <!-- Totales y Enviar por WhatsApp -->
+      <!-- TOTALES -->
       <div class="order-totals-bar">
         <span id="ui_totalLabel">Total comanda:</span>
         <div>
@@ -954,12 +859,41 @@
       </div>
 
       <button class="btn-send-whatsapp" onclick="enviarPedidoWhatsApp()">
-        <i class="fa-brands fa-whatsapp"></i> <span id="ui_sendWspBtn">Enviar Pedido a Cocina</span>
+        <i class="fa-brands fa-whatsapp"></i> <span id="ui_sendWspBtn">Confirmar Pedido a Cocina</span>
       </button>
     </div>
   </div>
 
-  <!-- MODAL RÁPIDO PARA ESCANEAR YAPE O PLIN -->
+  <!-- MODAL DE RESEÑAS Y COMENTARIOS -->
+  <div class="popup-modal" id="reviewsModal" onclick="closeReviewsModal(event)">
+    <div class="popup-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-header">
+        <h3><i class="fa-solid fa-comments" style="color:#38bdf8;"></i> <span id="reviewModalTitle">Reseñas del Plato</span></h3>
+        <button class="sheet-close-btn" onclick="closeReviewsModal()">&times;</button>
+      </div>
+
+      <div class="comments-list" id="commentsContainer">
+        <!-- Generado dinámicamente -->
+      </div>
+
+      <div class="popup-section-label">Deja tu comentario o calificación:</div>
+      <div class="star-rating-select" id="starSelector">
+        <i class="fa-solid fa-star" onclick="setRating(1)"></i>
+        <i class="fa-solid fa-star" onclick="setRating(2)"></i>
+        <i class="fa-solid fa-star" onclick="setRating(3)"></i>
+        <i class="fa-solid fa-star" onclick="setRating(4)"></i>
+        <i class="fa-solid fa-star" onclick="setRating(5)"></i>
+      </div>
+      <input type="text" id="reviewAuthorInput" class="custom-input" placeholder="Tu nombre o país (ej: Sarah de USA)" style="margin-bottom:8px;"/>
+      <textarea id="reviewCommentInput" class="custom-input" rows="2" placeholder="¿Qué tal estuvo el sabor y la atención?" style="margin-bottom:12px;"></textarea>
+      
+      <button class="btn-quick-add" style="width:100%; justify-content:center; padding:12px;" onclick="guardarComentario()">
+        <i class="fa-solid fa-paper-plane"></i> Publicar Reseña
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL YAPE / PLIN -->
   <div class="popup-modal" id="yapeModal" onclick="closeYapeModal(event)">
     <div class="popup-sheet" onclick="event.stopPropagation()">
       <div class="sheet-header">
@@ -967,31 +901,27 @@
         <button class="sheet-close-btn" onclick="closeYapeModal()">&times;</button>
       </div>
 
-      <div class="qr-modal-body">
-        <div class="qr-box-image">
-          <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=00020101021153036045802PE5915INKA%20BISTRO%20CUSCO6005CUSCO62070503***6304" alt="QR Yape Plin" />
+      <div style="display:flex; flex-direction:column; align-items:center; text-align:center; gap:12px; padding:10px 0;">
+        <div style="width:180px; height:180px; background:#fff; border-radius:14px; padding:10px;">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=00020101021153036045802PE5915INKA%20BISTRO%20CUSCO6005CUSCO62070503***6304" alt="QR Yape Plin" style="width:100%; height:100%; object-fit:contain;" />
         </div>
-        
-        <p style="font-size: 13px; color: #d6cbbf;">Escanea el código con tu app o transfiere al número:</p>
-
-        <div class="copy-phone-pill" onclick="copyYapeNumber()">
+        <p style="font-size:13px; color:#d6cbbf;">Escanea el código con tu app o transfiere al número:</p>
+        <div style="background:#2f231d; border:1px solid var(--glass-border); padding:8px 16px; border-radius:20px; display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="copyYapeNumber()">
           <span id="yapePhoneNumber">+51 987 654 321</span>
           <i class="fa-regular fa-copy" style="color:#f59e0b;"></i>
         </div>
-        <span style="font-size: 11px; color: #a89f97;">Titular: INKA BISTRO CUSCO E.I.R.L.</span>
+        <span style="font-size:11px; color:#a89f97;">Titular: INKA BISTRO CUSCO E.I.R.L.</span>
       </div>
     </div>
   </div>
 
   <script>
-    // CONFIGURACIÓN DEL RESTAURANTE
     const CONFIG = {
       whatsapp: "51969773064",
       yapePhone: "+51 987 654 321",
-      exchangeRateUSD: 3.75 // 1 USD = S/ 3.75
+      exchangeRateUSD: 3.75
     };
 
-    // TRADUCCIONES PARA TURISTAS
     const translations = {
       es: {
         all: "Todos",
@@ -999,8 +929,6 @@
         mains: "Platos Fuertes",
         drinks: "Bebidas & Cocteles",
         addBtn: "Agregar",
-        ordersLabel: "Pedidos",
-        ordersSub: "Toca para revisar comanda y pagar",
         cartTitle: "Tu Comanda",
         emptyCart: "No has añadido platos a tu comanda.",
         totalLabel: "Total a pagar:",
@@ -1016,8 +944,6 @@
         mains: "Main Courses",
         drinks: "Drinks & Cocktails",
         addBtn: "Add dish",
-        ordersLabel: "Orders",
-        ordersSub: "Tap to review order & pay",
         cartTitle: "Your Order",
         emptyCart: "No dishes added to your order yet.",
         totalLabel: "Total to pay:",
@@ -1033,8 +959,6 @@
         mains: "Plats Principaux",
         drinks: "Boissons & Cocktails",
         addBtn: "Ajouter",
-        ordersLabel: "Commandes",
-        ordersSub: "Appuyez pour voir et payer",
         cartTitle: "Votre Commande",
         emptyCart: "Aucun plat sélectionné pour le moment.",
         totalLabel: "Total à payer:",
@@ -1050,8 +974,6 @@
         mains: "Pratos Principais",
         drinks: "Bebidas & Coquetéis",
         addBtn: "Adicionar",
-        ordersLabel: "Pedidos",
-        ordersSub: "Toque para revisar e pagar",
         cartTitle: "Sua Comanda",
         emptyCart: "Nenhum prato adicionado ao pedido ainda.",
         totalLabel: "Total a pagar:",
@@ -1063,7 +985,6 @@
       }
     };
 
-    // CATÁLOGO DE PLATOS CON VIDEOS MP4 VERTICALES Y TRADUCCIONES
     let catalogo = [
       {
         id: "dish-1",
@@ -1074,6 +995,11 @@
         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
         posterUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?w=800&auto=format&fit=crop&q=80",
         likes: 542,
+        commentsCount: 14,
+        reviews: [
+          { author: "Michael (USA)", rating: 5, text: "The meat was incredibly tender and the sauce is unmatched!" },
+          { author: "Lucia M.", rating: 5, text: "El mejor lomo saltado de Cusco, recomendado 100%." }
+        ],
         i18n: {
           es: { name: "Lomo Saltado al Wok Gourmet", desc: "Trozos jugosos de lomo fino salteados a fuego vivo con cebolla morada, ají amarillo y tomate, con crocantes papas nativas." },
           en: { name: "Wok-Seared Lomo Saltado", desc: "Juicy beef tenderloin strips flambéed with red onions, yellow chili peppers and fresh tomatoes, served with crisp native potatoes." },
@@ -1090,6 +1016,10 @@
         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
         posterUrl: "https://images.unsplash.com/photo-1535400255456-984241443b29?w=800&auto=format&fit=crop&q=80",
         likes: 395,
+        commentsCount: 9,
+        reviews: [
+          { author: "Sophie (France)", rating: 5, text: "Poisson ultra frais, assaisonnement parfait !" }
+        ],
         i18n: {
           es: { name: "Ceviche Criollo del Pacífico", desc: "Pesca fresca del día marinada en zumo puro de limón, ají limo, camote glaseado y choclo gigante del Valle Sagrado." },
           en: { name: "Pacific Catch Ceviche", desc: "Fresh fish of the day cured in pure lime juice, chili pepper, glazed sweet potato, and giant Sacred Valley corn." },
@@ -1106,6 +1036,10 @@
         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
         posterUrl: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=800&auto=format&fit=crop&q=80",
         likes: 680,
+        commentsCount: 22,
+        reviews: [
+          { author: "Carlos T.", rating: 5, text: "Excelente equilibrio, espuma perfecta y pisco de calidad." }
+        ],
         i18n: {
           es: { name: "Pisco Sour Catedral", desc: "Destilado de Pisco Quebranta premium, limón sutil, jarabe de goma artesanal y espuma de clara con gotas de amargo." },
           en: { name: "Cathedral Pisco Sour", desc: "Crafted with premium Quebranta Pisco, freshly pressed lime, house-made syrup, egg white foam, and Angostura bitters." },
@@ -1115,16 +1049,16 @@
       }
     ];
 
-    // ESTADOS DE LA APLICACIÓN
     const pedido = {};
     let currentLang = "es";
     let currentCurrency = "PEN";
     let currentCategory = "all";
     let isGlobalMuted = true;
     let metodoPago = "Efectivo";
-    let ubicacionClienteCoords = null;
     let videoObserver = null;
     let ultimoTotalPagarPEN = 0;
+    let activeDishReviewId = null;
+    let currentRatingStars = 5;
 
     function init() {
       sincronizarEstructuraPedido();
@@ -1148,7 +1082,6 @@
       });
     }
 
-    // FORMATEO DE MONEDAS
     function formatPrice(amountPEN) {
       if (currentCurrency === "USD") {
         return `$ ${(amountPEN / CONFIG.exchangeRateUSD).toFixed(2)}`;
@@ -1163,7 +1096,6 @@
       return `≈ S/ ${amountPEN.toFixed(2)}`;
     }
 
-    // IDIOMAS Y MONEDAS
     function changeLanguage(lang) {
       currentLang = lang;
       renderCategoryChips();
@@ -1180,8 +1112,6 @@
 
     function updateStaticTexts() {
       const t = translations[currentLang];
-      document.getElementById("ui_ordersBtnText").innerHTML = `${t.ordersLabel} <i class="fa-solid fa-chevron-up" style="font-size:10px; color:#f59e0b;"></i>`;
-      document.getElementById("ui_ordersSubText").innerText = t.ordersSub;
       document.getElementById("ui_cartTitle").innerHTML = `<i class="fa-solid fa-receipt" style="color:#f59e0b;"></i> ${t.cartTitle}`;
       document.getElementById("ui_totalLabel").innerText = t.totalLabel;
       document.getElementById("ui_sendWspBtn").innerText = t.sendWspBtn;
@@ -1211,7 +1141,6 @@
       document.getElementById("feedContainer").scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    // RENDER FEED VERTICAL ESTILO TIKTOK
     function renderFeed() {
       const feed = document.getElementById("feedContainer");
       feed.innerHTML = "";
@@ -1233,7 +1162,7 @@
                  loop playsinline preload="metadata" 
                  ${isGlobalMuted ? 'muted' : ''} 
                  onclick="toggleVideoPlayback(this)"
-                 onerror="handleVideoError(this)">
+                 onerror="this.style.display='none'">
           </video>
           <div class="slide-overlay"></div>
 
@@ -1241,6 +1170,12 @@
             <button class="action-btn" onclick="toggleLike(this, ${item.likes})">
               <div class="action-icon"><i class="fa-solid fa-heart"></i></div>
               <span class="action-label">${item.likes}</span>
+            </button>
+
+            <!-- Botón de Reseñas / Comentarios -->
+            <button class="action-btn" onclick="openReviewsModal('${item.id}')">
+              <div class="action-icon comment-icon"><i class="fa-solid fa-comment-dots"></i></div>
+              <span class="action-label">${item.commentsCount || (item.reviews ? item.reviews.length : 0)}</span>
             </button>
 
             <button class="action-btn" onclick="openYapeModal()">
@@ -1275,7 +1210,6 @@
       if (videoObserver) setupObserver();
     }
 
-    // INTERSECTION OBSERVER DE VIDEOS
     function setupObserver() {
       if (videoObserver) videoObserver.disconnect();
 
@@ -1309,10 +1243,6 @@
       }
     }
 
-    function handleVideoError(video) {
-      video.style.display = "none";
-    }
-
     function toggleGlobalAudio() {
       isGlobalMuted = !isGlobalMuted;
       const icon = document.getElementById("audioIcon");
@@ -1326,14 +1256,9 @@
       label.innerText = btn.classList.contains("liked") ? base + 1 : base;
     }
 
-    // LÓGICA DE PEDIDO DEL PROYECTO
+    /* CARRITO Y CHECKOUT */
     function agregarAlPedido(id) {
       sincronizarEstructuraPedido();
-      const itemCat = catalogo.find(c => c.id === id);
-      if (itemCat && itemCat.disponible === false) {
-        alert("Plato agotado por el momento.");
-        return;
-      }
       if (pedido[id]) {
         pedido[id].cantidad += 1;
         actualizarVistaPopup();
@@ -1371,10 +1296,6 @@
 
       catalogo.forEach(catItem => {
         const item = pedido[catItem.id] || { id: catItem.id, precioPEN: catItem.precioPEN, cantidad: 0 };
-        const estaDisponible = (catItem.disponible !== false);
-
-        if (!estaDisponible) item.cantidad = 0;
-
         const subtotalPEN = item.cantidad * item.precioPEN;
         totalUnidades += item.cantidad;
         totalMontoPEN += subtotalPEN;
@@ -1392,7 +1313,7 @@
               <button class="btn-qty" onclick="cambiarCantidad('${item.id}', -1)">-</button>
               <span style="font-weight:bold; font-size:13px; min-width:18px; text-align:center;">${item.cantidad}</span>
               <button class="btn-qty" onclick="cambiarCantidad('${item.id}', 1)">+</button>
-              <button type="button" class="btn-trash-item" onclick="anularProducto('${item.id}')">🗑️</button>
+              <button type="button" style="background:none; border:none; color:#ef4444; margin-left:6px; cursor:pointer;" onclick="anularProducto('${item.id}')">🗑️</button>
             </div>
           `;
           listContainer.appendChild(row);
@@ -1405,14 +1326,13 @@
 
       ultimoTotalPagarPEN = totalMontoPEN;
       document.getElementById('ordersBadgeCount').innerText = `${totalUnidades}`;
-      document.getElementById('ordersBarTotal').innerText = formatPrice(totalMontoPEN);
       document.getElementById('orderTotalPrice').innerText = formatPrice(totalMontoPEN);
       document.getElementById('orderSecondaryPrice').innerText = formatSecondaryPrice(totalMontoPEN);
 
       if (metodoPago === 'Efectivo') calcularVueltoEfectivo();
     }
 
-    // CONTROL DE MÉTODOS DE PAGO Y VUELTO AUTOMÁTICO
+    /* MÉTODOS DE PAGO Y VUELTO */
     function elegirPago(metodo, boton) {
       metodoPago = metodo;
       document.querySelectorAll('.btn-pay-option').forEach(btn => btn.classList.remove('active'));
@@ -1464,34 +1384,17 @@
       }
     }
 
-    // CAPTURA GPS DEL PROYECTO
-    function capturarGPSCliente() {
-      const status = document.getElementById('geoStatus');
-      if (!navigator.geolocation) return status.innerText = "GPS no disponible en este dispositivo.";
-      status.innerText = "Obteniendo ubicación del hotel / mesa...";
-
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          ubicacionClienteCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-          status.innerText = "✔ Coordenadas registradas con éxito";
-          status.classList.add('ready');
-        },
-        () => { status.innerText = "No se pudo obtener la señal GPS."; },
-        { enableHighAccuracy: true }
-      );
-    }
-
-    // ENVIAR COMANDA A WHATSAPP
+    /* WHATSAPP */
     function enviarPedidoWhatsApp() {
       sincronizarEstructuraPedido();
-      const seleccionados = Object.values(pedido).filter(item => item.cantidad > 0 && item.disponible !== false);
+      const seleccionados = Object.values(pedido).filter(item => item.cantidad > 0);
 
       if (seleccionados.length === 0) {
         alert(translations[currentLang].emptyCart);
         return;
       }
 
-      const mesaO многие = document.getElementById('tableOrAddressInput').value.trim() || "En mesa / No especificada";
+      const mesa = document.getElementById('tableOrAddressInput').value.trim() || "Mesa en Sala (No especificada)";
       const cliente = document.getElementById('clientNameInput').value.trim();
       const notas = document.getElementById('notesInput').value.trim();
       const t = translations[currentLang];
@@ -1519,7 +1422,7 @@
       }
 
       let mensaje = `🛎️ *${t.wspGreeting}*\n\n`;
-      mensaje += `📍 *Ubicación / Mesa:* ${mesaO muchas}\n`;
+      mensaje += `📍 *Mesa / Ubicación:* ${mesa}\n`;
       if (cliente) mensaje += `👤 *Cliente:* ${cliente}\n`;
       mensaje += `\n*Detalle de Comanda:*\n${detalleTexto}\n`;
       mensaje += `💰 *${t.wspTotal}:* ${formatPrice(totalPEN)} (${formatSecondaryPrice(totalPEN)})\n`;
@@ -1529,17 +1432,81 @@
         mensaje += `📝 *Notas:* ${notas}\n`;
       }
 
-      if (ubicacionClienteCoords) {
-        mensaje += `🌍 *Ubicación GPS:* https://www.google.com/maps?q=${ubicacionClienteCoords.lat},${ubicacionClienteCoords.lng}\n`;
-      }
-
-      mensaje += `\n_(Enviado desde el Menú TikTok de Inka Bistro)_`;
+      mensaje += `\n_(Pedido generado desde Menú TikTok QR)_`;
 
       const numDestino = CONFIG.whatsapp.replace(/\D/g, '');
       window.open(`https://wa.me/${numDestino}?text=${encodeURIComponent(mensaje)}`, '_blank');
     }
 
-    // MODALES
+    /* SISTEMA DE RESEÑAS / COMENTARIOS */
+    function openReviewsModal(dishId) {
+      activeDishReviewId = dishId;
+      const dish = catalogo.find(d => d.id === dishId);
+      if (!dish) return;
+
+      const dishInfo = dish.i18n[currentLang] || dish.i18n["es"];
+      document.getElementById('reviewModalTitle').innerText = `Reseñas: ${dishInfo.name}`;
+      
+      const container = document.getElementById('commentsContainer');
+      container.innerHTML = '';
+
+      if (dish.reviews && dish.reviews.length > 0) {
+        dish.reviews.forEach(r => {
+          const card = document.createElement('div');
+          card.className = "comment-card";
+          card.innerHTML = `
+            <div class="comment-header">
+              <span class="comment-user">${r.author}</span>
+              <span class="comment-stars">${'⭐'.repeat(r.rating || 5)}</span>
+            </div>
+            <p class="comment-text">${r.text}</p>
+          `;
+          container.appendChild(card);
+        });
+      } else {
+        container.innerHTML = `<p style="font-size:12px; color:#aaa; text-align:center; padding:16px;">Sé el primero en dejar una reseña sobre este plato.</p>`;
+      }
+
+      document.getElementById('reviewsModal').classList.add('active');
+    }
+
+    function closeReviewsModal(e) {
+      document.getElementById('reviewsModal').classList.remove('active');
+    }
+
+    function setRating(stars) {
+      currentRatingStars = stars;
+      const icons = document.querySelectorAll('#starSelector i');
+      icons.forEach((ic, idx) => {
+        if (idx < stars) {
+          ic.className = "fa-solid fa-star";
+        } else {
+          ic.className = "fa-regular fa-star";
+        }
+      });
+    }
+
+    function guardarComentario() {
+      const author = document.getElementById('reviewAuthorInput').value.trim() || "Comensal Anónimo";
+      const text = document.getElementById('reviewCommentInput').value.trim();
+
+      if (!text) {
+        alert("Por favor escribe tu opinión antes de enviar.");
+        return;
+      }
+
+      const dish = catalogo.find(d => d.id === activeDishReviewId);
+      if (dish) {
+        if (!dish.reviews) dish.reviews = [];
+        dish.reviews.unshift({ author, rating: currentRatingStars, text });
+        dish.commentsCount = dish.reviews.length;
+        document.getElementById('reviewCommentInput').value = '';
+        openReviewsModal(activeDishReviewId);
+        renderFeed(); // Actualiza conteo en el reel
+      }
+    }
+
+    /* MODALES PEDIDOS & YAPE */
     function openOrdersPopup() {
       document.getElementById('ordersPopupModal').classList.add('active');
     }
