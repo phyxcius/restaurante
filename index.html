@@ -1,1541 +1,1395 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LeoGas Cusco | Balones de Gas a Domicilio</title>
-  
-  <!-- Leaflet CSS para Mapas -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Menu QR TikTok - Tourist & Digital Dining</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   
   <style>
     :root {
-      --primary: #6b21a8;
-      --primary-dark: #581c87;
-      --accent: #f59e0b;
-      --accent-hover: #d97706;
-      --dark: #1e1b4b;
-      --text: #334155;
-      --white: #ffffff;
-      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-      --radius: 14px;
+      --primary-red: #fe2c55;
+      --yape-purple: #742284;
+      --yape-teal: #00d2c4;
+      --plin-cyan: #00c1d5;
+      --bg-dark: #0a0a0c;
+      --card-dark: #15161a;
+      --text-muted: #9e9ea7;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
-    body {
-      background-color: #fafaf9;
-      color: var(--text);
-      line-height: 1.6;
-      padding-bottom: 100px;
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-dark);
+      color: #fff;
     }
 
-    /* HEADER */
-    header {
-      background: var(--white);
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-    }
-
-    .nav-container {
-      max-width: 1200px;
+    /* TikTok Vertical Scroll Container */
+    .app-container {
+      width: 100%;
+      max-width: 480px;
+      height: 100dvh;
       margin: 0 auto;
-      padding: 10px 18px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
+      position: relative;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      scrollbar-width: none;
+    }
+    .app-container::-webkit-scrollbar {
+      display: none;
     }
 
-    .brand-section {
+    /* Header Nav Overlay */
+    .top-header {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      z-index: 100;
+      padding: 12px 14px 8px;
+      background: linear-gradient(180deg, rgba(10, 10, 12, 0.95) 0%, rgba(10, 10, 12, 0.6) 75%, transparent 100%);
       display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
+      flex-direction: column;
       gap: 10px;
-      text-decoration: none;
-      color: var(--dark);
     }
 
-    .brand-icon {
-      background: var(--primary);
-      color: var(--accent);
-      width: 42px;
-      height: 42px;
-      border-radius: 10px;
+    .top-bar {
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
+    }
+
+    .brand-title {
+      font-size: 15px;
       font-weight: 800;
-      font-size: 22px;
-      box-shadow: 0 3px 6px rgba(107, 33, 168, 0.25);
-    }
-
-    .brand-text h1 {
-      font-size: 19px;
-      font-weight: 900;
-      line-height: 1.1;
-      color: var(--primary);
       letter-spacing: 0.5px;
-    }
-
-    .brand-text span {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--dark);
-      font-weight: 700;
-    }
-
-    /* LOGO LA CHUSPA EN LA CABECERA */
-    .chuspa-nav-badge {
       display: flex;
       align-items: center;
-      gap: 8px;
-      background: #fefce8;
-      border: 1.5px solid #eab308;
-      padding: 5px 12px 5px 6px;
-      border-radius: 26px;
-      text-decoration: none;
-      transition: all 0.2s ease;
-      box-shadow: 0 2px 6px rgba(234, 179, 8, 0.2);
+      gap: 6px;
+      text-transform: uppercase;
+    }
+    .brand-title span {
+      color: var(--primary-red);
     }
 
-    .chuspa-nav-badge:hover {
-      transform: scale(1.04);
-      background: #ffffff;
-      box-shadow: 0 4px 10px rgba(107, 33, 168, 0.25);
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
-    .chuspa-nav-img {
+    .control-pill {
+      background: rgba(35, 36, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(10px);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 9px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .control-pill select {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-weight: 700;
+      font-size: 12px;
+      outline: none;
+      cursor: pointer;
+    }
+    .control-pill select option {
+      background: #18191e;
+      color: #fff;
+    }
+
+    .icon-button {
       width: 34px;
       height: 34px;
       border-radius: 50%;
-      object-fit: cover;
-      border: 1.5px solid #ca8a04;
-      background: #fff;
-    }
-
-    .chuspa-nav-info {
-      display: flex;
-      flex-direction: column;
-      line-height: 1.15;
-    }
-
-    .chuspa-nav-title {
-      font-size: 12px;
-      font-weight: 900;
-      color: var(--primary);
-    }
-
-    .chuspa-nav-sub {
-      font-size: 9.5px;
-      font-weight: 700;
-      color: #b45309;
-    }
-
-    .nav-cta {
-      background: var(--primary);
-      color: var(--white);
-      padding: 8px 18px;
-      border-radius: 30px;
-      text-decoration: none;
-      font-weight: 700;
-      font-size: 14px;
-      transition: background 0.2s;
-    }
-
-    .nav-cta:hover {
-      background: var(--primary-dark);
-    }
-
-    /* HERO */
-    .hero {
-      background: linear-gradient(135deg, #fef08a 0%, #fde047 50%, #facc15 100%);
-      padding: 38px 20px 44px;
-      text-align: center;
-      border-bottom: 2px solid #eab308;
-    }
-
-    .hero-container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    .badge-hero {
-      display: inline-block;
-      background: var(--primary);
+      background: rgba(35, 36, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(10px);
       color: #fff;
-      font-weight: 800;
-      font-size: 12px;
-      padding: 5px 14px;
-      border-radius: 20px;
-      margin-bottom: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .hero h2 {
-      font-size: 32px;
-      font-weight: 900;
-      color: var(--dark);
-      line-height: 1.2;
-      margin-bottom: 12px;
-    }
-
-    .hero p {
-      font-size: 16px;
-      color: #475569;
-      margin-bottom: 18px;
-      font-weight: 600;
-    }
-
-    .hero-features {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .feature-pill {
       display: flex;
       align-items: center;
-      gap: 6px;
-      background: var(--white);
-      padding: 7px 16px;
-      border-radius: 30px;
+      justify-content: center;
       font-size: 13px;
-      font-weight: 700;
-      color: var(--dark);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    }
-
-    /* VOLANTE */
-    .flyer-section {
-      max-width: 1200px;
-      margin: 26px auto;
-      padding: 0 20px;
-    }
-
-    .flyer-card {
-      background: var(--white);
-      border-radius: var(--radius);
-      padding: 22px;
-      box-shadow: var(--shadow);
-      border: 2px solid #fde047;
-      display: flex;
-      gap: 26px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .flyer-img-container {
-      flex: 1;
-      min-width: 250px;
-      max-width: 360px;
-      margin: 0 auto;
       cursor: pointer;
-    }
-
-    .flyer-img-container img {
-      width: 100%;
-      height: auto;
-      border-radius: 12px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-      transition: transform 0.25s ease;
-      display: block;
-    }
-
-    .flyer-info {
-      flex: 2;
-      min-width: 280px;
-    }
-
-    .flyer-info h3 {
-      font-size: 23px;
-      font-weight: 900;
-      color: var(--primary);
-      margin-bottom: 6px;
-    }
-
-    .flyer-slogan {
-      font-size: 15px;
-      font-weight: 700;
-      color: #c2410c;
-      margin-bottom: 12px;
-    }
-
-    .flyer-contact-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-
-    .contact-button {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 14px;
-      border-radius: 10px;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      text-decoration: none;
-      color: var(--dark);
-      font-weight: 800;
-      font-size: 14px;
-      transition: all 0.2s;
-    }
-
-    .contact-button:hover {
-      background: #eef2ff;
-      border-color: #818cf8;
-    }
-
-    /* MAPA Y LEYENDA */
-    .map-section {
-      max-width: 1200px;
-      margin: 20px auto 36px;
-      padding: 0 20px;
-    }
-
-    .map-card {
-      background: var(--white);
-      border-radius: var(--radius);
-      padding: 16px;
-      box-shadow: var(--shadow);
-      border: 1px solid #e2e8f0;
-    }
-
-    .map-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .map-header h3 {
-      font-size: 18px;
-      font-weight: 800;
-      color: var(--dark);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    /* LEYENDA ONLINE / OFFLINE DINÁMICA */
-    .gps-legend-box {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: #f8fafc;
-      border: 1px solid #cbd5e1;
-      padding: 6px 14px;
-      border-radius: 20px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 12px;
-      font-weight: 800;
-      opacity: 0.35;
-      transition: all 0.3s ease;
-    }
-
-    .legend-item.activo {
-      opacity: 1;
-      transform: scale(1.05);
-    }
-
-    .legend-item.online.activo {
-      color: #15803d;
-    }
-
-    .legend-item.offline.activo {
-      color: #dc2626;
-    }
-
-    .legend-divider {
-      color: #cbd5e1;
-      font-size: 12px;
-    }
-
-    .map-wrapper {
-      position: relative;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-
-    #cuscoMap {
-      width: 100%;
-      height: 350px;
-      border-radius: 10px;
-      z-index: 10;
-    }
-
-    /* MARCADORES GPS DEL REPARTIDOR */
-    .custom-gps-marker {
-      position: relative;
-      width: 48px;
-      height: 48px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .gps-radar-pulse {
-      position: absolute;
-      width: 58px;
-      height: 58px;
-      border-radius: 50%;
-      background: rgba(107, 33, 168, 0.28);
-      animation: radarPulse 2s ease-out infinite;
-      z-index: 1;
-      pointer-events: none;
-    }
-
-    @keyframes radarPulse {
-      0% { transform: scale(0.6); opacity: 0.9; }
-      70% { transform: scale(1.6); opacity: 0.15; }
-      100% { transform: scale(1.9); opacity: 0; }
-    }
-
-    .lion-badge-circle {
-      position: relative;
-      width: 42px;
-      height: 42px;
-      background: linear-gradient(135deg, #7e22ce 0%, #4c1d95 100%);
-      border: 2.5px solid #ffffff;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 23px;
-      box-shadow: 0 4px 12px rgba(107, 33, 168, 0.55);
-      z-index: 2;
-      transition: all 0.3s ease;
-    }
-
-    .custom-gps-marker.offline .lion-badge-circle {
-      background: #64748b;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      filter: grayscale(0.7);
-    }
-
-    .custom-gps-marker.offline .gps-radar-pulse,
-    .custom-gps-marker.offline .fire-flame-emitter {
-      display: none;
-    }
-
-    .fire-flame-emitter {
-      position: absolute;
-      top: -15px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 17px;
-      z-index: 3;
-      filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.95)) drop-shadow(0 0 10px rgba(239, 68, 68, 0.8));
-      animation: flameFlicker 0.75s ease-in-out infinite alternate;
-      pointer-events: none;
-    }
-
-    @keyframes flameFlicker {
-      0% { transform: translateX(-50%) translateY(0) scale(0.9) rotate(-3deg); filter: drop-shadow(0 0 4px #f59e0b) drop-shadow(0 0 7px #ea580c); }
-      50% { transform: translateX(-48%) translateY(-2.5px) scale(1.15) rotate(2deg); filter: drop-shadow(0 0 8px #facc15) drop-shadow(0 0 12px #dc2626); }
-      100% { transform: translateX(-52%) translateY(-4px) scale(1.05) rotate(-2deg); filter: drop-shadow(0 0 6px #f59e0b) drop-shadow(0 0 10px #b91c1c); }
-    }
-
-    /* PRODUCTOS */
-    .section-menu {
-      max-width: 1200px;
-      margin: 20px auto 40px;
-      padding: 0 20px;
-    }
-
-    .menu-header {
-      background: var(--white);
-      padding: 16px 20px;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      margin-bottom: 24px;
-    }
-
-    .menu-header h3 {
-      font-size: 20px;
-      font-weight: 800;
-      color: var(--dark);
-    }
-
-    .grid-empanadas {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 22px;
-    }
-
-    .card {
-      background: var(--white);
-      border-radius: var(--radius);
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      display: flex;
-      flex-direction: column;
-      border: 1px solid #f1f5f9;
-      transition: transform 0.2s;
       position: relative;
     }
 
-    .card:hover { transform: translateY(-4px); }
-    .card.agotado { opacity: 0.65; }
-
-    .card-img-wrapper {
-      position: relative;
-      height: 200px;
-      background: #e2e8f0;
-      overflow: hidden;
-    }
-
-    .card-img-wrapper img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .card-tag {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background: rgba(107, 33, 168, 0.9);
-      backdrop-filter: blur(4px);
-      color: var(--white);
-      font-size: 11px;
-      font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 16px;
-    }
-
-    .card-body {
-      padding: 18px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .card-title {
-      font-size: 17px;
-      font-weight: 800;
-      color: var(--dark);
-      margin-bottom: 6px;
-    }
-
-    .card-desc {
-      font-size: 13px;
-      color: #64748b;
-      margin-bottom: 14px;
-      flex: 1;
-    }
-
-    .card-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: auto;
-      padding-top: 12px;
-      border-top: 1px solid #f3f4f6;
-    }
-
-    .price {
-      font-size: 19px;
-      font-weight: 900;
-      color: var(--primary);
-    }
-
-    .btn-add {
-      background: var(--primary);
-      color: var(--white);
-      border: none;
-      padding: 8px 14px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .btn-add:hover { background: var(--primary-dark); }
-    .btn-add:disabled { background: #94a3b8; cursor: not-allowed; }
-
-    /* BOTÓN FLOTANTE */
-    .chat-bubble-container {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      z-index: 1500;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .chat-bubble-label {
-      background: linear-gradient(135deg, #fef08a 0%, #fde047 100%);
-      color: var(--primary-dark);
-      font-weight: 900;
-      font-size: 14px;
-      padding: 8px 14px;
-      border-radius: 20px;
-      box-shadow: 0 4px 14px rgba(107, 33, 168, 0.25);
-      border: 2px solid var(--primary);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      animation: pulseLabel 2.5s infinite;
-    }
-
-    @keyframes pulseLabel {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.04); }
-    }
-
-    .chat-bubble-btn {
-      position: relative;
-      width: 62px;
-      height: 62px;
-      background: linear-gradient(135deg, #7e22ce 0%, #581c87 100%);
-      border-radius: 50%;
-      box-shadow: 0 6px 20px rgba(107, 33, 168, 0.45);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid #facc15;
-    }
-
-    .chat-bubble-lion-icon { font-size: 32px; line-height: 1; }
-
-    .chat-badge {
+    .cart-counter {
       position: absolute;
       top: -3px;
       right: -3px;
-      background-color: #ef4444;
-      color: var(--white);
-      border: 2px solid var(--white);
-      font-size: 11px;
+      background: var(--primary-red);
+      color: #fff;
+      font-size: 10px;
       font-weight: 800;
-      min-width: 22px;
-      height: 22px;
-      border-radius: 50%;
+      min-width: 18px;
+      height: 18px;
+      border-radius: 9px;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      box-shadow: 0 0 8px rgba(254, 44, 85, 0.7);
     }
 
-    /* CARRITO */
-    .cart-modal-overlay {
+    /* Category Chips */
+    .category-chips {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding-bottom: 2px;
+    }
+    .category-chips::-webkit-scrollbar {
       display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.65);
-      backdrop-filter: blur(4px);
-      z-index: 2000;
-      justify-content: center;
+    }
+
+    .chip {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #f1f1f1;
+      padding: 5px 13px;
+      border-radius: 18px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .chip.active {
+      background: var(--primary-red);
+      border-color: var(--primary-red);
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(254, 44, 85, 0.45);
+    }
+
+    /* Video Reel Card */
+    .video-slide {
+      width: 100%;
+      height: 100dvh;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      position: relative;
+      background: #111;
+      background-size: cover;
+      background-position: center;
+      overflow: hidden;
+      display: flex;
       align-items: flex-end;
     }
 
-    .cart-modal-card {
-      background: var(--white);
+    .video-player {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
-      max-width: 500px;
-      border-radius: 20px 20px 0 0;
-      max-height: 90vh;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 -10px 30px rgba(0,0,0,0.25);
-      animation: slideUp 0.25s ease-out;
+      height: 100%;
+      object-fit: cover;
+      cursor: pointer;
+      background: #111;
     }
 
-    @keyframes slideUp {
+    .video-player.has-error {
+      display: none;
+    }
+
+    .slide-gradient {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.02) 40%, rgba(0,0,0,0.88) 100%);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* Side Interactions (TikTok UI) */
+    .side-actions {
+      position: absolute;
+      right: 12px;
+      bottom: 86px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      z-index: 10;
+    }
+
+    .action-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    .action-icon-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(20, 21, 26, 0.65);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 19px;
+      transition: transform 0.15s ease;
+    }
+    .action-btn:active .action-icon-circle {
+      transform: scale(0.88);
+    }
+    .action-btn.liked .action-icon-circle {
+      color: var(--primary-red);
+    }
+
+    .action-badge-add {
+      background: var(--primary-red);
+      color: #fff;
+    }
+
+    .action-text {
+      font-size: 11px;
+      font-weight: 600;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+    }
+
+    /* Item Details Box */
+    .dish-info-box {
+      position: relative;
+      z-index: 10;
+      padding: 0 74px 20px 16px;
+      width: 100%;
+    }
+
+    .dish-tag {
+      display: inline-block;
+      background: var(--yape-teal);
+      color: #061c1b;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 6px;
+    }
+
+    .dish-title {
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 4px;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.8);
+    }
+
+    .dish-desc {
+      font-size: 12.5px;
+      color: #dedede;
+      line-height: 1.35;
+      margin-bottom: 8px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    }
+
+    .dish-prices {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .main-price {
+      font-size: 21px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .secondary-price {
+      font-size: 14px;
+      font-weight: 600;
+      color: #00e5ce;
+    }
+
+    .btn-add-order {
+      background: linear-gradient(90deg, var(--primary-red), #ff0050);
+      color: #fff;
+      border: none;
+      padding: 9px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      box-shadow: 0 4px 14px rgba(254, 44, 85, 0.4);
+      cursor: pointer;
+    }
+
+    /* Modal Sheets */
+    .drawer-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.78);
+      z-index: 250;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .drawer-modal.active {
+      display: flex;
+    }
+
+    .drawer-content {
+      background: var(--card-dark);
+      width: 100%;
+      max-width: 480px;
+      max-height: 88dvh;
+      border-radius: 24px 24px 0 0;
+      padding: 18px 18px 24px;
+      display: flex;
+      flex-direction: column;
+      animation: modalSlideUp 0.25s ease-out;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    @keyframes modalSlideUp {
       from { transform: translateY(100%); }
       to { transform: translateY(0); }
     }
 
-    .cart-modal-header {
-      padding: 16px 20px;
-      background: var(--primary);
-      color: var(--white);
-      border-radius: 20px 20px 0 0;
+    .drawer-header {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-    }
-
-    .btn-close-cart { background: none; border: none; color: var(--white); font-size: 24px; cursor: pointer; }
-
-    .cart-modal-body {
-      padding: 16px 20px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .cart-header-actions {
-      display: flex;
       justify-content: space-between;
-      align-items: center;
-      margin-bottom: 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 12px;
+      margin-bottom: 12px;
     }
-
-    .btn-vaciar-cart {
-      background: none;
-      border: none;
-      color: #dc2626;
-      font-size: 11px;
-      font-weight: 700;
-      cursor: pointer;
-      text-decoration: underline;
-    }
-
-    .cart-items-box {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      max-height: 180px;
-      overflow-y: auto;
-    }
-
-    .cart-item-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #f8fafc;
-      padding: 8px 12px;
-      border-radius: 8px;
-      border: 1px solid #e2e8f0;
-    }
-
-    .cart-item-row.item-activo { background: #faf5ff; border-color: #d8b4fe; }
-    .cart-item-row.item-bloqueado { background: #fef2f2; border-color: #fecaca; opacity: 0.75; }
-
-    .cart-item-info { flex: 1; }
-    .cart-item-title { font-size: 13px; font-weight: 700; color: var(--dark); }
-    .cart-item-sub { font-size: 11px; color: #64748b; }
-
-    .cart-controls { display: flex; align-items: center; gap: 6px; }
-
-    .btn-qty {
-      background: #e2e8f0;
-      border: none;
-      width: 24px;
-      height: 24px;
-      border-radius: 5px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .btn-qty:disabled { background: #f1f5f9; color: #cbd5e1; cursor: not-allowed; }
-
-    .cart-item-price-wrapper { display: flex; align-items: center; gap: 8px; margin-left: 10px; }
-    .cart-item-price { font-size: 13px; font-weight: 800; color: var(--primary); min-width: 55px; text-align: right; }
-    .btn-trash-item { background: none; border: none; cursor: pointer; font-size: 15px; color: #94a3b8; }
-
-    .popup-section-label {
-      font-size: 11px;
-      text-transform: uppercase;
-      font-weight: 800;
-      color: #64748b;
-      letter-spacing: 0.5px;
-    }
-
-    .grid-payments { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-
-    .btn-pay-option {
-      background: #f1f5f9;
-      border: 1px solid #cbd5e1;
-      color: var(--dark);
-      padding: 7px 4px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      text-align: center;
-    }
-
-    .btn-pay-option.active { background: var(--primary); border-color: var(--primary-dark); color: var(--white); }
-
-    .cash-box-drawer {
-      display: block;
-      background: #fdf4ff;
-      border: 2px dashed #d8b4fe;
-      border-radius: 10px;
-      padding: 12px 14px;
-      margin-top: 8px;
-    }
-
-    .cash-input-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
-
-    .cash-input {
-      flex: 1;
-      padding: 8px 12px;
+    .drawer-header h3 {
       font-size: 16px;
-      font-weight: 800;
-      border: 1px solid #c084fc;
-      border-radius: 8px;
-      color: var(--primary-dark);
-      background: #fff;
-    }
-
-    .cash-quick-btns { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
-
-    .btn-quick-cash {
-      background: #fff;
-      border: 1px solid #d8b4fe;
-      color: var(--primary-dark);
-      font-size: 11px;
-      font-weight: 800;
-      padding: 4px 8px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .vuelto-badge-box {
-      margin-top: 10px;
-      padding: 8px 10px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 800;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #dcfce7;
-      color: #15803d;
-      border: 1px solid #86efac;
-    }
-
-    .vuelto-badge-box.alerta { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
-
-    .geo-box {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      background: #faf5ff;
-      border: 1px solid #e9d5ff;
-      padding: 10px 12px;
-      border-radius: 8px;
-    }
-
-    .btn-geo {
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-size: 12px;
       font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .close-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #25262c;
+      border: none;
+      color: #ccc;
+      font-size: 16px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
     }
 
-    .geo-status { font-size: 11px; color: #64748b; text-align: center; }
-    .geo-status.ready { color: #15803d; font-weight: bold; }
-
-    .client-name-box { display: flex; flex-direction: column; gap: 4px; }
-    .client-name-input { width: 100%; padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; }
-
-    .cart-modal-footer {
-      padding: 14px 20px;
-      background: #f8fafc;
-      border-top: 1px solid #e2e8f0;
+    .cart-list {
+      overflow-y: auto;
+      flex: 1;
       display: flex;
       flex-direction: column;
       gap: 10px;
+      max-height: 32dvh;
+      margin-bottom: 12px;
+      padding-right: 2px;
     }
 
-    .cart-total-row {
+    .cart-item {
+      background: #1d1e24;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .item-meta {
+      flex: 1;
+    }
+    .item-name {
+      font-size: 13.5px;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+    .item-cost {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .qty-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .qty-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #2b2c34;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
+      cursor: pointer;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Cart Fields */
+    .input-field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .custom-input {
+      background: #1f2026;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 9px 12px;
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+    }
+    .custom-input:focus {
+      border-color: var(--primary-red);
+    }
+
+    /* Payment Methods selector in cart */
+    .payment-selector-title {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .payment-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .pay-method-card {
+      background: #1f2026;
+      border: 1.5px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 8px 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .pay-method-card img, .pay-method-card i {
+      font-size: 18px;
+    }
+    .pay-method-card span {
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .pay-method-card.selected {
+      border-color: #00e5ce;
+      background: rgba(0, 229, 206, 0.1);
+    }
+
+    /* Cart Summary */
+    .total-summary-card {
+      background: #1b1c22;
+      border-radius: 12px;
+      padding: 10px 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 15px;
-      font-weight: 900;
+      margin-bottom: 12px;
+    }
+    .total-label {
+      font-size: 13px;
+      color: #bbb;
+    }
+    .total-values {
+      text-align: right;
+    }
+    .total-pen {
+      font-size: 17px;
+      font-weight: 800;
+      color: #fff;
+    }
+    .total-usd {
+      font-size: 13px;
+      color: #00e5ce;
+      font-weight: 600;
     }
 
-    .cart-total-amount { color: var(--primary); font-size: 19px; }
-
-    .btn-order-wsp {
+    /* Primary Cart Button */
+    .btn-submit-order {
       background: #25d366;
-      color: var(--white);
-      padding: 12px;
-      border-radius: 10px;
-      font-weight: 800;
-      font-size: 14px;
+      color: #fff;
       border: none;
+      padding: 12px;
+      border-radius: 24px;
+      font-size: 14px;
+      font-weight: 800;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
+      box-shadow: 0 4px 14px rgba(37, 211, 102, 0.35);
     }
 
-    .lightbox-overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.85);
-      z-index: 3000;
-      justify-content: center;
+    /* YAPE / PLIN Payment Modal */
+    .yape-plin-sheet {
+      background: #131317;
+      border-radius: 24px 24px 0 0;
+      padding: 20px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .badge-yape-plin {
+      display: inline-flex;
       align-items: center;
-      padding: 16px;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 14px;
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      background: linear-gradient(90deg, var(--yape-purple), var(--plin-cyan));
     }
 
-    .lightbox-overlay img { max-width: 95%; max-height: 90vh; border-radius: 12px; }
+    .qr-container {
+      background: #fff;
+      padding: 12px;
+      border-radius: 16px;
+      display: inline-block;
+      margin: 8px auto;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    }
+    .qr-container svg {
+      display: block;
+    }
 
-    @media (max-width: 650px) {
-      .nav-container { justify-content: center; }
-      .brand-section { flex-wrap: wrap; justify-content: center; }
-      .map-header { flex-direction: column; align-items: flex-start; }
+    .copy-phone-box {
+      background: #1f2026;
+      border: 1px dashed rgba(255, 255, 255, 0.25);
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin: 12px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .phone-number-txt {
+      font-size: 16px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.5px;
+    }
+    .btn-copy {
+      background: var(--yape-purple);
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .toast-notice {
+      position: fixed;
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(18, 19, 24, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      z-index: 300;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .toast-notice.show {
+      opacity: 1;
     }
   </style>
 </head>
 <body>
 
-  <!-- HEADER -->
-  <header>
-    <div class="nav-container">
-      <div class="brand-section">
-        <a href="#" class="brand">
-          <div class="brand-icon">🦁</div>
-          <div class="brand-text">
-            <h1>LeoGas Cusco</h1>
-            <span>Llamagas • El Moradito Rendidor</span>
-          </div>
-        </a>
-
-        <!-- LOGO LA CHUSPA TECH AL COSTADO -->
-        <a href="https://lachuspaanuncios.com/" target="_blank" rel="noopener noreferrer" class="chuspa-nav-badge" title="Visitar La Chuspa Anuncios">
-          <img src="CHUSPITA-circulo.png" alt="La Chuspa Anuncios" class="chuspa-nav-img" onerror="this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png'">
-          <div class="chuspa-nav-info">
-            <span class="chuspa-nav-title">La Chuspa Tech</span>
-            <span class="chuspa-nav-sub">by La Chuspa Anuncios</span>
-          </div>
-        </a>
+  <div class="top-header">
+    <div class="top-bar">
+      <div class="brand-title">
+        <i class="fa-solid fa-fire"></i> <span id="brandName">INKA</span> CHEF
       </div>
 
-      <div class="nav-actions">
-        <a href="#menu" class="nav-cta">Pedir Gas</a>
-      </div>
-    </div>
-  </header>
-
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-container">
-      <span class="badge-hero">Mayor seguridad con LeoGas tu distribuidora de confianza</span>
-      <h2>¡Solo la seguridad hace la diferencia!</h2>
-      <p>Pide tu balón de gas en Cusco al instante. Escanea el código o llámanos directamente.</p>
-      
-      <div class="hero-features">
-        <div class="feature-pill">📍 Rastreo en Vivo</div>
-        <div class="feature-pill">⚖️ Balón Sellado 10kg</div>
-        <div class="feature-pill">💵 Yape, Plin y Efectivo con Vuelto</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- VOLANTE -->
-  <section class="flyer-section">
-    <div class="flyer-card">
-      <div class="flyer-img-container" onclick="abrirLightboxFlyer()">
-        <img id="imgFlyerOficial" src="1791513590376.jpg" alt="Volante Oficial LeoGas Cusco" onerror="this.src='1791513590376.jpg'">
-        <div class="flyer-hint">🔍 Toca para ampliar el volante</div>
-      </div>
-      <div class="flyer-info">
-        <span class="badge-hero" style="background:#f59e0b; color:#1e1b4b; margin-bottom:8px;">Distribuidor Oficial</span>
-        <h3>LeoGas Cusco — Llamagas</h3>
-        <p class="flyer-slogan">"Ordena tu Pedido aquí y te lo traemos en minutos"</p>
-        <p style="font-size:14px; color:#64748b; margin-bottom:16px;">
-          Tu balón moradito de 10 kg con regulador inteligente, válvula garantizada y entrega express en todo Cusco.
-        </p>
-
-        <div class="popup-section-label" style="margin-bottom:8px;">Teléfonos de Pedido Inmediato:</div>
-        <div class="flyer-contact-grid" id="contenedorTelefonosFlyer">
-          <!-- Renderizado dinámico desde productos.json -->
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- MAPA CUSCO CON LEYENDA DINÁMICA -->
-  <section class="map-section">
-    <div class="map-card">
-      <div class="map-header">
-        <h3>📍 Repartidor en Ruta LeoGas - Cusco</h3>
-        
-        <!-- LEYENDA CENTRALIZADA DEL ESTADO DEL LEONCITO -->
-        <div class="gps-legend-box" id="legendBoxGPS">
-          <div class="legend-item online" id="legendOnline">
-            <span style="font-size:15px;">🦁🔥</span>
-            <span>Online</span>
-          </div>
-          <span class="legend-divider">|</span>
-          <div class="legend-item offline activo" id="legendOffline">
-            <span style="font-size:15px;">🦁💤</span>
-            <span>Offline</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="map-wrapper">
-        <div id="cuscoMap"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- PRODUCTOS -->
-  <section class="section-menu" id="menu">
-    <div class="menu-header">
-      <h3>Elige tu Balón de Gas</h3>
-      <p style="font-size: 13px; color: #64748b;">Selecciona tu balón de 10 kg e indícanos tu dirección exacta.</p>
-    </div>
-    <div class="grid-empanadas" id="contenedorEmpanadas"></div>
-  </section>
-
-  <!-- LIGHTBOX -->
-  <div class="lightbox-overlay" id="lightboxModal" onclick="cerrarLightboxFlyer()">
-    <img src="1791513590376.jpg" alt="Volante Completo LeoGas">
-  </div>
-
-  <!-- BOTÓN FLOTANTE PEDIDOS -->
-  <div class="chat-bubble-container" id="btnFlotanteContenedor" onclick="abrirModalCarrito()">
-    <div class="chat-bubble-label">
-      <span>🔥 Pedidos</span>
-    </div>
-    <div class="chat-bubble-btn" id="btnGlobitoChat">
-      <span class="chat-bubble-lion-icon">🦁</span>
-      <div class="chat-badge" id="badgeContador">0</div>
-    </div>
-  </div>
-
-  <!-- MODAL CHECKOUT -->
-  <div class="cart-modal-overlay" id="cartModalOverlay" onclick="cerrarSiClickAfuera(event)">
-    <div class="cart-modal-card">
-      <div class="cart-modal-header">
-        <h3>🦁 Pedido LeoGas Cusco</h3>
-        <button class="btn-close-cart" onclick="cerrarModalCarrito()">&times;</button>
-      </div>
-
-      <div class="cart-modal-body">
-        <div>
-          <div class="cart-header-actions">
-            <span class="popup-section-label">Balones seleccionados:</span>
-            <button type="button" class="btn-vaciar-cart" onclick="vaciarPedidoConConfirmacion()">🗑️ Vaciar pedido</button>
-          </div>
-          <div class="cart-items-box" id="popupItemsList"></div>
+      <div class="header-actions">
+        <!-- Language selector -->
+        <div class="control-pill">
+          <i class="fa-solid fa-globe"></i>
+          <select id="langSelect" onchange="changeLanguage(this.value)">
+            <option value="es" selected>ES</option>
+            <option value="en">EN</option>
+            <option value="fr">FR</option>
+            <option value="pt">PT</option>
+          </select>
         </div>
 
-        <div>
-          <div class="popup-section-label" style="margin-bottom:6px;">Forma de Pago:</div>
-          <div class="grid-payments">
-            <button type="button" class="btn-pay-option active" id="btnPayEfectivo" onclick="elegirPago('Efectivo', this)">💵 Efectivo</button>
-            <button type="button" class="btn-pay-option" onclick="elegirPago('Yape', this)">🟣 Yape</button>
-            <button type="button" class="btn-pay-option" onclick="elegirPago('Plin', this)">🔵 Plin</button>
-            <button type="button" class="btn-pay-option" onclick="elegirPago('Transferencia', this)">🏦 Transf.</button>
-          </div>
-
-          <div class="cash-box-drawer" id="cajaEfectivoDesplegable">
-            <div style="font-size: 12px; font-weight: 800; color: var(--primary);">💵 ¿Con cuánto en efectivo pagarás?</div>
-            <div class="cash-input-row">
-              <span style="font-weight: 800; font-size: 14px; color: var(--primary);">S/</span>
-              <input type="number" id="montoEfectivoIngresado" class="cash-input" placeholder="Ej. 100" min="0" step="5" oninput="calcularVueltoEfectivo()"/>
-            </div>
-            <div class="cash-quick-btns">
-              <button type="button" class="btn-quick-cash" onclick="setMontoEfectivoRapido('exacto')">Pagar Exacto</button>
-              <button type="button" class="btn-quick-cash" onclick="setMontoEfectivoRapido(50)">S/ 50</button>
-              <button type="button" class="btn-quick-cash" onclick="setMontoEfectivoRapido(100)">S/ 100</button>
-              <button type="button" class="btn-quick-cash" onclick="setMontoEfectivoRapido(200)">S/ 200</button>
-            </div>
-            <div class="vuelto-badge-box" id="cajaRespuestaVuelto">
-              <span id="textoDetalleVuelto">Ingresa con cuánto pagarás para calcular el vuelto</span>
-              <span id="montoCalculadoVuelto" style="font-size: 15px;"></span>
-            </div>
-          </div>
+        <!-- Currency toggle -->
+        <div class="control-pill" onclick="toggleCurrency()" id="currencyToggleBtn" title="Cambiar Moneda S/ ó $">
+          <i class="fa-solid fa-coins"></i>
+          <span id="currLabel">PEN S/</span>
         </div>
 
-        <div>
-          <div class="popup-section-label" style="margin-bottom:6px;">Dirección de Entrega:</div>
-          <div class="geo-box">
-            <button type="button" class="btn-geo" onclick="capturarGPSCliente()">📍 Activar mi ubicación exacta</button>
-            <span class="geo-status" id="geoStatus">Envía tus coordenadas para llevar el balón hasta tu casa</span>
-          </div>
-        </div>
+        <!-- Sound toggle -->
+        <button class="icon-button" onclick="toggleGlobalAudio()" id="audioBtn" title="Audio">
+          <i class="fa-solid fa-volume-xmark" id="audioIcon"></i>
+        </button>
 
-        <div class="client-name-box">
-          <label class="popup-section-label" for="nombreClienteInput">¿Por quién preguntamos? (Nombre o referencia):</label>
-          <input type="text" id="nombreClienteInput" class="client-name-input" placeholder="Ej: Sra. Carmen / Familia Quispe"/>
-        </div>
-      </div>
-
-      <div class="cart-modal-footer">
-        <div class="cart-total-row">
-          <span id="cartLabelTotalConCantidad">Total a pagar (0 balones):</span>
-          <span class="cart-total-amount" id="cartTotalMonto">S/ 0.00</span>
-        </div>
-        <button class="btn-order-wsp" onclick="enviarPedidoWhatsApp()">
-          <span>Pedir a LeoGas por WhatsApp</span> 💬
+        <!-- Cart button -->
+        <button class="icon-button" onclick="openCart()" id="cartBtn" title="Carrito">
+          <i class="fa-solid fa-cart-shopping"></i>
+          <span class="cart-counter" id="cartCount">0</span>
         </button>
       </div>
     </div>
+
+    <!-- Category selector -->
+    <div class="category-chips" id="categoriesBar"></div>
   </div>
 
-  <!-- Leaflet JS -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <div class="app-container" id="feedContainer"></div>
+
+  <!-- Toast for fast feedback -->
+  <div class="toast-notice" id="toastBox">Copiado al portapapeles</div>
+
+  <div class="drawer-modal" id="cartModal" onclick="closeCart(event)">
+    <div class="drawer-content" onclick="event.stopPropagation()">
+      <div class="drawer-header">
+        <h3 id="ui_cartTitle"><i class="fa-solid fa-receipt"></i> Tu Comanda</h3>
+        <button class="close-btn" onclick="closeCart()">&times;</button>
+      </div>
+
+      <div class="cart-list" id="cartListItems"></div>
+
+      <div class="input-field-group">
+        <input type="text" id="inputTable" class="custom-input" placeholder="Mesa / Table Nº (Ej: Mesa 04)" />
+        <input type="text" id="inputNotes" class="custom-input" placeholder="Alergias o notas (Sin picante, poco hielo)" />
+      </div>
+
+      <!-- Payment method picker -->
+      <div class="payment-selector-title" id="ui_payTitle">Método de pago / Payment method:</div>
+      <div class="payment-grid">
+        <div class="pay-method-card selected" onclick="selectPayMethod('yape_plin', this)">
+          <i class="fa-solid fa-qrcode" style="color:var(--plin-cyan);"></i>
+          <span>Yape / Plin</span>
+        </div>
+        <div class="pay-method-card" onclick="selectPayMethod('tarjeta', this)">
+          <i class="fa-solid fa-credit-card" style="color:#00d2c4;"></i>
+          <span id="ui_cardLabel">Tarjeta / POS</span>
+        </div>
+        <div class="pay-method-card" onclick="selectPayMethod('efectivo', this)">
+          <i class="fa-solid fa-money-bill-wave" style="color:#25d366;"></i>
+          <span id="ui_cashLabel">Efectivo</span>
+        </div>
+      </div>
+
+      <!-- Total Box -->
+      <div class="total-summary-card">
+        <div class="total-label" id="ui_totalLabel">Total Estimado:</div>
+        <div class="total-values">
+          <div class="total-pen" id="summaryTotalPen">S/ 0.00</div>
+          <div class="total-usd" id="summaryTotalUsd">~ $0.00 USD</div>
+        </div>
+      </div>
+
+      <!-- WhatsApp Order Action -->
+      <button class="btn-submit-order" onclick="proceedOrderFlow()">
+        <i class="fa-brands fa-whatsapp"></i>
+        <span id="ui_submitBtn">Enviar Comanda a Cocina</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="drawer-modal" id="yapePlinModal" onclick="closeYapeModal(event)">
+    <div class="yape-plin-sheet" onclick="event.stopPropagation()">
+      <div class="drawer-header" style="justify-content:center; position:relative; margin-bottom:6px;">
+        <div class="badge-yape-plin">
+          <i class="fa-solid fa-bolt"></i> Paga al instante con Yape o Plin
+        </div>
+        <button class="close-btn" style="position:absolute; right:0;" onclick="closeYapeModal()">&times;</button>
+      </div>
+
+      <p style="font-size:13px; color:#c7c7cf; margin-bottom:8px;" id="ui_yapeSubtitle">
+        Escanea el QR oficial del restaurante o copia el número:
+      </p>
+
+      <!-- SVG QR Code representation of payment wallet -->
+      <div class="qr-container">
+        <svg width="170" height="170" viewBox="0 0 170 170">
+          <rect width="170" height="170" fill="#ffffff"/>
+          <!-- Corner Finder 1 -->
+          <rect x="15" y="15" width="40" height="40" fill="#000"/>
+          <rect x="22" y="22" width="26" height="26" fill="#fff"/>
+          <rect x="27" y="27" width="16" height="16" fill="#742284"/>
+          <!-- Corner Finder 2 -->
+          <rect x="115" y="15" width="40" height="40" fill="#000"/>
+          <rect x="122" y="22" width="26" height="26" fill="#fff"/>
+          <rect x="127" y="27" width="16" height="16" fill="#00c1d5"/>
+          <!-- Corner Finder 3 -->
+          <rect x="15" y="115" width="40" height="40" fill="#000"/>
+          <rect x="22" y="122" width="26" height="26" fill="#fff"/>
+          <rect x="27" y="127" width="16" height="16" fill="#fe2c55"/>
+          <!-- Pattern Dots -->
+          <rect x="65" y="20" width="10" height="10" fill="#000"/>
+          <rect x="80" y="30" width="10" height="20" fill="#742284"/>
+          <rect x="95" y="15" width="10" height="10" fill="#000"/>
+          <rect x="20" y="65" width="15" height="10" fill="#000"/>
+          <rect x="45" y="75" width="20" height="10" fill="#00c1d5"/>
+          <rect x="70" y="65" width="30" height="30" fill="#141414"/>
+          <rect x="75" y="70" width="20" height="20" fill="#fff"/>
+          <rect x="80" y="75" width="10" height="10" fill="#742284"/>
+          <rect x="110" y="65" width="10" height="25" fill="#000"/>
+          <rect x="135" y="70" width="20" height="10" fill="#742284"/>
+          <rect x="65" y="110" width="15" height="10" fill="#00c1d5"/>
+          <rect x="90" y="115" width="15" height="20" fill="#000"/>
+          <rect x="120" y="110" width="20" height="10" fill="#000"/>
+          <rect x="140" y="130" width="15" height="15" fill="#00c1d5"/>
+          <rect x="70" y="140" width="35" height="15" fill="#742284"/>
+        </svg>
+      </div>
+
+      <div class="copy-phone-box">
+        <div style="text-align:left;">
+          <div style="font-size:11px; color:var(--text-muted);">Titular: Inka Chef S.A.C.</div>
+          <div class="phone-number-txt" id="yapePhoneText">+51 987 654 321</div>
+        </div>
+        <button class="btn-copy" onclick="copyWalletPhone()">
+          <i class="fa-regular fa-copy"></i> Copiar
+        </button>
+      </div>
+
+      <div style="font-size:12px; color:#ffdd59; margin-bottom:12px;" id="yapeAmountReminder">
+        Monto exacto a transferir: S/ 0.00
+      </div>
+
+      <button class="btn-submit-order" style="width:100%;" onclick="finalizeWhatsAppOrder()">
+        <i class="fa-brands fa-whatsapp"></i>
+        <span>Adjuntar Constancia y Enviar Orden</span>
+      </button>
+    </div>
+  </div>
 
   <script>
-    let whatsappNumero = "51969773064";
-    let telefonos = {
-      whatsapp: "51969773064",
-      tel1: "950 727 212",
-      tel2: "984 285 500",
-      tel3: "(084) 501111"
+    // Configuration
+    const RESTAURANT_WSP = "51987654321";
+    const YAPE_PHONE_RAW = "987654321";
+    const USD_EXCHANGE_RATE = 3.75; // S/. 3.75 por 1 USD (Ajustable)
+
+    // Language Dictionary
+    const translations = {
+      es: {
+        all: "Todos",
+        specials: "Especialidades",
+        mains: "Platos Fuertes",
+        drinks: "Cocteles & Bar",
+        addOrder: "Agregar a la orden",
+        cartTitle: "Tu Comanda",
+        tableHint: "Mesa Nº (Ej: Mesa 05 o Barra)",
+        notesHint: "Alergias o notas (Ej: sin cebolla)",
+        payTitle: "Método de Pago:",
+        card: "Tarjeta / POS",
+        cash: "Efectivo",
+        totalLabel: "Total Estimado:",
+        submitBtn: "Enviar Comanda a Cocina",
+        emptyCart: "Tu comanda está vacía.",
+        toastCopy: "Número copiado para Yape / Plin",
+        yapeSubtitle: "Escanea el QR oficial del restaurante o copia el número:",
+        yapeReminder: "Monto exacto a transferir:",
+        wspGreeting: "¡Hola! Deseo pedir la siguiente orden desde la",
+        wspPayMethod: "Método de pago preferido",
+        wspNotes: "Indicaciones de cocina",
+        wspTotal: "Total comanda"
+      },
+      en: {
+        all: "All",
+        specials: "Chef Specials",
+        mains: "Main Dishes",
+        drinks: "Cocktails & Bar",
+        addOrder: "Add to order",
+        cartTitle: "Your Order",
+        tableHint: "Table No. (e.g. Table 05 or Bar)",
+        notesHint: "Allergies or dietary notes",
+        payTitle: "Payment Method:",
+        card: "Card / POS",
+        cash: "Cash",
+        totalLabel: "Estimated Total:",
+        submitBtn: "Send Order to Kitchen",
+        emptyCart: "Your order is empty.",
+        toastCopy: "Phone number copied for Yape / Plin",
+        yapeSubtitle: "Scan our official QR or copy the wallet number:",
+        yapeReminder: "Exact amount to transfer:",
+        wspGreeting: "Hello! I would like to order from",
+        wspPayMethod: "Payment method",
+        wspNotes: "Kitchen notes",
+        wspTotal: "Order Total"
+      },
+      fr: {
+        all: "Tous",
+        specials: "Spécialités",
+        mains: "Plats Principaux",
+        drinks: "Boissons & Bar",
+        addOrder: "Ajouter au panier",
+        cartTitle: "Votre Commande",
+        tableHint: "Nº de table (Ex: Table 05)",
+        notesHint: "Allergies ou demandes spéciales",
+        payTitle: "Mode de Paiement:",
+        card: "Carte Bancaire",
+        cash: "Espèces",
+        totalLabel: "Total Estimé:",
+        submitBtn: "Envoyer la commande",
+        emptyCart: "Votre panier est vide.",
+        toastCopy: "Numéro copié pour Yape / Plin",
+        yapeSubtitle: "Scannez le QR officiel ou copiez le numéro:",
+        yapeReminder: "Montant exact à payer:",
+        wspGreeting: "Bonjour ! Je souhaite commander depuis la",
+        wspPayMethod: "Mode de paiement",
+        wspNotes: "Notes pour la cuisine",
+        wspTotal: "Montant total"
+      },
+      pt: {
+        all: "Todos",
+        specials: "Especialidades",
+        mains: "Pratos Principais",
+        drinks: "Coquetéis & Bar",
+        addOrder: "Adicionar ao pedido",
+        cartTitle: "Seu Pedido",
+        tableHint: "Mesa Nº (Ex: Mesa 05 ou Balcão)",
+        notesHint: "Alergias ou notas especiais",
+        payTitle: "Forma de Pagamento:",
+        card: "Cartão / POS",
+        cash: "Dinheiro",
+        totalLabel: "Total Estimado:",
+        submitBtn: "Enviar Pedido para Cozinha",
+        emptyCart: "Seu pedido está vazio.",
+        toastCopy: "Número copiado para Yape / Plin",
+        yapeSubtitle: "Escaneie o QR oficial ou copie o número:",
+        yapeReminder: "Valor exato a transferir:",
+        wspGreeting: "Olá! Gostaria de pedir da",
+        wspPayMethod: "Forma de pagamento",
+        wspNotes: "Observações",
+        wspTotal: "Total a pagar"
+      }
     };
 
-    let catalogo = [
-      { id: "gas-1", nombre: "Balón LeoGas 10kg Normal o Regular", tag: "El Moradito Rendidor", descripcion: "Balón sellado Llamagas de 10kg con precinto de seguridad.", precio: 50.00, disponible: true, imagen: "1791513590376.jpg" },
-      { id: "gas-2", nombre: "Balón Gas Premium 10kg", tag: "Máximo Rendimiento", descripcion: "GLP de alta pureza con válvula anti-fugas.", precio: 55.00, disponible: true, imagen: "1791513590376.jpg" }
+    // Menu Dataset with MP4 vertical sample clips
+    const menuItems = [
+      {
+        id: "dish_1",
+        category: "specials",
+        tag: "Imperdible",
+        pricePen: 48.00,
+        poster: "https://images.unsplash.com/photo-1544025162-d76694265947?w=900&auto=format&fit=crop&q=80",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+        likes: 540,
+        i18n: {
+          es: { name: "Lomo Saltado Ahumado", desc: "Trozos jugosos de lomo fino flambeados al pisco, cebolla morada crocante, tomate y papas amarillas fritas." },
+          en: { name: "Smoked Lomo Saltado", desc: "Tender beef tenderloin flambéed with Pisco, red onions, plum tomatoes, served with crispy yellow fries." },
+          fr: { name: "Lomo Saltado Fumé", desc: "Émincé de bœuf mariné sauté au wok, oignons rouges croquants, tomates et frites maison." },
+          pt: { name: "Lomo Saltado Defumado", desc: "Filé mignon suculento flambado com pisco, cebola roxa crocante, tomate e batatas amarelas fritas." }
+        }
+      },
+      {
+        id: "dish_2",
+        category: "mains",
+        tag: "Plato Bandera",
+        pricePen: 52.00,
+        poster: "https://images.unsplash.com/photo-1535400255456-984241443b29?w=900&auto=format&fit=crop&q=80",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+        likes: 672,
+        i18n: {
+          es: { name: "Ceviche Mixto Carretillero", desc: "Pesca del día con mariscos en leche de tigre de ají limo, acompañado de camote glaseado y chicharrón de calamar." },
+          en: { name: "Street-Style Mixed Ceviche", desc: "Catch of the day and seafood cured in citrus lime chili marinade, sweet potato and crispy calamari." },
+          fr: { name: "Ceviche Mixte du Pacifique", desc: "Poisson du jour et fruits de mer marinés au citron vert frais, patate douce glacée et calamars croustillants." },
+          pt: { name: "Ceviche Misto Carretillero", desc: "Peixe do dia e frutos do mar marinados em limão com pimenta, batata-doce e lula crocante." }
+        }
+      },
+      {
+        id: "dish_3",
+        category: "drinks",
+        tag: "Cocktail",
+        pricePen: 28.00,
+        poster: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=900&auto=format&fit=crop&q=80",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+        likes: 810,
+        i18n: {
+          es: { name: "Pisco Sour Catedral Clásico", desc: "Destilado peruano Quebranta de 42°, limón sutil recién exprimido, jarabe artesanal y espuma de clara suave." },
+          en: { name: "Classic Cathedral Pisco Sour", desc: "Peruvian Quebranta Pisco, fresh hand-squeezed lime juice, simple syrup, egg white foam and aromatic bitters." },
+          fr: { name: "Pisco Sour Cathédrale", desc: "Pisco Quebranta raffiné, citron vert pressé, sirop de canne et mousse onctueuse aux amers aromatiques." },
+          pt: { name: "Pisco Sour Catedral Clássico", desc: "Pisco Quebranta artesanal, limão espremido na hora, xarope caseiro e espuma cremosa com angostura." }
+        }
+      }
     ];
 
-    const pedido = {};
+    // State
+    let currentLanguage = "es";
+    let selectedCurrency = "PEN"; // "PEN" or "USD"
+    let currentCategory = "all";
+    let isGlobalMuted = true;
+    let selectedPayment = "yape_plin";
+    let cart = {}; // { dish_id: quantity }
+    let videoObserver = null;
 
-    function sincronizarEstructuraPedido() {
-      catalogo.forEach(item => {
-        const estaDisponible = (item.disponible !== false);
-        if (!pedido[item.id]) {
-          pedido[item.id] = { id: item.id, nombre: item.nombre, precio: item.precio, cantidad: 0, disponible: estaDisponible };
-        } else {
-          pedido[item.id].nombre = item.nombre;
-          pedido[item.id].precio = item.precio;
-          pedido[item.id].disponible = estaDisponible;
-          if (!estaDisponible) pedido[item.id].cantidad = 0;
-        }
-      });
+    function changeLanguage(lang) {
+      currentLanguage = lang;
+      renderCategories();
+      renderFeed();
+      updateStaticLabels();
+      renderCartItems();
     }
 
-    let metodoPago = "Efectivo";
-    let ubicacionClienteCoords = null;
-    let ultimoTotalPagar = 0;
-    let map = null;
-
-    // ALMACENAMIENTO DE MARCADORES MULTI-REPARTIDOR
-    let marcadoresFlota = {};
-
-    function renderizarTelefonosFlyer() {
-      const container = document.getElementById('contenedorTelefonosFlyer');
-      const clean1 = telefonos.tel1.replace(/\D/g,'');
-      const clean2 = telefonos.tel2.replace(/\D/g,'');
-      const clean3 = telefonos.tel3.replace(/\D/g,'');
-
-      container.innerHTML = `
-        <a href="tel:${clean1}" class="contact-button"><span>📞</span> ${telefonos.tel1}</a>
-        <a href="tel:${clean2}" class="contact-button"><span>📞</span> ${telefonos.tel2}</a>
-        <a href="tel:${clean3}" class="contact-button"><span>☎️</span> ${telefonos.tel3}</a>
-      `;
+    function toggleCurrency() {
+      selectedCurrency = selectedCurrency === "PEN" ? "USD" : "PEN";
+      document.getElementById("currLabel").innerText = selectedCurrency === "PEN" ? "PEN S/" : "USD $";
+      renderFeed();
+      renderCartItems();
     }
 
-    // INICIALIZACIÓN DEL MAPA
-    function iniciarMapaCusco() {
-      const cuscoLat = -13.5167;
-      const cuscoLng = -71.9788;
-      map = L.map('cuscoMap').setView([cuscoLat, cuscoLng], 14);
-
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap'
-      }).addTo(map);
-
-      // Flota inicial temporal hasta que cargue productos.json
-      actualizarVisualizadorGPS([
-        { id: "rep-1", nombre: "Repartidor 1", online: false, lat: cuscoLat, lng: cuscoLng }
-      ]);
-    }
-
-    // FUNCIÓN CENTRALIZADA: DIBUJA A TODOS LOS REPARTIDORES DE LA FLOTA
-    function actualizarVisualizadorGPS(flotaRepartidores) {
-      if (!Array.isArray(flotaRepartidores)) return;
-
-      let hayAlgunoOnline = false;
-
-      flotaRepartidores.forEach(rep => {
-        const estaOnline = (rep.online === true);
-        if (estaOnline) hayAlgunoOnline = true;
-
-        const iconoHTML = estaOnline ? `
-          <div class="custom-gps-marker">
-            <div class="gps-radar-pulse"></div>
-            <div class="fire-flame-emitter">🔥</div>
-            <div class="lion-badge-circle">🦁</div>
-          </div>
-        ` : `
-          <div class="custom-gps-marker offline">
-            <div class="lion-badge-circle">🦁</div>
-          </div>
-        `;
-
-        const icono = L.divIcon({
-          className: 'custom-gps-container',
-          html: iconoHTML,
-          iconSize: [48, 48],
-          iconAnchor: [24, 24]
-        });
-
-        const popupTexto = `<b>🦁 ${rep.nombre}</b><br>${estaOnline ? 'En Ruta Activo 🔥 (Online)' : 'Fuera de Ruta 💤 (Offline)'}`;
-
-        if (!marcadoresFlota[rep.id]) {
-          marcadoresFlota[rep.id] = L.marker([rep.lat || -13.5167, rep.lng || -71.9788], { icon: icono })
-            .addTo(map)
-            .bindPopup(popupTexto);
-        } else {
-          marcadoresFlota[rep.id].setIcon(icono);
-          marcadoresFlota[rep.id].setLatLng([rep.lat, rep.lng]);
-          marcadoresFlota[rep.id].setPopupContent(popupTexto);
-        }
-      });
-
-      // Leyenda superior activa Online si al menos uno está en ruta
-      const legOnline = document.getElementById('legendOnline');
-      const legOffline = document.getElementById('legendOffline');
-      if (hayAlgunoOnline) {
-        legOnline.classList.add('activo');
-        legOffline.classList.remove('activo');
+    function formatPrice(penValue) {
+      if (selectedCurrency === "PEN") {
+        return `S/ ${penValue.toFixed(2)}`;
       } else {
-        legOnline.classList.remove('activo');
-        legOffline.classList.add('activo');
+        const usd = penValue / USD_EXCHANGE_RATE;
+        return `$ ${usd.toFixed(2)} USD`;
       }
     }
 
-    function renderizarMenu() {
-      const contenedor = document.getElementById('contenedorEmpanadas');
-      contenedor.innerHTML = '';
-
-      catalogo.forEach(item => {
-        const estaDisponible = (item.disponible !== false);
-        const card = document.createElement('article');
-        card.className = `card ${estaDisponible ? '' : 'agotado'}`;
-        card.innerHTML = `
-          <div class="card-img-wrapper">
-            <span class="card-tag" style="background:${estaDisponible ? 'rgba(107, 33, 168, 0.9)' : '#dc2626'}">
-              ${estaDisponible ? (item.tag || 'Sellado') : 'Agotado'}
-            </span>
-            <img src="${item.imagen}" alt="${item.nombre}" onerror="this.src='1791513590376.jpg'">
-          </div>
-          <div class="card-body">
-            <h4 class="card-title">${item.nombre}</h4>
-            <p class="card-desc">${item.descripcion}</p>
-            <div class="card-footer">
-              <span class="price">S/ ${parseFloat(item.precio).toFixed(2)}</span>
-              <button class="btn-add" ${estaDisponible ? '' : 'disabled'} onclick="agregarAlPedido('${item.id}')">
-                ${estaDisponible ? '+ Pedir Balón' : 'Agotado'}
-              </button>
-            </div>
-          </div>
-        `;
-        contenedor.appendChild(card);
-      });
-    }
-
-    function agregarAlPedido(id) {
-      sincronizarEstructuraPedido();
-      const itemCatalogo = catalogo.find(c => c.id === id);
-      if (itemCatalogo && itemCatalogo.disponible === false) {
-        alert("Este producto se encuentra agotado temporalmente.");
-        return;
-      }
-      if (pedido[id]) {
-        pedido[id].cantidad += 1;
-        actualizarVistaPopup();
-      }
-    }
-
-    function cambiarCantidad(id, delta) {
-      if (pedido[id]) {
-        const itemCatalogo = catalogo.find(c => c.id === id);
-        if (delta > 0 && itemCatalogo && itemCatalogo.disponible === false) {
-          alert("Este producto no tiene stock disponible.");
-          return;
-        }
-        pedido[id].cantidad += delta;
-        if (pedido[id].cantidad < 0) pedido[id].cantidad = 0;
-        actualizarVistaPopup();
-      }
-    }
-
-    function anularProducto(id) {
-      if (pedido[id]) {
-        pedido[id].cantidad = 0;
-        actualizarVistaPopup();
-      }
-    }
-
-    function vaciarPedidoConConfirmacion() {
-      if (confirm("¿Deseas reiniciar tu pedido?")) {
-        for (const k in pedido) pedido[k].cantidad = 0;
-        actualizarVistaPopup();
-      }
-    }
-
-    function abrirModalCarrito() {
-      sincronizarEstructuraPedido();
-      actualizarVistaPopup();
-      document.getElementById('cartModalOverlay').style.display = 'flex';
-    }
-
-    function cerrarModalCarrito() {
-      document.getElementById('cartModalOverlay').style.display = 'none';
-    }
-
-    function cerrarSiClickAfuera(e) {
-      if (e.target.id === 'cartModalOverlay') cerrarModalCarrito();
-    }
-
-    function abrirLightboxFlyer() {
-      document.getElementById('lightboxModal').style.display = 'flex';
-    }
-
-    function cerrarLightboxFlyer() {
-      document.getElementById('lightboxModal').style.display = 'none';
-    }
-
-    // BLOQUEO EN EL CARRITO SI NO HAY STOCK
-    function actualizarVistaPopup() {
-      let totalUnidades = 0;
-      let totalMonto = 0;
-      const listContainer = document.getElementById('popupItemsList');
-      listContainer.innerHTML = '';
-
-      catalogo.forEach(catItem => {
-        const item = pedido[catItem.id] || { 
-          id: catItem.id, 
-          nombre: catItem.nombre, 
-          precio: catItem.precio, 
-          cantidad: 0, 
-          disponible: catItem.disponible !== false 
-        };
-
-        const estaDisponible = (catItem.disponible !== false);
-
-        if (!estaDisponible) {
-          item.cantidad = 0;
-        }
-
-        const subtotal = item.cantidad * item.precio;
-        totalUnidades += item.cantidad;
-        totalMonto += subtotal;
-
-        const row = document.createElement('div');
-        row.className = `cart-item-row ${!estaDisponible ? 'item-bloqueado' : (item.cantidad > 0 ? 'item-activo' : '')}`;
-        row.innerHTML = `
-          <div class="cart-item-info">
-            <div class="cart-item-title">
-              ${item.nombre} 
-              ${!estaDisponible ? '<span style="color:#dc2626; font-size:11px; font-weight:800;">(Agotado)</span>' : ''}
-            </div>
-            <div class="cart-item-sub">S/ ${item.precio.toFixed(2)} c/u</div>
-          </div>
-          <div class="cart-controls">
-            <button class="btn-qty" onclick="cambiarCantidad('${item.id}', -1)" ${(!estaDisponible || item.cantidad === 0) ? 'disabled' : ''}>-</button>
-            <span style="font-weight:bold; font-size:13px; min-width:18px; text-align:center;">${item.cantidad}</span>
-            <button class="btn-qty" onclick="cambiarCantidad('${item.id}', 1)" ${!estaDisponible ? 'disabled' : ''}>+</button>
-          </div>
-          <div class="cart-item-price-wrapper">
-            <div class="cart-item-price">S/ ${subtotal.toFixed(2)}</div>
-            <button type="button" class="btn-trash-item" title="Eliminar" onclick="anularProducto('${item.id}')">🗑️</button>
-          </div>
-        `;
-        listContainer.appendChild(row);
-      });
-
-      ultimoTotalPagar = totalMonto;
-      document.getElementById('badgeContador').innerText = `${totalUnidades}`;
-      const textoCantidad = `${totalUnidades} ${totalUnidades === 1 ? 'balón seleccionado' : 'balones seleccionados'}`;
-      document.getElementById('cartLabelTotalConCantidad').innerText = `Total a pagar (${textoCantidad}):`;
-      document.getElementById('cartTotalMonto').innerText = `S/ ${totalMonto.toFixed(2)}`;
-
-      if (metodoPago === 'Efectivo') calcularVueltoEfectivo();
-    }
-
-    function elegirPago(metodo, boton) {
-      metodoPago = metodo;
-      document.querySelectorAll('.btn-pay-option').forEach(btn => btn.classList.remove('active'));
-      boton.classList.add('active');
-      document.getElementById('cajaEfectivoDesplegable').style.display = (metodo === 'Efectivo') ? 'block' : 'none';
-      if (metodo === 'Efectivo') calcularVueltoEfectivo();
-    }
-
-    function setMontoEfectivoRapido(monto) {
-      const input = document.getElementById('montoEfectivoIngresado');
-      input.value = (monto === 'exacto') ? (ultimoTotalPagar > 0 ? ultimoTotalPagar : '') : monto;
-      calcularVueltoEfectivo();
-    }
-
-    function calcularVueltoEfectivo() {
-      const input = document.getElementById('montoEfectivoIngresado');
-      const box = document.getElementById('cajaRespuestaVuelto');
-      const txt = document.getElementById('textoDetalleVuelto');
-      const montoTxt = document.getElementById('montoCalculadoVuelto');
-      const pagaCon = parseFloat(input.value);
-
-      if (isNaN(pagaCon) || pagaCon <= 0) {
-        box.className = "vuelto-badge-box";
-        txt.innerText = "Ingresa con cuánto pagarás para calcular el vuelto";
-        montoTxt.innerText = "";
-        return;
-      }
-
-      if (ultimoTotalPagar <= 0) {
-        box.className = "vuelto-badge-box";
-        txt.innerText = "Selecciona al menos un balón disponible con stock";
-        montoTxt.innerText = "";
-        return;
-      }
-
-      const vuelto = pagaCon - ultimoTotalPagar;
-      if (vuelto < 0) {
-        box.className = "vuelto-badge-box alerta";
-        txt.innerText = `⚠️ Falta dinero (Faltan S/ ${Math.abs(vuelto).toFixed(2)})`;
-        montoTxt.innerText = "";
-      } else if (vuelto === 0) {
-        box.className = "vuelto-badge-box";
-        txt.innerText = "✔ Pago exacto";
-        montoTxt.innerText = "S/ 0.00";
+    function getAlternatePriceString(penValue) {
+      if (selectedCurrency === "PEN") {
+        const usd = penValue / USD_EXCHANGE_RATE;
+        return `~ $${usd.toFixed(2)} USD`;
       } else {
-        box.className = "vuelto-badge-box";
-        txt.innerText = "💵 Vuelto a entregar:";
-        montoTxt.innerText = `S/ ${vuelto.toFixed(2)}`;
+        return `~ S/ ${penValue.toFixed(2)}`;
       }
     }
 
-    function capturarGPSCliente() {
-      const status = document.getElementById('geoStatus');
-      if (!navigator.geolocation) return status.innerText = "GPS no disponible.";
-      status.innerText = "Obteniendo ubicación...";
-
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          ubicacionClienteCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-          status.innerText = "✔ Ubicación registrada para entrega";
-          status.classList.add('ready');
-        },
-        () => { status.innerText = "No se pudo obtener GPS."; },
-        { enableHighAccuracy: true }
-      );
+    function updateStaticLabels() {
+      const t = translations[currentLanguage];
+      document.getElementById("ui_cartTitle").innerHTML = `<i class="fa-solid fa-receipt"></i> ${t.cartTitle}`;
+      document.getElementById("inputTable").placeholder = t.tableHint;
+      document.getElementById("inputNotes").placeholder = t.notesHint;
+      document.getElementById("ui_payTitle").innerText = t.payTitle;
+      document.getElementById("ui_cardLabel").innerText = t.card;
+      document.getElementById("ui_cashLabel").innerText = t.cash;
+      document.getElementById("ui_totalLabel").innerText = t.totalLabel;
+      document.getElementById("ui_submitBtn").innerText = t.submitBtn;
+      document.getElementById("ui_yapeSubtitle").innerText = t.yapeSubtitle;
     }
 
-    function enviarPedidoWhatsApp() {
-      sincronizarEstructuraPedido();
-      const productosSeleccionados = Object.values(pedido).filter(item => item.cantidad > 0 && item.disponible !== false);
+    function renderCategories() {
+      const t = translations[currentLanguage];
+      const categories = [
+        { key: "all", label: t.all },
+        { key: "specials", label: `🔥 ${t.specials}` },
+        { key: "mains", label: t.mains },
+        { key: "drinks", label: t.drinks }
+      ];
 
-      if (productosSeleccionados.length === 0) {
-        alert("Por favor selecciona al menos un balón disponible para realizar tu pedido.");
-        return;
-      }
+      const bar = document.getElementById("categoriesBar");
+      bar.innerHTML = categories.map(c => `
+        <div class="chip ${c.key === currentCategory ? 'active' : ''}" onclick="selectCategory('${c.key}')">
+          ${c.label}
+        </div>
+      `).join("");
+    }
 
-      const nombreCliente = document.getElementById('nombreClienteInput').value.trim();
-      let total = 0;
-      let detalleTexto = "";
+    function selectCategory(cat) {
+      currentCategory = cat;
+      renderCategories();
+      renderFeed();
+      document.getElementById("feedContainer").scrollTo({ top: 0, behavior: "smooth" });
+    }
 
-      productosSeleccionados.forEach(item => {
-        const sub = item.cantidad * item.precio;
-        detalleTexto += `• ${item.cantidad}x ${item.nombre} (S/ ${sub.toFixed(2)})\n`;
-        total += sub;
+    function renderFeed() {
+      const feed = document.getElementById("feedContainer");
+      feed.innerHTML = "";
+      const t = translations[currentLanguage];
+
+      const filtered = currentCategory === "all"
+        ? menuItems
+        : menuItems.filter(item => item.category === currentCategory);
+
+      filtered.forEach(item => {
+        const data = item.i18n[currentLanguage] || item.i18n.es;
+        const slide = document.createElement("div");
+        slide.className = "video-slide";
+        slide.style.backgroundImage = `url('${item.poster}')`;
+
+        slide.innerHTML = `
+          <video class="video-player" 
+                 src="${item.videoUrl}" 
+                 poster="${item.poster}"
+                 loop 
+                 playsinline 
+                 preload="metadata" 
+                 ${isGlobalMuted ? 'muted' : ''} 
+                 onerror="handleVideoError(this)" 
+                 onclick="handleVideoTap(this)">
+          </video>
+          <div class="slide-gradient"></div>
+
+          <div class="side-actions">
+            <button class="action-btn" onclick="toggleLike(this, ${item.likes})">
+              <div class="action-icon-circle"><i class="fa-solid fa-heart"></i></div>
+              <span class="action-text">${item.likes}</span>
+            </button>
+
+            <button class="action-btn" onclick="quickAddCart('${item.id}')">
+              <div class="action-icon-circle action-badge-add"><i class="fa-solid fa-plus"></i></div>
+              <span class="action-text">+1</span>
+            </button>
+
+            <button class="action-btn" onclick="shareDish('${data.name.replace(/'/g, "\\'")}')">
+              <div class="action-icon-circle"><i class="fa-solid fa-share"></i></div>
+              <span class="action-text">Share</span>
+            </button>
+          </div>
+
+          <div class="dish-info-box">
+            ${item.tag ? `<span class="dish-tag">${item.tag}</span>` : ""}
+            <h2 class="dish-title">${data.name}</h2>
+            <p class="dish-desc">${data.desc}</p>
+            
+            <div class="dish-prices">
+              <span class="main-price">${formatPrice(item.pricePen)}</span>
+              <span class="secondary-price">${getAlternatePriceString(item.pricePen)}</span>
+            </div>
+
+            <button class="btn-add-order" onclick="quickAddCart('${item.id}')">
+              <i class="fa-solid fa-cart-plus"></i> ${t.addOrder}
+            </button>
+          </div>
+        `;
+        feed.appendChild(slide);
       });
 
-      let pagoDetalle = metodoPago;
-      if (metodoPago === 'Efectivo') {
-        const inputEfectivo = parseFloat(document.getElementById('montoEfectivoIngresado').value);
-        if (!isNaN(inputEfectivo) && inputEfectivo > 0) {
-          const vuelto = inputEfectivo - total;
-          pagoDetalle = vuelto > 0 
-            ? `Efectivo (Paga con S/ ${inputEfectivo.toFixed(2)} | Vuelto: S/ ${vuelto.toFixed(2)})`
-            : `Efectivo (Exacto S/ ${inputEfectivo.toFixed(2)})`;
-        }
-      }
-
-      let mensaje = `*¡Hola LeoGas Cusco! Deseo hacer un pedido de gas:*\n\n`;
-      if (nombreCliente) mensaje += `*👤 Cliente:* ${nombreCliente}\n`;
-      mensaje += `*Detalle:*\n${detalleTexto}\n`;
-      mensaje += `*Total a pagar:* S/ ${total.toFixed(2)}\n`;
-      mensaje += `*Paga con:* ${pagoDetalle}\n`;
-
-      if (ubicacionClienteCoords) {
-        mensaje += `*Ubicación GPS:* https://www.google.com/maps?q=${ubicacionClienteCoords.lat},${ubicacionClienteCoords.lng}\n`;
-      }
-
-      mensaje += `\n¿Me confirman tiempo estimado de entrega?`;
-
-      const numDestino = (telefonos.whatsapp || whatsappNumero).replace(/\D/g,'');
-      window.open(`https://wa.me/${numDestino}?text=${encodeURIComponent(mensaje)}`, '_blank');
-
-      for (const k in pedido) pedido[k].cantidad = 0;
-      document.getElementById('montoEfectivoIngresado').value = '';
-      document.getElementById('nombreClienteInput').value = '';
-      actualizarVistaPopup();
-      cerrarModalCarrito();
+      setupObserver();
     }
 
-    // CARGA DE DATOS Y RASTREO MULTI-REPARTIDOR
-    async function cargarCatalogoDesdeGitHub() {
+    function handleVideoError(video) {
+      video.classList.add("has-error");
+      video.removeAttribute("src");
+      video.load();
+    }
+
+    function safePlayVideo(video) {
+      if (!video || video.classList.contains("has-error")) return;
+      video.muted = isGlobalMuted;
       try {
-        const res = await fetch('productos.json?v=' + Date.now());
-        if (res.ok) {
-          const datos = await res.json();
-          if (Array.isArray(datos)) {
-            catalogo = datos;
-          } else {
-            catalogo = datos.productos || catalogo;
-            if (datos.telefonos) {
-              telefonos = datos.telefonos;
-              whatsappNumero = telefonos.whatsapp;
-              renderizarTelefonosFlyer();
-            }
-            // Sincroniza la flota de repartidores en tiempo real
-            if (datos.repartidores) {
-              actualizarVisualizadorGPS(datos.repartidores);
-            }
-          }
-          sincronizarEstructuraPedido();
-          renderizarMenu();
-          actualizarVistaPopup();
+        const playPromise = video.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            // Intento seguro con silenciado en caso de bloqueo de políticas
+            video.muted = true;
+            try {
+              const retryPromise = video.play();
+              if (retryPromise !== undefined) {
+                retryPromise.catch(() => {});
+              }
+            } catch (e) {}
+          });
         }
-      } catch (err) {
-        console.log("Error al cargar productos.json:", err);
+      } catch (e) {}
+    }
+
+    function setupObserver() {
+      if (videoObserver) videoObserver.disconnect();
+
+      const options = { root: document.getElementById("feedContainer"), threshold: 0.65 };
+      videoObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          const video = entry.target.querySelector("video");
+          if (!video || video.classList.contains("has-error")) return;
+
+          if (entry.isIntersecting) {
+            safePlayVideo(video);
+          } else {
+            try {
+              video.pause();
+              video.currentTime = 0;
+            } catch (e) {}
+          }
+        });
+      }, options);
+
+      document.querySelectorAll(".video-slide").forEach(slide => videoObserver.observe(slide));
+    }
+
+    function handleVideoTap(video) {
+      if (!video || video.classList.contains("has-error")) return;
+      if (video.paused) {
+        safePlayVideo(video);
+      } else {
+        try {
+          video.pause();
+        } catch (e) {}
       }
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      renderizarTelefonosFlyer();
-      sincronizarEstructuraPedido();
-      renderizarMenu();
-      iniciarMapaCusco();
-      actualizarVistaPopup();
-      cargarCatalogoDesdeGitHub();
-      // Sondeo periódico cada 20 segundos para reflejar cambios de repartidores
-      setInterval(cargarCatalogoDesdeGitHub, 20000);
+    function toggleGlobalAudio() {
+      isGlobalMuted = !isGlobalMuted;
+      const icon = document.getElementById("audioIcon");
+      icon.className = isGlobalMuted ? "fa-solid fa-volume-xmark" : "fa-solid fa-volume-high";
+
+      document.querySelectorAll("video").forEach(v => {
+        v.muted = isGlobalMuted;
+      });
+    }
+
+    function toggleLike(btn, base) {
+      btn.classList.toggle("liked");
+      const text = btn.querySelector(".action-text");
+      const isLiked = btn.classList.contains("liked");
+      text.innerText = isLiked ? base + 1 : base;
+    }
+
+    function quickAddCart(dishId) {
+      cart[dishId] = (cart[dishId] || 0) + 1;
+      updateCartBadge();
+      showToast("+1 agregado a tu comanda");
+    }
+
+    function modifyQty(dishId, delta) {
+      if (!cart[dishId]) return;
+      cart[dishId] += delta;
+      if (cart[dishId] <= 0) {
+        delete cart[dishId];
+      }
+      updateCartBadge();
+      renderCartItems();
+    }
+
+    function updateCartBadge() {
+      const badge = document.getElementById("cartCount");
+      const count = Object.values(cart).reduce((a, b) => a + b, 0);
+      badge.innerText = count;
+      badge.style.display = count > 0 ? "flex" : "none";
+    }
+
+    function renderCartItems() {
+      const list = document.getElementById("cartListItems");
+      const dishIds = Object.keys(cart);
+      const t = translations[currentLanguage];
+
+      if (dishIds.length === 0) {
+        list.innerHTML = `<div style="text-align:center; color:#888; padding:24px 0;">${t.emptyCart}</div>`;
+        document.getElementById("summaryTotalPen").innerText = "S/ 0.00";
+        document.getElementById("summaryTotalUsd").innerText = "~ $0.00 USD";
+        return;
+      }
+
+      let totalPen = 0;
+      let html = "";
+
+      dishIds.forEach(id => {
+        const dish = menuItems.find(d => d.id === id);
+        if (!dish) return;
+        const qty = cart[id];
+        const subtotalPen = dish.pricePen * qty;
+        totalPen += subtotalPen;
+
+        const info = dish.i18n[currentLanguage] || dish.i18n.es;
+
+        html += `
+          <div class="cart-item">
+            <div class="item-meta">
+              <div class="item-name">${info.name}</div>
+              <div class="item-cost">${formatPrice(dish.pricePen)} x ${qty} = <b>${formatPrice(subtotalPen)}</b></div>
+            </div>
+            <div class="qty-btn-group">
+              <button class="qty-btn" onclick="modifyQty('${id}', -1)">-</button>
+              <span style="font-size:13px; font-weight:800; min-width:18px; text-align:center;">${qty}</span>
+              <button class="qty-btn" onclick="modifyQty('${id}', 1)">+</button>
+            </div>
+          </div>
+        `;
+      });
+
+      list.innerHTML = html;
+      const totalUsd = totalPen / USD_EXCHANGE_RATE;
+      document.getElementById("summaryTotalPen").innerText = `S/ ${totalPen.toFixed(2)}`;
+      document.getElementById("summaryTotalUsd").innerText = `~ $${totalUsd.toFixed(2)} USD`;
+    }
+
+    function selectPayMethod(method, element) {
+      selectedPayment = method;
+      document.querySelectorAll(".pay-method-card").forEach(el => el.classList.remove("selected"));
+      element.classList.add("selected");
+    }
+
+    function openCart() {
+      renderCartItems();
+      document.getElementById("cartModal").classList.add("active");
+    }
+
+    function closeCart(e) {
+      document.getElementById("cartModal").classList.remove("active");
+    }
+
+    function proceedOrderFlow() {
+      const dishIds = Object.keys(cart);
+      const t = translations[currentLanguage];
+
+      if (dishIds.length === 0) {
+        showToast(t.emptyCart);
+        return;
+      }
+
+      let totalPen = 0;
+      dishIds.forEach(id => {
+        const dish = menuItems.find(d => d.id === id);
+        if (dish) totalPen += dish.pricePen * cart[id];
+      });
+
+      if (selectedPayment === "yape_plin") {
+        document.getElementById("yapeAmountReminder").innerText = `${t.yapeReminder} S/ ${totalPen.toFixed(2)}`;
+        closeCart();
+        openYapeModal();
+      } else {
+        finalizeWhatsAppOrder();
+      }
+    }
+
+    function openYapeModal() {
+      document.getElementById("yapePlinModal").classList.add("active");
+    }
+
+    function closeYapeModal(e) {
+      document.getElementById("yapePlinModal").classList.remove("active");
+    }
+
+    function copyWalletPhone() {
+      const t = translations[currentLanguage];
+      const dummy = document.createElement("textarea");
+      dummy.value = YAPE_PHONE_RAW;
+      document.body.appendChild(dummy);
+      dummy.select();
+      document.execCommand("copy");
+      document.body.removeChild(dummy);
+      showToast(t.toastCopy);
+    }
+
+    function finalizeWhatsAppOrder() {
+      const dishIds = Object.keys(cart);
+      const t = translations[currentLanguage];
+      const table = document.getElementById("inputTable").value.trim() || "No especificada / Sin mesa";
+      const notes = document.getElementById("inputNotes").value.trim();
+
+      let totalPen = 0;
+      let orderLines = "";
+
+      dishIds.forEach(id => {
+        const dish = menuItems.find(d => d.id === id);
+        if (dish) {
+          const qty = cart[id];
+          const subPen = dish.pricePen * qty;
+          totalPen += subPen;
+          const name = (dish.i18n[currentLanguage] || dish.i18n.es).name;
+          orderLines += `• *${qty}x* ${name} (S/ ${subPen.toFixed(2)})\n`;
+        }
+      });
+
+      const totalUsd = totalPen / USD_EXCHANGE_RATE;
+
+      let paymentText = "Yape / Plin (Adjunto comprobante)";
+      if (selectedPayment === "tarjeta") paymentText = "Tarjeta / POS Móvil en mesa";
+      if (selectedPayment === "efectivo") paymentText = "Efectivo";
+
+      const message = 
+        `🛎️ *${t.wspGreeting}: ${table}*\n\n` +
+        `📝 *Comanda / Order Details:*\n` +
+        orderLines +
+        `\n💰 *${t.wspTotal}:*\n` +
+        `• S/ ${totalPen.toFixed(2)} PEN\n` +
+        `• ~$${totalUsd.toFixed(2)} USD\n\n` +
+        `💳 *${t.wspPayMethod}:* ${paymentText}\n` +
+        (notes ? `📌 *${t.wspNotes}:* ${notes}\n` : "") +
+        `\n_Enviado desde el Catálogo Digital QR TikTok_`;
+
+      const wspUrl = `https://wa.me/${RESTAURANT_WSP}?text=${encodeURIComponent(message)}`;
+      window.open(wspUrl, "_blank");
+
+      closeYapeModal();
+      closeCart();
+    }
+
+    function shareDish(name) {
+      if (navigator.share) {
+        navigator.share({ title: name, text: `Mira este plato en el restaurante: ${name}`, url: window.location.href });
+      } else {
+        showToast("Enlace de carta listo");
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toastBox");
+      toast.innerText = msg;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      renderCategories();
+      renderFeed();
+      updateStaticLabels();
+      updateCartBadge();
     });
   </script>
 </body>
