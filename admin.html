@@ -3,749 +3,1024 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Panel de Control - Catálogo TikTok QR</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Panel de Administración | Inka Bistro Cusco</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
+    :root {
+      --primary: #c2410c;         /* Terracota */
+      --primary-dark: #9a3412;
+      --accent: #f59e0b;          /* Ámbar / Dorado */
+      --accent-hover: #d97706;
+      --bg-dark: #140e0c;         /* Fondo café profundo */
+      --card-bg: #221814;
+      --card-border: rgba(245, 158, 11, 0.22);
+      --input-bg: #1a120f;
+      --text-main: #fffdfa;
+      --text-muted: #d1c7be;
+      --gold: #fbbf24;
+      --danger: #ef4444;
+      --success: #15803d;
+      --yape: #742284;
     }
-    ::-webkit-scrollbar-track {
-      background: #0f1015;
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
-    ::-webkit-scrollbar-thumb {
-      background: #2a2c38;
-      border-radius: 4px;
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #3e4254;
+
+    /* TOP BAR */
+    header {
+      background: #1c1310;
+      border-bottom: 1.5px solid var(--card-border);
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
-    .custom-gradient-tiktok {
-      background: linear-gradient(135deg, #fe2c55 0%, #25f4ee 100%);
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
-    .yape-gradient {
-      background: linear-gradient(135deg, #742284 0%, #00d2c4 100%);
+
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--primary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: #fff;
+    }
+
+    .brand-title h1 {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-title span {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #fff;
+    }
+    .btn-primary:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-secondary {
+      background: #2e201b;
+      color: var(--text-muted);
+      border: 1px solid var(--card-border);
+    }
+    .btn-secondary:hover {
+      background: #3a2a24;
+      color: #fff;
+    }
+
+    .btn-success {
+      background: #16a34a;
+      color: #fff;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    /* CONTENEDOR PRINCIPAL */
+    .admin-container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 24px 20px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 24px;
+      flex: 1;
+    }
+
+    /* PANEL LATERAL DE AJUSTES GLOBALES */
+    .sidebar-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .admin-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      border: 1px solid var(--card-border);
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--gold);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding-bottom: 8px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .form-label {
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+    }
+
+    .form-input, .form-select, .form-textarea {
+      background: var(--input-bg);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      color: #fff;
+      padding: 9px 12px;
+      font-size: 13px;
+      outline: none;
+      transition: border 0.2s;
+    }
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+      border-color: var(--accent);
+    }
+
+    /* GENERADOR DE CÓDIGO QR PARA MESAS */
+    .qr-preview-box {
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      margin: 12px 0;
+    }
+    .qr-preview-box img {
+      width: 150px;
+      height: 150px;
+      object-fit: contain;
+    }
+    .qr-table-text {
+      color: #1a120f;
+      font-size: 13px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    /* CONTENIDO PRINCIPAL: GESTIÓN DE PLATOS */
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .stat-number {
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--gold);
+    }
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* GRILLA DE PLATOS */
+    .dishes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 18px;
+    }
+
+    .dish-admin-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s;
+    }
+    .dish-admin-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .dish-media-header {
+      position: relative;
+      height: 140px;
+      background: #110c0a;
+      overflow: hidden;
+    }
+    .dish-media-header img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .dish-category-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(194, 65, 12, 0.9);
+      backdrop-filter: blur(4px);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 12px;
+      text-transform: uppercase;
+    }
+    .dish-tag-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: var(--gold);
+      color: #381504;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 12px;
+    }
+
+    .dish-admin-body {
+      padding: 14px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .dish-admin-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .dish-admin-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.35;
+    }
+
+    .dish-admin-prices {
+      margin-top: 6px;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+    .price-pen {
+      font-size: 18px;
+      font-weight: 900;
+      color: #fde047;
+    }
+    .price-usd {
+      font-size: 12px;
+      color: #cbd5e1;
+    }
+
+    .dish-admin-reviews-badge {
+      font-size: 11px;
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 4px;
+      cursor: pointer;
+    }
+
+    .dish-admin-footer {
+      padding: 10px 14px;
+      background: #1c1310;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* MODAL DE EDICIÓN / CREACIÓN */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(5px);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-box {
+      background: #241a15;
+      border: 1.5px solid var(--card-border);
+      border-radius: 18px;
+      max-width: 680px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 10px;
+    }
+
+    .lang-tabs {
+      display: flex;
+      gap: 6px;
+      background: #18110e;
+      padding: 4px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    .lang-tab-btn {
+      flex: 1;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      background: transparent;
+      border: none;
+      color: #aaa;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .lang-tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    /* MODAL DE RESEÑAS */
+    .reviews-admin-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 350px;
+      overflow-y: auto;
+    }
+    .review-admin-item {
+      background: #1c1310;
+      border: 1px solid rgba(255,255,255,0.06);
+      padding: 10px 12px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    @media (max-width: 900px) {
+      .admin-container {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
-<body class="bg-[#0b0c10] text-gray-100 min-h-screen flex flex-col font-sans">
+<body>
 
-  <header class="border-b border-gray-800 bg-[#121318]/90 backdrop-blur sticky top-0 z-40 px-4 lg:px-8 py-3.5 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#fe2c55] to-[#25f4ee] flex items-center justify-center text-white shadow-lg shadow-pink-500/20">
-        <i class="fa-solid fa-fire text-base"></i>
-      </div>
-      <div>
-        <div class="flex items-center gap-2">
-          <h1 class="text-base font-extrabold tracking-wide uppercase">Inka Chef <span class="text-[#fe2c55]">Admin</span></h1>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">V2.0 LIVE</span>
-        </div>
-        <p class="text-xs text-gray-400">Control de Carta TikTok, Precios & Métodos de Pago</p>
+  <!-- HEADER SUPERIOR -->
+  <header>
+    <div class="brand-wrap">
+      <div class="brand-icon"><i class="fa-solid fa-utensils"></i></div>
+      <div class="brand-title">
+        <h1>Inka Bistro Cusco</h1>
+        <span>Panel de Gestión y Menú Digital</span>
       </div>
     </div>
 
-    <div class="flex items-center gap-2.5">
-      <button onclick="openJsonModal()" class="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs font-semibold text-gray-200 border border-gray-700 flex items-center gap-2 transition">
-        <i class="fa-solid fa-code text-[#25f4ee]"></i>
-        <span class="hidden sm:inline">Ver / Importar</span> JSON
-      </button>
-
-      <button onclick="downloadJsonFile()" class="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs font-semibold text-gray-200 border border-gray-700 flex items-center gap-2 transition">
-        <i class="fa-solid fa-download text-emerald-400"></i>
-        <span class="hidden sm:inline">Descargar</span> menu.json
-      </button>
-
-      <button onclick="openDishModal()" class="px-3.5 py-1.5 rounded-lg bg-[#fe2c55] hover:bg-[#e02449] text-xs font-bold text-white shadow-md shadow-rose-900/30 flex items-center gap-1.5 transition">
-        <i class="fa-solid fa-plus"></i>
-        <span>Nuevo Plato</span>
-      </button>
+    <div class="header-actions">
+      <button class="btn btn-secondary" onclick="exportarJSON()"><i class="fa-solid fa-download"></i> Descargar JSON</button>
+      <button class="btn btn-primary" onclick="abrirModalPlato()"><i class="fa-solid fa-plus"></i> Nuevo Plato</button>
     </div>
   </header>
 
-  <main class="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-8 space-y-6">
+  <!-- CONTENIDO PRINCIPAL -->
+  <div class="admin-container">
 
-    <!-- KPI Metric Cards -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-4">
-      <div class="bg-[#15161c] border border-gray-800/80 rounded-2xl p-4 flex items-center gap-3.5">
-        <div class="w-11 h-11 rounded-xl bg-rose-500/10 text-[#fe2c55] flex items-center justify-center text-lg">
-          <i class="fa-solid fa-bowl-food"></i>
-        </div>
-        <div>
-          <p class="text-xs text-gray-400 font-medium">Platos en Carta</p>
-          <h3 class="text-xl font-black text-white" id="statTotalDishes">0</h3>
-        </div>
-      </div>
+    <!-- SIDEBAR: CONFIGURACIÓN Y CÓDIGOS QR -->
+    <aside class="sidebar-panel">
 
-      <div class="bg-[#15161c] border border-gray-800/80 rounded-2xl p-4 flex items-center gap-3.5">
-        <div class="w-11 h-11 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-lg">
-          <i class="fa-solid fa-qrcode"></i>
-        </div>
-        <div>
-          <p class="text-xs text-gray-400 font-medium">Pagos Yape/Plin</p>
-          <h3 class="text-sm font-extrabold text-white truncate max-w-[120px]" id="statYapeNumber">--</h3>
-        </div>
-      </div>
+      <!-- CONFIGURACIÓN DE CONTACTO Y PAGOS -->
+      <div class="admin-card">
+        <h2 class="card-title"><i class="fa-solid fa-sliders"></i> Ajustes de Cobro</h2>
 
-      <div class="bg-[#15161c] border border-gray-800/80 rounded-2xl p-4 flex items-center gap-3.5">
-        <div class="w-11 h-11 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-lg">
-          <i class="fa-brands fa-whatsapp"></i>
-        </div>
-        <div>
-          <p class="text-xs text-gray-400 font-medium">WhatsApp Pedidos</p>
-          <h3 class="text-sm font-extrabold text-white truncate max-w-[120px]" id="statWspNumber">--</h3>
-        </div>
-      </div>
-
-      <div class="bg-[#15161c] border border-gray-800/80 rounded-2xl p-4 flex items-center gap-3.5">
-        <div class="w-11 h-11 rounded-xl bg-cyan-500/10 text-[#25f4ee] flex items-center justify-center text-lg">
-          <i class="fa-solid fa-dollar-sign"></i>
-        </div>
-        <div>
-          <p class="text-xs text-gray-400 font-medium">Cambio USD</p>
-          <h3 class="text-xl font-black text-white" id="statExchangeRate">S/ 3.75</h3>
-        </div>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-      <!-- Configuration Card -->
-      <section class="lg:col-span-2 bg-[#15161c] border border-gray-800/90 rounded-2xl p-5 space-y-4">
-        <div class="flex items-center justify-between pb-3 border-b border-gray-800">
-          <div class="flex items-center gap-2">
-            <i class="fa-solid fa-sliders text-[#25f4ee]"></i>
-            <h2 class="font-bold text-sm uppercase tracking-wide">Ajustes del Negocio & Cobros</h2>
-          </div>
-          <button onclick="saveGlobalSettings()" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5">
-            <i class="fa-solid fa-floppy-disk"></i> Guardar Ajustes
-          </button>
+        <div class="form-group">
+          <label class="form-label">WhatsApp de Pedidos</label>
+          <input type="text" id="cfgWhatsApp" class="form-input" value="51969773064" onchange="guardarConfiguracion()"/>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-gray-400 mb-1">Nombre Comercial del Local</label>
-            <input type="text" id="cfgBrandName" class="w-full bg-[#1b1d24] border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-[#fe2c55]" />
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-gray-400 mb-1">Tipo de Cambio USD (1 USD en Soles)</label>
-            <input type="number" step="0.01" id="cfgExchangeRate" class="w-full bg-[#1b1d24] border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-[#fe2c55]" />
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-gray-400 mb-1">Número de WhatsApp (con código país, ej: 51987654321)</label>
-            <input type="text" id="cfgWhatsapp" class="w-full bg-[#1b1d24] border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-[#fe2c55]" />
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-gray-400 mb-1">Número de Yape / Plin (9 dígitos)</label>
-            <input type="text" id="cfgYapePhone" class="w-full bg-[#1b1d24] border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-[#fe2c55]" />
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-gray-400 mb-1">Titular de Cuenta Yape / Plin</label>
-            <input type="text" id="cfgAccountHolder" class="w-full bg-[#1b1d24] border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-[#fe2c55]" />
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-gray-400 mb-1">URL Base del Menú (Para generar QR)</label>
-            <input type="url" id="cfgBaseUrl" placeholder="https://mirestaurante.com/index.html" class="w-full bg-[#1b1d24] border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-[#fe2c55]" />
-          </div>
-        </div>
-      </section>
-
-      <section class="bg-[#15161c] border border-gray-800/90 rounded-2xl p-5 flex flex-col justify-between space-y-4">
-        <div>
-          <div class="flex items-center gap-2 pb-3 border-b border-gray-800 mb-3">
-            <i class="fa-solid fa-qrcode text-purple-400"></i>
-            <h2 class="font-bold text-sm uppercase tracking-wide">Generador QR de Mesa</h2>
-          </div>
-          <p class="text-xs text-gray-400 mb-3">Genera el código QR personalizado para pegar en cada mesa o barra del restaurante.</p>
-          
-          <div class="flex gap-2 mb-3">
-            <input type="text" id="tableIdInput" value="Mesa 01" placeholder="Ej: Mesa 04" class="flex-1 bg-[#1b1d24] border border-gray-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500" />
-            <button onclick="generateTableQR()" class="px-3 py-2 bg-purple-600 hover:bg-purple-500 rounded-xl text-xs font-bold text-white transition">
-              Generar
-            </button>
-          </div>
-
-          <div class="flex justify-center p-3 bg-white rounded-xl w-36 h-36 mx-auto items-center overflow-hidden shadow-inner" id="qrCanvasBox"></div>
+        <div class="form-group">
+          <label class="form-label">Celular Yape / Plin</label>
+          <input type="text" id="cfgYapePhone" class="form-input" value="+51 987 654 321" onchange="guardarConfiguracion()"/>
         </div>
 
-        <button onclick="printTableQR()" class="w-full py-2 bg-gray-800 hover:bg-gray-700 text-xs font-bold text-gray-200 rounded-xl border border-gray-700 flex items-center justify-center gap-2 transition">
-          <i class="fa-solid fa-print"></i> Imprimir o Descargar QR
+        <div class="form-group">
+          <label class="form-label">Tipo de Cambio (1 USD en PEN)</label>
+          <input type="number" id="cfgExchangeRate" class="form-input" step="0.01" value="3.75" onchange="guardarConfiguracion()"/>
+        </div>
+
+        <button class="btn btn-success" style="width: 100%; justify-content: center;" onclick="guardarConfiguracion()">
+          <i class="fa-solid fa-check"></i> Guardar Ajustes
         </button>
-      </section>
-    </div>
+      </div>
 
-    <section class="bg-[#15161c] border border-gray-800/90 rounded-2xl p-5 space-y-4">
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-gray-800">
-        <div>
-          <h2 class="font-bold text-sm uppercase tracking-wide flex items-center gap-2">
-            <i class="fa-solid fa-utensils text-[#fe2c55]"></i> Platos y Bebidas del Menú
-          </h2>
-          <p class="text-xs text-gray-400 mt-0.5">Administra videos, descripciones en 4 idiomas y precios.</p>
+      <!-- GENERADOR DE QR PARA MESAS -->
+      <div class="admin-card">
+        <h2 class="card-title"><i class="fa-solid fa-qrcode"></i> Generador QR de Mesa</h2>
+        
+        <div class="form-group">
+          <label class="form-label">Número de Mesa o Espacio</label>
+          <input type="text" id="qrTableInput" class="form-input" value="Mesa 01" oninput="actualizarQRImprimible()"/>
         </div>
 
-        <!-- Filter category tags -->
-        <div class="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto" id="filterCategoryContainer">
-          <button onclick="filterDishes('all')" class="cat-pill active px-3 py-1 rounded-full text-xs font-bold bg-[#fe2c55] text-white">Todos</button>
-          <button onclick="filterDishes('specials')" class="cat-pill px-3 py-1 rounded-full text-xs font-bold bg-gray-800 text-gray-300 hover:bg-gray-700">Especialidades</button>
-          <button onclick="filterDishes('mains')" class="cat-pill px-3 py-1 rounded-full text-xs font-bold bg-gray-800 text-gray-300 hover:bg-gray-700">Platos Fuertes</button>
-          <button onclick="filterDishes('drinks')" class="cat-pill px-3 py-1 rounded-full text-xs font-bold bg-gray-800 text-gray-300 hover:bg-gray-700">Bebidas</button>
+        <div class="form-group">
+          <label class="form-label">URL Base del Menú</label>
+          <input type="text" id="qrBaseUrlInput" class="form-input" value="https://tudominio.com/menu/" oninput="actualizarQRImprimible()"/>
+        </div>
+
+        <div class="qr-preview-box" id="qrPrintArea">
+          <img id="qrGeneratedImg" src="" alt="QR Mesa" />
+          <span class="qr-table-text" id="qrTableLabel">Mesa 01</span>
+        </div>
+
+        <button class="btn btn-secondary" style="width:100%; justify-content:center;" onclick="imprimirQRMesa()">
+          <i class="fa-solid fa-print"></i> Imprimir QR para Mesa
+        </button>
+      </div>
+
+    </aside>
+
+    <!-- ÁREA PRINCIPAL: LISTA DE PLATOS -->
+    <main class="main-content">
+
+      <!-- TARJETAS DE RESUMEN -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <span class="stat-number" id="statTotalDishes">0</span>
+          <span class="stat-label">Platos en Menú</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number" id="statSpecialties">0</span>
+          <span class="stat-label">Especialidades del Chef</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number" id="statDrinks">0</span>
+          <span class="stat-label">Bebidas y Cocteles</span>
         </div>
       </div>
 
-      <!-- Dishes Table View -->
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs">
-          <thead class="text-gray-400 uppercase bg-[#1b1d24] border-b border-gray-800">
-            <tr>
-              <th class="py-3 px-3">Plato / Multimedia</th>
-              <th class="py-3 px-3">Categoría & Tag</th>
-              <th class="py-3 px-3">Precio PEN / USD</th>
-              <th class="py-3 px-3">Idiomas</th>
-              <th class="py-3 px-3">Likes</th>
-              <th class="py-3 px-3 text-right">Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="dishesTableBody" class="divide-y divide-gray-800/60 font-medium">
-            <!-- Dynamically populated rows -->
-          </tbody>
-        </table>
-      </div>
-    </section>
-  </main>
+      <!-- GRILLA DE PLATOS -->
+      <div class="dishes-grid" id="dishesGrid"></div>
 
-  <div id="dishModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-3 sm:p-4 overflow-y-auto">
-    <div class="bg-[#15161d] border border-gray-800 rounded-2xl w-full max-w-3xl max-h-[92vh] flex flex-col overflow-hidden shadow-2xl">
-      <div class="px-5 py-4 border-b border-gray-800 flex items-center justify-between bg-[#191b22]">
-        <h3 class="font-bold text-sm text-white flex items-center gap-2" id="modalDishTitle">
-          <i class="fa-solid fa-pen-to-square text-[#fe2c55]"></i> Editar Plato
-        </h3>
-        <button onclick="closeDishModal()" class="w-7 h-7 rounded-full bg-gray-800 text-gray-400 hover:text-white flex items-center justify-center text-sm">&times;</button>
-      </div>
-
-      <form id="dishForm" onsubmit="saveDish(event)" class="p-5 space-y-4 overflow-y-auto flex-1">
-        <input type="hidden" id="editDishId" />
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <div>
-            <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Categoría</label>
-            <select id="dishCategory" class="w-full bg-[#1e2029] border border-gray-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#fe2c55]">
-              <option value="specials">Especialidades (🔥 Specials)</option>
-              <option value="mains">Platos Fuertes (Mains)</option>
-              <option value="drinks">Cocteles & Bar (Drinks)</option>
-              <option value="desserts">Postres (Desserts)</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Etiqueta / Tag</label>
-            <input type="text" id="dishTag" placeholder="Imperdible, Signature, etc." class="w-full bg-[#1e2029] border border-gray-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#fe2c55]" />
-          </div>
-
-          <div>
-            <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Precio en Soles (PEN S/)</label>
-            <input type="number" step="0.5" id="dishPricePen" required class="w-full bg-[#1e2029] border border-gray-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#fe2c55]" />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">URL de Video MP4 Vertical</label>
-            <input type="url" id="dishVideoUrl" required placeholder="https://dominio.com/video.mp4" class="w-full bg-[#1e2029] border border-gray-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#fe2c55]" />
-          </div>
-
-          <div>
-            <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">URL de Foto Poster / Respaldo</label>
-            <input type="url" id="dishPoster" required placeholder="https://dominio.com/foto.jpg" class="w-full bg-[#1e2029] border border-gray-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#fe2c55]" />
-          </div>
-        </div>
-
-        <div class="border border-gray-800 rounded-xl p-3.5 bg-[#121318]">
-          <div class="flex items-center gap-2 mb-3">
-            <span class="text-xs font-bold text-[#25f4ee] uppercase"><i class="fa-solid fa-language"></i> Textos en 4 Idiomas</span>
-          </div>
-
-          <div class="space-y-3">
-            <!-- Español -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-2 items-center">
-              <span class="text-xs font-bold text-amber-400">🇪🇸 Español</span>
-              <input type="text" id="dishNameEs" placeholder="Nombre en Español" required class="w-full bg-[#1b1d24] border border-gray-700 rounded-lg px-2.5 py-1.5 text-xs text-white" />
-              <input type="text" id="dishDescEs" placeholder="Descripción en Español" required class="w-full bg-[#1b1d24] border border-gray-700 rounded-lg px-2.5 py-1.5 text-xs text-gray-300" />
-            </div>
-
-            <!-- Inglés -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-2 items-center">
-              <span class="text-xs font-bold text-blue-400">🇬🇧 English</span>
-              <input type="text" id="dishNameEn" placeholder="Name in English" required class="w-full bg-[#1b1d24] border border-gray-700 rounded-lg px-2.5 py-1.5 text-xs text-white" />
-              <input type="text" id="dishDescEn" placeholder="Description in English" required class="w-full bg-[#1b1d24] border border-gray-700 rounded-lg px-2.5 py-1.5 text-xs text-gray-300" />
-            </div>
-
-            <!-- Francés -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-2 items-center">
-              <span class="text-xs font-bold text-indigo-400">🇫🇷 Français</span>
-              <input type="text" id="dishNameFr" placeholder="Nom en Français" required class="w-full bg-[#1b1d24] border border-gray-700 rounded-lg px-2.5 py-1.5 text-xs text-white" />
-              <input type="text" id="dishDescFr" placeholder="Description en Français" required class="w-full bg-[#1b1d24] border border-gray-700 rounded-lg px-2.5 py-1.5 text-xs text-gray-300" />
-            </div>
-
-            <!-- Portugués -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-2 items-center">
-              <span class="text-xs font-bold text-emerald-400">🇧🇷 Português</span>
-              <input type="text" id="dishNamePt" placeholder="Nome em Português" required class="w-full bg-[#1b1d24] border border-gray-700 rounded-lg px-2.5 py-1.5 text-xs text-white" />
-              <input type="text" id="dishDescPt" placeholder="Descrição em Português" required class="w-full bg-[#1b1d24] border border-gray-700 rounded-lg px-2.5 py-1.5 text-xs text-gray-300" />
-            </div>
-          </div>
-        </div>
-
-        <div class="flex items-center justify-between pt-2">
-          <div>
-            <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Likes Iniciales</label>
-            <input type="number" id="dishLikes" value="150" class="w-24 bg-[#1e2029] border border-gray-700 rounded-lg px-2.5 py-1.5 text-xs text-white" />
-          </div>
-
-          <div class="flex items-center gap-2">
-            <button type="button" onclick="closeDishModal()" class="px-4 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-xs font-bold text-gray-300 transition">Cancelar</button>
-            <button type="submit" class="px-5 py-2 rounded-xl bg-[#fe2c55] hover:bg-[#e02449] text-xs font-bold text-white transition shadow-md shadow-pink-900/30">Guardar Plato</button>
-          </div>
-        </div>
-      </form>
-    </div>
+    </main>
   </div>
 
-  <div id="jsonModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-3 sm:p-4">
-    <div class="bg-[#15161d] border border-gray-800 rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
-      <div class="px-5 py-3.5 border-b border-gray-800 flex items-center justify-between bg-[#191b22]">
-        <h3 class="font-bold text-sm text-white flex items-center gap-2">
-          <i class="fa-solid fa-code text-[#25f4ee]"></i> Editor & Visor JSON Completo
-        </h3>
-        <button onclick="closeJsonModal()" class="w-7 h-7 rounded-full bg-gray-800 text-gray-400 hover:text-white flex items-center justify-center text-sm">&times;</button>
+  <!-- MODAL: AGREGAR / EDITAR PLATO MULTILINGÜE -->
+  <div class="modal-overlay" id="dishModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modalDishTitle" style="color:var(--gold);"><i class="fa-solid fa-bowl-food"></i> Editar Plato</h3>
+        <button style="background:none; border:none; color:#ccc; font-size:22px; cursor:pointer;" onclick="cerrarModalPlato()">&times;</button>
       </div>
 
-      <div class="p-4 flex-1 flex flex-col space-y-3 overflow-hidden">
-        <p class="text-xs text-gray-400">Puedes editar o pegar directamente la estructura del JSON para actualizar el menú completo de una sola vez:</p>
-        <textarea id="jsonEditorArea" class="w-full flex-1 bg-[#0d0e12] border border-gray-800 rounded-xl p-3 font-mono text-xs text-emerald-400 focus:outline-none focus:border-emerald-500 resize-none h-96"></textarea>
+      <!-- Pestañas de Idioma -->
+      <div class="lang-tabs">
+        <button class="lang-tab-btn active" onclick="switchLangTab('es')">🇪🇸 Español</button>
+        <button class="lang-tab-btn" onclick="switchLangTab('en')">🇬🇧 English</button>
+        <button class="lang-tab-btn" onclick="switchLangTab('fr')">🇫🇷 Français</button>
+        <button class="lang-tab-btn" onclick="switchLangTab('pt')">🇧🇷 Português</button>
       </div>
 
-      <div class="px-5 py-3 border-t border-gray-800 bg-[#191b22] flex items-center justify-between">
-        <button onclick="copyJsonToClipboard()" class="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs font-semibold text-gray-200 border border-gray-700 flex items-center gap-1.5">
-          <i class="fa-regular fa-copy"></i> Copiar Código
-        </button>
-
-        <div class="flex items-center gap-2">
-          <button onclick="closeJsonModal()" class="px-3.5 py-1.5 rounded-lg bg-gray-800 text-xs font-bold text-gray-300">Cerrar</button>
-          <button onclick="importJsonFromEditor()" class="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white shadow">Aplicar y Guardar</button>
+      <!-- Contenidos traducibles -->
+      <div id="langFields">
+        <div class="form-group">
+          <label class="form-label" id="lblDishName">Nombre del Plato (ES)</label>
+          <input type="text" id="inputDishName" class="form-input" placeholder="Ej: Lomo Saltado Criollo Gourmet"/>
         </div>
+
+        <div class="form-group">
+          <label class="form-label" id="lblDishDesc">Descripción (ES)</label>
+          <textarea id="inputDishDesc" class="form-textarea" rows="2" placeholder="Detalles de los ingredientes y preparación..."></textarea>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+        <div class="form-group">
+          <label class="form-label">Precio en Soles (PEN S/)</label>
+          <input type="number" id="inputDishPrice" class="form-input" step="0.5" placeholder="45.00"/>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Categoría</label>
+          <select id="inputDishCategory" class="form-select">
+            <option value="top">🔥 Especialidades (Top)</option>
+            <option value="mains">Platos Fuertes</option>
+            <option value="drinks">Bebidas y Cocteles</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+        <div class="form-group">
+          <label class="form-label">Etiqueta Destacada (Badge)</label>
+          <input type="text" id="inputDishTag" class="form-input" placeholder="Ej: Plato Bandera / Must Try"/>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Likes Iniciales</label>
+          <input type="number" id="inputDishLikes" class="form-input" value="150"/>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">URL del Video Vertical (MP4)</label>
+        <input type="text" id="inputDishVideo" class="form-input" placeholder="https://tudominio.com/videos/lomo.mp4"/>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">URL Imagen Poster (Fallback)</label>
+        <input type="text" id="inputDishPoster" class="form-input" placeholder="https://tudominio.com/fotos/lomo.jpg"/>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:8px;">
+        <button class="btn btn-secondary" onclick="cerrarModalPlato()">Cancelar</button>
+        <button class="btn btn-primary" onclick="guardarPlato()"><i class="fa-solid fa-floppy-disk"></i> Guardar Plato</button>
       </div>
     </div>
   </div>
 
-  <div id="adminToast" class="fixed bottom-6 right-6 z-50 bg-[#1c1e27] border border-gray-700 text-white px-4 py-2.5 rounded-xl shadow-2xl text-xs font-bold flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
-    <i class="fa-solid fa-circle-check text-emerald-400" id="toastIcon"></i>
-    <span id="toastMsg">Acción completada</span>
+  <!-- MODAL: GESTIÓN DE RESEÑAS -->
+  <div class="modal-overlay" id="reviewsAdminModal">
+    <div class="modal-box" style="max-width:550px;">
+      <div class="modal-header">
+        <h3 style="color:#38bdf8;"><i class="fa-solid fa-comments"></i> <span id="reviewsModalTitle">Reseñas del Plato</span></h3>
+        <button style="background:none; border:none; color:#ccc; font-size:22px; cursor:pointer;" onclick="cerrarModalReseñas()">&times;</button>
+      </div>
+
+      <div class="reviews-admin-list" id="reviewsListAdmin"></div>
+
+      <div style="display:flex; justify-content:flex-end; margin-top:10px;">
+        <button class="btn btn-secondary" onclick="cerrarModalReseñas()">Cerrar</button>
+      </div>
+    </div>
   </div>
 
   <script>
-    // Configuración y datos por defecto (sincronizados con menu.json)
-    const DEFAULT_DATA = {
-      restaurantConfig: {
-        brandName: "Inka Chef",
-        whatsapp: "51987654321",
-        yapePhone: "987654321",
-        accountHolder: "Inka Chef S.A.C.",
-        usdExchangeRate: 3.75,
-        baseUrl: window.location.href.replace("admin.html", "index.html")
-      },
-      menuItems: [
-        {
-          id: "dish_1",
-          category: "specials",
-          tag: "Imperdible",
-          pricePen: 48.00,
-          poster: "https://images.unsplash.com/photo-1544025162-d76694265947?w=900&auto=format&fit=crop&q=80",
-          videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-          likes: 540,
-          i18n: {
-            es: { name: "Lomo Saltado Ahumado", desc: "Trozos jugosos de lomo fino flambeados al pisco, cebolla morada crocante, tomate y papas amarillas fritas." },
-            en: { name: "Smoked Lomo Saltado", desc: "Tender beef tenderloin flambéed with Pisco, red onions, plum tomatoes, served with crispy yellow fries." },
-            fr: { name: "Lomo Saltado Fumé", desc: "Émincé de bœuf mariné sauté au wok, oignons rouges croquants, tomates et frites maison." },
-            pt: { name: "Lomo Saltado Defumado", desc: "Filé mignon suculento flambado com pisco, cebola roxa crocante, tomate e batatas amarelas fritas." }
-          }
-        },
-        {
-          id: "dish_2",
-          category: "mains",
-          tag: "Plato Bandera",
-          pricePen: 52.00,
-          poster: "https://images.unsplash.com/photo-1535400255456-984241443b29?w=900&auto=format&fit=crop&q=80",
-          videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-          likes: 672,
-          i18n: {
-            es: { name: "Ceviche Mixto Carretillero", desc: "Pesca del día con mariscos en leche de tigre de ají limo, acompañado de camote glaseado y chicharrón de calamar." },
-            en: { name: "Street-Style Mixed Ceviche", desc: "Catch of the day and seafood cured in citrus lime chili marinade, sweet potato and crispy calamari." },
-            fr: { name: "Ceviche Mixte du Pacifique", desc: "Poisson du jour et fruits de mer marinés au citron vert frais, patate douce glacée et calamars croustillants." },
-            pt: { name: "Ceviche Misto Carretillero", desc: "Peixe do dia e frutos do mar marinados em limão com pimenta, batata-doce e lula crocante." }
-          }
-        },
-        {
-          id: "dish_3",
-          category: "drinks",
-          tag: "Cocktail",
-          pricePen: 28.00,
-          poster: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=900&auto=format&fit=crop&q=80",
-          videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-          likes: 810,
-          i18n: {
-            es: { name: "Pisco Sour Catedral Clásico", desc: "Destilado peruano Quebranta de 42°, limón sutil recién exprimido, jarabe artesanal y espuma de clara suave." },
-            en: { name: "Classic Cathedral Pisco Sour", desc: "Peruvian Quebranta Pisco, fresh hand-squeezed lime juice, simple syrup, egg white foam and aromatic bitters." },
-            fr: { name: "Pisco Sour Cathédrale", desc: "Pisco Quebranta raffiné, citron vert pressé, sirop de canne et mousse onctueuse aux amers aromatiques." },
-            pt: { name: "Pisco Sour Catedral Clássico", desc: "Pisco Quebranta artesanal, limão espremido na hora, xarope caseiro e espuma cremosa com angostura." }
-          }
-        }
-      ]
+    // ESTADO PRINCIPAL DE LA CARTA
+    let CONFIG = {
+      whatsapp: "51969773064",
+      yapePhone: "+51 987 654 321",
+      exchangeRateUSD: 3.75
     };
 
-    // Estado en memoria
-    let appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
-    let activeFilter = "all";
+    let catalogo = [
+      {
+        id: "dish-1",
+        category: "top",
+        tag: "Plato Bandera",
+        precioPEN: 46.00,
+        disponible: true,
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+        posterUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?w=800&auto=format&fit=crop&q=80",
+        likes: 542,
+        reviews: [
+          { author: "Michael (USA)", rating: 5, text: "The meat was incredibly tender and the sauce is unmatched!" },
+          { author: "Lucia M.", rating: 5, text: "El mejor lomo saltado de Cusco, recomendado 100%." }
+        ],
+        i18n: {
+          es: { name: "Lomo Saltado al Wok Gourmet", desc: "Trozos jugosos de lomo fino salteados a fuego vivo con cebolla morada, ají amarillo y tomate, con crocantes papas nativas." },
+          en: { name: "Wok-Seared Lomo Saltado", desc: "Juicy beef tenderloin strips flambéed with red onions, yellow chili peppers and fresh tomatoes, served with crisp native potatoes." },
+          fr: { name: "Lomo Saltado au Wok", desc: "Émincé de filet de bœuf flambé au wok avec oignons rouges, piments doux et tomates fraîches, servi avec pommes de terre andines." },
+          pt: { name: "Lomo Saltado ao Wok", desc: "Tiras suculentas de filé mignon salteadas no wok com cebola roxa, ají amarillo e tomate, acompanhadas de batatas nativas." }
+        }
+      },
+      {
+        id: "dish-2",
+        category: "mains",
+        tag: "Imperdible",
+        precioPEN: 48.00,
+        disponible: true,
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+        posterUrl: "https://images.unsplash.com/photo-1535400255456-984241443b29?w=800&auto=format&fit=crop&q=80",
+        likes: 395,
+        reviews: [
+          { author: "Sophie (France)", rating: 5, text: "Poisson ultra frais, assaisonnement parfait !" }
+        ],
+        i18n: {
+          es: { name: "Ceviche Criollo del Pacífico", desc: "Pesca fresca del día marinada en zumo puro de limón, ají limo, camote glaseado y choclo gigante del Valle Sagrado." },
+          en: { name: "Pacific Catch Ceviche", desc: "Fresh fish of the day cured in pure lime juice, chili pepper, glazed sweet potato, and giant Sacred Valley corn." },
+          fr: { name: "Ceviche du Pacifique", desc: "Poisson frais du jour mariné au citron vert pur, piment limo, patate douce glacée et maïs géant de la Vallée Sacrée." },
+          pt: { name: "Ceviche do Pacífico", desc: "Peixe fresco marinado no limão puro, pimenta limo, batata-doce caramelizada e milho gigante do Vale Sagrado." }
+        }
+      },
+      {
+        id: "dish-3",
+        category: "drinks",
+        tag: "Coctel de la Casa",
+        precioPEN: 28.00,
+        disponible: true,
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+        posterUrl: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=800&auto=format&fit=crop&q=80",
+        likes: 680,
+        reviews: [
+          { author: "Carlos T.", rating: 5, text: "Excelente equilibrio, espuma perfecta y pisco de calidad." }
+        ],
+        i18n: {
+          es: { name: "Pisco Sour Catedral", desc: "Destilado de Pisco Quebranta premium, limón sutil, jarabe de goma artesanal y espuma de clara con gotas de amargo." },
+          en: { name: "Cathedral Pisco Sour", desc: "Crafted with premium Quebranta Pisco, freshly pressed lime, house-made syrup, egg white foam, and Angostura bitters." },
+          fr: { name: "Pisco Sour Cathédrale", desc: "Pisco Quebranta haut de gamme, citron vert frais, sirop artisanal, mousse veloutée et gouttes d'Angostura." },
+          pt: { name: "Pisco Sour Catedral", desc: "Pisco Quebranta selecionado, limão fresco, xarope artesanal, clara de ovo batida e gotas aromáticas." }
+        }
+      }
+    ];
 
-    function initDashboard() {
-      // Cargar campos de configuración
-      const cfg = appData.restaurantConfig;
-      document.getElementById("cfgBrandName").value = cfg.brandName || "Inka Chef";
-      document.getElementById("cfgExchangeRate").value = cfg.usdExchangeRate || 3.75;
-      document.getElementById("cfgWhatsapp").value = cfg.whatsapp || "";
-      document.getElementById("cfgYapePhone").value = cfg.yapePhone || "";
-      document.getElementById("cfgAccountHolder").value = cfg.accountHolder || "";
-      document.getElementById("cfgBaseUrl").value = cfg.baseUrl || window.location.href;
+    let currentEditingId = null;
+    let modalLang = "es";
+    let modalTempI18n = {};
+    let activeDishReviewsId = null;
 
-      updateMetricBadges();
-      renderDishesTable();
-      generateTableQR();
+    function init() {
+      cargarConfigLocal();
+      renderizarDishesGrid();
+      actualizarEstadisticas();
+      actualizarQRImprimible();
     }
 
-    function updateMetricBadges() {
-      const cfg = appData.restaurantConfig;
-      document.getElementById("statTotalDishes").innerText = appData.menuItems.length;
-      document.getElementById("statYapeNumber").innerText = cfg.yapePhone || "Sin definir";
-      document.getElementById("statWspNumber").innerText = `+${cfg.whatsapp || "51..."}`;
-      document.getElementById("statExchangeRate").innerText = `S/ ${Number(cfg.usdExchangeRate).toFixed(2)}`;
+    // CARGA Y GUARDADO DE AJUSTES GLOBALES
+    function cargarConfigLocal() {
+      const savedCfg = localStorage.getItem("inka_bistro_config");
+      if (savedCfg) {
+        CONFIG = JSON.parse(savedCfg);
+        document.getElementById("cfgWhatsApp").value = CONFIG.whatsapp;
+        document.getElementById("cfgYapePhone").value = CONFIG.yapePhone;
+        document.getElementById("cfgExchangeRate").value = CONFIG.exchangeRateUSD;
+      }
+
+      const savedMenu = localStorage.getItem("inka_bistro_menu");
+      if (savedMenu) {
+        catalogo = JSON.parse(savedMenu);
+      }
     }
 
-    function renderDishesTable() {
-      const tbody = document.getElementById("dishesTableBody");
-      tbody.innerHTML = "";
-      const rate = Number(appData.restaurantConfig.usdExchangeRate) || 3.75;
+    function guardarConfiguracion() {
+      CONFIG.whatsapp = document.getElementById("cfgWhatsApp").value.trim();
+      CONFIG.yapePhone = document.getElementById("cfgYapePhone").value.trim();
+      CONFIG.exchangeRateUSD = parseFloat(document.getElementById("cfgExchangeRate").value) || 3.75;
 
-      const filtered = activeFilter === "all" 
-        ? appData.menuItems 
-        : appData.menuItems.filter(item => item.category === activeFilter);
+      localStorage.setItem("inka_bistro_config", JSON.stringify(CONFIG));
+      alert("Ajustes de restaurante y cobro guardados con éxito.");
+      renderizarDishesGrid();
+    }
 
-      if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-500 font-semibold">No hay platos en esta categoría</td></tr>`;
+    function persistirMenu() {
+      localStorage.setItem("inka_bistro_menu", JSON.stringify(catalogo));
+    }
+
+    // ACTUALIZACIÓN DE ESTADÍSTICAS
+    function actualizarEstadisticas() {
+      document.getElementById("statTotalDishes").innerText = catalogo.length;
+      document.getElementById("statSpecialties").innerText = catalogo.filter(d => d.category === "top").length;
+      document.getElementById("statDrinks").innerText = catalogo.filter(d => d.category === "drinks").length;
+    }
+
+    // RENDERIZADO DE PLATOS
+    function renderizarDishesGrid() {
+      const grid = document.getElementById("dishesGrid");
+      grid.innerHTML = "";
+
+      catalogo.forEach((dish) => {
+        const es = dish.i18n.es || {};
+        const usdPrice = (dish.precioPEN / CONFIG.exchangeRateUSD).toFixed(2);
+        const reviewsCount = dish.reviews ? dish.reviews.length : 0;
+
+        const card = document.createElement("div");
+        card.className = "dish-admin-card";
+        card.innerHTML = `
+          <div class="dish-media-header">
+            <img src="${dish.posterUrl || 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500'}" alt="${es.name}" />
+            <span class="dish-category-badge">${dish.category}</span>
+            ${dish.tag ? `<span class="dish-tag-badge">${dish.tag}</span>` : ""}
+          </div>
+
+          <div class="dish-admin-body">
+            <div class="dish-admin-title">${es.name}</div>
+            <div class="dish-admin-desc">${es.desc}</div>
+
+            <div class="dish-admin-prices">
+              <span class="price-pen">S/ ${dish.precioPEN.toFixed(2)}</span>
+              <span class="price-usd">≈ $ ${usdPrice} USD</span>
+            </div>
+
+            <div class="dish-admin-reviews-badge" onclick="abrirModalReseñas('${dish.id}')">
+              <i class="fa-solid fa-comments"></i> ${reviewsCount} reseñas verificadas
+            </div>
+          </div>
+
+          <div class="dish-admin-footer">
+            <span style="font-size:12px; color:#aaa;"><i class="fa-solid fa-heart" style="color:#ef4444;"></i> ${dish.likes}</span>
+            <div style="display:flex; gap:6px;">
+              <button class="btn btn-secondary" style="padding:5px 10px; font-size:12px;" onclick="abrirModalPlato('${dish.id}')">
+                <i class="fa-solid fa-pen"></i>
+              </button>
+              <button class="btn btn-danger" style="padding:5px 10px; font-size:12px;" onclick="eliminarPlato('${dish.id}')">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      actualizarEstadisticas();
+    }
+
+    // MODAL DE CREACIÓN / EDICIÓN MULTILINGÜE
+    function abrirModalPlato(id = null) {
+      currentEditingId = id;
+      modalLang = "es";
+
+      if (id) {
+        const dish = catalogo.find(d => d.id === id);
+        document.getElementById("modalDishTitle").innerText = "Editar Plato";
+        document.getElementById("inputDishPrice").value = dish.precioPEN;
+        document.getElementById("inputDishCategory").value = dish.category;
+        document.getElementById("inputDishTag").value = dish.tag || "";
+        document.getElementById("inputDishLikes").value = dish.likes || 100;
+        document.getElementById("inputDishVideo").value = dish.videoUrl;
+        document.getElementById("inputDishPoster").value = dish.posterUrl;
+        modalTempI18n = JSON.parse(JSON.stringify(dish.i18n));
+      } else {
+        document.getElementById("modalDishTitle").innerText = "Nuevo Plato";
+        document.getElementById("inputDishPrice").value = "";
+        document.getElementById("inputDishCategory").value = "top";
+        document.getElementById("inputDishTag").value = "";
+        document.getElementById("inputDishLikes").value = "100";
+        document.getElementById("inputDishVideo").value = "";
+        document.getElementById("inputDishPoster").value = "";
+        modalTempI18n = {
+          es: { name: "", desc: "" },
+          en: { name: "", desc: "" },
+          fr: { name: "", desc: "" },
+          pt: { name: "", desc: "" }
+        };
+      }
+
+      cargarCamposIdioma();
+      document.getElementById("dishModal").classList.add("active");
+    }
+
+    function cerrarModalPlato() {
+      document.getElementById("dishModal").classList.remove("active");
+    }
+
+    function switchLangTab(lang) {
+      guardarCamposIdiomaActual();
+      modalLang = lang;
+
+      document.querySelectorAll(".lang-tab-btn").forEach(b => b.classList.remove("active"));
+      event.target.classList.add("active");
+
+      cargarCamposIdioma();
+    }
+
+    function guardarCamposIdiomaActual() {
+      if (!modalTempI18n[modalLang]) modalTempI18n[modalLang] = {};
+      modalTempI18n[modalLang].name = document.getElementById("inputDishName").value.trim();
+      modalTempI18n[modalLang].desc = document.getElementById("inputDishDesc").value.trim();
+    }
+
+    function cargarCamposIdioma() {
+      const data = modalTempI18n[modalLang] || { name: "", desc: "" };
+      document.getElementById("lblDishName").innerText = `Nombre del Plato (${modalLang.toUpperCase()})`;
+      document.getElementById("lblDishDesc").innerText = `Descripción (${modalLang.toUpperCase()})`;
+      document.getElementById("inputDishName").value = data.name || "";
+      document.getElementById("inputDishDesc").value = data.desc || "";
+    }
+
+    function guardarPlato() {
+      guardarCamposIdiomaActual();
+
+      const price = parseFloat(document.getElementById("inputDishPrice").value);
+      if (isNaN(price) || price <= 0) {
+        alert("Por favor ingresa un precio válido en Soles (PEN).");
         return;
       }
 
-      filtered.forEach((dish) => {
-        const tr = document.createElement("tr");
-        tr.className = "hover:bg-[#181a22] transition border-b border-gray-800/40";
-        const usdVal = (dish.pricePen / rate).toFixed(2);
-
-        tr.innerHTML = `
-          <td class="py-3 px-3">
-            <div class="flex items-center gap-3">
-              <img src="${dish.poster}" alt="Preview" class="w-11 h-14 object-cover rounded-lg border border-gray-700 bg-gray-900" onerror="this.src='https://placehold.co/80x120/1f2026/ffffff?text=Video'" />
-              <div>
-                <p class="font-extrabold text-white text-xs">${dish.i18n.es?.name || "Sin nombre"}</p>
-                <p class="text-[11px] text-gray-400 line-clamp-1 max-w-[200px]">${dish.i18n.es?.desc || ""}</p>
-                <a href="${dish.videoUrl}" target="_blank" class="text-[10px] text-[#25f4ee] hover:underline flex items-center gap-1 mt-0.5">
-                  <i class="fa-solid fa-circle-play"></i> Video MP4
-                </a>
-              </div>
-            </div>
-          </td>
-
-          <td class="py-3 px-3">
-            <span class="inline-block px-2 py-0.5 rounded bg-gray-800 text-gray-300 text-[10px] uppercase font-bold mb-1">${dish.category}</span>
-            <br>
-            ${dish.tag ? `<span class="inline-block px-1.5 py-0.5 rounded bg-teal-500/10 text-teal-300 border border-teal-500/20 text-[10px] font-bold">${dish.tag}</span>` : ""}
-          </td>
-
-          <td class="py-3 px-3">
-            <div class="font-black text-white text-xs">S/ ${Number(dish.pricePen).toFixed(2)}</div>
-            <div class="text-[11px] text-[#25f4ee] font-semibold">~$${usdVal} USD</div>
-          </td>
-
-          <td class="py-3 px-3">
-            <div class="flex items-center gap-1 text-[10px]">
-              <span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold" title="Español">ES</span>
-              <span class="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 font-bold" title="Inglés">EN</span>
-              <span class="px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-bold" title="Francés">FR</span>
-              <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold" title="Portugués">PT</span>
-            </div>
-          </td>
-
-          <td class="py-3 px-3 font-bold text-gray-300">
-            <i class="fa-solid fa-heart text-[#fe2c55] mr-1"></i> ${dish.likes || 0}
-          </td>
-
-          <td class="py-3 px-3 text-right">
-            <div class="flex items-center justify-end gap-1.5">
-              <button onclick="editDish('${dish.id}')" class="p-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white transition" title="Editar">
-                <i class="fa-solid fa-pen-to-square text-xs"></i>
-              </button>
-              <button onclick="deleteDish('${dish.id}')" class="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-white transition" title="Eliminar">
-                <i class="fa-solid fa-trash text-xs"></i>
-              </button>
-            </div>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function filterDishes(cat) {
-      activeFilter = cat;
-      document.querySelectorAll(".cat-pill").forEach(el => {
-        el.classList.remove("bg-[#fe2c55]", "text-white");
-        el.classList.add("bg-gray-800", "text-gray-300");
-      });
-      event.target.classList.remove("bg-gray-800", "text-gray-300");
-      event.target.classList.add("bg-[#fe2c55]", "text-white");
-      renderDishesTable();
-    }
-
-    function saveGlobalSettings() {
-      appData.restaurantConfig.brandName = document.getElementById("cfgBrandName").value.trim();
-      appData.restaurantConfig.usdExchangeRate = parseFloat(document.getElementById("cfgExchangeRate").value) || 3.75;
-      appData.restaurantConfig.whatsapp = document.getElementById("cfgWhatsapp").value.trim();
-      appData.restaurantConfig.yapePhone = document.getElementById("cfgYapePhone").value.trim();
-      appData.restaurantConfig.accountHolder = document.getElementById("cfgAccountHolder").value.trim();
-      appData.restaurantConfig.baseUrl = document.getElementById("cfgBaseUrl").value.trim();
-
-      updateMetricBadges();
-      renderDishesTable();
-      generateTableQR();
-      showAdminToast("Ajustes y tipo de cambio guardados con éxito.");
-    }
-
-    function openDishModal(dishId = null) {
-      const modal = document.getElementById("dishModal");
-      const form = document.getElementById("dishForm");
-      form.reset();
-
-      if (dishId) {
-        document.getElementById("modalDishTitle").innerHTML = `<i class="fa-solid fa-pen-to-square text-[#fe2c55]"></i> Editar Plato`;
-        const item = appData.menuItems.find(d => d.id === dishId);
-        if (item) {
-          document.getElementById("editDishId").value = item.id;
-          document.getElementById("dishCategory").value = item.category;
-          document.getElementById("dishTag").value = item.tag || "";
-          document.getElementById("dishPricePen").value = item.pricePen;
-          document.getElementById("dishVideoUrl").value = item.videoUrl;
-          document.getElementById("dishPoster").value = item.poster;
-          document.getElementById("dishLikes").value = item.likes || 100;
-
-          document.getElementById("dishNameEs").value = item.i18n.es?.name || "";
-          document.getElementById("dishDescEs").value = item.i18n.es?.desc || "";
-          document.getElementById("dishNameEn").value = item.i18n.en?.name || "";
-          document.getElementById("dishDescEn").value = item.i18n.en?.desc || "";
-          document.getElementById("dishNameFr").value = item.i18n.fr?.name || "";
-          document.getElementById("dishDescFr").value = item.i18n.fr?.desc || "";
-          document.getElementById("dishNamePt").value = item.i18n.pt?.name || "";
-          document.getElementById("dishDescPt").value = item.i18n.pt?.desc || "";
-        }
-      } else {
-        document.getElementById("modalDishTitle").innerHTML = `<i class="fa-solid fa-plus text-[#fe2c55]"></i> Agregar Nuevo Plato`;
-        document.getElementById("editDishId").value = "";
-        document.getElementById("dishLikes").value = Math.floor(Math.random() * 200) + 150;
+      if (!modalTempI18n.es.name) {
+        alert("El plato debe tener al menos un nombre en español.");
+        return;
       }
 
-      modal.classList.remove("hidden");
-      modal.classList.add("flex");
-    }
+      // Copia de respaldo para idiomas vacíos
+      ["en", "fr", "pt"].forEach(l => {
+        if (!modalTempI18n[l].name) modalTempI18n[l].name = modalTempI18n.es.name;
+        if (!modalTempI18n[l].desc) modalTempI18n[l].desc = modalTempI18n.es.desc;
+      });
 
-    function closeDishModal() {
-      const modal = document.getElementById("dishModal");
-      modal.classList.add("hidden");
-      modal.classList.remove("flex");
-    }
-
-    function editDish(id) {
-      openDishModal(id);
-    }
-
-    function saveDish(event) {
-      event.preventDefault();
-      const dishId = document.getElementById("editDishId").value;
-      const priceVal = parseFloat(document.getElementById("dishPricePen").value) || 0;
-
-      const dishObj = {
-        id: dishId || `dish_${Date.now()}`,
-        category: document.getElementById("dishCategory").value,
-        tag: document.getElementById("dishTag").value.trim(),
-        pricePen: priceVal,
-        poster: document.getElementById("dishPoster").value.trim(),
-        videoUrl: document.getElementById("dishVideoUrl").value.trim(),
-        likes: parseInt(document.getElementById("dishLikes").value) || 120,
-        i18n: {
-          es: {
-            name: document.getElementById("dishNameEs").value.trim(),
-            desc: document.getElementById("dishDescEs").value.trim()
-          },
-          en: {
-            name: document.getElementById("dishNameEn").value.trim(),
-            desc: document.getElementById("dishDescEn").value.trim()
-          },
-          fr: {
-            name: document.getElementById("dishNameFr").value.trim(),
-            desc: document.getElementById("dishDescFr").value.trim()
-          },
-          pt: {
-            name: document.getElementById("dishNamePt").value.trim(),
-            desc: document.getElementById("dishDescPt").value.trim()
-          }
-        }
+      const platoData = {
+        id: currentEditingId || `dish-${Date.now()}`,
+        category: document.getElementById("inputDishCategory").value,
+        tag: document.getElementById("inputDishTag").value.trim(),
+        precioPEN: price,
+        likes: parseInt(document.getElementById("inputDishLikes").value) || 100,
+        videoUrl: document.getElementById("inputDishVideo").value.trim() || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+        posterUrl: document.getElementById("inputDishPoster").value.trim() || "https://images.unsplash.com/photo-1544025162-d76694265947?w=800",
+        i18n: modalTempI18n
       };
 
-      if (dishId) {
-        const index = appData.menuItems.findIndex(d => d.id === dishId);
-        if (index !== -1) {
-          appData.menuItems[index] = dishObj;
-        }
+      if (currentEditingId) {
+        const idx = catalogo.findIndex(d => d.id === currentEditingId);
+        platoData.reviews = catalogo[idx].reviews || [];
+        catalogo[idx] = platoData;
       } else {
-        appData.menuItems.unshift(dishObj);
+        platoData.reviews = [];
+        catalogo.push(platoData);
       }
 
-      closeDishModal();
-      renderDishesTable();
-      updateMetricBadges();
-      showAdminToast("Plato guardado correctamente en la carta.");
+      persistirMenu();
+      cerrarModalPlato();
+      renderizarDishesGrid();
     }
 
-    function deleteDish(dishId) {
-      appData.menuItems = appData.menuItems.filter(d => d.id !== dishId);
-      renderDishesTable();
-      updateMetricBadges();
-      showAdminToast("Plato retirado de la carta.");
+    function eliminarPlato(id) {
+      if (confirm("¿Estás seguro de que deseas eliminar este plato del catálogo?")) {
+        catalogo = catalogo.filter(d => d.id !== id);
+        persistirMenu();
+        renderizarDishesGrid();
+      }
     }
 
-    function generateTableQR() {
-      const box = document.getElementById("qrCanvasBox");
-      box.innerHTML = "";
-      const table = encodeURIComponent(document.getElementById("tableIdInput").value.trim() || "Mesa");
-      const base = appData.restaurantConfig.baseUrl || window.location.href;
-      const targetUrl = `${base}?table=${table}`;
+    // MODAL Y GESTIÓN DE RESEÑAS
+    function abrirModalReseñas(id) {
+      activeDishReviewsId = id;
+      const dish = catalogo.find(d => d.id === id);
+      if (!dish) return;
 
-      new QRCode(box, {
-        text: targetUrl,
-        width: 120,
-        height: 120,
-        colorDark: "#000000",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H
-      });
-    }
+      document.getElementById("reviewsModalTitle").innerText = `Reseñas: ${dish.i18n.es.name}`;
+      const container = document.getElementById("reviewsListAdmin");
+      container.innerHTML = "";
 
-    function printTableQR() {
-      const table = document.getElementById("tableIdInput").value.trim() || "Mesa";
-      const qrImg = document.querySelector("#qrCanvasBox img");
-      if (!qrImg) return;
-
-      const printWindow = window.open("", "_blank");
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>QR ${table}</title>
-            <style>
-              body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-              .card { border: 2px solid #000; border-radius: 16px; padding: 24px; text-align: center; width: 260px; }
-              h1 { font-size: 20px; margin-bottom: 4px; }
-              h2 { font-size: 14px; color: #fe2c55; margin-bottom: 16px; }
-              img { width: 180px; height: 180px; margin-bottom: 12px; }
-              p { font-size: 11px; color: #555; }
-            </style>
-          </head>
-          <body>
-            <div class="card">
-              <h1>${appData.restaurantConfig.brandName}</h1>
-              <h2>${table}</h2>
-              <img src="${qrImg.src}" />
-              <p>Escanea con tu celular para ver la carta en video y ordenar.</p>
+      if (dish.reviews && dish.reviews.length > 0) {
+        dish.reviews.forEach((r, idx) => {
+          const item = document.createElement("div");
+          item.className = "review-admin-item";
+          item.innerHTML = `
+            <div>
+              <div style="font-size:12px; font-weight:800; color:#fbbf24;">${r.author} • ${'⭐'.repeat(r.rating || 5)}</div>
+              <p style="font-size:12px; color:#eee; margin-top:3px;">${r.text}</p>
             </div>
-            <script>window.onload = () => { window.print(); window.close(); }<\/script>
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
+            <button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="eliminarReseña(${idx})">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          `;
+          container.appendChild(item);
+        });
+      } else {
+        container.innerHTML = `<p style="font-size:12px; color:#aaa; text-align:center; padding:16px;">Este plato no tiene reseñas aún.</p>`;
+      }
+
+      document.getElementById("reviewsAdminModal").classList.add("active");
     }
 
-    function openJsonModal() {
-      document.getElementById("jsonEditorArea").value = JSON.stringify(appData, null, 2);
-      document.getElementById("jsonModal").classList.remove("hidden");
-      document.getElementById("jsonModal").classList.add("flex");
+    function cerrarModalReseñas() {
+      document.getElementById("reviewsAdminModal").classList.remove("active");
     }
 
-    function closeJsonModal() {
-      document.getElementById("jsonModal").classList.add("hidden");
-      document.getElementById("jsonModal").classList.remove("flex");
-    }
-
-    function copyJsonToClipboard() {
-      const text = document.getElementById("jsonEditorArea").value;
-      const dummy = document.createElement("textarea");
-      dummy.value = text;
-      document.body.appendChild(dummy);
-      dummy.select();
-      document.execCommand("copy");
-      document.body.removeChild(dummy);
-      showAdminToast("JSON copiado al portapapeles.");
-    }
-
-    function importJsonFromEditor() {
-      try {
-        const parsed = JSON.parse(document.getElementById("jsonEditorArea").value);
-        if (parsed.menuItems && Array.isArray(parsed.menuItems)) {
-          appData = parsed;
-          initDashboard();
-          closeJsonModal();
-          showAdminToast("Catálogo JSON importado y actualizado con éxito.");
-        } else {
-          showAdminToast("Formato inválido: Falta la lista de 'menuItems'.");
-        }
-      } catch (err) {
-        showAdminToast("Error de sintaxis en el JSON.");
+    function eliminarReseña(idx) {
+      const dish = catalogo.find(d => d.id === activeDishReviewsId);
+      if (dish && dish.reviews) {
+        dish.reviews.splice(idx, 1);
+        persistirMenu();
+        abrirModalReseñas(activeDishReviewsId);
+        renderizarDishesGrid();
       }
     }
 
-    function downloadJsonFile() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+    // GENERADOR E IMPRESIÓN DE QR POR MESA
+    function actualizarQRImprimible() {
+      const table = document.getElementById("qrTableInput").value.trim() || "Mesa 01";
+      const baseUrl = document.getElementById("qrBaseUrlInput").value.trim() || "https://tudominio.com/menu/";
+      const fullUrl = `${baseUrl}?mesa=${encodeURIComponent(table)}`;
+
+      document.getElementById("qrTableLabel").innerText = table;
+      document.getElementById("qrGeneratedImg").src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(fullUrl)}`;
+    }
+
+    function imprimirQRMesa() {
+      const printContents = document.getElementById("qrPrintArea").outerHTML;
+      const originalContents = document.body.innerHTML;
+
+      document.body.innerHTML = `
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:sans-serif;">
+          <h2 style="margin-bottom:10px; color:#000;">Inka Bistro Cusco</h2>
+          ${printContents}
+          <p style="font-size:12px; color:#555; margin-top:8px;">Escanea para ver la carta y pedir desde tu celular</p>
+        </div>
+      `;
+      window.print();
+      document.body.innerHTML = originalContents;
+      window.location.reload();
+    }
+
+    // EXPORTADOR JSON
+    function exportarJSON() {
+      const exportData = {
+        restaurante: "Inka Bistro Cusco",
+        config: CONFIG,
+        catalogo: catalogo
+      };
+
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
       const downloadAnchor = document.createElement("a");
       downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", "menu.json");
+      downloadAnchor.setAttribute("download", "productos.json");
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
-      showAdminToast("Archivo menu.json descargado.");
     }
 
-    function showAdminToast(msg) {
-      const toast = document.getElementById("adminToast");
-      const msgBox = document.getElementById("toastMsg");
-      msgBox.innerText = msg;
-      toast.classList.remove("translate-y-20", "opacity-0");
-      toast.classList.add("translate-y-0", "opacity-100");
-
-      setTimeout(() => {
-        toast.classList.add("translate-y-20", "opacity-0");
-        toast.classList.remove("translate-y-0", "opacity-100");
-      }, 2500);
-    }
-
-    window.addEventListener("DOMContentLoaded", initDashboard);
+    window.addEventListener("DOMContentLoaded", init);
   </script>
 </body>
 </html>
