@@ -1,0 +1,720 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Administración | LeoGas Cusco</title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; background: #f8fafc; color: #1e1b4b; padding: 18px; max-width: 820px; margin: auto; }
+    
+    .header-admin {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    
+    h2 { color: #6b21a8; margin: 0; }
+    
+    .dashboard-tabs { display: flex; gap: 8px; margin: 16px 0; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; overflow-x: auto; }
+    .tab-btn { background: none; border: none; font-weight: 800; font-size: 13px; padding: 8px 14px; color: #64748b; cursor: pointer; border-radius: 8px; white-space: nowrap; }
+    .tab-btn.active { background: #f3e8ff; color: #581c87; }
+
+    .card { background: #fff; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+    
+    label { font-size: 11px; font-weight: 800; color: #64748b; display: block; margin-top: 8px; text-transform: uppercase; }
+    input, textarea, select { width: 100%; padding: 9px; margin-top: 4px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+    
+    .btn { padding: 10px 14px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; }
+    .btn-save { background: #6b21a8; color: white; width: 100%; font-size: 16px; padding: 14px; margin-top: 10px; }
+    .btn-add { background: #16a34a; color: white; margin-bottom: 14px; width: 100%; font-size: 14px; }
+    .btn-del { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; margin-top: 10px; font-size: 12px; }
+    
+    .admin-img-preview-box { display: flex; align-items: center; gap: 12px; margin-top: 6px; background: #faf5ff; padding: 10px; border-radius: 8px; border: 1px solid #e9d5ff; }
+    .admin-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1; background: #fff; }
+
+    /* ACORDEÓN PROTEGIDO PARA TOKEN GITHUB */
+    .token-accordion-wrapper {
+      background: #fdf4ff;
+      border: 1.5px dashed #c084fc;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .token-accordion-trigger {
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      font-weight: 800;
+      color: #6b21a8;
+      font-size: 13px;
+    }
+
+    .token-accordion-trigger:hover {
+      background: #fae8ff;
+    }
+
+    .token-accordion-content {
+      display: none;
+      padding: 14px 16px;
+      background: #fff;
+      border-top: 1px solid #e9d5ff;
+    }
+
+    /* TARJETAS MULTI-REPARTIDOR */
+    .repartidor-card {
+      background: #ffffff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .repartidor-card.activo { border-color: #86efac; background: #f0fdf4; }
+    .repartidor-header { display: flex; justify-content: space-between; align-items: center; }
+    .badge-status { font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 12px; background: #e2e8f0; color: #64748b; }
+    .badge-status.online { background: #dcfce7; color: #15803d; }
+    .repartidor-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    
+    .btn-toggle-gps {
+      background: #16a34a;
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .btn-toggle-gps.off { background: #dc2626; }
+
+    /* PANTALLA LOGIN */
+    .login-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 80vh;
+    }
+
+    .login-card {
+      background: #fff;
+      padding: 24px 28px;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .btn-logout {
+      background: #f1f5f9;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    /* TABLA REPORTES */
+    .custom-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; margin-top: 10px; }
+    .custom-table th, .custom-table td { border: 1px solid #e2e8f0; padding: 8px 10px; }
+    .custom-table th { background: #f1f5f9; color: #334155; }
+    .btn-print { background: #2563eb; color: #fff; padding: 8px 14px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; }
+
+    @media print {
+      body * { visibility: hidden; }
+      #areaImpresion, #areaImpresion * { visibility: visible; }
+      #areaImpresion { position: absolute; left: 0; top: 0; width: 100%; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PANTALLA LOGIN -->
+  <div id="pantallaLogin" class="login-container">
+    <div class="login-card">
+      <div style="text-align:center; font-size:38px; margin-bottom:6px;">🦁</div>
+      <h3 style="color:#6b21a8; text-align:center; margin-bottom:4px;">Acceso Administrador</h3>
+      <p style="font-size:12px; color:#64748b; text-align:center; margin-bottom:16px;">LeoGas Cusco • Sistema de Control</p>
+      
+      <form onsubmit="verificarLoginAdmin(event)">
+        <label>Usuario</label>
+        <input type="text" id="loginUsuario" placeholder="admin" required autofocus>
+        
+        <label>Contraseña</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" required>
+        
+        <button type="submit" class="btn btn-save" style="margin-top:16px;">Ingresar al Panel</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- PANEL PRINCIPAL (SE MUESTRA TRAS LOGIN) -->
+  <div id="panelAdminPrincipal" style="display: none;">
+
+    <div class="header-admin no-print">
+      <h2>🦁 Panel de Administración LeoGas</h2>
+      <button class="btn-logout" onclick="cerrarSesionAdmin()">🚪 Salir</button>
+    </div>
+    <p style="font-size: 13px; color: #64748b;" class="no-print">Administra tus productos, teléfonos, GPS y ventas.</p>
+
+    <!-- ACORDEÓN PROTEGIDO CON CÓDIGO MAESTRO -->
+    <div class="token-accordion-wrapper no-print">
+      <button class="token-accordion-trigger" type="button" onclick="alternarAcordeonToken()">
+        <span>🔐 Token Personal de GitHub (Acceso Desarrollador)</span>
+        <span id="accordionIcon">🔒 Desplegar</span>
+      </button>
+
+      <div class="token-accordion-content" id="contenidoAcordeonToken">
+        <p style="font-size:11px; color:#64748b; margin-bottom:8px;">
+          Solo tú tienes autorización para cambiar la llave de actualización del repositorio.
+        </p>
+        <label for="ghTokenInput">Token Personal de GitHub (ghp_... o github_pat_...):</label>
+        <input type="password" id="ghTokenInput" placeholder="Pega el token aquí">
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <button class="btn" style="background:#6b21a8; color:#fff; font-size:12px;" onclick="guardarTokenManual()">💾 Guardar Llave</button>
+          <button class="btn" style="background:#fee2e2; color:#dc2626; font-size:12px;" onclick="borrarTokenManual()">🗑️ Limpiar Llave</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-tabs no-print">
+      <button class="tab-btn active" id="tabBtnProductos" onclick="cambiarTab('productos')">📝 Balones y Precios</button>
+      <button class="tab-btn" id="tabBtnTelefonos" onclick="cambiarTab('telefonos')">📞 Teléfonos y WhatsApp</button>
+      <button class="tab-btn" id="tabBtnGPS" onclick="cambiarTab('gps')">📡 Flota GPS Repartidores</button>
+      <button class="tab-btn" id="tabBtnReportes" onclick="cambiarTab('reportes')">📊 Reporte Contable & Ventas</button>
+    </div>
+
+    <!-- PESTAÑA 1: BALONES -->
+    <div id="seccionProductos">
+      <button class="btn btn-add no-print" onclick="agregarNuevoProducto()">➕ Agregar Nuevo Balón</button>
+      <div id="listaProductos">Cargando catálogo...</div>
+      <button class="btn btn-save no-print" id="btnPublicar" onclick="sincronizarConGitHub()">🚀 Guardar y Publicar en GitHub</button>
+      <div id="statusMsg" style="text-align:center; margin-top:8px; font-weight:bold;"></div>
+    </div>
+
+    <!-- PESTAÑA 2: TELÉFONOS -->
+    <div id="seccionTelefonos" style="display: none;">
+      <div class="card">
+        <h3 style="color:var(--primary); font-size:16px; margin-bottom:12px;">📞 Edición de Teléfonos del Volante y Pedidos</h3>
+        
+        <label>Número WhatsApp para Pedidos (con código de país, ej: 51969773064):</label>
+        <input type="text" id="telWhatsApp" placeholder="51969773064">
+
+        <label>Teléfono 1 (Llamada Rápida 1):</label>
+        <input type="text" id="telFijo1" placeholder="950 727 212">
+
+        <label>Teléfono 2 (Llamada Rápida 2):</label>
+        <input type="text" id="telFijo2" placeholder="984 285 500">
+
+        <label>Teléfono 3 (Fijo o Central Cusco):</label>
+        <input type="text" id="telFijo3" placeholder="(084) 501111">
+
+        <button class="btn btn-save" onclick="sincronizarConGitHub()" style="margin-top:16px;">💾 Guardar Teléfonos en GitHub</button>
+      </div>
+    </div>
+
+    <!-- PESTAÑA 3: MULTI-REPARTIDORES GPS -->
+    <div id="seccionGPS" style="display: none;">
+      <button class="btn btn-add" onclick="agregarNuevoRepartidor()">➕ Agregar Nuevo Repartidor a la Flota</button>
+      <p style="font-size:12px; color:#64748b; margin-bottom:14px;">
+        💡 Cada repartidor entra a este panel desde su celular, ubica su nombre y activa su GPS.
+      </p>
+      <div id="listaRepartidores">Cargando lista de repartidores...</div>
+      <button class="btn btn-save" onclick="sincronizarConGitHub()">💾 Guardar Cambios de Flota en GitHub</button>
+    </div>
+
+    <!-- PESTAÑA 4: REPORTES -->
+    <div id="seccionReportes" style="display: none;">
+      <div id="areaImpresion">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h3>📋 Reporte de Entregas Realizadas</h3>
+          <button class="btn-print no-print" onclick="window.print()">🖨️ Imprimir Reporte</button>
+        </div>
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Fecha y Hora</th>
+              <th>Cliente</th>
+              <th>Detalle</th>
+              <th>Total</th>
+              <th>Pago</th>
+            </tr>
+          </thead>
+          <tbody id="tablaVentasBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const USUARIO = "phyxcius";
+    const REPOSITORIO = "Leogascusco";
+    const ARCHIVO = "productos.json";
+    
+    // CÓDIGOS DE SEGURIDAD
+    const CODIGO_CREADOR_TOKEN = "42423549";
+    const STORAGE_KEY_SECRETA = "leogas_vault_secret_token";
+    const STORAGE_KEY_AUTH = "leogas_admin_sesion_activa";
+
+    let productos = [];
+    let telefonos = {
+      whatsapp: "51969773064",
+      tel1: "950 727 212",
+      tel2: "984 285 500",
+      tel3: "(084) 501111"
+    };
+
+    let repartidores = [
+      { id: "rep-1", nombre: "Repartidor 1 (Moto Centro)", online: false, lat: -13.5167, lng: -71.9788 }
+    ];
+
+    let watchIdGPS = null;
+    let repartidorActivoId = null;
+    let tokenDesbloqueado = false;
+
+    // LOGIN INICIAL
+    function verificarLoginAdmin(e) {
+      e.preventDefault();
+      const u = document.getElementById('loginUsuario').value.trim();
+      const p = document.getElementById('loginPassword').value.trim();
+
+      if (u === 'admin' && p === 'regocijo123') {
+        sessionStorage.setItem(STORAGE_KEY_AUTH, "true");
+        mostrarPanelAdmin();
+      } else {
+        alert("Credenciales incorrectas. Verifique usuario y contraseña.");
+      }
+    }
+
+    function mostrarPanelAdmin() {
+      document.getElementById('pantallaLogin').style.display = 'none';
+      document.getElementById('panelAdminPrincipal').style.display = 'block';
+      cargarDesdeGitHub();
+    }
+
+    function cerrarSesionAdmin() {
+      sessionStorage.removeItem(STORAGE_KEY_AUTH);
+      document.getElementById('panelAdminPrincipal').style.display = 'none';
+      document.getElementById('pantallaLogin').style.display = 'flex';
+      document.getElementById('loginPassword').value = '';
+    }
+
+    // ACORDEÓN PROTEGIDO CON CÓDIGO MAESTRO DEL CREADOR
+    function alternarAcordeonToken() {
+      const contenido = document.getElementById('contenidoAcordeonToken');
+      const icono = document.getElementById('accordionIcon');
+
+      if (contenido.style.display === 'block') {
+        contenido.style.display = 'none';
+        icono.innerText = "🔒 Desplegar";
+        return;
+      }
+
+      if (!tokenDesbloqueado) {
+        const pass = prompt("🔐 ACCESO CREADOR DEL SISTEMA:\n\nIngresa el código de seguridad para abrir el Token de GitHub:");
+        if (pass === CODIGO_CREADOR_TOKEN) {
+          tokenDesbloqueado = true;
+          abrirAcordeonToken();
+        } else if (pass !== null) {
+          alert("⛔ Código incorrecto. Acceso denegado.");
+        }
+      } else {
+        abrirAcordeonToken();
+      }
+    }
+
+    function abrirAcordeonToken() {
+      const contenido = document.getElementById('contenidoAcordeonToken');
+      const icono = document.getElementById('accordionIcon');
+      contenido.style.display = 'block';
+      icono.innerText = "🔓 Ocultar";
+      document.getElementById('ghTokenInput').value = obtenerTokenSecreto();
+    }
+
+    function obtenerTokenSecreto() {
+      return localStorage.getItem(STORAGE_KEY_SECRETA) || "";
+    }
+
+    function guardarTokenManual() {
+      const t = document.getElementById('ghTokenInput').value.trim();
+      if (!t) return alert("Por favor ingresa un token válido.");
+      localStorage.setItem(STORAGE_KEY_SECRETA, t);
+      alert("✔ Llave de GitHub guardada correctamente en este navegador.");
+      cargarDesdeGitHub();
+    }
+
+    function borrarTokenManual() {
+      if (confirm("¿Deseas eliminar el token guardado en este equipo?")) {
+        localStorage.removeItem(STORAGE_KEY_SECRETA);
+        document.getElementById('ghTokenInput').value = '';
+        alert("Token eliminado.");
+      }
+    }
+
+    function cambiarTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('seccionProductos').style.display = 'none';
+      document.getElementById('seccionTelefonos').style.display = 'none';
+      document.getElementById('seccionGPS').style.display = 'none';
+      document.getElementById('seccionReportes').style.display = 'none';
+
+      if (tab === 'productos') {
+        document.getElementById('tabBtnProductos').classList.add('active');
+        document.getElementById('seccionProductos').style.display = 'block';
+      } else if (tab === 'telefonos') {
+        document.getElementById('tabBtnTelefonos').classList.add('active');
+        document.getElementById('seccionTelefonos').style.display = 'block';
+        cargarValoresTelefonosEnFormulario();
+      } else if (tab === 'gps') {
+        document.getElementById('tabBtnGPS').classList.add('active');
+        document.getElementById('seccionGPS').style.display = 'block';
+        renderizarRepartidores();
+      } else if (tab === 'reportes') {
+        document.getElementById('tabBtnReportes').classList.add('active');
+        document.getElementById('seccionReportes').style.display = 'block';
+        renderizarReporte();
+      }
+    }
+
+    // CARGA DE DATOS DESDE GITHUB
+    async function cargarDesdeGitHub() {
+      const token = obtenerTokenSecreto();
+      const headers = token ? { "Authorization": `token ${token}` } : {};
+
+      try {
+        const res = await fetch(`https://api.github.com/repos/${USUARIO}/${REPOSITORIO}/contents/${ARCHIVO}?ref=main&_nocache=${Date.now()}`, {
+          headers: headers
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const datos = JSON.parse(decodeURIComponent(escape(atob(data.content))));
+
+          if (Array.isArray(datos)) {
+            productos = datos;
+          } else {
+            productos = datos.productos || [];
+            if (datos.telefonos) telefonos = datos.telefonos;
+            if (datos.repartidores) repartidores = datos.repartidores;
+          }
+        }
+      } catch (e) {
+        console.error("Error al cargar desde GitHub:", e);
+      }
+      renderizarProductos();
+      cargarValoresTelefonosEnFormulario();
+      renderizarRepartidores();
+    }
+
+    function cargarValoresTelefonosEnFormulario() {
+      document.getElementById('telWhatsApp').value = telefonos.whatsapp || "51969773064";
+      document.getElementById('telFijo1').value = telefonos.tel1 || "950 727 212";
+      document.getElementById('telFijo2').value = telefonos.tel2 || "984 285 500";
+      document.getElementById('telFijo3').value = telefonos.tel3 || "(084) 501111";
+    }
+
+    // GESTIÓN DE PRODUCTOS
+    function renderizarProductos() {
+      const cont = document.getElementById('listaProductos');
+      cont.innerHTML = '';
+
+      productos.forEach((p, i) => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `
+          <label>Nombre:</label>
+          <input type="text" value="${p.nombre}" onchange="productos[${i}].nombre = this.value">
+
+          <div style="display:flex; gap:10px;">
+            <div style="flex:1;">
+              <label>Precio (S/):</label>
+              <input type="number" step="0.5" value="${p.precio}" onchange="productos[${i}].precio = parseFloat(this.value) || 0">
+            </div>
+            <div style="flex:1;">
+              <label>Disponibilidad:</label>
+              <select onchange="productos[${i}].disponible = (this.value === 'true')">
+                <option value="true" ${p.disponible !== false ? 'selected' : ''}>🟢 Disponible</option>
+                <option value="false" ${p.disponible === false ? 'selected' : ''}>🔴 Agotado</option>
+              </select>
+            </div>
+          </div>
+
+          <label>Descripción:</label>
+          <input type="text" value="${p.descripcion || ''}" onchange="productos[${i}].descripcion = this.value">
+
+          <label>Imagen del Balón:</label>
+          <div class="admin-img-preview-box">
+            <img id="prev-${i}" class="admin-thumb" src="${p.imagen}" onerror="this.src='1791513590376.jpg'">
+            <div style="flex:1;">
+              <input type="file" accept="image/*" onchange="subirImagen(event, ${i})" style="font-size:12px;">
+              <input type="text" value="${p.imagen}" placeholder="o escribe nombre de archivo" onchange="productos[${i}].imagen = this.value; document.getElementById('prev-${i}').src = this.value;" style="margin-top:4px;">
+            </div>
+          </div>
+
+          <button class="btn btn-del" onclick="eliminarProducto(${i})">🗑️ Eliminar Producto</button>
+        `;
+        cont.appendChild(div);
+      });
+    }
+
+    function subirImagen(event, index) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        productos[index].imagen = e.target.result;
+        document.getElementById(`prev-${index}`).src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function agregarNuevoProducto() {
+      productos.push({
+        id: "gas-" + Date.now(),
+        nombre: "Nuevo Balón de Gas",
+        tag: "Sellado",
+        descripcion: "Balón con precinto de garantía y peso exacto.",
+        precio: 50.00,
+        disponible: true,
+        imagen: "1791513590376.jpg"
+      });
+      renderizarProductos();
+    }
+
+    function eliminarProducto(i) {
+      if (confirm(`¿Eliminar "${productos[i].nombre}"?`)) {
+        productos.splice(i, 1);
+        renderizarProductos();
+      }
+    }
+
+    // GESTIÓN DE REPARTIDORES
+    function renderizarRepartidores() {
+      const cont = document.getElementById('listaRepartidores');
+      cont.innerHTML = '';
+
+      if (repartidores.length === 0) {
+        cont.innerHTML = '<p style="color:#64748b; font-size:13px;">No hay repartidores registrados en la flota.</p>';
+        return;
+      }
+
+      repartidores.forEach((rep, i) => {
+        const estaOnline = rep.online === true;
+        const div = document.createElement('div');
+        div.className = `repartidor-card ${estaOnline ? 'activo' : ''}`;
+        div.innerHTML = `
+          <div class="repartidor-header">
+            <div>
+              <input type="text" value="${rep.nombre}" onchange="repartidores[${i}].nombre = this.value" style="font-weight:bold; font-size:14px; max-width:280px; display:inline-block;">
+            </div>
+            <span class="badge-status ${estaOnline ? 'online' : ''}">
+              ${estaOnline ? 'Online 🔥 En Ruta' : 'Offline 💤 Inactivo'}
+            </span>
+          </div>
+          
+          <div style="font-size:11px; color:#64748b;">
+            Última coordenada: Lat ${rep.lat ? rep.lat.toFixed(4) : '--'}, Lng ${rep.lng ? rep.lng.toFixed(4) : '--'}
+          </div>
+
+          <div class="repartidor-actions">
+            ${estaOnline 
+              ? `<button class="btn-toggle-gps off" onclick="desconectarGPSRepartidor(${i})">⏹️ Desconectar mi GPS</button>` 
+              : `<button class="btn-toggle-gps" onclick="conectarGPSRepartidor(${i})">▶️ Conectar mi GPS desde este celular</button>`
+            }
+            <button class="btn btn-del" style="margin-top:0; padding:8px 12px;" onclick="eliminarRepartidor(${i})">🗑️ Eliminar</button>
+          </div>
+        `;
+        cont.appendChild(div);
+      });
+    }
+
+    function agregarNuevoRepartidor() {
+      const nombre = prompt("Nombre o identificación del nuevo repartidor (ej. Moto 3 - Carlos):");
+      if (!nombre) return;
+      repartidores.push({
+        id: "rep-" + Date.now(),
+        nombre: nombre.trim(),
+        online: false,
+        lat: -13.5167,
+        lng: -71.9788
+      });
+      renderizarRepartidores();
+    }
+
+    function eliminarRepartidor(i) {
+      if (confirm(`¿Eliminar a "${repartidores[i].nombre}" de la lista?`)) {
+        if (repartidorActivoId === repartidores[i].id && watchIdGPS) {
+          navigator.geolocation.clearWatch(watchIdGPS);
+        }
+        repartidores.splice(i, 1);
+        renderizarRepartidores();
+      }
+    }
+
+    function conectarGPSRepartidor(index) {
+      if (!navigator.geolocation) return alert("Geolocalización no disponible en este dispositivo.");
+
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          repartidores[index].online = true;
+          repartidores[index].lat = pos.coords.latitude;
+          repartidores[index].lng = pos.coords.longitude;
+          repartidorActivoId = repartidores[index].id;
+
+          if (watchIdGPS) navigator.geolocation.clearWatch(watchIdGPS);
+          watchIdGPS = navigator.geolocation.watchPosition((p) => {
+            repartidores[index].lat = p.coords.latitude;
+            repartidores[index].lng = p.coords.longitude;
+          }, null, { enableHighAccuracy: true });
+
+          renderizarRepartidores();
+          alert(`✔ GPS activado para "${repartidores[index].nombre}". Guardando en GitHub...`);
+          await sincronizarConGitHub();
+        },
+        (err) => { alert("No se pudo obtener GPS: " + err.message); },
+        { enableHighAccuracy: true }
+      );
+    }
+
+    async function desconectarGPSRepartidor(index) {
+      if (watchIdGPS && repartidorActivoId === repartidores[index].id) {
+        navigator.geolocation.clearWatch(watchIdGPS);
+        watchIdGPS = null;
+        repartidorActivoId = null;
+      }
+      repartidores[index].online = false;
+      renderizarRepartidores();
+      await sincronizarConGitHub();
+    }
+
+    // SINCRONIZACIÓN CORREGIDA A GITHUB (PREVIENE ERROR SHA / CONFLICTO)
+    async function sincronizarConGitHub() {
+      const token = obtenerTokenSecreto();
+      if (!token) {
+        alert("⚠️ No tienes configurado el token de GitHub. Despliega el acordeón con tu código maestro y guarda tu token.");
+        return;
+      }
+
+      const btn = document.getElementById('btnPublicar') || event?.target;
+      const msg = document.getElementById('statusMsg');
+      if (btn) { btn.disabled = true; btn.innerText = "⏳ Guardando en GitHub..."; }
+
+      telefonos.whatsapp = document.getElementById('telWhatsApp').value.trim();
+      telefonos.tel1 = document.getElementById('telFijo1').value.trim();
+      telefonos.tel2 = document.getElementById('telFijo2').value.trim();
+      telefonos.tel3 = document.getElementById('telFijo3').value.trim();
+
+      const objetoCompleto = {
+        productos: productos,
+        telefonos: telefonos,
+        repartidores: repartidores
+      };
+
+      // 1. OBTENER SIEMPRE EL SHA MÁS RECIENTE DIRECTO DE GITHUB (ELIMINA ERROR DE CONFLICTO)
+      let shaActual = "";
+      try {
+        const check = await fetch(`https://api.github.com/repos/${USUARIO}/${REPOSITORIO}/contents/${ARCHIVO}?ref=main&_t=${Date.now()}`, {
+          headers: {
+            "Authorization": `token ${token}`,
+            "Accept": "application/vnd.github.v3+json"
+          }
+        });
+        if (check.ok) {
+          const d = await check.json();
+          shaActual = d.sha;
+        }
+      } catch (e) {
+        console.warn("No se pudo obtener SHA previo:", e);
+      }
+
+      // 2. PREPARAR EL PAQUETE CON EL SHA CORRECTO
+      const payload = {
+        message: "Actualización de catálogo, teléfonos y flota LeoGas",
+        content: btoa(unescape(encodeURIComponent(JSON.stringify(objetoCompleto, null, 2)))),
+        branch: "main"
+      };
+      if (shaActual) payload.sha = shaActual;
+
+      // 3. GUARDAR EN GITHUB
+      try {
+        const res = await fetch(`https://api.github.com/repos/${USUARIO}/${REPOSITORIO}/contents/${ARCHIVO}`, {
+          method: "PUT",
+          headers: {
+            "Authorization": `token ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.message || "Error al actualizar");
+        }
+
+        if (msg) {
+          msg.style.color = "#15803d";
+          msg.innerText = "✔ ¡Cambios guardados en GitHub con éxito!";
+        }
+        alert("✔ ¡Guardado con éxito! Se verá reflejado en ~30 segundos.");
+      } catch (err) {
+        if (msg) {
+          msg.style.color = "#dc2626";
+          msg.innerText = "Error: " + err.message;
+        }
+        alert("Error de GitHub: " + err.message);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerText = "🚀 Guardar Cambios en GitHub";
+        }
+      }
+    }
+
+    // REPORTES
+    function renderizarReporte() {
+      const ventas = JSON.parse(localStorage.getItem('gas_ventas')) || [];
+      const tbody = document.getElementById('tablaVentasBody');
+      tbody.innerHTML = '';
+
+      if (ventas.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:12px; color:#94a3b8;">No hay ventas registradas aún.</td></tr>';
+        return;
+      }
+
+      ventas.forEach(v => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${v.fecha}</td>
+          <td>${v.cliente || 'Particular'}</td>
+          <td>${v.productos}</td>
+          <td><strong>S/ ${v.total.toFixed(2)}</strong></td>
+          <td>${v.pago}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // VERIFICAR SESIÓN ACTIVA AL INICIAR
+    window.onload = () => {
+      const sesionActiva = sessionStorage.getItem(STORAGE_KEY_AUTH);
+      if (sesionActiva === "true") {
+        mostrarPanelAdmin();
+      }
+    };
+  </script>
+</body>
+</html>
