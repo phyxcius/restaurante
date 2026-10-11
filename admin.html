@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel de Administración | Inka Bistro Cusco</title>
+  <title>Panel de Administración | Gestión Restaurante</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
       --primary: #c2410c;         /* Terracota andino */
       --primary-dark: #9a3412;
       --accent: #f59e0b;          /* Ámbar / Dorado */
-      --bg-dark: #140e0c;         /* Fondo café profundo */
+      --bg-dark: #140e0c;         /* Fondo tostado oscuro */
       --card-bg: #221814;
       --card-border: rgba(245, 158, 11, 0.25);
       --input-bg: #1a120f;
@@ -19,10 +19,11 @@
       --gold: #fbbf24;
       --danger: #ef4444;
       --success: #16a34a;
+      --blue: #2563eb;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-    body { background-color: var(--bg-dark); color: var(--text-main); padding: 18px; max-width: 950px; margin: auto; min-height: 100vh; }
+    body { background-color: var(--bg-dark); color: var(--text-main); padding: 18px; max-width: 980px; margin: auto; min-height: 100vh; }
 
     .header-admin {
       display: flex;
@@ -30,8 +31,31 @@
       align-items: center;
       margin-bottom: 8px;
     }
-    h2 { color: var(--gold); margin: 0; font-size: 20px; font-weight: 900; }
 
+    .brand-header-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--primary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      color: #fff;
+      overflow: hidden;
+    }
+    .brand-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    h2 { color: var(--gold); margin: 0; font-size: 19px; font-weight: 900; }
+    .header-slogan { font-size: 11px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.8px; }
+
+    /* DASHBOARD TABS */
     .dashboard-tabs { display: flex; gap: 8px; margin: 16px 0; border-bottom: 2px solid rgba(255,255,255,0.1); padding-bottom: 8px; overflow-x: auto; }
     .tab-btn { background: none; border: none; font-weight: 800; font-size: 13px; padding: 8px 14px; color: var(--text-muted); cursor: pointer; border-radius: 8px; white-space: nowrap; }
     .tab-btn.active { background: #38241b; color: var(--gold); border: 1px solid var(--card-border); }
@@ -46,11 +70,13 @@
     .btn-save { background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; width: 100%; font-size: 15px; padding: 14px; margin-top: 10px; }
     .btn-add { background: var(--success); color: white; margin-bottom: 14px; width: 100%; font-size: 14px; }
     .btn-del { background: #451a1a; color: #fca5a5; border: 1px solid #dc2626; margin-top: 10px; font-size: 12px; }
+    .btn-print { background: var(--blue); color: #fff; font-size: 12px; }
+    .btn-logout { background: #3a1f1a; color: #fca5a5; border: 1px solid #dc2626; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; }
 
     .admin-img-preview-box { display: flex; align-items: center; gap: 12px; margin-top: 6px; background: #1a120f; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
     .admin-thumb { width: 65px; height: 65px; object-fit: cover; border-radius: 6px; border: 1px solid var(--card-border); background: #000; }
 
-    /* ACORDEÓN PROTEGIDO PARA TOKEN GITHUB */
+    /* ACORDEÓN PARA TOKEN DE GITHUB */
     .token-accordion-wrapper {
       background: #251a15;
       border: 1.5px dashed var(--accent);
@@ -72,7 +98,6 @@
       color: var(--gold);
       font-size: 13px;
     }
-
     .token-accordion-trigger:hover { background: #32221b; }
 
     .token-accordion-content {
@@ -82,23 +107,16 @@
       border-top: 1px solid rgba(255,255,255,0.1);
     }
 
-    /* PANTALLA LOGIN */
-    .login-container { display: flex; justify-content: center; align-items: center; min-height: 80vh; }
-    .login-card {
-      background: var(--card-bg);
-      padding: 26px 28px;
-      border-radius: 16px;
-      border: 1px solid var(--card-border);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      width: 100%;
-      max-width: 380px;
-    }
-    .btn-logout { background: #3a1f1a; color: #fca5a5; border: 1px solid #dc2626; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; }
-
-    /* PESTAÑAS DE IDIOMA EN CADA PLATO */
+    /* PESTAÑAS DE IDIOMA EN PLATOS */
     .lang-tabs-dish { display: flex; gap: 4px; margin-top: 6px; }
     .lang-btn { background: #1a120f; border: 1px solid rgba(255,255,255,0.1); color: #aaa; padding: 4px 8px; font-size: 11px; border-radius: 5px; cursor: pointer; font-weight: bold; }
     .lang-btn.active { background: var(--primary); color: #fff; border-color: var(--accent); }
+
+    /* TABLA CONTABLE */
+    .custom-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; margin-top: 10px; }
+    .custom-table th, .custom-table td { border: 1px solid rgba(255,255,255,0.1); padding: 9px 10px; }
+    .custom-table th { background: #2f221c; color: var(--gold); }
+    .custom-table tr:nth-child(even) { background: rgba(255,255,255,0.02); }
 
     /* QR GENERATOR */
     .qr-preview-box {
@@ -109,18 +127,30 @@
       flex-direction: column;
       align-items: center;
       gap: 8px;
-      margin: 14px 0;
+      margin: 14px auto;
       max-width: 250px;
-      margin-left: auto;
-      margin-right: auto;
     }
     .qr-preview-box img { width: 180px; height: 180px; object-fit: contain; }
     .qr-table-text { color: #1a120f; font-size: 14px; font-weight: 900; text-transform: uppercase; }
 
+    /* LOGIN */
+    .login-container { display: flex; justify-content: center; align-items: center; min-height: 80vh; }
+    .login-card {
+      background: var(--card-bg);
+      padding: 26px 28px;
+      border-radius: 16px;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      width: 100%;
+      max-width: 380px;
+    }
+
     @media print {
       body * { visibility: hidden; }
-      #areaImpresionQR, #areaImpresionQR * { visibility: visible; }
-      #areaImpresionQR { position: absolute; left: 0; top: 0; width: 100%; text-align: center; }
+      #areaImpresionReporte, #areaImpresionReporte * { visibility: visible; }
+      #areaImpresionReporte { position: absolute; left: 0; top: 0; width: 100%; color: #000 !important; background: #fff !important; }
+      #areaImpresionReporte table { border-collapse: collapse; width: 100%; }
+      #areaImpresionReporte th, #areaImpresionReporte td { border: 1px solid #333 !important; color: #000 !important; padding: 6px; }
       .no-print { display: none !important; }
     }
   </style>
@@ -131,8 +161,8 @@
   <div id="pantallaLogin" class="login-container">
     <div class="login-card">
       <div style="text-align:center; font-size:38px; margin-bottom:6px;">🍽️</div>
-      <h3 style="color:var(--gold); text-align:center; margin-bottom:4px;">Inka Bistro Cusco</h3>
-      <p style="font-size:12px; color:var(--text-muted); text-align:center; margin-bottom:16px;">Acceso Panel Restaurante</p>
+      <h3 style="color:var(--gold); text-align:center; margin-bottom:4px;" id="loginTitlePreview">Inka Bistro Cusco</h3>
+      <p style="font-size:12px; color:var(--text-muted); text-align:center; margin-bottom:16px;">Acceso Administrador</p>
       
       <form onsubmit="verificarLoginAdmin(event)">
         <label>Usuario</label>
@@ -146,31 +176,41 @@
     </div>
   </div>
 
-  <!-- PANEL PRINCIPAL (SE MUESTRA TRAS LOGIN) -->
+  <!-- PANEL PRINCIPAL TRAS LOGIN -->
   <div id="panelAdminPrincipal" style="display: none;">
 
     <div class="header-admin no-print">
-      <h2>🍽️ Inka Bistro • Gestión Menú Digital</h2>
+      <div class="brand-header-wrap">
+        <div class="brand-avatar" id="headerAvatar">🍽️</div>
+        <div>
+          <h2 id="headerBusinessName">Inka Bistro Cusco</h2>
+          <span class="header-slogan" id="headerBusinessSlogan">Cusco • Gourmet Experience</span>
+        </div>
+      </div>
       <button class="btn-logout" onclick="cerrarSesionAdmin()">🚪 Salir</button>
     </div>
-    <p style="font-size: 13px; color: var(--text-muted);" class="no-print">Administra tus platos multilingües, precios Soles/USD, WhatsApp, Yape/Plin y QR de mesas.</p>
 
-    <!-- ACORDEÓN PROTEGIDO CON CÓDIGO MAESTRO -->
+    <!-- ACORDEÓN DESPLEGABLE DIRECTO PARA EL TOKEN DE GITHUB -->
     <div class="token-accordion-wrapper no-print">
       <button class="token-accordion-trigger" type="button" onclick="alternarAcordeonToken()">
-        <span>🔐 Token de GitHub (Acceso Desarrollador)</span>
-        <span id="accordionIcon">🔒 Desplegar</span>
+        <span><i class="fa-brands fa-github"></i> Conexión GitHub (Token de Actualización)</span>
+        <span id="accordionIcon"><i class="fa-solid fa-chevron-down"></i> Desplegar</span>
       </button>
 
       <div class="token-accordion-content" id="contenidoAcordeonToken">
-        <p style="font-size:11px; color:var(--text-muted); margin-bottom:8px;">
-          Clave personal para guardar los cambios directo en GitHub (actualiza tu archivo productos.json).
+        <p style="font-size:12px; color:var(--text-muted); margin-bottom:8px;">
+          Pega tu Personal Access Token (classic o fine-grained con permisos de <code>repo / contents</code>). Se almacena directamente en este navegador para sincronizar cambios a GitHub:
         </p>
-        <label for="ghTokenInput">Token Personal de GitHub (ghp_... o github_pat_...):</label>
-        <input type="password" id="ghTokenInput" placeholder="Pega el token aquí">
-        <div style="display:flex; gap:8px; margin-top:8px;">
-          <button class="btn" style="background:var(--primary); color:#fff; font-size:12px;" onclick="guardarTokenManual()">💾 Guardar Llave</button>
-          <button class="btn" style="background:#551b1b; color:#fca5a5; font-size:12px;" onclick="borrarTokenManual()">🗑️ Limpiar Llave</button>
+        <label for="ghTokenInput">Token de GitHub (ghp_... o github_pat_...):</label>
+        <input type="password" id="ghTokenInput" placeholder="Pega tu token aquí">
+        
+        <div style="display:flex; gap:8px; margin-top:10px;">
+          <button class="btn" style="background:var(--primary); color:#fff; font-size:12px;" onclick="guardarTokenManual()">
+            <i class="fa-solid fa-floppy-disk"></i> Guardar Token
+          </button>
+          <button class="btn" style="background:#551b1b; color:#fca5a5; font-size:12px;" onclick="borrarTokenManual()">
+            <i class="fa-solid fa-trash"></i> Eliminar Token
+          </button>
         </div>
       </div>
     </div>
@@ -178,25 +218,56 @@
     <!-- PESTAÑAS DEL DASHBOARD -->
     <div class="dashboard-tabs no-print">
       <button class="tab-btn active" id="tabBtnPlatos" onclick="cambiarTab('platos')">🍽️ Carta & Platos</button>
+      <button class="tab-btn" id="tabBtnIdentidad" onclick="cambiarTab('identidad')">🏪 Negocio & Identidad</button>
       <button class="tab-btn" id="tabBtnConfig" onclick="cambiarTab('config')">💳 Pagos & Contacto</button>
       <button class="tab-btn" id="tabBtnMesas" onclick="cambiarTab('mesas')">🏷️ Códigos QR Mesas</button>
-      <button class="tab-btn" id="tabBtnResenas" onclick="cambiarTab('resenas')">⭐ Reseñas de Clientes</button>
+      <button class="tab-btn" id="tabBtnReportes" onclick="cambiarTab('reportes')">📊 Reporte Contable</button>
+      <button class="tab-btn" id="tabBtnResenas" onclick="cambiarTab('resenas')">⭐ Reseñas & Comentarios</button>
     </div>
 
     <!-- PESTAÑA 1: PLATOS Y BEBIDAS -->
     <div id="seccionPlatos">
       <button class="btn btn-add no-print" onclick="agregarNuevoPlato()">➕ Agregar Nuevo Plato al Menú</button>
-      <div id="listaPlatos">Cargando carta...</div>
+      <div id="listaPlatos">Cargando catálogo...</div>
       <button class="btn btn-save no-print" id="btnPublicar" onclick="sincronizarConGitHub()">🚀 Guardar y Publicar en GitHub</button>
       <div id="statusMsg" style="text-align:center; margin-top:8px; font-weight:bold;"></div>
     </div>
 
-    <!-- PESTAÑA 2: CONFIGURACIÓN DE COBRO Y CONTACTO -->
+    <!-- PESTAÑA 2: NEGOCIO E IDENTIDAD (NOMBRE, LOGO Y SLOGAN) -->
+    <div id="seccionIdentidad" style="display: none;">
+      <div class="card">
+        <h3 style="color:var(--gold); font-size:16px; margin-bottom:12px;">🏪 Identidad del Restaurante</h3>
+        
+        <label>Nombre del Negocio:</label>
+        <input type="text" id="cfgBusinessName" placeholder="Ej: Inka Bistro Cusco" oninput="previsualizarIdentidad()">
+
+        <label>Eslogan o Subtítulo:</label>
+        <input type="text" id="cfgBusinessSlogan" placeholder="Ej: Gourmet Experience • Sabores de Altura" oninput="previsualizarIdentidad()">
+
+        <label>Ícono o Logo (Emoji o URL de imagen):</label>
+        <input type="text" id="cfgBusinessLogo" placeholder="Ej: 🍽️ o https://tudominio.com/logo.png" oninput="previsualizarIdentidad()">
+
+        <div style="margin-top:14px; background:#1c1410; padding:12px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
+          <span style="font-size:11px; text-transform:uppercase; color:var(--gold); font-weight:bold;">Vista Previa Cabecera:</span>
+          <div style="display:flex; align-items:center; gap:10px; margin-top:8px;">
+            <div class="brand-avatar" id="previewAvatar">🍽️</div>
+            <div>
+              <strong style="font-size:16px;" id="previewName">Inka Bistro Cusco</strong><br>
+              <span style="font-size:11px; color:var(--text-muted);" id="previewSlogan">Cusco • Gourmet Experience</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-save" onclick="sincronizarConGitHub()" style="margin-top:16px;">💾 Guardar Identidad en GitHub</button>
+      </div>
+    </div>
+
+    <!-- PESTAÑA 3: PAGOS Y CONTACTO -->
     <div id="seccionConfig" style="display: none;">
       <div class="card">
-        <h3 style="color:var(--gold); font-size:16px; margin-bottom:12px;">📞 Canales de Atención y Medios de Pago</h3>
+        <h3 style="color:var(--gold); font-size:16px; margin-bottom:12px;">💳 Medios de Pago y Pedidos</h3>
         
-        <label>Número WhatsApp para Pedidos (con código país, ej: 51969773064):</label>
+        <label>Número WhatsApp para Pedidos (con código de país, ej: 51969773064):</label>
         <input type="text" id="cfgWhatsApp" placeholder="51969773064">
 
         <label>Celular para Yape / Plin:</label>
@@ -205,72 +276,119 @@
         <label>Nombre del Titular de Cuenta (Yape / Plin):</label>
         <input type="text" id="cfgTitular" placeholder="INKA BISTRO CUSCO E.I.R.L.">
 
-        <label>Tipo de Cambio Referencial (1 USD = Soles):</label>
+        <label>Tipo de Cambio Referencial (1 USD en Soles):</label>
         <input type="number" step="0.01" id="cfgTipoCambio" placeholder="3.75">
 
-        <button class="btn btn-save" onclick="sincronizarConGitHub()" style="margin-top:16px;">💾 Guardar Configuración en GitHub</button>
+        <button class="btn btn-save" onclick="sincronizarConGitHub()" style="margin-top:16px;">💾 Guardar Pagos en GitHub</button>
       </div>
     </div>
 
-    <!-- PESTAÑA 3: CÓDIGOS QR PARA MESAS -->
+    <!-- PESTAÑA 4: CÓDIGOS QR PARA MESAS -->
     <div id="seccionMesas" style="display: none;">
       <div class="card">
         <h3 style="color:var(--gold); font-size:16px; margin-bottom:12px;">🏷️ Generador de QR para Mesas</h3>
-        <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Genera e imprime el código QR para colocarlo en cada mesa o espacio del restaurante.</p>
+        <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Imprime el QR para colocarlo en cada mesa o barra del restaurante.</p>
 
         <label>Número de Mesa o Zona:</label>
         <input type="text" id="qrMesaNumero" value="Mesa 01" oninput="actualizarQRVisual()">
 
-        <label>URL Base del Menú (Hosting en GitHub Pages o Dominio):</label>
+        <label>URL Base del Menú (GitHub Pages o Dominio):</label>
         <input type="text" id="qrUrlBase" value="https://phyxcius.github.io/Leogascusco/" oninput="actualizarQRVisual()">
 
-        <div id="areaImpresionQR">
-          <div class="qr-preview-box">
-            <h4 style="color:#000; font-size:13px;">INKA BISTRO CUSCO</h4>
-            <img id="imgQRGenerado" src="" alt="QR Mesa">
-            <span class="qr-table-text" id="lblQRMesa">Mesa 01</span>
-            <span style="font-size:10px; color:#555;">Escanea para ver la carta y pedir</span>
-          </div>
+        <div class="qr-preview-box">
+          <h4 style="color:#000; font-size:13px;" id="qrPrintBusinessName">INKA BISTRO CUSCO</h4>
+          <img id="imgQRGenerado" src="" alt="QR Mesa">
+          <span class="qr-table-text" id="lblQRMesa">Mesa 01</span>
+          <span style="font-size:10px; color:#555;">Escanea para ver la carta y pedir</span>
         </div>
 
-        <button class="btn btn-add" onclick="window.print()" style="margin-top:10px;">🖨️ Imprimir QR de esta Mesa</button>
+        <button class="btn btn-add" onclick="imprimirQRSolo()" style="margin-top:10px;">🖨️ Imprimir QR de esta Mesa</button>
       </div>
     </div>
 
-    <!-- PESTAÑA 4: RESEÑAS -->
+    <!-- PESTAÑA 5: REPORTE CONTABLE DE VENTAS -->
+    <div id="seccionReportes" style="display: none;">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <div>
+            <h3 style="color:var(--gold); font-size:16px;">📊 Reporte Contable & Pedidos</h3>
+            <span style="font-size:12px; color:var(--text-muted);">Registro de comandas enviadas a cocina y facturadas</span>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-print no-print" onclick="imprimirReporteContable()">
+              <i class="fa-solid fa-print"></i> Imprimir Reporte Contable
+            </button>
+            <button class="btn btn-del" style="margin-top:0;" onclick="limpiarVentasConfirmacion()">
+              <i class="fa-solid fa-trash"></i> Vaciar Registro
+            </button>
+          </div>
+        </div>
+
+        <!-- Área de Impresión Contable -->
+        <div id="areaImpresionReporte">
+          <div style="margin-bottom:12px; border-bottom:1px solid #ddd; padding-bottom:6px;">
+            <h2 style="color:#000; font-size:18px;" id="repPrintBusinessName">Inka Bistro Cusco</h2>
+            <p style="font-size:12px; color:#555;" id="repPrintFecha">Reporte Contable de Comandas - Fecha: Hoy</p>
+          </div>
+
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>Fecha / Hora</th>
+                <th>Mesa / Cliente</th>
+                <th>Detalle Platos</th>
+                <th>Total (S/)</th>
+                <th>Aprox (USD)</th>
+                <th>Medio Pago</th>
+              </tr>
+            </thead>
+            <tbody id="tablaVentasBody"></tbody>
+          </table>
+
+          <div style="margin-top:14px; text-align:right; font-size:15px; font-weight:bold; color:var(--gold);" id="repPrintTotales">
+            Total General: S/ 0.00
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PESTAÑA 6: RESEÑAS Y COMENTARIOS -->
     <div id="seccionResenas" style="display: none;">
       <div class="card">
-        <h3 style="color:var(--gold); font-size:16px; margin-bottom:12px;">⭐ Reseñas Registradas por Plato</h3>
+        <h3 style="color:var(--gold); font-size:16px; margin-bottom:12px;">⭐ Reseñas & Comentarios de Comensales</h3>
+        <p style="font-size:12px; color:var(--text-muted); margin-bottom:14px;">Modera las opiniones y calificaciones dejadas en los platos del menú.</p>
         <div id="contenedorResenasAdmin">Cargando reseñas...</div>
-        <button class="btn btn-save" onclick="sincronizarConGitHub()" style="margin-top:16px;">💾 Guardar Cambios de Reseñas en GitHub</button>
+        <button class="btn btn-save" onclick="sincronizarConGitHub()" style="margin-top:16px;">💾 Guardar Moderación en GitHub</button>
       </div>
     </div>
 
   </div>
 
   <script>
-    // CONFIGURACIÓN REPOSITORIO GITHUB
+    // REPOSITORIO GITHUB
     const USUARIO = "phyxcius";
     const REPOSITORIO = "Leogascusco";
     const ARCHIVO = "productos.json";
     
-    // CÓDIGOS DE SEGURIDAD
-    const CODIGO_CREADOR_TOKEN = "42423549";
+    // ALMACENAMIENTO LOCAL
     const STORAGE_KEY_SECRETA = "inkabistro_vault_secret_token";
     const STORAGE_KEY_AUTH = "inkabistro_admin_sesion_activa";
+    const STORAGE_KEY_VENTAS = "inkabistro_ventas_registro";
 
     let catalogo = [];
     let configRestaurante = {
+      nombre: "Inka Bistro Cusco",
+      eslogan: "Cusco • Gourmet Experience",
+      logo: "🍽️",
       whatsapp: "51969773064",
       yapePhone: "+51 987 654 321",
       titular: "INKA BISTRO CUSCO E.I.R.L.",
       exchangeRateUSD: 3.75
     };
 
-    let tokenDesbloqueado = false;
-    let idiomasPlatos = {}; // Almacena el idioma activo para cada plato en el editor (es, en, fr, pt)
+    let idiomasPlatos = {};
 
-    // LOGIN INICIAL
+    // LOGIN
     function verificarLoginAdmin(e) {
       e.preventDefault();
       const u = document.getElementById('loginUsuario').value.trim();
@@ -287,8 +405,10 @@
     function mostrarPanelAdmin() {
       document.getElementById('pantallaLogin').style.display = 'none';
       document.getElementById('panelAdminPrincipal').style.display = 'block';
+      document.getElementById('ghTokenInput').value = obtenerTokenSecreto();
       cargarDesdeGitHub();
       actualizarQRVisual();
+      renderizarReporte();
     }
 
     function cerrarSesionAdmin() {
@@ -298,36 +418,17 @@
       document.getElementById('loginPassword').value = '';
     }
 
-    // ACORDEÓN PROTEGIDO PARA TOKEN GITHUB
+    // ACORDEÓN PARA TOKEN DE GITHUB
     function alternarAcordeonToken() {
       const contenido = document.getElementById('contenidoAcordeonToken');
       const icono = document.getElementById('accordionIcon');
-
       if (contenido.style.display === 'block') {
         contenido.style.display = 'none';
-        icono.innerText = "🔒 Desplegar";
-        return;
-      }
-
-      if (!tokenDesbloqueado) {
-        const pass = prompt("🔐 ACCESO CREADOR DEL SISTEMA:\n\nIngresa el código maestro para configurar el Token de GitHub:");
-        if (pass === CODIGO_CREADOR_TOKEN) {
-          tokenDesbloqueado = true;
-          abrirAcordeonToken();
-        } else if (pass !== null) {
-          alert("⛔ Código incorrecto. Acceso denegado.");
-        }
+        icono.innerHTML = '<i class="fa-solid fa-chevron-down"></i> Desplegar';
       } else {
-        abrirAcordeonToken();
+        contenido.style.display = 'block';
+        icono.innerHTML = '<i class="fa-solid fa-chevron-up"></i> Ocultar';
       }
-    }
-
-    function abrirAcordeonToken() {
-      const contenido = document.getElementById('contenidoAcordeonToken');
-      const icono = document.getElementById('accordionIcon');
-      contenido.style.display = 'block';
-      icono.innerText = "🔓 Ocultar";
-      document.getElementById('ghTokenInput').value = obtenerTokenSecreto();
     }
 
     function obtenerTokenSecreto() {
@@ -338,36 +439,47 @@
       const t = document.getElementById('ghTokenInput').value.trim();
       if (!t) return alert("Por favor ingresa un token válido.");
       localStorage.setItem(STORAGE_KEY_SECRETA, t);
-      alert("✔ Llave de GitHub guardada correctamente en este navegador.");
+      alert("✔ Token de GitHub guardado en este navegador.");
       cargarDesdeGitHub();
     }
 
     function borrarTokenManual() {
-      if (confirm("¿Deseas eliminar el token guardado en este equipo?")) {
+      if (confirm("¿Deseas eliminar el token guardado en este navegador?")) {
         localStorage.removeItem(STORAGE_KEY_SECRETA);
         document.getElementById('ghTokenInput').value = '';
         alert("Token eliminado.");
       }
     }
 
+    // NAVEGACIÓN POR PESTAÑAS
     function cambiarTab(tab) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.getElementById('seccionPlatos').style.display = 'none';
+      document.getElementById('seccionIdentidad').style.display = 'none';
       document.getElementById('seccionConfig').style.display = 'none';
       document.getElementById('seccionMesas').style.display = 'none';
+      document.getElementById('seccionReportes').style.display = 'none';
       document.getElementById('seccionResenas').style.display = 'none';
 
       if (tab === 'platos') {
         document.getElementById('tabBtnPlatos').classList.add('active');
         document.getElementById('seccionPlatos').style.display = 'block';
+      } else if (tab === 'identidad') {
+        document.getElementById('tabBtnIdentidad').classList.add('active');
+        document.getElementById('seccionIdentidad').style.display = 'block';
+        cargarValoresIdentidad();
       } else if (tab === 'config') {
         document.getElementById('tabBtnConfig').classList.add('active');
         document.getElementById('seccionConfig').style.display = 'block';
-        cargarValoresConfigEnFormulario();
+        cargarValoresConfig();
       } else if (tab === 'mesas') {
         document.getElementById('tabBtnMesas').classList.add('active');
         document.getElementById('seccionMesas').style.display = 'block';
         actualizarQRVisual();
+      } else if (tab === 'reportes') {
+        document.getElementById('tabBtnReportes').classList.add('active');
+        document.getElementById('seccionReportes').style.display = 'block';
+        renderizarReporte();
       } else if (tab === 'resenas') {
         document.getElementById('tabBtnResenas').classList.add('active');
         document.getElementById('seccionResenas').style.display = 'block';
@@ -375,7 +487,7 @@
       }
     }
 
-    // CARGA DE DATOS DESDE GITHUB (productos.json)
+    // CARGAR DESDE GITHUB (productos.json)
     async function cargarDesdeGitHub() {
       const token = obtenerTokenSecreto();
       const headers = token ? { "Authorization": `token ${token}` } : {};
@@ -393,8 +505,9 @@
             catalogo = datos;
           } else {
             catalogo = datos.productos || datos.catalogo || [];
-            if (datos.config) configRestaurante = datos.config;
-            else if (datos.telefonos) {
+            if (datos.config) configRestaurante = Object.assign(configRestaurante, datos.config);
+            if (datos.restaurante) configRestaurante.nombre = datos.restaurante;
+            if (datos.telefonos) {
               configRestaurante.whatsapp = datos.telefonos.whatsapp;
               configRestaurante.yapePhone = datos.telefonos.tel1 || configRestaurante.yapePhone;
             }
@@ -405,7 +518,6 @@
       }
 
       if (catalogo.length === 0) {
-        // Datos por defecto si el archivo está vacío
         catalogo = [
           {
             id: "dish-1",
@@ -413,32 +525,77 @@
             tag: "Plato Bandera",
             precioPEN: 46.00,
             disponible: true,
+            likes: 542,
             videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
             posterUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?w=800",
-            likes: 542,
-            reviews: [{ author: "Michael (USA)", rating: 5, text: "The meat was tender and flavorful!" }],
+            reviews: [{ author: "Michael (USA)", rating: 5, text: "The meat was tender and full of flavor!" }],
             i18n: {
-              es: { name: "Lomo Saltado al Wok Gourmet", desc: "Trozos jugosos de lomo fino salteados a fuego vivo con cebolla morada, tomate y ají amarillo con papas nativas." },
-              en: { name: "Wok-Seared Lomo Saltado", desc: "Juicy beef tenderloin strips flambéed with red onions, yellow chili peppers, and native potatoes." },
-              fr: { name: "Lomo Saltado au Wok", desc: "Émincé de filet de bœuf flambé au wok avec oignons rouges et pommes de terre andines." },
-              pt: { name: "Lomo Saltado ao Wok", desc: "Tiras suculentas de filé mignon salteadas no wok com cebola roxa e batatas nativas." }
+              es: { name: "Lomo Saltado al Wok Gourmet", desc: "Trozos jugosos de lomo fino salteados con cebolla morada, tomate y papas nativas." },
+              en: { name: "Wok-Seared Lomo Saltado", desc: "Tender beef tenderloin strips sautéed with red onions, tomatoes, and native fries." },
+              fr: { name: "Lomo Saltado au Wok", desc: "Émincé de bœuf sauté au wok avec oignons rouges et frites andines." },
+              pt: { name: "Lomo Saltado ao Wok", desc: "Tiras de filé mignon salteadas com cebola roxa e batatas nativas." }
             }
           }
         ];
       }
 
+      aplicarIdentidadEnInterfaz();
       renderizarPlatos();
-      cargarValoresConfigEnFormulario();
+      cargarValoresIdentidad();
+      cargarValoresConfig();
     }
 
-    function cargarValoresConfigEnFormulario() {
+    // IDENTIDAD Y LOGO
+    function cargarValoresIdentidad() {
+      document.getElementById('cfgBusinessName').value = configRestaurante.nombre || "Inka Bistro Cusco";
+      document.getElementById('cfgBusinessSlogan').value = configRestaurante.eslogan || "Cusco • Gourmet Experience";
+      document.getElementById('cfgBusinessLogo').value = configRestaurante.logo || "🍽️";
+      previsualizarIdentidad();
+    }
+
+    function previsualizarIdentidad() {
+      const nom = document.getElementById('cfgBusinessName').value.trim() || "Inka Bistro Cusco";
+      const slo = document.getElementById('cfgBusinessSlogan').value.trim() || "Cusco • Gourmet Experience";
+      const log = document.getElementById('cfgBusinessLogo').value.trim() || "🍽️";
+
+      document.getElementById('previewName').innerText = nom;
+      document.getElementById('previewSlogan').innerText = slo;
+
+      const av = document.getElementById('previewAvatar');
+      if (log.startsWith('http')) {
+        av.innerHTML = `<img src="${log}" alt="Logo">`;
+      } else {
+        av.innerText = log;
+      }
+    }
+
+    function aplicarIdentidadEnInterfaz() {
+      const nom = configRestaurante.nombre || "Inka Bistro Cusco";
+      const slo = configRestaurante.eslogan || "Cusco • Gourmet Experience";
+      const log = configRestaurante.logo || "🍽️";
+
+      document.getElementById('headerBusinessName').innerText = nom;
+      document.getElementById('headerBusinessSlogan').innerText = slo;
+      document.getElementById('loginTitlePreview').innerText = nom;
+      document.getElementById('qrPrintBusinessName').innerText = nom.toUpperCase();
+      document.getElementById('repPrintBusinessName').innerText = nom;
+
+      const av = document.getElementById('headerAvatar');
+      if (log.startsWith('http')) {
+        av.innerHTML = `<img src="${log}" alt="Logo">`;
+      } else {
+        av.innerText = log;
+      }
+    }
+
+    function cargarValoresConfig() {
       document.getElementById('cfgWhatsApp').value = configRestaurante.whatsapp || "51969773064";
       document.getElementById('cfgYapePhone').value = configRestaurante.yapePhone || "+51 987 654 321";
       document.getElementById('cfgTitular').value = configRestaurante.titular || "INKA BISTRO CUSCO E.I.R.L.";
       document.getElementById('cfgTipoCambio').value = configRestaurante.exchangeRateUSD || 3.75;
     }
 
-    // RENDERIZADO DE PLATOS CON TRADUCCIÓN 4 IDIOMAS
+    // RENDERIZADO DE PLATOS
     function renderizarPlatos() {
       const cont = document.getElementById('listaPlatos');
       cont.innerHTML = '';
@@ -461,11 +618,10 @@
         div.innerHTML = `
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <strong style="color:var(--gold); font-size:15px;">#${i + 1} - ${p.i18n.es.name || 'Sin título'}</strong>
-            <span style="font-size:12px; color:#aaa;">Likes: ${p.likes || 0}</span>
+            <span style="font-size:12px; color:#aaa;">❤️ ${p.likes || 0}</span>
           </div>
 
-          <!-- Selector de Idioma para este plato -->
-          <label>Idioma para Editar Nombre y Descripción:</label>
+          <label>Idioma a Editar:</label>
           <div class="lang-tabs-dish">
             <button type="button" class="lang-btn ${lang === 'es' ? 'active' : ''}" onclick="cambiarIdiomaPlato(${i}, 'es')">🇪🇸 Español</button>
             <button type="button" class="lang-btn ${lang === 'en' ? 'active' : ''}" onclick="cambiarIdiomaPlato(${i}, 'en')">🇬🇧 English</button>
@@ -473,7 +629,7 @@
             <button type="button" class="lang-btn ${lang === 'pt' ? 'active' : ''}" onclick="cambiarIdiomaPlato(${i}, 'pt')">🇧🇷 Português</button>
           </div>
 
-          <label>Nombre del Plato (${lang.toUpperCase()}):</label>
+          <label>Nombre (${lang.toUpperCase()}):</label>
           <input type="text" value="${langData.name || ''}" onchange="actualizarTextoPlato(${i}, '${lang}', 'name', this.value)">
 
           <label>Descripción (${lang.toUpperCase()}):</label>
@@ -482,7 +638,7 @@
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:8px;">
             <div>
               <label>Precio en Soles (S/):</label>
-              <input type="number" step="0.5" value="${p.precioPEN || p.precio || 0}" onchange="catalogo[${i}].precioPEN = parseFloat(this.value) || 0; catalogo[${i}].precio = parseFloat(this.value) || 0;">
+              <input type="number" step="0.5" value="${p.precioPEN || p.precio || 0}" onchange="catalogo[${i}].precioPEN = parseFloat(this.value) || 0;">
             </div>
             <div>
               <label>Categoría:</label>
@@ -508,10 +664,10 @@
             </div>
           </div>
 
-          <label>URL Video Vertical MP4:</label>
+          <label>URL Video MP4 (Vertical):</label>
           <input type="text" value="${p.videoUrl || ''}" placeholder="https://.../video.mp4" onchange="catalogo[${i}].videoUrl = this.value">
 
-          <label>Imagen Poster (Fallback):</label>
+          <label>Imagen Poster:</label>
           <div class="admin-img-preview-box">
             <img id="prev-${i}" class="admin-thumb" src="${p.posterUrl || p.imagen || ''}" onerror="this.src='https://images.unsplash.com/photo-1544025162-d76694265947?w=500'">
             <div style="flex:1;">
@@ -534,12 +690,6 @@
       if (!catalogo[index].i18n) catalogo[index].i18n = {};
       if (!catalogo[index].i18n[lang]) catalogo[index].i18n[lang] = {};
       catalogo[index].i18n[lang][campo] = valor;
-
-      // Si es español, sincronizar campos clásicos
-      if (lang === 'es') {
-        if (campo === 'name') catalogo[index].nombre = valor;
-        if (campo === 'desc') catalogo[index].descripcion = valor;
-      }
     }
 
     function agregarNuevoPlato() {
@@ -548,25 +698,24 @@
         category: "mains",
         tag: "Nuevo",
         precioPEN: 35.00,
-        precio: 35.00,
         disponible: true,
-        likes: 120,
+        likes: 100,
         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
         posterUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?w=800",
         reviews: [],
         i18n: {
-          es: { name: "Nuevo Plato Gourmet", desc: "Descripción del plato en español." },
-          en: { name: "New Gourmet Dish", desc: "Dish description in English." },
-          fr: { name: "Nouveau Plat Gourmet", desc: "Description du plat en français." },
-          pt: { name: "Novo Prato Gourmet", desc: "Descrição do prato em português." }
+          es: { name: "Nuevo Plato Gourmet", desc: "Descripción en español." },
+          en: { name: "New Gourmet Dish", desc: "Description in English." },
+          fr: { name: "Nouveau Plat Gourmet", desc: "Description en français." },
+          pt: { name: "Novo Prato Gourmet", desc: "Descrição em português." }
         }
       });
       renderizarPlatos();
     }
 
     function eliminarPlato(i) {
-      const nombre = catalogo[i].i18n?.es?.name || catalogo[i].nombre || "este plato";
-      if (confirm(`¿Estás seguro de eliminar "${nombre}"?`)) {
+      const nombre = catalogo[i].i18n?.es?.name || "este plato";
+      if (confirm(`¿Eliminar "${nombre}"?`)) {
         catalogo.splice(i, 1);
         renderizarPlatos();
       }
@@ -576,51 +725,101 @@
     function renderizarResenasAdmin() {
       const cont = document.getElementById('contenedorResenasAdmin');
       cont.innerHTML = '';
-      let hayResenas = false;
+      let hay = false;
 
       catalogo.forEach((p, pIdx) => {
         if (p.reviews && p.reviews.length > 0) {
-          hayResenas = true;
-          const dishBox = document.createElement('div');
-          dishBox.style.marginBottom = '14px';
-          dishBox.innerHTML = `<h4 style="color:var(--gold); font-size:14px; margin-bottom:6px;">${p.i18n?.es?.name || 'Plato'}:</h4>`;
+          hay = true;
+          const box = document.createElement('div');
+          box.style.marginBottom = '14px';
+          box.innerHTML = `<h4 style="color:var(--gold); font-size:14px; margin-bottom:6px;">${p.i18n?.es?.name || 'Plato'}:</h4>`;
 
           p.reviews.forEach((r, rIdx) => {
-            const rItem = document.createElement('div');
-            rItem.style.background = '#1a120f';
-            rItem.style.padding = '8px 12px';
-            rItem.style.borderRadius = '8px';
-            rItem.style.border = '1px solid rgba(255,255,255,0.08)';
-            rItem.style.display = 'flex';
-            rItem.style.justifyContent = 'space-between';
-            rItem.style.alignItems = 'center';
-            rItem.style.marginBottom = '6px';
-            rItem.innerHTML = `
+            const item = document.createElement('div');
+            item.style.background = '#1a120f';
+            item.style.padding = '8px 12px';
+            item.style.borderRadius = '8px';
+            item.style.border = '1px solid rgba(255,255,255,0.08)';
+            item.style.display = 'flex';
+            item.style.justifyContent = 'space-between';
+            item.style.alignItems = 'center';
+            item.style.marginBottom = '6px';
+            item.innerHTML = `
               <div>
                 <strong style="color:#fbbf24; font-size:12px;">${r.author} (${'⭐'.repeat(r.rating || 5)})</strong>
                 <p style="font-size:12px; color:#eee; margin-top:2px;">${r.text}</p>
               </div>
               <button type="button" class="btn btn-del" style="margin-top:0; padding:4px 8px; font-size:11px;" onclick="eliminarResena(${pIdx}, ${rIdx})">🗑️ Borrar</button>
             `;
-            dishBox.appendChild(rItem);
+            box.appendChild(item);
           });
-          cont.appendChild(dishBox);
+          cont.appendChild(box);
         }
       });
 
-      if (!hayResenas) {
+      if (!hay) {
         cont.innerHTML = '<p style="color:#aaa; font-size:13px;">No hay reseñas registradas aún en los platos.</p>';
       }
     }
 
     function eliminarResena(dishIdx, reviewIdx) {
-      if (confirm("¿Eliminar esta reseña?")) {
+      if (confirm("¿Deseas eliminar esta reseña?")) {
         catalogo[dishIdx].reviews.splice(reviewIdx, 1);
         renderizarResenasAdmin();
       }
     }
 
-    // GENERADOR DE QR
+    // REPORTES CONTABLES
+    function renderizarReporte() {
+      let ventas = JSON.parse(localStorage.getItem(STORAGE_KEY_VENTAS));
+      if (!ventas || ventas.length === 0) {
+        // Datos de ejemplo representativos si está recién inicializado
+        ventas = [
+          { fecha: "11/10/2026 13:20", cliente: "Mesa 04 (Carlos)", productos: "2x Lomo Saltado, 1x Pisco Sour", totalPEN: 120.00, pago: "Efectivo" },
+          { fecha: "11/10/2026 14:05", cliente: "Terraza (Sarah USA)", productos: "1x Ceviche Clásico, 1x Chicha", totalPEN: 56.00, pago: "Yape" }
+        ];
+        localStorage.setItem(STORAGE_KEY_VENTAS, JSON.stringify(ventas));
+      }
+
+      const tbody = document.getElementById('tablaVentasBody');
+      tbody.innerHTML = '';
+      let totalPEN = 0;
+      const tc = configRestaurante.exchangeRateUSD || 3.75;
+
+      ventas.forEach(v => {
+        const valPEN = parseFloat(v.totalPEN || v.total || 0);
+        const valUSD = valPEN / tc;
+        totalPEN += valPEN;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${v.fecha}</td>
+          <td><strong>${v.cliente || 'Mesa en Sala'}</strong></td>
+          <td>${v.productos}</td>
+          <td><strong>S/ ${valPEN.toFixed(2)}</strong></td>
+          <td>$ ${valUSD.toFixed(2)}</td>
+          <td>${v.pago}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const totalUSD = totalPEN / tc;
+      document.getElementById('repPrintTotales').innerText = `Total General: S/ ${totalPEN.toFixed(2)} (≈ $ ${totalUSD.toFixed(2)} USD)`;
+    }
+
+    function imprimirReporteContable() {
+      document.getElementById('repPrintFecha').innerText = `Reporte Contable de Comandas - Fecha: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`;
+      window.print();
+    }
+
+    function limpiarVentasConfirmacion() {
+      if (confirm("¿Estás seguro de que deseas reiniciar y vaciar el registro contable?")) {
+        localStorage.removeItem(STORAGE_KEY_VENTAS);
+        renderizarReporte();
+      }
+    }
+
+    // QR MESAS
     function actualizarQRVisual() {
       const mesa = document.getElementById('qrMesaNumero').value.trim() || "Mesa 01";
       const baseUrl = document.getElementById('qrUrlBase').value.trim() || "https://phyxcius.github.io/Leogascusco/";
@@ -630,11 +829,32 @@
       document.getElementById('imgQRGenerado').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(urlCompleta)}`;
     }
 
-    // SINCRONIZACIÓN AUTOMÁTICA DIRECTO A GITHUB (PREVIENE ERROR DE SHA)
+    function imprimirQRSolo() {
+      const mesa = document.getElementById('qrMesaNumero').value.trim() || "Mesa 01";
+      const img = document.getElementById('imgQRGenerado').src;
+      const nom = configRestaurante.nombre || "Inka Bistro Cusco";
+
+      const ventana = window.open('', '_blank');
+      ventana.document.write(`
+        <html>
+        <head><title>Imprimir QR - ${mesa}</title></head>
+        <body style="font-family:sans-serif; text-align:center; padding-top:40px;">
+          <h2>${nom}</h2>
+          <img src="${img}" style="width:230px; height:230px;" />
+          <h1 style="margin-top:10px; text-transform:uppercase;">${mesa}</h1>
+          <p style="font-size:13px; color:#555;">Escanea para ver la carta y pedir desde tu celular</p>
+          <script>window.onload = function(){ window.print(); window.close(); }<\/script>
+        </body>
+        </html>
+      `);
+      ventana.document.close();
+    }
+
+    // PUBLICAR DIRECTO A GITHUB
     async function sincronizarConGitHub() {
       const token = obtenerTokenSecreto();
       if (!token) {
-        alert("⚠️ No tienes configurado el token de GitHub. Despliega el acordeón con tu código maestro y guarda tu token.");
+        alert("⚠️ No tienes configurado el token de GitHub. Despliega el acordeón arriba y guarda tu token personal.");
         return;
       }
 
@@ -642,13 +862,19 @@
       const msg = document.getElementById('statusMsg');
       if (btn) { btn.disabled = true; btn.innerText = "⏳ Guardando en GitHub..."; }
 
+      // Extraer datos actualizados de identidad
+      configRestaurante.nombre = document.getElementById('cfgBusinessName').value.trim() || "Inka Bistro Cusco";
+      configRestaurante.eslogan = document.getElementById('cfgBusinessSlogan').value.trim() || "Cusco • Gourmet Experience";
+      configRestaurante.logo = document.getElementById('cfgBusinessLogo').value.trim() || "🍽️";
+
+      // Extraer datos de contacto
       configRestaurante.whatsapp = document.getElementById('cfgWhatsApp').value.trim();
       configRestaurante.yapePhone = document.getElementById('cfgYapePhone').value.trim();
       configRestaurante.titular = document.getElementById('cfgTitular').value.trim();
       configRestaurante.exchangeRateUSD = parseFloat(document.getElementById('cfgTipoCambio').value) || 3.75;
 
       const objetoCompleto = {
-        restaurante: "Inka Bistro Cusco",
+        restaurante: configRestaurante.nombre,
         config: configRestaurante,
         telefonos: {
           whatsapp: configRestaurante.whatsapp,
@@ -659,7 +885,7 @@
         productos: catalogo
       };
 
-      // 1. Obtener siempre el SHA más reciente directo de GitHub
+      // 1. Obtener el SHA actual de GitHub
       let shaActual = "";
       try {
         const check = await fetch(`https://api.github.com/repos/${USUARIO}/${REPOSITORIO}/contents/${ARCHIVO}?ref=main&_t=${Date.now()}`, {
@@ -673,18 +899,18 @@
           shaActual = d.sha;
         }
       } catch (e) {
-        console.warn("No se pudo obtener SHA previo:", e);
+        console.warn("No se pudo obtener SHA:", e);
       }
 
       // 2. Preparar el payload
       const payload = {
-        message: "Actualización de menú, platos multilingües y configuración Inka Bistro",
+        message: `Actualización de carta, identidad y configuración de ${configRestaurante.nombre}`,
         content: btoa(unescape(encodeURIComponent(JSON.stringify(objetoCompleto, null, 2)))),
         branch: "main"
       };
       if (shaActual) payload.sha = shaActual;
 
-      // 3. Guardar en GitHub
+      // 3. Petición PUT a GitHub
       try {
         const res = await fetch(`https://api.github.com/repos/${USUARIO}/${REPOSITORIO}/contents/${ARCHIVO}`, {
           method: "PUT",
@@ -700,11 +926,13 @@
           throw new Error(err.message || "Error al actualizar");
         }
 
+        aplicarIdentidadEnInterfaz();
+
         if (msg) {
           msg.style.color = "#16a34a";
-          msg.innerText = "✔ ¡Carta y cambios guardados en GitHub con éxito!";
+          msg.innerText = "✔ ¡Cambios guardados en GitHub con éxito!";
         }
-        alert("✔ ¡Guardado con éxito! Se verá reflejado en la carta en ~30 segundos.");
+        alert("✔ ¡Guardado con éxito! Se reflejará en la carta digital en ~30 segundos.");
       } catch (err) {
         if (msg) {
           msg.style.color = "#ef4444";
@@ -719,7 +947,7 @@
       }
     }
 
-    // INICIAR SESIÓN SI ESTÁ ACTIVA
+    // VERIFICAR SESIÓN AL CARGAR
     window.onload = () => {
       const sesionActiva = sessionStorage.getItem(STORAGE_KEY_AUTH);
       if (sesionActiva === "true") {
