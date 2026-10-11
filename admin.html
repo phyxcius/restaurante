@@ -3,17 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel de Administración | Gestión Restaurante</title>
+  <title>Panel de Control | Inka Bistro Cusco</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
-      --primary: #c2410c;         /* Terracota andino */
+      --primary: #c2410c;         /* Terracota */
       --primary-dark: #9a3412;
       --accent: #f59e0b;          /* Ámbar / Dorado */
-      --bg-dark: #140e0c;         /* Fondo tostado oscuro */
+      --bg-dark: #120c0a;         /* Fondo tostado muy oscuro */
+      --sidebar-bg: #1c1310;
       --card-bg: #221814;
-      --card-border: rgba(245, 158, 11, 0.25);
-      --input-bg: #1a120f;
+      --card-border: rgba(245, 158, 11, 0.22);
+      --input-bg: #160e0b;
       --text-main: #fffdfa;
       --text-muted: #d1c7be;
       --gold: #fbbf24;
@@ -23,19 +24,38 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-    body { background-color: var(--bg-dark); color: var(--text-main); padding: 18px; max-width: 980px; margin: auto; min-height: 100vh; }
+    body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
 
-    .header-admin {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
+    /* LAYOUT DE DOS COLUMNAS */
+    .admin-layout {
+      display: grid;
+      grid-template-columns: 290px 1fr;
+      min-height: 100vh;
+      width: 100%;
     }
 
-    .brand-header-wrap {
+    /* ==============================================================
+       PANEL IZQUIERDO: NAVEGACIÓN Y CONFIGURACIÓN RÁPIDA
+       ============================================================== */
+    .sidebar {
+      background: var(--sidebar-bg);
+      border-right: 1.5px solid var(--card-border);
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .brand-box {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
     }
 
     .brand-avatar {
@@ -49,68 +69,315 @@
       font-size: 22px;
       color: #fff;
       overflow: hidden;
+      flex-shrink: 0;
     }
     .brand-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-    h2 { color: var(--gold); margin: 0; font-size: 19px; font-weight: 900; }
-    .header-slogan { font-size: 11px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.8px; }
+    .brand-info h2 { font-size: 16px; font-weight: 900; color: var(--gold); line-height: 1.2; }
+    .brand-info span { font-size: 11px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; }
 
-    /* DASHBOARD TABS */
-    .dashboard-tabs { display: flex; gap: 8px; margin: 16px 0; border-bottom: 2px solid rgba(255,255,255,0.1); padding-bottom: 8px; overflow-x: auto; }
-    .tab-btn { background: none; border: none; font-weight: 800; font-size: 13px; padding: 8px 14px; color: var(--text-muted); cursor: pointer; border-radius: 8px; white-space: nowrap; }
-    .tab-btn.active { background: #38241b; color: var(--gold); border: 1px solid var(--card-border); }
-
-    .card { background: var(--card-bg); padding: 16px; border-radius: 12px; border: 1px solid var(--card-border); margin-bottom: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-
-    label { font-size: 11px; font-weight: 800; color: var(--gold); display: block; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-    input, textarea, select { width: 100%; padding: 9px; margin-top: 4px; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; box-sizing: border-box; font-size: 14px; background: var(--input-bg); color: #fff; }
-    input:focus, textarea:focus, select:focus { border-color: var(--accent); outline: none; }
-
-    .btn { padding: 10px 14px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-    .btn-save { background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; width: 100%; font-size: 15px; padding: 14px; margin-top: 10px; }
-    .btn-add { background: var(--success); color: white; margin-bottom: 14px; width: 100%; font-size: 14px; }
-    .btn-del { background: #451a1a; color: #fca5a5; border: 1px solid #dc2626; margin-top: 10px; font-size: 12px; }
-    .btn-print { background: var(--blue); color: #fff; font-size: 12px; }
-    .btn-logout { background: #3a1f1a; color: #fca5a5; border: 1px solid #dc2626; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; }
-
-    .admin-img-preview-box { display: flex; align-items: center; gap: 12px; margin-top: 6px; background: #1a120f; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
-    .admin-thumb { width: 65px; height: 65px; object-fit: cover; border-radius: 6px; border: 1px solid var(--card-border); background: #000; }
-
-    /* ACORDEÓN PARA TOKEN DE GITHUB */
-    .token-accordion-wrapper {
+    /* ACORDEÓN TOKEN DE GITHUB */
+    .token-box {
       background: #251a15;
       border: 1.5px dashed var(--accent);
       border-radius: 10px;
-      margin-bottom: 16px;
       overflow: hidden;
     }
 
-    .token-accordion-trigger {
+    .token-trigger {
       width: 100%;
       background: none;
       border: none;
-      padding: 12px 16px;
+      padding: 10px 12px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       cursor: pointer;
       font-weight: 800;
       color: var(--gold);
-      font-size: 13px;
+      font-size: 12px;
     }
-    .token-accordion-trigger:hover { background: #32221b; }
+    .token-trigger:hover { background: #32221b; }
 
-    .token-accordion-content {
+    .token-content {
       display: none;
-      padding: 14px 16px;
-      background: #1c1410;
-      border-top: 1px solid rgba(255,255,255,0.1);
+      padding: 12px;
+      background: #18100c;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .token-content input {
+      width: 100%;
+      padding: 7px 10px;
+      background: #110907;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 6px;
+      color: #fff;
+      font-size: 12px;
+      margin-top: 4px;
+      outline: none;
     }
 
-    /* PESTAÑAS DE IDIOMA EN PLATOS */
-    .lang-tabs-dish { display: flex; gap: 4px; margin-top: 6px; }
-    .lang-btn { background: #1a120f; border: 1px solid rgba(255,255,255,0.1); color: #aaa; padding: 4px 8px; font-size: 11px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-    .lang-btn.active { background: var(--primary); color: #fff; border-color: var(--accent); }
+    /* MENÚ DE OPCIONES VERTICALES */
+    .nav-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s;
+    }
+    .nav-item i { font-size: 15px; width: 20px; text-align: center; color: var(--accent); }
+    .nav-item:hover { background: #281c17; color: #fff; }
+    .nav-item.active {
+      background: #38241b;
+      color: var(--gold);
+      border-color: var(--card-border);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+
+    .sidebar-footer {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 12px;
+    }
+
+    /* ==============================================================
+       PANEL DERECHO: VISUALIZACIÓN Y TRABAJO
+       ============================================================== */
+    .main-view {
+      padding: 24px 28px;
+      overflow-y: auto;
+      max-height: 100vh;
+    }
+
+    .view-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-bottom: 1.5px solid rgba(255,255,255,0.08);
+      padding-bottom: 14px;
+    }
+    .view-header h1 { font-size: 22px; font-weight: 900; color: var(--gold); }
+    .view-header p { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+    .card {
+      background: var(--card-bg);
+      padding: 18px 20px;
+      border-radius: 14px;
+      border: 1px solid var(--card-border);
+      margin-bottom: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    }
+
+    label { font-size: 11px; font-weight: 800; color: var(--gold); display: block; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    input, textarea, select {
+      width: 100%;
+      padding: 9px 12px;
+      margin-top: 4px;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-size: 13.5px;
+      background: var(--input-bg);
+      color: #fff;
+    }
+    input:focus, textarea:focus, select:focus { border-color: var(--accent); outline: none; }
+
+    .btn { padding: 9px 14px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 7px; font-size: 13px; transition: filter 0.2s; }
+    .btn:hover { filter: brightness(1.1); }
+    .btn-save { background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; }
+    .btn-add { background: var(--success); color: white; }
+    .btn-del { background: #451a1a; color: #fca5a5; border: 1px solid #dc2626; }
+    .btn-print { background: var(--blue); color: #fff; }
+    .btn-logout { background: #3a1f1a; color: #fca5a5; border: 1px solid #dc2626; }
+
+    /* ==============================================================
+       CATÁLOGO VISUAL DE PLATOS (CARD GRID)
+       ============================================================== */
+    .dishes-stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .stat-pill {
+      background: #1c1310;
+      border: 1px solid var(--card-border);
+      padding: 12px 14px;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+    .stat-pill strong { font-size: 22px; color: var(--gold); font-weight: 900; }
+    .stat-pill span { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
+
+    .dishes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 18px;
+    }
+
+    .dish-card-visual {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+    .dish-card-visual.agotado {
+      opacity: 0.65;
+      border-color: #7f1d1d;
+    }
+
+    .dish-media {
+      position: relative;
+      height: 150px;
+      background: #000;
+      overflow: hidden;
+    }
+    .dish-media img { width: 100%; height: 100%; object-fit: cover; }
+
+    .dish-cat-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(194, 65, 12, 0.9);
+      backdrop-filter: blur(4px);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 12px;
+      text-transform: uppercase;
+    }
+    .dish-promo-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: var(--gold);
+      color: #381504;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 12px;
+    }
+
+    .dish-body {
+      padding: 14px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .dish-title-text { font-size: 16px; font-weight: 800; color: #fff; line-height: 1.25; }
+    .dish-desc-text {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.35;
+    }
+
+    .dish-price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .dish-price-row .price-s { font-size: 18px; font-weight: 900; color: #fde047; }
+    .dish-price-row .price-d { font-size: 12px; color: #cbd5e1; }
+
+    /* SWITCH VISUAL DISPONIBLE / AGOTADO */
+    .dish-stock-bar {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #170f0c;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .stock-label { font-size: 11px; font-weight: 800; }
+    .stock-label.on { color: #86efac; }
+    .stock-label.off { color: #fca5a5; }
+
+    .switch-btn {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      border: none;
+      cursor: pointer;
+    }
+    .switch-btn.btn-to-off { background: #451a1a; color: #fca5a5; border: 1px solid #dc2626; }
+    .switch-btn.btn-to-on { background: #14532d; color: #86efac; border: 1px solid #16a34a; }
+
+    .dish-footer-actions {
+      padding: 10px 14px;
+      background: #1a110e;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* MODAL DE EDICIÓN MULTILINGÜE */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(5px);
+      z-index: 500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.active { display: flex; }
+
+    .modal-box {
+      background: var(--card-bg);
+      border: 1.5px solid var(--card-border);
+      border-radius: 16px;
+      max-width: 650px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .lang-tabs { display: flex; gap: 6px; background: #150d0a; padding: 4px; border-radius: 8px; }
+    .lang-btn { flex: 1; padding: 6px 8px; font-size: 11.5px; font-weight: 800; background: none; border: none; color: #aaa; border-radius: 6px; cursor: pointer; }
+    .lang-btn.active { background: var(--primary); color: #fff; }
 
     /* TABLA CONTABLE */
     .custom-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; margin-top: 10px; }
@@ -118,7 +385,7 @@
     .custom-table th { background: #2f221c; color: var(--gold); }
     .custom-table tr:nth-child(even) { background: rgba(255,255,255,0.02); }
 
-    /* QR GENERATOR */
+    /* QR MESAS */
     .qr-preview-box {
       background: #fff;
       border-radius: 12px;
@@ -134,15 +401,20 @@
     .qr-table-text { color: #1a120f; font-size: 14px; font-weight: 900; text-transform: uppercase; }
 
     /* LOGIN */
-    .login-container { display: flex; justify-content: center; align-items: center; min-height: 80vh; }
+    .login-container { display: flex; justify-content: center; align-items: center; min-height: 80vh; width: 100%; }
     .login-card {
       background: var(--card-bg);
-      padding: 26px 28px;
+      padding: 28px 30px;
       border-radius: 16px;
       border: 1px solid var(--card-border);
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       width: 100%;
       max-width: 380px;
+    }
+
+    @media (max-width: 860px) {
+      .admin-layout { grid-template-columns: 1fr; }
+      .sidebar { height: auto; position: static; }
     }
 
     @media print {
@@ -171,164 +443,235 @@
         <label>Contraseña</label>
         <input type="password" id="loginPassword" placeholder="••••••••" required>
         
-        <button type="submit" class="btn btn-save" style="margin-top:16px;">Ingresar al Panel</button>
+        <button type="submit" class="btn btn-save" style="margin-top:16px; width:100%;">Ingresar al Panel</button>
       </form>
     </div>
   </div>
 
-  <!-- PANEL PRINCIPAL TRAS LOGIN -->
-  <div id="panelAdminPrincipal" style="display: none;">
+  <!-- PANEL PRINCIPAL (DOS COLUMNAS) -->
+  <div id="panelAdminPrincipal" class="admin-layout" style="display: none;">
 
-    <div class="header-admin no-print">
-      <div class="brand-header-wrap">
+    <!-- ==============================================================
+         PANEL IZQUIERDO: MENÚ VERTICAL Y TOKEN
+         ============================================================== -->
+    <aside class="sidebar no-print">
+      <!-- Identidad Resumida -->
+      <div class="brand-box">
         <div class="brand-avatar" id="headerAvatar">🍽️</div>
-        <div>
+        <div class="brand-info">
           <h2 id="headerBusinessName">Inka Bistro Cusco</h2>
-          <span class="header-slogan" id="headerBusinessSlogan">Cusco • Gourmet Experience</span>
+          <span id="headerBusinessSlogan">Cusco • Gourmet</span>
         </div>
       </div>
-      <button class="btn-logout" onclick="cerrarSesionAdmin()">🚪 Salir</button>
-    </div>
 
-    <!-- ACORDEÓN DESPLEGABLE DIRECTO PARA EL TOKEN DE GITHUB -->
-    <div class="token-accordion-wrapper no-print">
-      <button class="token-accordion-trigger" type="button" onclick="alternarAcordeonToken()">
-        <span><i class="fa-brands fa-github"></i> Conexión GitHub (Token de Actualización)</span>
-        <span id="accordionIcon"><i class="fa-solid fa-chevron-down"></i> Desplegar</span>
-      </button>
-
-      <div class="token-accordion-content" id="contenidoAcordeonToken">
-        <p style="font-size:12px; color:var(--text-muted); margin-bottom:8px;">
-          Pega tu Personal Access Token (classic o fine-grained con permisos de <code>repo / contents</code>). Se almacena directamente en este navegador para sincronizar cambios a GitHub:
-        </p>
-        <label for="ghTokenInput">Token de GitHub (ghp_... o github_pat_...):</label>
-        <input type="password" id="ghTokenInput" placeholder="Pega tu token aquí">
-        
-        <div style="display:flex; gap:8px; margin-top:10px;">
-          <button class="btn" style="background:var(--primary); color:#fff; font-size:12px;" onclick="guardarTokenManual()">
-            <i class="fa-solid fa-floppy-disk"></i> Guardar Token
-          </button>
-          <button class="btn" style="background:#551b1b; color:#fca5a5; font-size:12px;" onclick="borrarTokenManual()">
-            <i class="fa-solid fa-trash"></i> Eliminar Token
-          </button>
+      <!-- Acordeón Token GitHub -->
+      <div class="token-box">
+        <button class="token-trigger" type="button" onclick="alternarAcordeonToken()">
+          <span><i class="fa-brands fa-github"></i> Token GitHub</span>
+          <span id="tokenStatusBadge" style="font-size:10px; color:#86efac;">● Conectado</span>
+        </button>
+        <div class="token-content" id="contenidoAcordeonToken">
+          <label style="margin-top:0;">Llave Personal (ghp_...):</label>
+          <input type="password" id="ghTokenInput" placeholder="Pega el token aquí">
+          <div style="display:flex; gap:6px; margin-top:8px;">
+            <button class="btn btn-save" style="font-size:11px; padding:6px 10px; margin-top:0;" onclick="guardarTokenManual()">Guardar</button>
+            <button class="btn btn-del" style="font-size:11px; padding:6px 10px; margin-top:0;" onclick="borrarTokenManual()">Borrar</button>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- PESTAÑAS DEL DASHBOARD -->
-    <div class="dashboard-tabs no-print">
-      <button class="tab-btn active" id="tabBtnPlatos" onclick="cambiarTab('platos')">🍽️ Carta & Platos</button>
-      <button class="tab-btn" id="tabBtnIdentidad" onclick="cambiarTab('identidad')">🏪 Negocio & Identidad</button>
-      <button class="tab-btn" id="tabBtnConfig" onclick="cambiarTab('config')">💳 Pagos & Contacto</button>
-      <button class="tab-btn" id="tabBtnMesas" onclick="cambiarTab('mesas')">🏷️ Códigos QR Mesas</button>
-      <button class="tab-btn" id="tabBtnReportes" onclick="cambiarTab('reportes')">📊 Reporte Contable</button>
-      <button class="tab-btn" id="tabBtnResenas" onclick="cambiarTab('resenas')">⭐ Reseñas & Comentarios</button>
-    </div>
+      <!-- Menú de Opciones -->
+      <nav class="nav-menu">
+        <button class="nav-item active" id="btnNavPlatos" onclick="mostrarSeccion('platos')">
+          <i class="fa-solid fa-utensils"></i> Catálogo de Platos
+        </button>
+        <button class="nav-item" id="btnNavIdentidad" onclick="mostrarSeccion('identidad')">
+          <i class="fa-solid fa-store"></i> Identidad del Negocio
+        </button>
+        <button class="nav-item" id="btnNavConfig" onclick="mostrarSeccion('config')">
+          <i class="fa-solid fa-credit-card"></i> Pagos & Contacto
+        </button>
+        <button class="nav-item" id="btnNavMesas" onclick="mostrarSeccion('mesas')">
+          <i class="fa-solid fa-qrcode"></i> Códigos QR Mesas
+        </button>
+        <button class="nav-item" id="btnNavReportes" onclick="mostrarSeccion('reportes')">
+          <i class="fa-solid fa-chart-line"></i> Reporte Contable
+        </button>
+        <button class="nav-item" id="btnNavResenas" onclick="mostrarSeccion('resenas')">
+          <i class="fa-solid fa-star"></i> Reseñas de Clientes
+        </button>
+      </nav>
 
-    <!-- PESTAÑA 1: PLATOS Y BEBIDAS -->
-    <div id="seccionPlatos">
-      <button class="btn btn-add no-print" onclick="agregarNuevoPlato()">➕ Agregar Nuevo Plato al Menú</button>
-      <div id="listaPlatos">Cargando catálogo...</div>
-      <button class="btn btn-save no-print" id="btnPublicar" onclick="sincronizarConGitHub()">🚀 Guardar y Publicar en GitHub</button>
-      <div id="statusMsg" style="text-align:center; margin-top:8px; font-weight:bold;"></div>
-    </div>
+      <!-- Pie del Sidebar -->
+      <div class="sidebar-footer">
+        <button class="btn btn-save" id="btnPublicarSidebar" style="width:100%; font-size:13px;" onclick="sincronizarConGitHub()">
+          <i class="fa-solid fa-cloud-arrow-up"></i> Publicar en GitHub
+        </button>
+        <button class="btn btn-logout" style="width:100%; font-size:12px;" onclick="cerrarSesionAdmin()">
+          <i class="fa-solid fa-right-from-bracket"></i> Salir del Panel
+        </button>
+        <div id="statusMsgSidebar" style="font-size:11px; text-align:center; font-weight:bold; min-height:16px;"></div>
+      </div>
+    </aside>
 
-    <!-- PESTAÑA 2: NEGOCIO E IDENTIDAD (NOMBRE, LOGO Y SLOGAN) -->
-    <div id="seccionIdentidad" style="display: none;">
-      <div class="card">
-        <h3 style="color:var(--gold); font-size:16px; margin-bottom:12px;">🏪 Identidad del Restaurante</h3>
-        
-        <label>Nombre del Negocio:</label>
-        <input type="text" id="cfgBusinessName" placeholder="Ej: Inka Bistro Cusco" oninput="previsualizarIdentidad()">
+    <!-- ==============================================================
+         PANEL DERECHO: VISUALIZACIÓN DINÁMICA
+         ============================================================== -->
+    <main class="main-view">
 
-        <label>Eslogan o Subtítulo:</label>
-        <input type="text" id="cfgBusinessSlogan" placeholder="Ej: Gourmet Experience • Sabores de Altura" oninput="previsualizarIdentidad()">
+      <!-- VISTA 1: CATÁLOGO VISUAL DE PLATOS -->
+      <section id="viewPlatos">
+        <div class="view-header">
+          <div>
+            <h1>🍽️ Catálogo Visual de la Carta</h1>
+            <p>Controla en tiempo real la disponibilidad, edita recetas multilingües y actualiza precios.</p>
+          </div>
+          <button class="btn btn-add" onclick="abrirModalPlato()"><i class="fa-solid fa-plus"></i> Nuevo Plato</button>
+        </div>
 
-        <label>Ícono o Logo (Emoji o URL de imagen):</label>
-        <input type="text" id="cfgBusinessLogo" placeholder="Ej: 🍽️ o https://tudominio.com/logo.png" oninput="previsualizarIdentidad()">
-
-        <div style="margin-top:14px; background:#1c1410; padding:12px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
-          <span style="font-size:11px; text-transform:uppercase; color:var(--gold); font-weight:bold;">Vista Previa Cabecera:</span>
-          <div style="display:flex; align-items:center; gap:10px; margin-top:8px;">
-            <div class="brand-avatar" id="previewAvatar">🍽️</div>
-            <div>
-              <strong style="font-size:16px;" id="previewName">Inka Bistro Cusco</strong><br>
-              <span style="font-size:11px; color:var(--text-muted);" id="previewSlogan">Cusco • Gourmet Experience</span>
-            </div>
+        <!-- Barra de métricas rápidas -->
+        <div class="dishes-stats-bar">
+          <div class="stat-pill">
+            <strong id="statTotal">0</strong>
+            <span>Platos Totales</span>
+          </div>
+          <div class="stat-pill">
+            <strong id="statDisponibles" style="color:#86efac;">0</strong>
+            <span>En Carta (Disponibles)</span>
+          </div>
+          <div class="stat-pill">
+            <strong id="statAgotados" style="color:#fca5a5;">0</strong>
+            <span>Agotados Temporalmente</span>
+          </div>
+          <div class="stat-pill">
+            <strong id="statEspeciales">0</strong>
+            <span>Especialidades del Chef</span>
           </div>
         </div>
 
-        <button class="btn btn-save" onclick="sincronizarConGitHub()" style="margin-top:16px;">💾 Guardar Identidad en GitHub</button>
-      </div>
-    </div>
+        <!-- Cuadrícula visual de platos -->
+        <div class="dishes-grid" id="dishesVisualGrid"></div>
+      </section>
 
-    <!-- PESTAÑA 3: PAGOS Y CONTACTO -->
-    <div id="seccionConfig" style="display: none;">
-      <div class="card">
-        <h3 style="color:var(--gold); font-size:16px; margin-bottom:12px;">💳 Medios de Pago y Pedidos</h3>
-        
-        <label>Número WhatsApp para Pedidos (con código de país, ej: 51969773064):</label>
-        <input type="text" id="cfgWhatsApp" placeholder="51969773064">
-
-        <label>Celular para Yape / Plin:</label>
-        <input type="text" id="cfgYapePhone" placeholder="+51 987 654 321">
-
-        <label>Nombre del Titular de Cuenta (Yape / Plin):</label>
-        <input type="text" id="cfgTitular" placeholder="INKA BISTRO CUSCO E.I.R.L.">
-
-        <label>Tipo de Cambio Referencial (1 USD en Soles):</label>
-        <input type="number" step="0.01" id="cfgTipoCambio" placeholder="3.75">
-
-        <button class="btn btn-save" onclick="sincronizarConGitHub()" style="margin-top:16px;">💾 Guardar Pagos en GitHub</button>
-      </div>
-    </div>
-
-    <!-- PESTAÑA 4: CÓDIGOS QR PARA MESAS -->
-    <div id="seccionMesas" style="display: none;">
-      <div class="card">
-        <h3 style="color:var(--gold); font-size:16px; margin-bottom:12px;">🏷️ Generador de QR para Mesas</h3>
-        <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Imprime el QR para colocarlo en cada mesa o barra del restaurante.</p>
-
-        <label>Número de Mesa o Zona:</label>
-        <input type="text" id="qrMesaNumero" value="Mesa 01" oninput="actualizarQRVisual()">
-
-        <label>URL Base del Menú (GitHub Pages o Dominio):</label>
-        <input type="text" id="qrUrlBase" value="https://phyxcius.github.io/Leogascusco/" oninput="actualizarQRVisual()">
-
-        <div class="qr-preview-box">
-          <h4 style="color:#000; font-size:13px;" id="qrPrintBusinessName">INKA BISTRO CUSCO</h4>
-          <img id="imgQRGenerado" src="" alt="QR Mesa">
-          <span class="qr-table-text" id="lblQRMesa">Mesa 01</span>
-          <span style="font-size:10px; color:#555;">Escanea para ver la carta y pedir</span>
+      <!-- VISTA 2: NEGOCIO E IDENTIDAD -->
+      <section id="viewIdentidad" style="display:none;">
+        <div class="view-header">
+          <div>
+            <h1>🏪 Identidad & Marca del Restaurante</h1>
+            <p>Personaliza el nombre de tu local, su eslogan y el logo visible en la cabecera.</p>
+          </div>
         </div>
 
-        <button class="btn btn-add" onclick="imprimirQRSolo()" style="margin-top:10px;">🖨️ Imprimir QR de esta Mesa</button>
-      </div>
-    </div>
+        <div class="card">
+          <label>Nombre del Negocio:</label>
+          <input type="text" id="cfgBusinessName" placeholder="Ej: Inka Bistro Cusco" oninput="previsualizarIdentidad()">
 
-    <!-- PESTAÑA 5: REPORTE CONTABLE DE VENTAS -->
-    <div id="seccionReportes" style="display: none;">
-      <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <label>Eslogan o Subtítulo:</label>
+          <input type="text" id="cfgBusinessSlogan" placeholder="Ej: Gourmet Experience • Sabores de Altura" oninput="previsualizarIdentidad()">
+
+          <label>Ícono o Logo (Emoji o URL directa de imagen):</label>
+          <input type="text" id="cfgBusinessLogo" placeholder="Ej: 🍽️ o https://tudominio.com/logo.png" oninput="previsualizarIdentidad()">
+
+          <div style="margin-top:16px; background:#160e0b; padding:14px; border-radius:10px; border:1px solid rgba(255,255,255,0.08);">
+            <span style="font-size:11px; text-transform:uppercase; color:var(--gold); font-weight:bold;">Vista Previa Cabecera:</span>
+            <div style="display:flex; align-items:center; gap:12px; margin-top:10px;">
+              <div class="brand-avatar" id="previewAvatar">🍽️</div>
+              <div>
+                <strong style="font-size:17px;" id="previewName">Inka Bistro Cusco</strong><br>
+                <span style="font-size:12px; color:var(--text-muted);" id="previewSlogan">Cusco • Gourmet Experience</span>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-save" style="margin-top:16px; width:100%;" onclick="sincronizarConGitHub()">
+            <i class="fa-solid fa-floppy-disk"></i> Guardar Identidad
+          </button>
+        </div>
+      </section>
+
+      <!-- VISTA 3: PAGOS & CONTACTO -->
+      <section id="viewConfig" style="display:none;">
+        <div class="view-header">
           <div>
-            <h3 style="color:var(--gold); font-size:16px;">📊 Reporte Contable & Pedidos</h3>
-            <span style="font-size:12px; color:var(--text-muted);">Registro de comandas enviadas a cocina y facturadas</span>
+            <h1>💳 Canales de Pedidos & Pagos</h1>
+            <p>Configura el WhatsApp de comanda, los números de Yape / Plin y la tasa cambiaria USD.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <label>Número WhatsApp para Pedidos (con código país, ej: 51969773064):</label>
+          <input type="text" id="cfgWhatsApp" placeholder="51969773064">
+
+          <label>Celular para Yape / Plin:</label>
+          <input type="text" id="cfgYapePhone" placeholder="+51 987 654 321">
+
+          <label>Nombre del Titular de Cuenta:</label>
+          <input type="text" id="cfgTitular" placeholder="INKA BISTRO CUSCO E.I.R.L.">
+
+          <label>Tipo de Cambio Referencial (1 USD en Soles):</label>
+          <input type="number" step="0.01" id="cfgTipoCambio" placeholder="3.75">
+
+          <button class="btn btn-save" style="margin-top:16px; width:100%;" onclick="sincronizarConGitHub()">
+            <i class="fa-solid fa-floppy-disk"></i> Guardar Pagos
+          </button>
+        </div>
+      </section>
+
+      <!-- VISTA 4: CÓDIGOS QR MESAS -->
+      <section id="viewMesas" style="display:none;">
+        <div class="view-header">
+          <div>
+            <h1>🏷️ Generador de QR para Mesas</h1>
+            <p>Genera e imprime el código QR para colocarlo en cada mesa o espacio del restaurante.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+            <div>
+              <label>Número de Mesa o Zona:</label>
+              <input type="text" id="qrMesaNumero" value="Mesa 01" oninput="actualizarQRVisual()">
+            </div>
+            <div>
+              <label>URL Base del Menú:</label>
+              <input type="text" id="qrUrlBase" value="https://phyxcius.github.io/Leogascusco/" oninput="actualizarQRVisual()">
+            </div>
+          </div>
+
+          <div class="qr-preview-box">
+            <h4 style="color:#000; font-size:13px;" id="qrPrintBusinessName">INKA BISTRO CUSCO</h4>
+            <img id="imgQRGenerado" src="" alt="QR Mesa">
+            <span class="qr-table-text" id="lblQRMesa">Mesa 01</span>
+            <span style="font-size:10px; color:#555;">Escanea para ver la carta y pedir</span>
+          </div>
+
+          <button class="btn btn-add" style="width:100%;" onclick="imprimirQRSolo()">
+            <i class="fa-solid fa-print"></i> Imprimir QR de esta Mesa
+          </button>
+        </div>
+      </section>
+
+      <!-- VISTA 5: REPORTE CONTABLE -->
+      <section id="viewReportes" style="display:none;">
+        <div class="view-header">
+          <div>
+            <h1>📊 Reporte Contable de Ventas</h1>
+            <p>Monitorea las comandas enviadas a cocina y genera comprobantes de liquidación.</p>
           </div>
           <div style="display:flex; gap:8px;">
             <button class="btn btn-print no-print" onclick="imprimirReporteContable()">
-              <i class="fa-solid fa-print"></i> Imprimir Reporte Contable
+              <i class="fa-solid fa-print"></i> Imprimir Reporte
             </button>
-            <button class="btn btn-del" style="margin-top:0;" onclick="limpiarVentasConfirmacion()">
+            <button class="btn btn-del" onclick="limpiarVentasConfirmacion()">
               <i class="fa-solid fa-trash"></i> Vaciar Registro
             </button>
           </div>
         </div>
 
-        <!-- Área de Impresión Contable -->
-        <div id="areaImpresionReporte">
-          <div style="margin-bottom:12px; border-bottom:1px solid #ddd; padding-bottom:6px;">
-            <h2 style="color:#000; font-size:18px;" id="repPrintBusinessName">Inka Bistro Cusco</h2>
-            <p style="font-size:12px; color:#555;" id="repPrintFecha">Reporte Contable de Comandas - Fecha: Hoy</p>
+        <div class="card" id="areaImpresionReporte">
+          <div style="margin-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:6px;">
+            <h2 style="color:var(--gold); font-size:18px;" id="repPrintBusinessName">Inka Bistro Cusco</h2>
+            <p style="font-size:12px; color:var(--text-muted);" id="repPrintFecha">Reporte de Comandas</p>
           </div>
 
           <table class="custom-table">
@@ -345,23 +688,94 @@
             <tbody id="tablaVentasBody"></tbody>
           </table>
 
-          <div style="margin-top:14px; text-align:right; font-size:15px; font-weight:bold; color:var(--gold);" id="repPrintTotales">
+          <div style="margin-top:14px; text-align:right; font-size:16px; font-weight:bold; color:var(--gold);" id="repPrintTotales">
             Total General: S/ 0.00
           </div>
         </div>
+      </section>
+
+      <!-- VISTA 6: RESEÑAS -->
+      <section id="viewResenas" style="display:none;">
+        <div class="view-header">
+          <div>
+            <h1>⭐ Reseñas & Calificaciones</h1>
+            <p>Modera las valoraciones en estrellas y testimonios de los comensales.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div id="contenedorResenasAdmin">Cargando opiniones...</div>
+          <button class="btn btn-save" style="width:100%; margin-top:16px;" onclick="sincronizarConGitHub()">
+            <i class="fa-solid fa-floppy-disk"></i> Guardar Moderación
+          </button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MODAL PARA AGREGAR / EDITAR PLATO -->
+  <div class="modal-overlay" id="dishModal">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">
+        <h3 id="modalDishTitle" style="color:var(--gold); font-size:17px;"><i class="fa-solid fa-bowl-food"></i> Editar Plato</h3>
+        <button style="background:none; border:none; color:#ccc; font-size:22px; cursor:pointer;" onclick="cerrarModalPlato()">&times;</button>
+      </div>
+
+      <!-- Pestañas de Idioma -->
+      <label>Idioma a editar:</label>
+      <div class="lang-tabs">
+        <button class="lang-btn active" type="button" onclick="switchLangTab('es')">🇪🇸 Español</button>
+        <button class="lang-btn" type="button" onclick="switchLangTab('en')">🇬🇧 English</button>
+        <button class="lang-btn" type="button" onclick="switchLangTab('fr')">🇫🇷 Français</button>
+        <button class="lang-btn" type="button" onclick="switchLangTab('pt')">🇧🇷 Português</button>
+      </div>
+
+      <div id="langFields">
+        <label id="lblDishName">Nombre del Plato (ES):</label>
+        <input type="text" id="inputDishName" placeholder="Ej: Lomo Saltado Gourmet"/>
+
+        <label id="lblDishDesc">Descripción (ES):</label>
+        <textarea id="inputDishDesc" rows="2" placeholder="Detalle de preparación e ingredientes..."></textarea>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+        <div>
+          <label>Precio en Soles (S/):</label>
+          <input type="number" step="0.5" id="inputDishPrice" placeholder="45.00"/>
+        </div>
+        <div>
+          <label>Categoría:</label>
+          <select id="inputDishCategory">
+            <option value="top">🔥 Especialidad (Top)</option>
+            <option value="mains">Plato Fuerte</option>
+            <option value="drinks">Bebida / Coctel</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+        <div>
+          <label>Etiqueta Badge:</label>
+          <input type="text" id="inputDishTag" placeholder="Ej: Plato Bandera"/>
+        </div>
+        <div>
+          <label>Likes Iniciales:</label>
+          <input type="number" id="inputDishLikes" value="150"/>
+        </div>
+      </div>
+
+      <label>URL Video Vertical (MP4):</label>
+      <input type="text" id="inputDishVideo" placeholder="https://.../video.mp4"/>
+
+      <label>URL Imagen Poster (Fallback):</label>
+      <input type="text" id="inputDishPoster" placeholder="https://.../foto.jpg"/>
+
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
+        <button class="btn btn-del" type="button" onclick="cerrarModalPlato()">Cancelar</button>
+        <button class="btn btn-save" type="button" onclick="guardarPlatoDesdeModal()"><i class="fa-solid fa-floppy-disk"></i> Guardar Plato</button>
       </div>
     </div>
-
-    <!-- PESTAÑA 6: RESEÑAS Y COMENTARIOS -->
-    <div id="seccionResenas" style="display: none;">
-      <div class="card">
-        <h3 style="color:var(--gold); font-size:16px; margin-bottom:12px;">⭐ Reseñas & Comentarios de Comensales</h3>
-        <p style="font-size:12px; color:var(--text-muted); margin-bottom:14px;">Modera las opiniones y calificaciones dejadas en los platos del menú.</p>
-        <div id="contenedorResenasAdmin">Cargando reseñas...</div>
-        <button class="btn btn-save" onclick="sincronizarConGitHub()" style="margin-top:16px;">💾 Guardar Moderación en GitHub</button>
-      </div>
-    </div>
-
   </div>
 
   <script>
@@ -386,7 +800,9 @@
       exchangeRateUSD: 3.75
     };
 
-    let idiomasPlatos = {};
+    let currentEditingId = null;
+    let modalLang = "es";
+    let modalTempI18n = {};
 
     // LOGIN
     function verificarLoginAdmin(e) {
@@ -398,17 +814,17 @@
         sessionStorage.setItem(STORAGE_KEY_AUTH, "true");
         mostrarPanelAdmin();
       } else {
-        alert("Credenciales incorrectas. Verifique usuario y contraseña.");
+        alert("Credenciales incorrectas.");
       }
     }
 
     function mostrarPanelAdmin() {
       document.getElementById('pantallaLogin').style.display = 'none';
-      document.getElementById('panelAdminPrincipal').style.display = 'block';
+      document.getElementById('panelAdminPrincipal').style.display = 'grid';
       document.getElementById('ghTokenInput').value = obtenerTokenSecreto();
+      actualizarBadgeToken();
       cargarDesdeGitHub();
       actualizarQRVisual();
-      renderizarReporte();
     }
 
     function cerrarSesionAdmin() {
@@ -418,17 +834,47 @@
       document.getElementById('loginPassword').value = '';
     }
 
-    // ACORDEÓN PARA TOKEN DE GITHUB
-    function alternarAcordeonToken() {
-      const contenido = document.getElementById('contenidoAcordeonToken');
-      const icono = document.getElementById('accordionIcon');
-      if (contenido.style.display === 'block') {
-        contenido.style.display = 'none';
-        icono.innerHTML = '<i class="fa-solid fa-chevron-down"></i> Desplegar';
-      } else {
-        contenido.style.display = 'block';
-        icono.innerHTML = '<i class="fa-solid fa-chevron-up"></i> Ocultar';
+    // NAVEGACIÓN ENTRE SECCIONES (PANEL IZQUIERDO -> PANEL DERECHO)
+    function mostrarSeccion(sec) {
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+      document.getElementById('viewPlatos').style.display = 'none';
+      document.getElementById('viewIdentidad').style.display = 'none';
+      document.getElementById('viewConfig').style.display = 'none';
+      document.getElementById('viewMesas').style.display = 'none';
+      document.getElementById('viewReportes').style.display = 'none';
+      document.getElementById('viewResenas').style.display = 'none';
+
+      if (sec === 'platos') {
+        document.getElementById('btnNavPlatos').classList.add('active');
+        document.getElementById('viewPlatos').style.display = 'block';
+        renderizarVisualDishes();
+      } else if (sec === 'identidad') {
+        document.getElementById('btnNavIdentidad').classList.add('active');
+        document.getElementById('viewIdentidad').style.display = 'block';
+        cargarValoresIdentidad();
+      } else if (sec === 'config') {
+        document.getElementById('btnNavConfig').classList.add('active');
+        document.getElementById('viewConfig').style.display = 'block';
+        cargarValoresConfig();
+      } else if (sec === 'mesas') {
+        document.getElementById('btnNavMesas').classList.add('active');
+        document.getElementById('viewMesas').style.display = 'block';
+        actualizarQRVisual();
+      } else if (sec === 'reportes') {
+        document.getElementById('btnNavReportes').classList.add('active');
+        document.getElementById('viewReportes').style.display = 'block';
+        renderizarReporte();
+      } else if (sec === 'resenas') {
+        document.getElementById('btnNavResenas').classList.add('active');
+        document.getElementById('viewResenas').style.display = 'block';
+        renderizarResenasAdmin();
       }
+    }
+
+    // TOKEN DE GITHUB
+    function alternarAcordeonToken() {
+      const box = document.getElementById('contenidoAcordeonToken');
+      box.style.display = box.style.display === 'block' ? 'none' : 'block';
     }
 
     function obtenerTokenSecreto() {
@@ -437,57 +883,34 @@
 
     function guardarTokenManual() {
       const t = document.getElementById('ghTokenInput').value.trim();
-      if (!t) return alert("Por favor ingresa un token válido.");
+      if (!t) return alert("Ingresa un token válido.");
       localStorage.setItem(STORAGE_KEY_SECRETA, t);
-      alert("✔ Token de GitHub guardado en este navegador.");
+      actualizarBadgeToken();
+      alert("✔ Token guardado en este navegador.");
       cargarDesdeGitHub();
     }
 
     function borrarTokenManual() {
-      if (confirm("¿Deseas eliminar el token guardado en este navegador?")) {
+      if (confirm("¿Eliminar el token de este equipo?")) {
         localStorage.removeItem(STORAGE_KEY_SECRETA);
         document.getElementById('ghTokenInput').value = '';
-        alert("Token eliminado.");
+        actualizarBadgeToken();
       }
     }
 
-    // NAVEGACIÓN POR PESTAÑAS
-    function cambiarTab(tab) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.getElementById('seccionPlatos').style.display = 'none';
-      document.getElementById('seccionIdentidad').style.display = 'none';
-      document.getElementById('seccionConfig').style.display = 'none';
-      document.getElementById('seccionMesas').style.display = 'none';
-      document.getElementById('seccionReportes').style.display = 'none';
-      document.getElementById('seccionResenas').style.display = 'none';
-
-      if (tab === 'platos') {
-        document.getElementById('tabBtnPlatos').classList.add('active');
-        document.getElementById('seccionPlatos').style.display = 'block';
-      } else if (tab === 'identidad') {
-        document.getElementById('tabBtnIdentidad').classList.add('active');
-        document.getElementById('seccionIdentidad').style.display = 'block';
-        cargarValoresIdentidad();
-      } else if (tab === 'config') {
-        document.getElementById('tabBtnConfig').classList.add('active');
-        document.getElementById('seccionConfig').style.display = 'block';
-        cargarValoresConfig();
-      } else if (tab === 'mesas') {
-        document.getElementById('tabBtnMesas').classList.add('active');
-        document.getElementById('seccionMesas').style.display = 'block';
-        actualizarQRVisual();
-      } else if (tab === 'reportes') {
-        document.getElementById('tabBtnReportes').classList.add('active');
-        document.getElementById('seccionReportes').style.display = 'block';
-        renderizarReporte();
-      } else if (tab === 'resenas') {
-        document.getElementById('tabBtnResenas').classList.add('active');
-        document.getElementById('seccionResenas').style.display = 'block';
-        renderizarResenasAdmin();
+    function actualizarBadgeToken() {
+      const t = obtenerTokenSecreto();
+      const badge = document.getElementById('tokenStatusBadge');
+      if (t) {
+        badge.style.color = '#86efac';
+        badge.innerText = '● Conectado';
+      } else {
+        badge.style.color = '#fca5a5';
+        badge.innerText = '○ Sin llave';
       }
     }
 
-    // CARGAR DESDE GITHUB (productos.json)
+    // CARGA DESDE GITHUB (productos.json)
     async function cargarDesdeGitHub() {
       const token = obtenerTokenSecreto();
       const headers = token ? { "Authorization": `token ${token}` } : {};
@@ -514,7 +937,7 @@
           }
         }
       } catch (e) {
-        console.error("Error al cargar desde GitHub:", e);
+        console.error("Error al cargar:", e);
       }
 
       if (catalogo.length === 0) {
@@ -540,12 +963,203 @@
       }
 
       aplicarIdentidadEnInterfaz();
-      renderizarPlatos();
+      renderizarVisualDishes();
       cargarValoresIdentidad();
       cargarValoresConfig();
     }
 
-    // IDENTIDAD Y LOGO
+    // ==============================================================
+    // RENDERIZADO VISUAL DEL CATÁLOGO DE PLATOS
+    // ==============================================================
+    function renderizarVisualDishes() {
+      const grid = document.getElementById('dishesVisualGrid');
+      grid.innerHTML = '';
+      const tc = configRestaurante.exchangeRateUSD || 3.75;
+
+      let countTotal = catalogo.length;
+      let countDisponibles = 0;
+      let countAgotados = 0;
+      let countEspeciales = 0;
+
+      catalogo.forEach((dish, idx) => {
+        const es = dish.i18n?.es || { name: dish.nombre || 'Plato', desc: dish.descripcion || '' };
+        const estaDisponible = (dish.disponible !== false);
+
+        if (estaDisponible) countDisponibles++;
+        else countAgotados++;
+
+        if (dish.category === 'top') countEspeciales++;
+
+        const precioS = (dish.precioPEN || dish.precio || 0).toFixed(2);
+        const precioD = ((dish.precioPEN || dish.precio || 0) / tc).toFixed(2);
+
+        const card = document.createElement('div');
+        card.className = `dish-card-visual ${estaDisponible ? '' : 'agotado'}`;
+        card.innerHTML = `
+          <div class="dish-media">
+            <img src="${dish.posterUrl || 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500'}" alt="${es.name}">
+            <span class="dish-cat-badge">${dish.category}</span>
+            ${dish.tag ? `<span class="dish-promo-badge">${dish.tag}</span>` : ''}
+          </div>
+
+          <div class="dish-body">
+            <h3 class="dish-title-text">${es.name}</h3>
+            <p class="dish-desc-text">${es.desc}</p>
+
+            <div class="dish-price-row">
+              <span class="price-s">S/ ${precioS}</span>
+              <span class="price-d">≈ $ ${precioD} USD</span>
+            </div>
+
+            <!-- Switch directo de Disponibilidad -->
+            <div class="dish-stock-bar">
+              <span class="stock-label ${estaDisponible ? 'on' : 'off'}">
+                ${estaDisponible ? '🟢 En Carta (Disponible)' : '🔴 Agotado'}
+              </span>
+              <button type="button" class="switch-btn ${estaDisponible ? 'btn-to-off' : 'btn-to-on'}" onclick="toggleDisponibilidad(${idx})">
+                ${estaDisponible ? 'Marcar Agotado' : 'Activar Plato'}
+              </button>
+            </div>
+          </div>
+
+          <div class="dish-footer-actions">
+            <span style="font-size:12px; color:#aaa;"><i class="fa-solid fa-heart" style="color:#ef4444;"></i> ${dish.likes || 0}</span>
+            <div style="display:flex; gap:6px;">
+              <button class="btn btn-save" style="padding:5px 10px; font-size:12px;" onclick="abrirModalPlato('${dish.id}')">
+                <i class="fa-solid fa-pen"></i> Editar
+              </button>
+              <button class="btn btn-del" style="padding:5px 10px; font-size:12px;" onclick="eliminarPlato(${idx})">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      // Actualizar métricas
+      document.getElementById('statTotal').innerText = countTotal;
+      document.getElementById('statDisponibles').innerText = countDisponibles;
+      document.getElementById('statAgotados').innerText = countAgotados;
+      document.getElementById('statEspeciales').innerText = countEspeciales;
+    }
+
+    function toggleDisponibilidad(idx) {
+      catalogo[idx].disponible = (catalogo[idx].disponible === false) ? true : false;
+      renderizarVisualDishes();
+    }
+
+    // MODAL DE EDICIÓN / AGREGAR PLATO
+    function abrirModalPlato(id = null) {
+      currentEditingId = id;
+      modalLang = "es";
+
+      if (id) {
+        const dish = catalogo.find(d => d.id === id);
+        document.getElementById('modalDishTitle').innerHTML = '<i class="fa-solid fa-pen"></i> Editar Plato';
+        document.getElementById('inputDishPrice').value = dish.precioPEN || dish.precio || 0;
+        document.getElementById('inputDishCategory').value = dish.category || 'top';
+        document.getElementById('inputDishTag').value = dish.tag || '';
+        document.getElementById('inputDishLikes').value = dish.likes || 100;
+        document.getElementById('inputDishVideo').value = dish.videoUrl || '';
+        document.getElementById('inputDishPoster').value = dish.posterUrl || '';
+        modalTempI18n = JSON.parse(JSON.stringify(dish.i18n || {}));
+      } else {
+        document.getElementById('modalDishTitle').innerHTML = '<i class="fa-solid fa-plus"></i> Nuevo Plato';
+        document.getElementById('inputDishPrice').value = '35.00';
+        document.getElementById('inputDishCategory').value = 'mains';
+        document.getElementById('inputDishTag').value = 'Nuevo';
+        document.getElementById('inputDishLikes').value = '100';
+        document.getElementById('inputDishVideo').value = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
+        document.getElementById('inputDishPoster').value = 'https://images.unsplash.com/photo-1544025162-d76694265947?w=800';
+        modalTempI18n = {
+          es: { name: "", desc: "" },
+          en: { name: "", desc: "" },
+          fr: { name: "", desc: "" },
+          pt: { name: "", desc: "" }
+        };
+      }
+
+      cargarCamposIdiomaModal();
+      document.getElementById('dishModal').classList.add('active');
+    }
+
+    function cerrarModalPlato() {
+      document.getElementById('dishModal').classList.remove('active');
+    }
+
+    function switchLangTab(lang) {
+      guardarCamposIdiomaModal();
+      modalLang = lang;
+      document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      cargarCamposIdiomaModal();
+    }
+
+    function guardarCamposIdiomaModal() {
+      if (!modalTempI18n[modalLang]) modalTempI18n[modalLang] = {};
+      modalTempI18n[modalLang].name = document.getElementById('inputDishName').value.trim();
+      modalTempI18n[modalLang].desc = document.getElementById('inputDishDesc').value.trim();
+    }
+
+    function cargarCamposIdiomaModal() {
+      const data = modalTempI18n[modalLang] || { name: "", desc: "" };
+      document.getElementById('lblDishName').innerText = `Nombre del Plato (${modalLang.toUpperCase()}):`;
+      document.getElementById('lblDishDesc').innerText = `Descripción (${modalLang.toUpperCase()}):`;
+      document.getElementById('inputDishName').value = data.name || "";
+      document.getElementById('inputDishDesc').value = data.desc || "";
+    }
+
+    function guardarPlatoDesdeModal() {
+      guardarCamposIdiomaModal();
+
+      const price = parseFloat(document.getElementById('inputDishPrice').value);
+      if (isNaN(price) || price <= 0) return alert("Ingresa un precio válido.");
+
+      if (!modalTempI18n.es.name) return alert("Ingresa al menos el nombre en español.");
+
+      // Copia de respaldo para idiomas vacíos
+      ["en", "fr", "pt"].forEach(l => {
+        if (!modalTempI18n[l]?.name) modalTempI18n[l].name = modalTempI18n.es.name;
+        if (!modalTempI18n[l]?.desc) modalTempI18n[l].desc = modalTempI18n.es.desc;
+      });
+
+      const platoData = {
+        id: currentEditingId || `dish-${Date.now()}`,
+        category: document.getElementById('inputDishCategory').value,
+        tag: document.getElementById('inputDishTag').value.trim(),
+        precioPEN: price,
+        precio: price,
+        likes: parseInt(document.getElementById('inputDishLikes').value) || 100,
+        videoUrl: document.getElementById('inputDishVideo').value.trim(),
+        posterUrl: document.getElementById('inputDishPoster').value.trim(),
+        i18n: modalTempI18n,
+        disponible: true
+      };
+
+      if (currentEditingId) {
+        const idx = catalogo.findIndex(d => d.id === currentEditingId);
+        platoData.disponible = catalogo[idx].disponible !== false;
+        platoData.reviews = catalogo[idx].reviews || [];
+        catalogo[idx] = platoData;
+      } else {
+        platoData.reviews = [];
+        catalogo.push(platoData);
+      }
+
+      cerrarModalPlato();
+      renderizarVisualDishes();
+    }
+
+    function eliminarPlato(idx) {
+      const name = catalogo[idx].i18n?.es?.name || "este plato";
+      if (confirm(`¿Eliminar "${name}" del menú?`)) {
+        catalogo.splice(idx, 1);
+        renderizarVisualDishes();
+      }
+    }
+
+    // IDENTIDAD & NEGOCIO
     function cargarValoresIdentidad() {
       document.getElementById('cfgBusinessName').value = configRestaurante.nombre || "Inka Bistro Cusco";
       document.getElementById('cfgBusinessSlogan').value = configRestaurante.eslogan || "Cusco • Gourmet Experience";
@@ -562,11 +1176,8 @@
       document.getElementById('previewSlogan').innerText = slo;
 
       const av = document.getElementById('previewAvatar');
-      if (log.startsWith('http')) {
-        av.innerHTML = `<img src="${log}" alt="Logo">`;
-      } else {
-        av.innerText = log;
-      }
+      if (log.startsWith('http')) av.innerHTML = `<img src="${log}" alt="Logo">`;
+      else av.innerText = log;
     }
 
     function aplicarIdentidadEnInterfaz() {
@@ -581,13 +1192,11 @@
       document.getElementById('repPrintBusinessName').innerText = nom;
 
       const av = document.getElementById('headerAvatar');
-      if (log.startsWith('http')) {
-        av.innerHTML = `<img src="${log}" alt="Logo">`;
-      } else {
-        av.innerText = log;
-      }
+      if (log.startsWith('http')) av.innerHTML = `<img src="${log}" alt="Logo">`;
+      else av.innerText = log;
     }
 
+    // PAGOS & CONFIG
     function cargarValoresConfig() {
       document.getElementById('cfgWhatsApp').value = configRestaurante.whatsapp || "51969773064";
       document.getElementById('cfgYapePhone').value = configRestaurante.yapePhone || "+51 987 654 321";
@@ -595,133 +1204,7 @@
       document.getElementById('cfgTipoCambio').value = configRestaurante.exchangeRateUSD || 3.75;
     }
 
-    // RENDERIZADO DE PLATOS
-    function renderizarPlatos() {
-      const cont = document.getElementById('listaPlatos');
-      cont.innerHTML = '';
-
-      catalogo.forEach((p, i) => {
-        if (!p.i18n) {
-          p.i18n = {
-            es: { name: p.nombre || "Plato", desc: p.descripcion || "" },
-            en: { name: p.nombre || "Dish", desc: p.descripcion || "" },
-            fr: { name: p.nombre || "Plat", desc: p.descripcion || "" },
-            pt: { name: p.nombre || "Prato", desc: p.descripcion || "" }
-          };
-        }
-
-        const lang = idiomasPlatos[i] || 'es';
-        const langData = p.i18n[lang] || p.i18n['es'] || { name: '', desc: '' };
-
-        const div = document.createElement('div');
-        div.className = 'card';
-        div.innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            <strong style="color:var(--gold); font-size:15px;">#${i + 1} - ${p.i18n.es.name || 'Sin título'}</strong>
-            <span style="font-size:12px; color:#aaa;">❤️ ${p.likes || 0}</span>
-          </div>
-
-          <label>Idioma a Editar:</label>
-          <div class="lang-tabs-dish">
-            <button type="button" class="lang-btn ${lang === 'es' ? 'active' : ''}" onclick="cambiarIdiomaPlato(${i}, 'es')">🇪🇸 Español</button>
-            <button type="button" class="lang-btn ${lang === 'en' ? 'active' : ''}" onclick="cambiarIdiomaPlato(${i}, 'en')">🇬🇧 English</button>
-            <button type="button" class="lang-btn ${lang === 'fr' ? 'active' : ''}" onclick="cambiarIdiomaPlato(${i}, 'fr')">🇫🇷 Français</button>
-            <button type="button" class="lang-btn ${lang === 'pt' ? 'active' : ''}" onclick="cambiarIdiomaPlato(${i}, 'pt')">🇧🇷 Português</button>
-          </div>
-
-          <label>Nombre (${lang.toUpperCase()}):</label>
-          <input type="text" value="${langData.name || ''}" onchange="actualizarTextoPlato(${i}, '${lang}', 'name', this.value)">
-
-          <label>Descripción (${lang.toUpperCase()}):</label>
-          <input type="text" value="${langData.desc || ''}" onchange="actualizarTextoPlato(${i}, '${lang}', 'desc', this.value)">
-
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:8px;">
-            <div>
-              <label>Precio en Soles (S/):</label>
-              <input type="number" step="0.5" value="${p.precioPEN || p.precio || 0}" onchange="catalogo[${i}].precioPEN = parseFloat(this.value) || 0;">
-            </div>
-            <div>
-              <label>Categoría:</label>
-              <select onchange="catalogo[${i}].category = this.value">
-                <option value="top" ${p.category === 'top' ? 'selected' : ''}>🔥 Especialidad (Top)</option>
-                <option value="mains" ${p.category === 'mains' ? 'selected' : ''}>Plato Fuerte</option>
-                <option value="drinks" ${p.category === 'drinks' ? 'selected' : ''}>Bebida / Coctel</option>
-              </select>
-            </div>
-          </div>
-
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:8px;">
-            <div>
-              <label>Etiqueta Badge:</label>
-              <input type="text" value="${p.tag || ''}" placeholder="Ej: Plato Bandera" onchange="catalogo[${i}].tag = this.value">
-            </div>
-            <div>
-              <label>Disponibilidad:</label>
-              <select onchange="catalogo[${i}].disponible = (this.value === 'true')">
-                <option value="true" ${p.disponible !== false ? 'selected' : ''}>🟢 Disponible</option>
-                <option value="false" ${p.disponible === false ? 'selected' : ''}>🔴 Agotado</option>
-              </select>
-            </div>
-          </div>
-
-          <label>URL Video MP4 (Vertical):</label>
-          <input type="text" value="${p.videoUrl || ''}" placeholder="https://.../video.mp4" onchange="catalogo[${i}].videoUrl = this.value">
-
-          <label>Imagen Poster:</label>
-          <div class="admin-img-preview-box">
-            <img id="prev-${i}" class="admin-thumb" src="${p.posterUrl || p.imagen || ''}" onerror="this.src='https://images.unsplash.com/photo-1544025162-d76694265947?w=500'">
-            <div style="flex:1;">
-              <input type="text" value="${p.posterUrl || p.imagen || ''}" placeholder="URL de la imagen" onchange="catalogo[${i}].posterUrl = this.value; catalogo[${i}].imagen = this.value; document.getElementById('prev-${i}').src = this.value;">
-            </div>
-          </div>
-
-          <button class="btn btn-del" onclick="eliminarPlato(${i})">🗑️ Eliminar Plato</button>
-        `;
-        cont.appendChild(div);
-      });
-    }
-
-    function cambiarIdiomaPlato(index, lang) {
-      idiomasPlatos[index] = lang;
-      renderizarPlatos();
-    }
-
-    function actualizarTextoPlato(index, lang, campo, valor) {
-      if (!catalogo[index].i18n) catalogo[index].i18n = {};
-      if (!catalogo[index].i18n[lang]) catalogo[index].i18n[lang] = {};
-      catalogo[index].i18n[lang][campo] = valor;
-    }
-
-    function agregarNuevoPlato() {
-      catalogo.push({
-        id: "dish-" + Date.now(),
-        category: "mains",
-        tag: "Nuevo",
-        precioPEN: 35.00,
-        disponible: true,
-        likes: 100,
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-        posterUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?w=800",
-        reviews: [],
-        i18n: {
-          es: { name: "Nuevo Plato Gourmet", desc: "Descripción en español." },
-          en: { name: "New Gourmet Dish", desc: "Description in English." },
-          fr: { name: "Nouveau Plat Gourmet", desc: "Description en français." },
-          pt: { name: "Novo Prato Gourmet", desc: "Descrição em português." }
-        }
-      });
-      renderizarPlatos();
-    }
-
-    function eliminarPlato(i) {
-      const nombre = catalogo[i].i18n?.es?.name || "este plato";
-      if (confirm(`¿Eliminar "${nombre}"?`)) {
-        catalogo.splice(i, 1);
-        renderizarPlatos();
-      }
-    }
-
-    // GESTIÓN DE RESEÑAS
+    // RESEÑAS
     function renderizarResenasAdmin() {
       const cont = document.getElementById('contenedorResenasAdmin');
       cont.innerHTML = '';
@@ -757,13 +1240,11 @@
         }
       });
 
-      if (!hay) {
-        cont.innerHTML = '<p style="color:#aaa; font-size:13px;">No hay reseñas registradas aún en los platos.</p>';
-      }
+      if (!hay) cont.innerHTML = '<p style="color:#aaa; font-size:13px;">No hay reseñas registradas aún.</p>';
     }
 
     function eliminarResena(dishIdx, reviewIdx) {
-      if (confirm("¿Deseas eliminar esta reseña?")) {
+      if (confirm("¿Eliminar esta reseña?")) {
         catalogo[dishIdx].reviews.splice(reviewIdx, 1);
         renderizarResenasAdmin();
       }
@@ -773,7 +1254,6 @@
     function renderizarReporte() {
       let ventas = JSON.parse(localStorage.getItem(STORAGE_KEY_VENTAS));
       if (!ventas || ventas.length === 0) {
-        // Datos de ejemplo representativos si está recién inicializado
         ventas = [
           { fecha: "11/10/2026 13:20", cliente: "Mesa 04 (Carlos)", productos: "2x Lomo Saltado, 1x Pisco Sour", totalPEN: 120.00, pago: "Efectivo" },
           { fecha: "11/10/2026 14:05", cliente: "Terraza (Sarah USA)", productos: "1x Ceviche Clásico, 1x Chicha", totalPEN: 56.00, pago: "Yape" }
@@ -794,7 +1274,7 @@
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${v.fecha}</td>
-          <td><strong>${v.cliente || 'Mesa en Sala'}</strong></td>
+          <td><strong>${v.cliente || 'Mesa'}</strong></td>
           <td>${v.productos}</td>
           <td><strong>S/ ${valPEN.toFixed(2)}</strong></td>
           <td>$ ${valUSD.toFixed(2)}</td>
@@ -808,12 +1288,12 @@
     }
 
     function imprimirReporteContable() {
-      document.getElementById('repPrintFecha').innerText = `Reporte Contable de Comandas - Fecha: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`;
+      document.getElementById('repPrintFecha').innerText = `Reporte Contable - Fecha: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`;
       window.print();
     }
 
     function limpiarVentasConfirmacion() {
-      if (confirm("¿Estás seguro de que deseas reiniciar y vaciar el registro contable?")) {
+      if (confirm("¿Vaciar todo el registro contable?")) {
         localStorage.removeItem(STORAGE_KEY_VENTAS);
         renderizarReporte();
       }
@@ -850,24 +1330,19 @@
       ventana.document.close();
     }
 
-    // PUBLICAR DIRECTO A GITHUB
+    // SINCRONIZACIÓN DIRECTA CON GITHUB
     async function sincronizarConGitHub() {
       const token = obtenerTokenSecreto();
-      if (!token) {
-        alert("⚠️ No tienes configurado el token de GitHub. Despliega el acordeón arriba y guarda tu token personal.");
-        return;
-      }
+      if (!token) return alert("⚠️ No has configurado tu Token de GitHub. Despliega el acordeón a la izquierda.");
 
-      const btn = document.getElementById('btnPublicar') || event?.target;
-      const msg = document.getElementById('statusMsg');
-      if (btn) { btn.disabled = true; btn.innerText = "⏳ Guardando en GitHub..."; }
+      const btn = document.getElementById('btnPublicarSidebar') || event?.target;
+      const msg = document.getElementById('statusMsgSidebar');
+      if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...'; }
 
-      // Extraer datos actualizados de identidad
+      // Extraer datos actualizados
       configRestaurante.nombre = document.getElementById('cfgBusinessName').value.trim() || "Inka Bistro Cusco";
       configRestaurante.eslogan = document.getElementById('cfgBusinessSlogan').value.trim() || "Cusco • Gourmet Experience";
       configRestaurante.logo = document.getElementById('cfgBusinessLogo').value.trim() || "🍽️";
-
-      // Extraer datos de contacto
       configRestaurante.whatsapp = document.getElementById('cfgWhatsApp').value.trim();
       configRestaurante.yapePhone = document.getElementById('cfgYapePhone').value.trim();
       configRestaurante.titular = document.getElementById('cfgTitular').value.trim();
@@ -885,7 +1360,7 @@
         productos: catalogo
       };
 
-      // 1. Obtener el SHA actual de GitHub
+      // 1. Obtener SHA actual
       let shaActual = "";
       try {
         const check = await fetch(`https://api.github.com/repos/${USUARIO}/${REPOSITORIO}/contents/${ARCHIVO}?ref=main&_t=${Date.now()}`, {
@@ -904,13 +1379,13 @@
 
       // 2. Preparar el payload
       const payload = {
-        message: `Actualización de carta, identidad y configuración de ${configRestaurante.nombre}`,
+        message: `Actualización de catálogo e identidad - ${configRestaurante.nombre}`,
         content: btoa(unescape(encodeURIComponent(JSON.stringify(objetoCompleto, null, 2)))),
         branch: "main"
       };
       if (shaActual) payload.sha = shaActual;
 
-      // 3. Petición PUT a GitHub
+      // 3. Petición PUT
       try {
         const res = await fetch(`https://api.github.com/repos/${USUARIO}/${REPOSITORIO}/contents/${ARCHIVO}`, {
           method: "PUT",
@@ -929,25 +1404,25 @@
         aplicarIdentidadEnInterfaz();
 
         if (msg) {
-          msg.style.color = "#16a34a";
-          msg.innerText = "✔ ¡Cambios guardados en GitHub con éxito!";
+          msg.style.color = "#86efac";
+          msg.innerText = "✔ ¡Publicado en GitHub!";
         }
-        alert("✔ ¡Guardado con éxito! Se reflejará en la carta digital en ~30 segundos.");
+        alert("✔ ¡Guardado y publicado con éxito! Se reflejará en la carta digital en ~30 segundos.");
       } catch (err) {
         if (msg) {
-          msg.style.color = "#ef4444";
+          msg.style.color = "#fca5a5";
           msg.innerText = "Error: " + err.message;
         }
         alert("Error de GitHub: " + err.message);
       } finally {
         if (btn) {
           btn.disabled = false;
-          btn.innerText = "🚀 Guardar y Publicar en GitHub";
+          btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Publicar en GitHub';
         }
       }
     }
 
-    // VERIFICAR SESIÓN AL CARGAR
+    // INICIAR SESIÓN SI ESTÁ ACTIVA
     window.onload = () => {
       const sesionActiva = sessionStorage.getItem(STORAGE_KEY_AUTH);
       if (sesionActiva === "true") {
