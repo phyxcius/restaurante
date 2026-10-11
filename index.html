@@ -3,818 +3,153 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Menú QR Gourmet & Pedidos | Inka Bistro Cusco</title>
+  <title>Inka Bistro Cusco | Menú Digital TikTok</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
     :root {
-      --primary: #c2410c;         /* Terracota andino */
-      --primary-dark: #9a3412;
-      --accent: #f59e0b;          /* Ámbar / Dorado */
-      --accent-hover: #d97706;
-      --bg-warm: #1a1311;         /* Tostado gourmet */
+      --primary: #c2410c;
+      --accent: #f59e0b;
+      --bg-warm: #18110e;
       --glass-panel: rgba(38, 28, 24, 0.88);
       --glass-border: rgba(245, 158, 11, 0.28);
       --text-main: #fffdfa;
       --text-muted: #d6cbbf;
       --gold-badge: #fbbf24;
-      --yape-purple: #742284;
       --whatsapp-green: #25d366;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; font-family: system-ui, -apple-system, sans-serif; }
+    body, html { width: 100%; height: 100%; overflow: hidden; background-color: var(--bg-warm); color: var(--text-main); }
 
-    body, html {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background-color: var(--bg-warm);
-      color: var(--text-main);
-    }
+    .app-container { width: 100%; max-width: 480px; height: 100dvh; margin: 0 auto; position: relative; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
+    .app-container::-webkit-scrollbar { display: none; }
 
-    /* FEED VERTICAL TIKTOK */
-    .app-container {
-      width: 100%;
-      max-width: 480px;
-      height: 100dvh;
-      margin: 0 auto;
-      position: relative;
-      overflow-y: scroll;
-      scroll-snap-type: y mandatory;
-      scrollbar-width: none;
-    }
-    .app-container::-webkit-scrollbar {
-      display: none;
-    }
-
-    /* CABECERA SUPERIOR */
+    /* CABECERA */
     .top-header {
-      position: fixed;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100%;
-      max-width: 480px;
-      z-index: 120;
-      padding: 12px 14px 8px;
-      background: linear-gradient(180deg, rgba(26, 19, 17, 0.96) 0%, rgba(26, 19, 17, 0.65) 75%, transparent 100%);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; z-index: 120;
+      padding: 12px 14px 8px; background: linear-gradient(180deg, rgba(24, 17, 14, 0.96) 0%, rgba(24, 17, 14, 0.6) 75%, transparent 100%);
+      display: flex; flex-direction: column; gap: 10px;
     }
+    .top-bar-row { display: flex; align-items: center; justify-content: space-between; }
+    .brand-section { display: flex; align-items: center; gap: 8px; }
+    .brand-icon { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, var(--accent), var(--primary)); display: flex; align-items: center; justify-content: center; font-size: 17px; color: #fff; }
+    .brand-text h1 { font-size: 15px; font-weight: 900; line-height: 1.1; text-transform: uppercase; }
+    .brand-text span { font-size: 10px; text-transform: uppercase; color: var(--accent); font-weight: 700; }
 
-    .top-bar-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
+    .header-controls { display: flex; align-items: center; gap: 6px; }
+    .select-pill { background: var(--glass-panel); border: 1px solid var(--glass-border); color: #fff; padding: 5px 8px; border-radius: 16px; font-size: 11px; font-weight: 700; outline: none; }
+    .select-pill option { background: #221510; }
+    .icon-pill-btn { width: 32px; height: 32px; border-radius: 50%; background: var(--glass-panel); border: 1px solid var(--glass-border); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; }
 
-    .brand-section {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    .category-chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+    .category-chips::-webkit-scrollbar { display: none; }
+    .chip { background: rgba(43, 31, 26, 0.7); border: 1px solid rgba(251, 191, 36, 0.25); color: var(--text-muted); padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer; }
+    .chip.active { background: linear-gradient(135deg, var(--primary), var(--accent)); border-color: var(--accent); color: #fff; font-weight: 700; }
 
-    .brand-icon {
-      background: linear-gradient(135deg, var(--accent), var(--primary));
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 17px;
-      color: #fff;
-      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
-    }
+    /* REEL SLIDES */
+    .video-slide { width: 100%; height: 100dvh; scroll-snap-align: start; scroll-snap-stop: always; position: relative; background: #1c1411; overflow: hidden; display: flex; align-items: flex-end; }
+    .video-player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+    .slide-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(24,17,14,0.4) 0%, transparent 50%, rgba(24,17,14,0.92) 100%); pointer-events: none; }
 
-    .brand-text h1 {
-      font-size: 15px;
-      font-weight: 900;
-      line-height: 1.1;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      color: var(--text-main);
-    }
+    .side-actions { position: absolute; right: 12px; bottom: 105px; display: flex; flex-direction: column; align-items: center; gap: 15px; z-index: 10; }
+    .action-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; color: #fff; cursor: pointer; }
+    .action-icon { width: 44px; height: 44px; border-radius: 50%; background: var(--glass-panel); border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; font-size: 18px; color: #fff; }
+    .action-label { font-size: 11px; font-weight: 600; color: var(--text-muted); }
 
-    .brand-text span {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      color: var(--accent);
-      font-weight: 700;
-    }
+    .dish-info { position: relative; z-index: 10; padding: 0 75px 85px 16px; width: 100%; }
+    .badge-tag { display: inline-block; background: var(--gold-badge); color: #381504; font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; margin-bottom: 6px; }
+    .dish-title { font-size: 21px; font-weight: 800; line-height: 1.2; margin-bottom: 4px; }
+    .dish-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .dish-price-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+    .price-now { font-size: 23px; font-weight: 800; color: #fef08a; }
+    .price-alt { font-size: 13px; color: #cbd5e1; font-weight: 600; }
 
-    .header-controls {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
+    .btn-quick-add { background: linear-gradient(135deg, var(--primary), var(--accent)); border: 1px solid rgba(251, 191, 36, 0.4); color: #fff; padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
 
-    .select-pill {
-      background: var(--glass-panel);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--glass-border);
-      color: var(--text-main);
-      padding: 5px 8px;
-      border-radius: 16px;
-      font-size: 11px;
-      font-weight: 700;
-      outline: none;
-      cursor: pointer;
-    }
-    .select-pill option {
-      background: #2b1f1a;
-      color: #fff;
-    }
+    /* BOTÓN FLOTANTE INFERIOR DERECHO */
+    .chat-bubble-container { position: fixed; bottom: 20px; right: 18px; display: flex; align-items: center; gap: 8px; z-index: 1500; cursor: pointer; }
+    .chat-bubble-label { background: linear-gradient(135deg, #fef08a 0%, #fde047 100%); color: #78350f; font-weight: 900; font-size: 13px; padding: 8px 14px; border-radius: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.4); border: 2px solid var(--accent); }
+    .chat-bubble-btn { position: relative; width: 56px; height: 56px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 50%; box-shadow: 0 6px 20px rgba(194, 65, 12, 0.5); display: flex; align-items: center; justify-content: center; border: 2px solid #facc15; }
+    .chat-badge { position: absolute; top: -3px; right: -3px; background-color: #ef4444; color: #fff; border: 2px solid #fff; font-size: 11px; font-weight: 800; min-width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
-    .icon-pill-btn {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: var(--glass-panel);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--glass-border);
-      color: var(--text-main);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      cursor: pointer;
-      transition: transform 0.15s;
-    }
+    /* POPUP DE ORDEN */
+    .popup-modal { position: fixed; inset: 0; background: rgba(18, 12, 10, 0.85); backdrop-filter: blur(6px); z-index: 2000; display: none; align-items: flex-end; justify-content: center; }
+    .popup-modal.active { display: flex; }
+    .popup-sheet { background: #241a15; width: 100%; max-width: 480px; max-height: 90dvh; border-radius: 24px 24px 0 0; padding: 18px 18px 24px; display: flex; flex-direction: column; border-top: 1.5px solid var(--glass-border); overflow-y: auto; }
 
-    /* FILTROS DE CATEGORÍAS */
-    .category-chips {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      padding-bottom: 2px;
-    }
-    .category-chips::-webkit-scrollbar {
-      display: none;
-    }
+    .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 10px; }
+    .order-items-list { overflow-y: auto; max-height: 22dvh; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+    .order-item-row { display: flex; justify-content: space-between; align-items: center; background: #2d211b; padding: 8px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); }
 
-    .chip {
-      background: rgba(43, 31, 26, 0.7);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(251, 191, 36, 0.25);
-      color: var(--text-muted);
-      padding: 5px 14px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      white-space: nowrap;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .chip.active {
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      border-color: var(--accent);
-      color: #fff;
-      font-weight: 700;
-      box-shadow: 0 3px 12px rgba(194, 65, 12, 0.45);
-    }
+    .grid-payments { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
+    .btn-pay-option { background: #2d211b; border: 1px solid rgba(255, 255, 255, 0.12); color: var(--text-muted); padding: 8px 4px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; text-align: center; }
+    .btn-pay-option.active { background: linear-gradient(135deg, var(--primary), var(--accent)); border-color: var(--accent); color: #fff; }
 
-    /* REEL / SLIDE TIKTOK */
-    .video-slide {
-      width: 100%;
-      height: 100dvh;
-      scroll-snap-align: start;
-      scroll-snap-stop: always;
-      position: relative;
-      background: #1c1411;
-      overflow: hidden;
-      display: flex;
-      align-items: flex-end;
-    }
+    .cash-box-drawer { background: #2b1f1a; border: 1.5px dashed rgba(245, 158, 11, 0.4); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; }
+    .cash-input { width: 100%; padding: 8px 12px; font-size: 15px; font-weight: 800; border: 1px solid var(--accent); border-radius: 8px; color: #fff; background: #1c1411; margin-top: 4px; }
+    .cash-quick-btns { display: flex; gap: 6px; margin-top: 7px; flex-wrap: wrap; }
+    .btn-quick-cash { background: #3a2a23; border: 1px solid rgba(245, 158, 11, 0.3); color: #fde047; font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 6px; cursor: pointer; }
 
-    .video-player {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      pointer-events: auto;
-    }
+    .vuelto-badge-box { margin-top: 8px; padding: 8px 10px; border-radius: 8px; font-size: 12px; font-weight: 800; display: flex; justify-content: space-between; align-items: center; background: rgba(21, 128, 61, 0.25); color: #86efac; border: 1px solid #15803d; }
+    .vuelto-badge-box.alerta { background: rgba(220, 38, 38, 0.25); color: #fca5a5; border-color: #dc2626; }
 
-    .slide-overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(180deg, 
-        rgba(26, 19, 17, 0.4) 0%, 
-        rgba(26, 19, 17, 0.05) 50%, 
-        rgba(26, 19, 17, 0.92) 100%);
-      pointer-events: none;
-    }
-
-    /* ACCIONES LATERALES TIKTOK */
-    .side-actions {
-      position: absolute;
-      right: 12px;
-      bottom: 110px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 15px;
-      z-index: 10;
-    }
-
-    .action-btn {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      background: none;
-      border: none;
-      color: #fff;
-      cursor: pointer;
-    }
-
-    .action-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: var(--glass-panel);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--glass-border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      color: #fff;
-      transition: transform 0.15s ease;
-    }
-    .action-btn:active .action-icon {
-      transform: scale(0.9);
-    }
-    .action-btn.liked .action-icon {
-      color: #ef4444;
-      border-color: #ef4444;
-    }
-    .action-icon.pay-icon {
-      background: linear-gradient(135deg, var(--yape-purple), #9d2cb3);
-      border: 1px solid #d946ef;
-    }
-    .action-icon.comment-icon {
-      background: rgba(30, 41, 59, 0.7);
-      border: 1px solid #38bdf8;
-      color: #38bdf8;
-    }
-
-    .action-label {
-      font-size: 11px;
-      font-weight: 600;
-      text-shadow: 0 1px 4px rgba(0,0,0,0.9);
-      color: var(--text-muted);
-    }
-
-    /* INFO DEL PLATO */
-    .dish-info {
-      position: relative;
-      z-index: 10;
-      padding: 0 75px 90px 16px;
-      width: 100%;
-    }
-
-    .badge-tag {
-      display: inline-block;
-      background: var(--gold-badge);
-      color: #451a03;
-      font-size: 10px;
-      font-weight: 800;
-      text-transform: uppercase;
-      padding: 3px 8px;
-      border-radius: 6px;
-      margin-bottom: 6px;
-      letter-spacing: 0.5px;
-    }
-
-    .dish-title {
-      font-size: 21px;
-      font-weight: 800;
-      line-height: 1.2;
-      margin-bottom: 4px;
-      text-shadow: 0 2px 8px rgba(0,0,0,0.85);
-      color: var(--text-main);
-    }
-
-    .dish-desc {
-      font-size: 13px;
-      color: var(--text-muted);
-      line-height: 1.4;
-      margin-bottom: 8px;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      text-shadow: 0 1px 4px rgba(0,0,0,0.8);
-    }
-
-    .dish-price-row {
-      display: flex;
-      align-items: baseline;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .price-now {
-      font-size: 23px;
-      font-weight: 800;
-      color: #fef08a;
-      text-shadow: 0 2px 6px rgba(0,0,0,0.8);
-    }
-    .price-alt {
-      font-size: 13px;
-      color: #cbd5e1;
-      font-weight: 600;
-    }
-
-    .btn-quick-add {
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      border: 1px solid rgba(251, 191, 36, 0.4);
-      color: #fff;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-weight: 700;
-      font-size: 12px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      box-shadow: 0 4px 14px rgba(194, 65, 12, 0.4);
-      cursor: pointer;
-    }
-    .btn-quick-add:active {
-      transform: scale(0.96);
-    }
-
-    /* BOTÓN FLOTANTE INFERIOR DERECHO: "PEDIDOS" */
-    .chat-bubble-container {
-      position: fixed;
-      bottom: 22px;
-      right: 20px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      z-index: 1500;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .chat-bubble-label {
-      background: linear-gradient(135deg, #fef08a 0%, #fde047 100%);
-      color: #78350f;
-      font-weight: 900;
-      font-size: 13px;
-      padding: 8px 14px;
-      border-radius: 20px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-      border: 2px solid var(--accent);
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      animation: pulseOrders 2.4s infinite;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    @keyframes pulseOrders {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
-
-    .chat-bubble-btn {
-      position: relative;
-      width: 58px;
-      height: 58px;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      border-radius: 50%;
-      box-shadow: 0 6px 20px rgba(194, 65, 12, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid #facc15;
-    }
-
-    .chat-bubble-btn i {
-      font-size: 22px;
-      color: #fff;
-    }
-
-    .chat-badge {
-      position: absolute;
-      top: -3px;
-      right: -3px;
-      background-color: #ef4444;
-      color: #fff;
-      border: 2px solid #fff;
-      font-size: 11px;
-      font-weight: 800;
-      min-width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    }
-
-    /* MODAL POPUP CHECKOUT */
-    .popup-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(18, 12, 10, 0.85);
-      backdrop-filter: blur(6px);
-      z-index: 2000;
-      display: none;
-      align-items: flex-end;
-      justify-content: center;
-    }
-    .popup-modal.active {
-      display: flex;
-    }
-
-    .popup-sheet {
-      background: #241a15;
-      width: 100%;
-      max-width: 480px;
-      max-height: 90dvh;
-      border-radius: 24px 24px 0 0;
-      padding: 18px 18px 24px;
-      display: flex;
-      flex-direction: column;
-      animation: slideUp 0.25s ease-out;
-      border-top: 1.5px solid var(--glass-border);
-      overflow-y: auto;
-    }
-    @keyframes slideUp {
-      from { transform: translateY(100%); }
-      to { transform: translateY(0); }
-    }
-
-    .sheet-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      padding-bottom: 10px;
-    }
-    .sheet-header h3 {
-      font-size: 16px;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #fef3c7;
-    }
-
-    .btn-vaciar-cart {
-      background: none;
-      border: none;
-      color: #ef4444;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      text-decoration: underline;
-    }
-
-    .sheet-close-btn {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.08);
-      border: none;
-      color: #ccc;
-      font-size: 18px;
-      cursor: pointer;
-    }
-
-    .order-items-list {
-      overflow-y: auto;
-      max-height: 22dvh;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .order-item-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #2d211b;
-      padding: 8px 12px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.06);
-    }
-
-    .item-row-info {
-      flex: 1;
-      padding-right: 8px;
-    }
-    .item-row-title {
-      font-size: 13px;
-      font-weight: 700;
-      color: #fff;
-    }
-    .item-row-sub {
-      font-size: 11px;
-      color: #d1c7be;
-      margin-top: 2px;
-    }
-
-    .qty-controls {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .btn-qty {
-      width: 26px;
-      height: 26px;
-      border-radius: 6px;
-      background: #3e2e26;
-      border: 1px solid rgba(245, 158, 11, 0.3);
-      color: #fff;
-      font-size: 13px;
-      font-weight: bold;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .popup-section-label {
-      font-size: 11px;
-      text-transform: uppercase;
-      font-weight: 800;
-      color: #d6cbbf;
-      letter-spacing: 0.5px;
-      margin-bottom: 5px;
-    }
-
-    .grid-payments {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
-      margin-bottom: 10px;
-    }
-    .btn-pay-option {
-      background: #2d211b;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: var(--text-muted);
-      padding: 8px 4px;
-      border-radius: 8px;
-      font-size: 11px;
-      font-weight: 700;
-      cursor: pointer;
-      text-align: center;
-    }
-    .btn-pay-option.active {
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      border-color: var(--accent);
-      color: #fff;
-    }
-
-    /* CALCULADORA DE VUELTO VISIBLE */
-    .cash-box-drawer {
-      display: block; /* Siempre visible cuando se elige efectivo */
-      background: #2b1f1a;
-      border: 1.5px dashed rgba(245, 158, 11, 0.4);
-      border-radius: 10px;
-      padding: 10px 12px;
-      margin-bottom: 12px;
-    }
-
-    .cash-input-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 5px;
-    }
-
-    .cash-input {
-      flex: 1;
-      padding: 8px 12px;
-      font-size: 15px;
-      font-weight: 800;
-      border: 1px solid var(--accent);
-      border-radius: 8px;
-      color: #fff;
-      background: #1c1411;
-      outline: none;
-    }
-
-    .cash-quick-btns {
-      display: flex;
-      gap: 6px;
-      margin-top: 7px;
-      flex-wrap: wrap;
-    }
-
-    .btn-quick-cash {
-      background: #3a2a23;
-      border: 1px solid rgba(245, 158, 11, 0.3);
-      color: #fde047;
-      font-size: 11px;
-      font-weight: 800;
-      padding: 4px 8px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .vuelto-badge-box {
-      margin-top: 8px;
-      padding: 8px 10px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 800;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(21, 128, 61, 0.25);
-      color: #86efac;
-      border: 1px solid #15803d;
-    }
-    .vuelto-badge-box.alerta {
-      background: rgba(220, 38, 38, 0.25);
-      color: #fca5a5;
-      border-color: #dc2626;
-    }
-
-    .order-form-inputs {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .custom-input {
-      background: #2e221c;
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 10px;
-      color: #fff;
-      padding: 9px 12px;
-      font-size: 13px;
-      outline: none;
-    }
-    .custom-input:focus {
-      border-color: var(--accent);
-    }
-
-    .order-totals-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      font-size: 16px;
-      font-weight: 800;
-      margin-bottom: 12px;
-      border-top: 1px dashed rgba(255,255,255,0.15);
-      padding-top: 8px;
-    }
-    .order-totals-bar .totals-val {
-      font-size: 20px;
-      color: #fde047;
-    }
-
-    .btn-send-whatsapp {
-      background: var(--whatsapp-green);
-      color: #fff;
-      border: none;
-      padding: 13px;
-      border-radius: 24px;
-      font-size: 15px;
-      font-weight: 800;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4);
-    }
-
-    /* MODAL DE RESEÑAS / COMENTARIOS */
-    .comments-list {
-      max-height: 200px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-    .comment-card {
-      background: #2a1f19;
-      border-radius: 10px;
-      padding: 10px 12px;
-      border: 1px solid rgba(255,255,255,0.06);
-    }
-    .comment-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 4px;
-    }
-    .comment-user {
-      font-size: 12px;
-      font-weight: 700;
-      color: #fbbf24;
-    }
-    .comment-stars {
-      color: #f59e0b;
-      font-size: 11px;
-    }
-    .comment-text {
-      font-size: 12px;
-      color: #e5e7eb;
-    }
-
-    .star-rating-select {
-      display: flex;
-      gap: 6px;
-      font-size: 20px;
-      color: #f59e0b;
-      cursor: pointer;
-      margin-bottom: 8px;
-    }
+    .custom-input { width: 100%; background: #2e221c; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; color: #fff; padding: 9px 12px; font-size: 13px; outline: none; margin-bottom: 8px; }
+    .btn-submit-order { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; border: none; padding: 14px; border-radius: 24px; font-size: 15px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
   </style>
 </head>
 <body>
 
-  <!-- CABECERA PRINCIPAL -->
+  <!-- CABECERA -->
   <div class="top-header">
     <div class="top-bar-row">
       <div class="brand-section">
-        <div class="brand-icon">🍽️</div>
+        <div class="brand-icon" id="topIcon">🍽️</div>
         <div class="brand-text">
-          <h1>Inka Bistro</h1>
-          <span>Cusco • Gourmet Experience</span>
+          <h1 id="topTitle">Inka Bistro</h1>
+          <span id="topSlogan">Cusco • Gourmet</span>
         </div>
       </div>
 
       <div class="header-controls">
-        <!-- Idiomas -->
         <select class="select-pill" id="langSelector" onchange="changeLanguage(this.value)">
           <option value="es" selected>🇪🇸 ES</option>
           <option value="en">🇬🇧 EN</option>
           <option value="fr">🇫🇷 FR</option>
           <option value="pt">🇧🇷 PT</option>
         </select>
-
-        <!-- Monedas -->
         <select class="select-pill" id="currencySelector" onchange="changeCurrency(this.value)">
           <option value="PEN" selected>S/ (PEN)</option>
           <option value="USD">$ (USD)</option>
         </select>
-
-        <!-- Audio Global -->
-        <button class="icon-pill-btn" onclick="toggleGlobalAudio()" title="Activar/Silenciar sonido">
-          <i class="fa-solid fa-volume-xmark" id="audioIcon"></i>
-        </button>
+        <button class="icon-pill-btn" onclick="toggleGlobalAudio()"><i class="fa-solid fa-volume-xmark" id="audioIcon"></i></button>
       </div>
     </div>
-
-    <!-- Chips de Categoría -->
     <div class="category-chips" id="categoryChips"></div>
   </div>
 
-  <!-- FEED VERTICAL TIKTOK DE PLATOS -->
+  <!-- FEED TIKTOK -->
   <div class="app-container" id="feedContainer"></div>
 
-  <!-- BOTÓN FLOTANTE INFERIOR DERECHO: "PEDIDOS" -->
-  <div class="chat-bubble-container" id="btnFlotantePedidos" onclick="openOrdersPopup()">
-    <div class="chat-bubble-label">
-      <span>🔥 Pedidos</span>
-    </div>
+  <!-- BOTÓN FLOTANTE PEDIDOS -->
+  <div class="chat-bubble-container" onclick="openOrdersPopup()">
+    <div class="chat-bubble-label"><span>🔥 Pedidos</span></div>
     <div class="chat-bubble-btn">
-      <i class="fa-solid fa-bell-concierge"></i>
+      <i class="fa-solid fa-bell-concierge" style="color:#fff; font-size:22px;"></i>
       <div class="chat-badge" id="ordersBadgeCount">0</div>
     </div>
   </div>
 
-  <!-- MODAL / POPUP DE CHECKOUT (PEDIDOS) -->
+  <!-- POPUP COMANDA -->
   <div class="popup-modal" id="ordersPopupModal" onclick="closeOrdersPopup(event)">
     <div class="popup-sheet" onclick="event.stopPropagation()">
       <div class="sheet-header">
-        <h3 id="ui_cartTitle"><i class="fa-solid fa-receipt" style="color:#f59e0b;"></i> Tu Comanda</h3>
-        <div style="display:flex; align-items:center; gap:10px;">
-          <button type="button" class="btn-vaciar-cart" onclick="vaciarPedidoConConfirmacion()">🗑️ Vaciar</button>
-          <button class="sheet-close-btn" onclick="closeOrdersPopup()">&times;</button>
-        </div>
+        <h3 style="color:#fef3c7;"><i class="fa-solid fa-receipt" style="color:#f59e0b;"></i> Confirmar Comanda</h3>
+        <button style="background:none; border:none; color:#ccc; font-size:22px; cursor:pointer;" onclick="closeOrdersPopup()">&times;</button>
       </div>
 
-      <div class="popup-section-label">Platos / Bebidas seleccionadas:</div>
       <div class="order-items-list" id="orderItemsList"></div>
 
-      <!-- FORMA DE PAGO -->
-      <div class="popup-section-label">Forma de Pago:</div>
+      <!-- PAGO Y VUELTO -->
       <div class="grid-payments">
         <button type="button" class="btn-pay-option active" id="btnPayEfectivo" onclick="elegirPago('Efectivo', this)">💵 Efectivo</button>
         <button type="button" class="btn-pay-option" onclick="elegirPago('Yape', this)">🟣 Yape</button>
@@ -822,13 +157,9 @@
         <button type="button" class="btn-pay-option" onclick="elegirPago('Tarjeta POS', this)">💳 POS</button>
       </div>
 
-      <!-- CALCULADORA DE VUELTO EN EFECTIVO -->
       <div class="cash-box-drawer" id="cajaEfectivoDesplegable">
         <div style="font-size: 11.5px; font-weight: 800; color: #fde047;">💵 ¿Con cuánto en efectivo pagarás?</div>
-        <div class="cash-input-row">
-          <span style="font-weight: 800; font-size: 14px; color: var(--accent);">S/</span>
-          <input type="number" id="montoEfectivoIngresado" class="cash-input" placeholder="Ej. 100" min="0" step="5" oninput="calcularVueltoEfectivo()"/>
-        </div>
+        <input type="number" id="montoEfectivoIngresado" class="cash-input" placeholder="Ej. 100" min="0" step="5" oninput="calcularVueltoEfectivo()"/>
         <div class="cash-quick-btns">
           <button type="button" class="btn-quick-cash" onclick="setMontoEfectivoRapido('exacto')">Pagar Exacto</button>
           <button type="button" class="btn-quick-cash" onclick="setMontoEfectivoRapido(50)">S/ 50</button>
@@ -836,219 +167,43 @@
           <button type="button" class="btn-quick-cash" onclick="setMontoEfectivoRapido(200)">S/ 200</button>
         </div>
         <div class="vuelto-badge-box" id="cajaRespuestaVuelto">
-          <span id="textoDetalleVuelto">Ingresa el monto para calcular el vuelto</span>
+          <span id="textoDetalleVuelto">Calculando vuelto...</span>
           <span id="montoCalculadoVuelto" style="font-size: 14px;"></span>
         </div>
       </div>
 
-      <!-- MESA O HABITACIÓN (SIN GPS) -->
-      <div class="order-form-inputs">
-        <div class="popup-section-label">Identificación de Mesa o Entrega:</div>
-        <input type="text" id="tableOrAddressInput" class="custom-input" placeholder="Nº de Mesa (ej: Mesa 04 / Terraza) o Habitación de Hotel" />
-        <input type="text" id="clientNameInput" class="custom-input" placeholder="Nombre de quien ordena (opcional)" />
-        <input type="text" id="notesInput" class="custom-input" placeholder="Especificaciones (término de carne, alergias, etc.)" />
-      </div>
+      <!-- MESA Y NOTAS -->
+      <input type="text" id="tableOrAddressInput" class="custom-input" placeholder="Nº de Mesa (ej: Mesa 04 / Terraza / Barra)" />
+      <input type="text" id="clientNameInput" class="custom-input" placeholder="Nombre de quien pide (opcional)" />
+      <input type="text" id="notesInput" class="custom-input" placeholder="Especificaciones para cocina (término, alergias)" />
 
-      <!-- TOTALES -->
-      <div class="order-totals-bar">
-        <span id="ui_totalLabel">Total comanda:</span>
+      <!-- TOTAL Y ENVÍO -->
+      <div style="display:flex; justify-content:space-between; align-items:baseline; margin: 10px 0; border-top:1px dashed rgba(255,255,255,0.15); padding-top:8px;">
+        <span style="font-weight:800;">Total comanda:</span>
         <div>
-          <span class="totals-val" id="orderTotalPrice">S/ 0.00</span>
+          <span style="font-size:20px; font-weight:900; color:#fde047;" id="orderTotalPrice">S/ 0.00</span>
           <div style="font-size:11px; color:#aaa; text-align:right;" id="orderSecondaryPrice">≈ $ 0.00</div>
         </div>
       </div>
 
-      <button class="btn-send-whatsapp" onclick="enviarPedidoWhatsApp()">
-        <i class="fa-brands fa-whatsapp"></i> <span id="ui_sendWspBtn">Confirmar Pedido a Cocina</span>
+      <button class="btn-submit-order" id="btnEnviarComanda" onclick="enviarComandaDirectaAlPanel()">
+        <i class="fa-solid fa-bell-concierge"></i> <span>Enviar Comanda al Panel / Cocina</span>
       </button>
-    </div>
-  </div>
-
-  <!-- MODAL DE RESEÑAS Y COMENTARIOS -->
-  <div class="popup-modal" id="reviewsModal" onclick="closeReviewsModal(event)">
-    <div class="popup-sheet" onclick="event.stopPropagation()">
-      <div class="sheet-header">
-        <h3><i class="fa-solid fa-comments" style="color:#38bdf8;"></i> <span id="reviewModalTitle">Reseñas del Plato</span></h3>
-        <button class="sheet-close-btn" onclick="closeReviewsModal()">&times;</button>
-      </div>
-
-      <div class="comments-list" id="commentsContainer">
-        <!-- Generado dinámicamente -->
-      </div>
-
-      <div class="popup-section-label">Deja tu comentario o calificación:</div>
-      <div class="star-rating-select" id="starSelector">
-        <i class="fa-solid fa-star" onclick="setRating(1)"></i>
-        <i class="fa-solid fa-star" onclick="setRating(2)"></i>
-        <i class="fa-solid fa-star" onclick="setRating(3)"></i>
-        <i class="fa-solid fa-star" onclick="setRating(4)"></i>
-        <i class="fa-solid fa-star" onclick="setRating(5)"></i>
-      </div>
-      <input type="text" id="reviewAuthorInput" class="custom-input" placeholder="Tu nombre o país (ej: Sarah de USA)" style="margin-bottom:8px;"/>
-      <textarea id="reviewCommentInput" class="custom-input" rows="2" placeholder="¿Qué tal estuvo el sabor y la atención?" style="margin-bottom:12px;"></textarea>
-      
-      <button class="btn-quick-add" style="width:100%; justify-content:center; padding:12px;" onclick="guardarComentario()">
-        <i class="fa-solid fa-paper-plane"></i> Publicar Reseña
-      </button>
-    </div>
-  </div>
-
-  <!-- MODAL YAPE / PLIN -->
-  <div class="popup-modal" id="yapeModal" onclick="closeYapeModal(event)">
-    <div class="popup-sheet" onclick="event.stopPropagation()">
-      <div class="sheet-header">
-        <h3><i class="fa-solid fa-qrcode" style="color:#742284;"></i> Yape / Plin Directo</h3>
-        <button class="sheet-close-btn" onclick="closeYapeModal()">&times;</button>
-      </div>
-
-      <div style="display:flex; flex-direction:column; align-items:center; text-align:center; gap:12px; padding:10px 0;">
-        <div style="width:180px; height:180px; background:#fff; border-radius:14px; padding:10px;">
-          <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=00020101021153036045802PE5915INKA%20BISTRO%20CUSCO6005CUSCO62070503***6304" alt="QR Yape Plin" style="width:100%; height:100%; object-fit:contain;" />
-        </div>
-        <p style="font-size:13px; color:#d6cbbf;">Escanea el código con tu app o transfiere al número:</p>
-        <div style="background:#2f231d; border:1px solid var(--glass-border); padding:8px 16px; border-radius:20px; display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="copyYapeNumber()">
-          <span id="yapePhoneNumber">+51 987 654 321</span>
-          <i class="fa-regular fa-copy" style="color:#f59e0b;"></i>
-        </div>
-        <span style="font-size:11px; color:#a89f97;">Titular: INKA BISTRO CUSCO E.I.R.L.</span>
-      </div>
+      <div id="orderStatusMsg" style="text-align:center; font-size:12px; margin-top:6px; color:#86efac;"></div>
     </div>
   </div>
 
   <script>
-    const CONFIG = {
+    // CONFIGURACIÓN PREDETERMINADA
+    let CONFIG = {
+      nombre: "Inka Bistro Cusco",
+      eslogan: "Cusco • Gourmet",
+      logo: "🍽️",
       whatsapp: "51969773064",
-      yapePhone: "+51 987 654 321",
       exchangeRateUSD: 3.75
     };
 
-    const translations = {
-      es: {
-        all: "Todos",
-        top: "Especialidades",
-        mains: "Platos Fuertes",
-        drinks: "Bebidas & Cocteles",
-        addBtn: "Agregar",
-        cartTitle: "Tu Comanda",
-        emptyCart: "No has añadido platos a tu comanda.",
-        totalLabel: "Total a pagar:",
-        sendWspBtn: "Enviar Pedido por WhatsApp",
-        wspGreeting: "¡Hola Inka Bistro! Deseo realizar este pedido:",
-        wspPayMethod: "Método de pago",
-        wspTotal: "Total comanda",
-        copied: "¡Número de Yape copiado al portapapeles!"
-      },
-      en: {
-        all: "All",
-        top: "Chef Specials",
-        mains: "Main Courses",
-        drinks: "Drinks & Cocktails",
-        addBtn: "Add dish",
-        cartTitle: "Your Order",
-        emptyCart: "No dishes added to your order yet.",
-        totalLabel: "Total to pay:",
-        sendWspBtn: "Send Order via WhatsApp",
-        wspGreeting: "Hello Inka Bistro! I would like to place this order:",
-        wspPayMethod: "Payment method",
-        wspTotal: "Order Total",
-        copied: "Yape/Plin number copied to clipboard!"
-      },
-      fr: {
-        all: "Tous",
-        top: "Spécialités",
-        mains: "Plats Principaux",
-        drinks: "Boissons & Cocktails",
-        addBtn: "Ajouter",
-        cartTitle: "Votre Commande",
-        emptyCart: "Aucun plat sélectionné pour le moment.",
-        totalLabel: "Total à payer:",
-        sendWspBtn: "Envoyer via WhatsApp",
-        wspGreeting: "Bonjour Inka Bistro ! Je souhaite passer cette commande :",
-        wspPayMethod: "Mode de paiement",
-        wspTotal: "Total commande",
-        copied: "Numéro copié !"
-      },
-      pt: {
-        all: "Todos",
-        top: "Especialidades",
-        mains: "Pratos Principais",
-        drinks: "Bebidas & Coquetéis",
-        addBtn: "Adicionar",
-        cartTitle: "Sua Comanda",
-        emptyCart: "Nenhum prato adicionado ao pedido ainda.",
-        totalLabel: "Total a pagar:",
-        sendWspBtn: "Enviar Pedido via WhatsApp",
-        wspGreeting: "Olá Inka Bistro! Gostaria de fazer este pedido:",
-        wspPayMethod: "Forma de pagamento",
-        wspTotal: "Total do pedido",
-        copied: "Número copiado!"
-      }
-    };
-
-    let catalogo = [
-      {
-        id: "dish-1",
-        category: "top",
-        tag: "Plato Bandera",
-        precioPEN: 46.00,
-        disponible: true,
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-        posterUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?w=800&auto=format&fit=crop&q=80",
-        likes: 542,
-        commentsCount: 14,
-        reviews: [
-          { author: "Michael (USA)", rating: 5, text: "The meat was incredibly tender and the sauce is unmatched!" },
-          { author: "Lucia M.", rating: 5, text: "El mejor lomo saltado de Cusco, recomendado 100%." }
-        ],
-        i18n: {
-          es: { name: "Lomo Saltado al Wok Gourmet", desc: "Trozos jugosos de lomo fino salteados a fuego vivo con cebolla morada, ají amarillo y tomate, con crocantes papas nativas." },
-          en: { name: "Wok-Seared Lomo Saltado", desc: "Juicy beef tenderloin strips flambéed with red onions, yellow chili peppers and fresh tomatoes, served with crisp native potatoes." },
-          fr: { name: "Lomo Saltado au Wok", desc: "Émincé de filet de bœuf flambé au wok avec oignons rouges, piments doux et tomates fraîches, servi avec pommes de terre andines." },
-          pt: { name: "Lomo Saltado ao Wok", desc: "Tiras suculentas de filé mignon salteadas no wok com cebola roxa, ají amarillo e tomate, acompanhadas de batatas nativas." }
-        }
-      },
-      {
-        id: "dish-2",
-        category: "mains",
-        tag: "Imperdible",
-        precioPEN: 48.00,
-        disponible: true,
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-        posterUrl: "https://images.unsplash.com/photo-1535400255456-984241443b29?w=800&auto=format&fit=crop&q=80",
-        likes: 395,
-        commentsCount: 9,
-        reviews: [
-          { author: "Sophie (France)", rating: 5, text: "Poisson ultra frais, assaisonnement parfait !" }
-        ],
-        i18n: {
-          es: { name: "Ceviche Criollo del Pacífico", desc: "Pesca fresca del día marinada en zumo puro de limón, ají limo, camote glaseado y choclo gigante del Valle Sagrado." },
-          en: { name: "Pacific Catch Ceviche", desc: "Fresh fish of the day cured in pure lime juice, chili pepper, glazed sweet potato, and giant Sacred Valley corn." },
-          fr: { name: "Ceviche du Pacifique", desc: "Poisson frais du jour mariné au citron vert pur, piment limo, patate douce glacée et maïs géant de la Vallée Sacrée." },
-          pt: { name: "Ceviche do Pacífico", desc: "Peixe fresco marinado no limão puro, pimenta limo, batata-doce caramelizada e milho gigante do Vale Sagrado." }
-        }
-      },
-      {
-        id: "dish-3",
-        category: "drinks",
-        tag: "Coctel de la Casa",
-        precioPEN: 28.00,
-        disponible: true,
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-        posterUrl: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=800&auto=format&fit=crop&q=80",
-        likes: 680,
-        commentsCount: 22,
-        reviews: [
-          { author: "Carlos T.", rating: 5, text: "Excelente equilibrio, espuma perfecta y pisco de calidad." }
-        ],
-        i18n: {
-          es: { name: "Pisco Sour Catedral", desc: "Destilado de Pisco Quebranta premium, limón sutil, jarabe de goma artesanal y espuma de clara con gotas de amargo." },
-          en: { name: "Cathedral Pisco Sour", desc: "Crafted with premium Quebranta Pisco, freshly pressed lime, house-made syrup, egg white foam, and Angostura bitters." },
-          fr: { name: "Pisco Sour Cathédrale", desc: "Pisco Quebranta haut de gamme, citron vert frais, sirop artisanal, mousse veloutée et gouttes d'Angostura." },
-          pt: { name: "Pisco Sour Catedral", desc: "Pisco Quebranta selecionado, limão fresco, xarope artesanal, clara de ovo batida e gotas aromáticas." }
-        }
-      }
-    ];
-
+    let catalogo = [];
     const pedido = {};
     let currentLang = "es";
     let currentCurrency = "PEN";
@@ -1057,488 +212,290 @@
     let metodoPago = "Efectivo";
     let videoObserver = null;
     let ultimoTotalPagarPEN = 0;
-    let activeDishReviewId = null;
-    let currentRatingStars = 5;
 
-    function init() {
-      sincronizarEstructuraPedido();
-      renderCategoryChips();
-      renderFeed();
-      updateStaticTexts();
-      setupObserver();
-      actualizarVistaPopup();
+    // DETECTAR PARÁMETRO DE MESA DESDE EL CÓDIGO QR (?mesa=04)
+    function detectarMesaDesdeURL() {
+      const params = new URLSearchParams(window.location.search);
+      const mesa = params.get('mesa');
+      if (mesa) {
+        document.getElementById('tableOrAddressInput').value = decodeURIComponent(mesa);
+      }
     }
 
-    function sincronizarEstructuraPedido() {
-      catalogo.forEach(item => {
-        const estaDisponible = (item.disponible !== false);
-        if (!pedido[item.id]) {
-          pedido[item.id] = { id: item.id, precioPEN: item.precioPEN, cantidad: 0, disponible: estaDisponible };
-        } else {
-          pedido[item.id].precioPEN = item.precioPEN;
-          pedido[item.id].disponible = estaDisponible;
-          if (!estaDisponible) pedido[item.id].cantidad = 0;
+    async function cargarDatos() {
+      try {
+        const res = await fetch(`productos.json?_t=${Date.now()}`);
+        if (res.ok) {
+          const data = await res.json();
+          catalogo = data.productos || data.catalogo || [];
+          if (data.config) CONFIG = Object.assign(CONFIG, data.config);
+          if (data.restaurante) CONFIG.nombre = data.restaurante;
         }
-      });
-    }
+      } catch (e) { console.warn("Usando catálogo local", e); }
 
-    function formatPrice(amountPEN) {
-      if (currentCurrency === "USD") {
-        return `$ ${(amountPEN / CONFIG.exchangeRateUSD).toFixed(2)}`;
+      if (catalogo.length === 0) {
+        catalogo = [
+          {
+            id: "dish-1", category: "top", tag: "Plato Bandera", precioPEN: 46.00, disponible: true, likes: 542,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+            posterUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?w=800",
+            i18n: {
+              es: { name: "Lomo Saltado al Wok Gourmet", desc: "Trozos jugosos de lomo fino salteados a fuego vivo con cebolla morada, tomate y papas nativas." },
+              en: { name: "Wok-Seared Lomo Saltado", desc: "Tender beef tenderloin strips sautéed with red onions, tomatoes, and native fries." },
+              fr: { name: "Lomo Saltado au Wok", desc: "Émincé de bœuf sauté au wok avec oignons rouges et frites andines." },
+              pt: { name: "Lomo Saltado ao Wok", desc: "Tiras de filé mignon salteadas com cebola roxa e batatas nativas." }
+            }
+          }
+        ];
       }
-      return `S/ ${amountPEN.toFixed(2)}`;
-    }
 
-    function formatSecondaryPrice(amountPEN) {
-      if (currentCurrency === "PEN") {
-        return `≈ $ ${(amountPEN / CONFIG.exchangeRateUSD).toFixed(2)}`;
-      }
-      return `≈ S/ ${amountPEN.toFixed(2)}`;
-    }
+      document.getElementById('topTitle').innerText = CONFIG.nombre;
+      document.getElementById('topSlogan').innerText = CONFIG.eslogan;
+      document.getElementById('topIcon').innerText = CONFIG.logo || "🍽️";
 
-    function changeLanguage(lang) {
-      currentLang = lang;
       renderCategoryChips();
       renderFeed();
-      updateStaticTexts();
-      actualizarVistaPopup();
+      setupObserver();
+      detectarMesaDesdeURL();
     }
 
-    function changeCurrency(curr) {
-      currentCurrency = curr;
-      renderFeed();
-      actualizarVistaPopup();
+    function formatPrice(pen) {
+      if (currentCurrency === "USD") return `$ ${(pen / CONFIG.exchangeRateUSD).toFixed(2)}`;
+      return `S/ ${pen.toFixed(2)}`;
+    }
+    function formatSecondaryPrice(pen) {
+      if (currentCurrency === "PEN") return `≈ $ ${(pen / CONFIG.exchangeRateUSD).toFixed(2)}`;
+      return `≈ S/ ${pen.toFixed(2)}`;
     }
 
-    function updateStaticTexts() {
-      const t = translations[currentLang];
-      document.getElementById("ui_cartTitle").innerHTML = `<i class="fa-solid fa-receipt" style="color:#f59e0b;"></i> ${t.cartTitle}`;
-      document.getElementById("ui_totalLabel").innerText = t.totalLabel;
-      document.getElementById("ui_sendWspBtn").innerText = t.sendWspBtn;
-    }
+    function changeLanguage(l) { currentLang = l; renderCategoryChips(); renderFeed(); actualizarVistaPopup(); }
+    function changeCurrency(c) { currentCurrency = c; renderFeed(); actualizarVistaPopup(); }
 
     function renderCategoryChips() {
-      const t = translations[currentLang];
-      const categories = [
-        { key: "all", label: t.all },
-        { key: "top", label: `🔥 ${t.top}` },
-        { key: "mains", label: t.mains },
-        { key: "drinks", label: t.drinks }
+      const cats = [
+        { key: "all", label: "Todos" },
+        { key: "top", label: "🔥 Especialidades" },
+        { key: "mains", label: "Platos Fuertes" },
+        { key: "drinks", label: "Bebidas & Cocteles" }
       ];
-
-      const container = document.getElementById("categoryChips");
-      container.innerHTML = categories.map(c => `
-        <div class="chip ${c.key === currentCategory ? 'active' : ''}" onclick="selectCategory('${c.key}')">
-          ${c.label}
-        </div>
-      `).join("");
+      document.getElementById('categoryChips').innerHTML = cats.map(c => `
+        <div class="chip ${c.key === currentCategory ? 'active' : ''}" onclick="selectCat('${c.key}')">${c.label}</div>
+      `).join('');
     }
 
-    function selectCategory(cat) {
-      currentCategory = cat;
-      renderCategoryChips();
-      renderFeed();
-      document.getElementById("feedContainer").scrollTo({ top: 0, behavior: "smooth" });
-    }
+    function selectCat(k) { currentCategory = k; renderCategoryChips(); renderFeed(); document.getElementById('feedContainer').scrollTo({ top: 0, behavior: 'smooth' }); }
 
     function renderFeed() {
-      const feed = document.getElementById("feedContainer");
-      feed.innerHTML = "";
-      const t = translations[currentLang];
+      const feed = document.getElementById('feedContainer');
+      feed.innerHTML = '';
+      const filtrados = currentCategory === 'all' ? catalogo : catalogo.filter(d => d.category === currentCategory);
 
-      const filtered = currentCategory === "all" 
-        ? catalogo 
-        : catalogo.filter(d => d.category === currentCategory);
-
-      filtered.forEach((item) => {
-        const dishInfo = item.i18n[currentLang] || item.i18n["es"];
-        const slide = document.createElement("div");
-        slide.className = "video-slide";
-
+      filtrados.forEach(item => {
+        const info = item.i18n?.[currentLang] || item.i18n?.['es'] || { name: item.nombre, desc: item.descripcion };
+        const slide = document.createElement('div');
+        slide.className = 'video-slide';
         slide.innerHTML = `
-          <video class="video-player" 
-                 src="${item.videoUrl}" 
-                 poster="${item.posterUrl}" 
-                 loop playsinline preload="metadata" 
-                 ${isGlobalMuted ? 'muted' : ''} 
-                 onclick="toggleVideoPlayback(this)"
-                 onerror="this.style.display='none'">
-          </video>
+          <video class="video-player" src="${item.videoUrl}" poster="${item.posterUrl}" loop playsinline preload="metadata" ${isGlobalMuted ? 'muted' : ''} onclick="toggleVideo(this)"></video>
           <div class="slide-overlay"></div>
-
           <div class="side-actions">
-            <button class="action-btn" onclick="toggleLike(this, ${item.likes})">
-              <div class="action-icon"><i class="fa-solid fa-heart"></i></div>
-              <span class="action-label">${item.likes}</span>
-            </button>
-
-            <!-- Botón de Reseñas / Comentarios -->
-            <button class="action-btn" onclick="openReviewsModal('${item.id}')">
-              <div class="action-icon comment-icon"><i class="fa-solid fa-comment-dots"></i></div>
-              <span class="action-label">${item.commentsCount || (item.reviews ? item.reviews.length : 0)}</span>
-            </button>
-
-            <button class="action-btn" onclick="openYapeModal()">
-              <div class="action-icon pay-icon"><i class="fa-solid fa-qrcode"></i></div>
-              <span class="action-label">Yape/Plin</span>
-            </button>
-
-            <button class="action-btn" onclick="shareDish('${dishInfo.name.replace(/'/g, "\\'")}')">
-              <div class="action-icon"><i class="fa-solid fa-share"></i></div>
-              <span class="action-label">Share</span>
-            </button>
+            <button class="action-btn" onclick="this.classList.toggle('liked')"><div class="action-icon"><i class="fa-solid fa-heart"></i></div><span class="action-label">${item.likes || 100}</span></button>
+            <button class="action-btn" onclick="addToOrder('${item.id}')"><div class="action-icon" style="background:#c2410c;"><i class="fa-solid fa-plus"></i></div><span class="action-label">+1</span></button>
           </div>
-
           <div class="dish-info">
-            ${item.tag ? `<span class="badge-tag">${item.tag}</span>` : ""}
-            <h2 class="dish-title">${dishInfo.name}</h2>
-            <p class="dish-desc">${dishInfo.desc}</p>
-            
+            ${item.tag ? `<span class="badge-tag">${item.tag}</span>` : ''}
+            <h2 class="dish-title">${info.name}</h2>
+            <p class="dish-desc">${info.desc}</p>
             <div class="dish-price-row">
-              <span class="price-now">${formatPrice(item.precioPEN)}</span>
-              <span class="price-alt">${formatSecondaryPrice(item.precioPEN)}</span>
+              <span class="price-now">${formatPrice(item.precioPEN || item.precio || 0)}</span>
+              <span class="price-alt">${formatSecondaryPrice(item.precioPEN || item.precio || 0)}</span>
             </div>
-
-            <button class="btn-quick-add" onclick="agregarAlPedido('${item.id}')">
-              <i class="fa-solid fa-plus"></i> ${t.addBtn}
-            </button>
+            <button class="btn-quick-add" onclick="addToOrder('${item.id}')"><i class="fa-solid fa-plus"></i> Pedir Plato</button>
           </div>
         `;
         feed.appendChild(slide);
       });
-
       if (videoObserver) setupObserver();
     }
 
     function setupObserver() {
       if (videoObserver) videoObserver.disconnect();
-
-      const options = { root: document.getElementById("feedContainer"), threshold: 0.65 };
-      videoObserver = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          const video = entry.target.querySelector("video");
-          if (!video) return;
-
-          if (entry.isIntersecting) {
-            video.muted = isGlobalMuted;
-            try {
-              const p = video.play();
-              if (p !== undefined) p.catch(() => {});
-            } catch (e) {}
-          } else {
-            video.pause();
-            video.currentTime = 0;
-          }
+      videoObserver = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          const v = entry.target.querySelector('video');
+          if (!v) return;
+          if (entry.isIntersecting) { v.muted = isGlobalMuted; v.play().catch(()=>{}); }
+          else { v.pause(); v.currentTime = 0; }
         });
-      }, options);
-
-      document.querySelectorAll(".video-slide").forEach(slide => videoObserver.observe(slide));
+      }, { root: document.getElementById('feedContainer'), threshold: 0.65 });
+      document.querySelectorAll('.video-slide').forEach(s => videoObserver.observe(s));
     }
 
-    function toggleVideoPlayback(video) {
-      if (video.paused) {
-        video.play().catch(() => {});
-      } else {
-        video.pause();
-      }
-    }
-
+    function toggleVideo(v) { if (v.paused) v.play(); else v.pause(); }
     function toggleGlobalAudio() {
       isGlobalMuted = !isGlobalMuted;
-      const icon = document.getElementById("audioIcon");
-      icon.className = isGlobalMuted ? "fa-solid fa-volume-xmark" : "fa-solid fa-volume-high";
-      document.querySelectorAll("video").forEach(v => { v.muted = isGlobalMuted; });
+      document.getElementById('audioIcon').className = isGlobalMuted ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-high';
+      document.querySelectorAll('video').forEach(v => v.muted = isGlobalMuted);
     }
 
-    function toggleLike(btn, base) {
-      btn.classList.toggle("liked");
-      const label = btn.querySelector(".action-label");
-      label.innerText = btn.classList.contains("liked") ? base + 1 : base;
+    /* CARRITO / ORDEN */
+    function addToOrder(id) {
+      pedido[id] = (pedido[id] || 0) + 1;
+      actualizarVistaPopup();
     }
-
-    /* CARRITO Y CHECKOUT */
-    function agregarAlPedido(id) {
-      sincronizarEstructuraPedido();
-      if (pedido[id]) {
-        pedido[id].cantidad += 1;
-        actualizarVistaPopup();
-      }
-    }
-
-    function cambiarCantidad(id, delta) {
-      if (pedido[id]) {
-        pedido[id].cantidad += delta;
-        if (pedido[id].cantidad < 0) pedido[id].cantidad = 0;
-        actualizarVistaPopup();
-      }
-    }
-
-    function anularProducto(id) {
-      if (pedido[id]) {
-        pedido[id].cantidad = 0;
-        actualizarVistaPopup();
-      }
-    }
-
-    function vaciarPedidoConConfirmacion() {
-      if (confirm("¿Deseas reiniciar tu comanda?")) {
-        for (const k in pedido) pedido[k].cantidad = 0;
-        actualizarVistaPopup();
-      }
+    function changeQty(id, delta) {
+      if (!pedido[id]) return;
+      pedido[id] += delta;
+      if (pedido[id] <= 0) delete pedido[id];
+      actualizarVistaPopup();
     }
 
     function actualizarVistaPopup() {
-      let totalUnidades = 0;
-      let totalMontoPEN = 0;
-      const listContainer = document.getElementById('orderItemsList');
-      listContainer.innerHTML = '';
-      const t = translations[currentLang];
+      const list = document.getElementById('orderItemsList');
+      list.innerHTML = '';
+      let totalU = 0, totalMonto = 0;
 
-      catalogo.forEach(catItem => {
-        const item = pedido[catItem.id] || { id: catItem.id, precioPEN: catItem.precioPEN, cantidad: 0 };
-        const subtotalPEN = item.cantidad * item.precioPEN;
-        totalUnidades += item.cantidad;
-        totalMontoPEN += subtotalPEN;
+      Object.keys(pedido).forEach(id => {
+        const d = catalogo.find(item => item.id === id);
+        if (!d) return;
+        const cant = pedido[id];
+        const sub = cant * (d.precioPEN || d.precio || 0);
+        totalU += cant;
+        totalMonto += sub;
+        const info = d.i18n?.[currentLang] || d.i18n?.['es'];
 
-        if (item.cantidad > 0) {
-          const dishInfo = catItem.i18n[currentLang] || catItem.i18n["es"];
-          const row = document.createElement('div');
-          row.className = "order-item-row";
-          row.innerHTML = `
-            <div class="item-row-info">
-              <div class="item-row-title">${dishInfo.name}</div>
-              <div class="item-row-sub">${formatPrice(item.precioPEN)} x ${item.cantidad} = <b>${formatPrice(subtotalPEN)}</b></div>
+        list.innerHTML += `
+          <div class="order-item-row">
+            <div>
+              <strong style="font-size:13px;">${info.name}</strong>
+              <div style="font-size:11px; color:#aaa;">${formatPrice(d.precioPEN)} x ${cant} = <b>${formatPrice(sub)}</b></div>
             </div>
-            <div class="qty-controls">
-              <button class="btn-qty" onclick="cambiarCantidad('${item.id}', -1)">-</button>
-              <span style="font-weight:bold; font-size:13px; min-width:18px; text-align:center;">${item.cantidad}</span>
-              <button class="btn-qty" onclick="cambiarCantidad('${item.id}', 1)">+</button>
-              <button type="button" style="background:none; border:none; color:#ef4444; margin-left:6px; cursor:pointer;" onclick="anularProducto('${item.id}')">🗑️</button>
+            <div style="display:flex; gap:6px; align-items:center;">
+              <button style="width:24px; height:24px; border-radius:4px; background:#443027; color:#fff; border:none;" onclick="changeQty('${id}', -1)">-</button>
+              <span style="font-weight:bold; font-size:13px; min-width:16px; text-align:center;">${cant}</span>
+              <button style="width:24px; height:24px; border-radius:4px; background:#443027; color:#fff; border:none;" onclick="changeQty('${id}', 1)">+</button>
             </div>
-          `;
-          listContainer.appendChild(row);
-        }
+          </div>
+        `;
       });
 
-      if (totalUnidades === 0) {
-        listContainer.innerHTML = `<div style="text-align:center; color:#9c8e85; padding:20px 0; font-size:13px;">${t.emptyCart}</div>`;
-      }
+      if (totalU === 0) list.innerHTML = '<p style="text-align:center; color:#888; font-size:13px; padding:16px;">Sin platos añadidos aún.</p>';
 
-      ultimoTotalPagarPEN = totalMontoPEN;
-      document.getElementById('ordersBadgeCount').innerText = `${totalUnidades}`;
-      document.getElementById('orderTotalPrice').innerText = formatPrice(totalMontoPEN);
-      document.getElementById('orderSecondaryPrice').innerText = formatSecondaryPrice(totalMontoPEN);
-
+      ultimoTotalPagarPEN = totalMonto;
+      document.getElementById('ordersBadgeCount').innerText = totalU;
+      document.getElementById('orderTotalPrice').innerText = formatPrice(totalMonto);
+      document.getElementById('orderSecondaryPrice').innerText = formatSecondaryPrice(totalMonto);
       if (metodoPago === 'Efectivo') calcularVueltoEfectivo();
     }
 
-    /* MÉTODOS DE PAGO Y VUELTO */
-    function elegirPago(metodo, boton) {
+    function openOrdersPopup() { document.getElementById('ordersPopupModal').classList.add('active'); }
+    function closeOrdersPopup() { document.getElementById('ordersPopupModal').classList.remove('active'); }
+
+    function elegirPago(metodo, btn) {
       metodoPago = metodo;
-      document.querySelectorAll('.btn-pay-option').forEach(btn => btn.classList.remove('active'));
-      boton.classList.add('active');
-      document.getElementById('cajaEfectivoDesplegable').style.display = (metodo === 'Efectivo') ? 'block' : 'none';
+      document.querySelectorAll('.btn-pay-option').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('cajaEfectivoDesplegable').style.display = metodo === 'Efectivo' ? 'block' : 'none';
       if (metodo === 'Efectivo') calcularVueltoEfectivo();
     }
 
-    function setMontoEfectivoRapido(monto) {
-      const input = document.getElementById('montoEfectivoIngresado');
-      input.value = (monto === 'exacto') ? (ultimoTotalPagarPEN > 0 ? ultimoTotalPagarPEN : '') : monto;
+    function setMontoEfectivoRapido(m) {
+      const inp = document.getElementById('montoEfectivoIngresado');
+      inp.value = m === 'exacto' ? (ultimoTotalPagarPEN > 0 ? ultimoTotalPagarPEN : '') : m;
       calcularVueltoEfectivo();
     }
 
     function calcularVueltoEfectivo() {
-      const input = document.getElementById('montoEfectivoIngresado');
+      const pagaCon = parseFloat(document.getElementById('montoEfectivoIngresado').value);
       const box = document.getElementById('cajaRespuestaVuelto');
       const txt = document.getElementById('textoDetalleVuelto');
       const montoTxt = document.getElementById('montoCalculadoVuelto');
-      const pagaCon = parseFloat(input.value);
 
       if (isNaN(pagaCon) || pagaCon <= 0) {
         box.className = "vuelto-badge-box";
-        txt.innerText = "Ingresa con cuánto pagarás para calcular el vuelto";
+        txt.innerText = "Ingresa monto en efectivo para vuelto";
         montoTxt.innerText = "";
         return;
       }
-
-      if (ultimoTotalPagarPEN <= 0) {
-        box.className = "vuelto-badge-box";
-        txt.innerText = "Añade al menos un plato a la comanda";
-        montoTxt.innerText = "";
-        return;
-      }
-
-      const vuelto = pagaCon - ultimoTotalPagarPEN;
-      if (vuelto < 0) {
+      const v = pagaCon - ultimoTotalPagarPEN;
+      if (v < 0) {
         box.className = "vuelto-badge-box alerta";
-        txt.innerText = `⚠️ Falta dinero (Faltan S/ ${Math.abs(vuelto).toFixed(2)})`;
+        txt.innerText = `⚠️ Falta dinero (Faltan S/ ${Math.abs(v).toFixed(2)})`;
         montoTxt.innerText = "";
-      } else if (vuelto === 0) {
-        box.className = "vuelto-badge-box";
-        txt.innerText = "✔ Pago exacto";
-        montoTxt.innerText = "S/ 0.00";
       } else {
         box.className = "vuelto-badge-box";
         txt.innerText = "💵 Vuelto a entregar:";
-        montoTxt.innerText = `S/ ${vuelto.toFixed(2)}`;
+        montoTxt.innerText = `S/ ${v.toFixed(2)}`;
       }
     }
 
-    /* WHATSAPP */
-    function enviarPedidoWhatsApp() {
-      sincronizarEstructuraPedido();
-      const seleccionados = Object.values(pedido).filter(item => item.cantidad > 0);
-
-      if (seleccionados.length === 0) {
-        alert(translations[currentLang].emptyCart);
-        return;
-      }
+    // ==============================================================
+    // ENVÍO DIRECTO DE LA COMANDA AL PANEL DE CONTROL
+    // ==============================================================
+    async function enviarComandaDirectaAlPanel() {
+      const itemIds = Object.keys(pedido);
+      if (itemIds.length === 0) return alert("Por favor añade al menos un plato a la comanda.");
 
       const mesa = document.getElementById('tableOrAddressInput').value.trim() || "Mesa en Sala (No especificada)";
-      const cliente = document.getElementById('clientNameInput').value.trim();
+      const cliente = document.getElementById('clientNameInput').value.trim() || "Comensal";
       const notas = document.getElementById('notesInput').value.trim();
-      const t = translations[currentLang];
 
-      let totalPEN = 0;
+      const btn = document.getElementById('btnEnviarComanda');
+      const msg = document.getElementById('orderStatusMsg');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Transmitiendo comanda a cocina...';
+
       let detalleTexto = "";
+      const platosComanda = [];
 
-      seleccionados.forEach(item => {
-        const dish = catalogo.find(c => c.id === item.id);
-        const dishInfo = dish.i18n[currentLang] || dish.i18n["es"];
-        const sub = item.cantidad * item.precioPEN;
-        detalleTexto += `• *${item.cantidad}x* ${dishInfo.name} — ${formatPrice(sub)}\n`;
-        totalPEN += sub;
+      itemIds.forEach(id => {
+        const dish = catalogo.find(d => d.id === id);
+        const cant = pedido[id];
+        const nom = (dish.i18n?.[currentLang] || dish.i18n?.['es']).name;
+        detalleTexto += `${cant}x ${nom}, `;
+        platosComanda.push({ id, nombre: nom, cantidad: cant, precio: dish.precioPEN });
       });
 
-      let pagoDetalle = metodoPago;
-      if (metodoPago === 'Efectivo') {
-        const inputEfectivo = parseFloat(document.getElementById('montoEfectivoIngresado').value);
-        if (!isNaN(inputEfectivo) && inputEfectivo > 0) {
-          const vuelto = inputEfectivo - totalPEN;
-          pagoDetalle = vuelto > 0 
-            ? `Efectivo (Paga con S/ ${inputEfectivo.toFixed(2)} | Vuelto: S/ ${vuelto.toFixed(2)})`
-            : `Efectivo (Exacto S/ ${inputEfectivo.toFixed(2)})`;
+      const nuevaComanda = {
+        id: "CMD-" + Date.now(),
+        fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        cliente: `${mesa} (${cliente})`,
+        productos: detalleTexto.replace(/, $/, ""),
+        items: platosComanda,
+        totalPEN: ultimoTotalPagarPEN,
+        pago: metodoPago,
+        notas: notas,
+        estado: "pendiente" // pendiente | cocina | servido
+      };
+
+      // 1. Guardar en almacenamiento compartido para el Panel de Control
+      const STORAGE_KEY_COMANDAS = "inkabistro_comandas_activas";
+      let comandasActivas = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
+      comandasActivas.unshift(nuevaComanda);
+      localStorage.setItem(STORAGE_KEY_COMANDAS, JSON.stringify(comandasActivas));
+
+      // 2. Registro histórico para reportes contables
+      const STORAGE_KEY_VENTAS = "inkabistro_ventas_registro";
+      let ventas = JSON.parse(localStorage.getItem(STORAGE_KEY_VENTAS)) || [];
+      ventas.unshift(nuevaComanda);
+      localStorage.setItem(STORAGE_KEY_VENTAS, JSON.stringify(ventas));
+
+      msg.innerText = "✔ ¡Comanda recibida en la pantalla de cocina del panel!";
+
+      // 3. Opcional: Notificar a WhatsApp de respaldo
+      setTimeout(() => {
+        if (confirm("¿Deseas enviar también la confirmación al WhatsApp del restaurante?")) {
+          const wspText = `🛎️ *NUEVA COMANDA [${nuevaComanda.id}]*\n📍 *Ubicación:* ${mesa}\n👤 *Cliente:* ${cliente}\n📋 *Platos:* ${detalleTexto}\n💰 *Total:* S/ ${ultimoTotalPagarPEN.toFixed(2)}\n💳 *Pago:* ${metodoPago}`;
+          window.open(`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(wspText)}`, '_blank');
         }
-      }
-
-      let mensaje = `🛎️ *${t.wspGreeting}*\n\n`;
-      mensaje += `📍 *Mesa / Ubicación:* ${mesa}\n`;
-      if (cliente) mensaje += `👤 *Cliente:* ${cliente}\n`;
-      mensaje += `\n*Detalle de Comanda:*\n${detalleTexto}\n`;
-      mensaje += `💰 *${t.wspTotal}:* ${formatPrice(totalPEN)} (${formatSecondaryPrice(totalPEN)})\n`;
-      mensaje += `💳 *${t.wspPayMethod}:* ${pagoDetalle}\n`;
-
-      if (notas) {
-        mensaje += `📝 *Notas:* ${notas}\n`;
-      }
-
-      mensaje += `\n_(Pedido generado desde Menú TikTok QR)_`;
-
-      const numDestino = CONFIG.whatsapp.replace(/\D/g, '');
-      window.open(`https://wa.me/${numDestino}?text=${encodeURIComponent(mensaje)}`, '_blank');
+        for (let k in pedido) delete pedido[k];
+        actualizarVistaPopup();
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-bell-concierge"></i> Enviar Comanda al Panel / Cocina';
+        closeOrdersPopup();
+      }, 1000);
     }
 
-    /* SISTEMA DE RESEÑAS / COMENTARIOS */
-    function openReviewsModal(dishId) {
-      activeDishReviewId = dishId;
-      const dish = catalogo.find(d => d.id === dishId);
-      if (!dish) return;
-
-      const dishInfo = dish.i18n[currentLang] || dish.i18n["es"];
-      document.getElementById('reviewModalTitle').innerText = `Reseñas: ${dishInfo.name}`;
-      
-      const container = document.getElementById('commentsContainer');
-      container.innerHTML = '';
-
-      if (dish.reviews && dish.reviews.length > 0) {
-        dish.reviews.forEach(r => {
-          const card = document.createElement('div');
-          card.className = "comment-card";
-          card.innerHTML = `
-            <div class="comment-header">
-              <span class="comment-user">${r.author}</span>
-              <span class="comment-stars">${'⭐'.repeat(r.rating || 5)}</span>
-            </div>
-            <p class="comment-text">${r.text}</p>
-          `;
-          container.appendChild(card);
-        });
-      } else {
-        container.innerHTML = `<p style="font-size:12px; color:#aaa; text-align:center; padding:16px;">Sé el primero en dejar una reseña sobre este plato.</p>`;
-      }
-
-      document.getElementById('reviewsModal').classList.add('active');
-    }
-
-    function closeReviewsModal(e) {
-      document.getElementById('reviewsModal').classList.remove('active');
-    }
-
-    function setRating(stars) {
-      currentRatingStars = stars;
-      const icons = document.querySelectorAll('#starSelector i');
-      icons.forEach((ic, idx) => {
-        if (idx < stars) {
-          ic.className = "fa-solid fa-star";
-        } else {
-          ic.className = "fa-regular fa-star";
-        }
-      });
-    }
-
-    function guardarComentario() {
-      const author = document.getElementById('reviewAuthorInput').value.trim() || "Comensal Anónimo";
-      const text = document.getElementById('reviewCommentInput').value.trim();
-
-      if (!text) {
-        alert("Por favor escribe tu opinión antes de enviar.");
-        return;
-      }
-
-      const dish = catalogo.find(d => d.id === activeDishReviewId);
-      if (dish) {
-        if (!dish.reviews) dish.reviews = [];
-        dish.reviews.unshift({ author, rating: currentRatingStars, text });
-        dish.commentsCount = dish.reviews.length;
-        document.getElementById('reviewCommentInput').value = '';
-        openReviewsModal(activeDishReviewId);
-        renderFeed(); // Actualiza conteo en el reel
-      }
-    }
-
-    /* MODALES PEDIDOS & YAPE */
-    function openOrdersPopup() {
-      document.getElementById('ordersPopupModal').classList.add('active');
-    }
-
-    function closeOrdersPopup(e) {
-      document.getElementById('ordersPopupModal').classList.remove('active');
-    }
-
-    function openYapeModal() {
-      document.getElementById('yapeModal').classList.add('active');
-    }
-
-    function closeYapeModal() {
-      document.getElementById('yapeModal').classList.remove('active');
-    }
-
-    function copyYapeNumber() {
-      navigator.clipboard.writeText(CONFIG.yapePhone).then(() => {
-        alert(translations[currentLang].copied);
-      });
-    }
-
-    function shareDish(name) {
-      if (navigator.share) {
-        navigator.share({ title: name, text: `Mira este plato en Inka Bistro: ${name}`, url: window.location.href });
-      } else {
-        navigator.clipboard.writeText(window.location.href);
-        alert("Enlace copiado al portapapeles.");
-      }
-    }
-
-    window.addEventListener('DOMContentLoaded', init);
+    window.addEventListener('DOMContentLoaded', cargarDatos);
   </script>
 </body>
 </html>
