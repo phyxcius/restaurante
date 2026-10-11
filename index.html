@@ -3,18 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Menu QR TikTok - Tourist & Digital Dining</title>
+  <title>Menú QR Gourmet - Experiencia Turística</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  
   <style>
     :root {
-      --primary-red: #fe2c55;
+      --primary-color: #d97706; /* Ámbar / Dorado cálido */
+      --primary-accent: #c2410c; /* Terracota / Fuego */
+      --primary-gradient: linear-gradient(135deg, #ea580c, #b45309);
+      --bg-warm: #1c1512;       /* Fondo madera tostada / café profundo */
+      --glass-panel: rgba(38, 28, 24, 0.78);
+      --glass-border: rgba(245, 158, 11, 0.28);
+      --text-main: #fffdfa;
+      --text-muted: #e2d9d2;
+      --gold-badge: #fbbf24;
       --yape-purple: #742284;
-      --yape-teal: #00d2c4;
-      --plin-cyan: #00c1d5;
-      --bg-dark: #0a0a0c;
-      --card-dark: #15161a;
-      --text-muted: #9e9ea7;
+      --plin-cyan: #00adb5;
+      --whatsapp-green: #25d366;
     }
 
     * {
@@ -30,11 +34,11 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background-color: var(--bg-dark);
-      color: #fff;
+      background-color: var(--bg-warm);
+      color: var(--text-main);
     }
 
-    /* TikTok Vertical Scroll Container */
+    /* Contenedor Feed estilo Reels/TikTok */
     .app-container {
       width: 100%;
       max-width: 480px;
@@ -49,7 +53,7 @@
       display: none;
     }
 
-    /* Header Nav Overlay */
+    /* Cabecera superior cálida traslúcida */
     .top-header {
       position: fixed;
       top: 0;
@@ -57,15 +61,15 @@
       transform: translateX(-50%);
       width: 100%;
       max-width: 480px;
-      z-index: 100;
+      z-index: 120;
       padding: 12px 14px 8px;
-      background: linear-gradient(180deg, rgba(10, 10, 12, 0.95) 0%, rgba(10, 10, 12, 0.6) 75%, transparent 100%);
+      background: linear-gradient(180deg, rgba(28, 21, 18, 0.95) 0%, rgba(28, 21, 18, 0.6) 75%, transparent 100%);
       display: flex;
       flex-direction: column;
       gap: 10px;
     }
 
-    .top-bar {
+    .top-bar-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -75,85 +79,63 @@
       font-size: 15px;
       font-weight: 800;
       letter-spacing: 0.5px;
+      text-transform: uppercase;
       display: flex;
       align-items: center;
       gap: 6px;
-      text-transform: uppercase;
+      color: var(--text-main);
+    }
+    .brand-title i {
+      color: var(--gold-badge);
     }
     .brand-title span {
-      color: var(--primary-red);
+      color: var(--gold-badge);
+      font-weight: 900;
     }
 
-    .header-actions {
+    .header-controls {
       display: flex;
       align-items: center;
       gap: 6px;
     }
 
-    .control-pill {
-      background: rgba(35, 36, 42, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      backdrop-filter: blur(10px);
-      color: #fff;
-      font-size: 12px;
-      font-weight: 700;
-      padding: 5px 9px;
+    .select-pill {
+      background: var(--glass-panel);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
+      padding: 5px 8px;
       border-radius: 16px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      cursor: pointer;
-      outline: none;
-    }
-
-    .control-pill select {
-      background: transparent;
-      border: none;
-      color: #fff;
+      font-size: 11px;
       font-weight: 700;
-      font-size: 12px;
       outline: none;
       cursor: pointer;
     }
-    .control-pill select option {
-      background: #18191e;
+    .select-pill option {
+      background: #2b1f1a;
       color: #fff;
     }
 
-    .icon-button {
+    .icon-pill-btn {
       width: 34px;
       height: 34px;
       border-radius: 50%;
-      background: rgba(35, 36, 42, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      backdrop-filter: blur(10px);
-      color: #fff;
+      background: var(--glass-panel);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 13px;
       cursor: pointer;
-      position: relative;
+      transition: transform 0.15s;
+    }
+    .icon-pill-btn:active {
+      transform: scale(0.92);
     }
 
-    .cart-counter {
-      position: absolute;
-      top: -3px;
-      right: -3px;
-      background: var(--primary-red);
-      color: #fff;
-      font-size: 10px;
-      font-weight: 800;
-      min-width: 18px;
-      height: 18px;
-      border-radius: 9px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 8px rgba(254, 44, 85, 0.7);
-    }
-
-    /* Category Chips */
+    /* Chips de Categorías */
     .category-chips {
       display: flex;
       gap: 8px;
@@ -166,36 +148,34 @@
     }
 
     .chip {
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: #f1f1f1;
-      padding: 5px 13px;
-      border-radius: 18px;
+      background: rgba(43, 31, 26, 0.7);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(251, 191, 36, 0.25);
+      color: var(--text-muted);
+      padding: 5px 14px;
+      border-radius: 20px;
       font-size: 12px;
       font-weight: 600;
       white-space: nowrap;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.2s;
     }
-
     .chip.active {
-      background: var(--primary-red);
-      border-color: var(--primary-red);
+      background: var(--primary-gradient);
+      border-color: #f59e0b;
       color: #fff;
-      box-shadow: 0 2px 10px rgba(254, 44, 85, 0.45);
+      font-weight: 700;
+      box-shadow: 0 3px 12px rgba(234, 88, 12, 0.45);
     }
 
-    /* Video Reel Card */
+    /* Video Reel Slide */
     .video-slide {
       width: 100%;
       height: 100dvh;
       scroll-snap-align: start;
       scroll-snap-stop: always;
       position: relative;
-      background: #111;
-      background-size: cover;
-      background-position: center;
+      background: #231915;
       overflow: hidden;
       display: flex;
       align-items: flex-end;
@@ -208,842 +188,835 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      cursor: pointer;
-      background: #111;
+      pointer-events: auto;
     }
 
-    .video-player.has-error {
-      display: none;
-    }
-
-    .slide-gradient {
+    /* Gradiente cálido sobre el video */
+    .slide-overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.02) 40%, rgba(0,0,0,0.88) 100%);
+      background: linear-gradient(180deg, 
+        rgba(35, 25, 21, 0.4) 0%, 
+        rgba(35, 25, 21, 0.05) 45%, 
+        rgba(28, 21, 18, 0.92) 100%);
       pointer-events: none;
-      z-index: 2;
     }
 
-    /* Side Interactions (TikTok UI) */
+    /* Acciones laterales estilo TikTok */
     .side-actions {
       position: absolute;
       right: 12px;
-      bottom: 86px;
+      bottom: 120px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 15px;
+      gap: 16px;
       z-index: 10;
     }
 
     .action-btn {
-      background: none;
-      border: none;
-      color: #fff;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 4px;
+      background: none;
+      border: none;
+      color: #fff;
       cursor: pointer;
     }
 
-    .action-icon-circle {
+    .action-icon {
       width: 44px;
       height: 44px;
       border-radius: 50%;
-      background: rgba(20, 21, 26, 0.65);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: var(--glass-panel);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 19px;
+      color: #fff;
       transition: transform 0.15s ease;
     }
-    .action-btn:active .action-icon-circle {
-      transform: scale(0.88);
+    .action-btn:active .action-icon {
+      transform: scale(0.9);
     }
-    .action-btn.liked .action-icon-circle {
-      color: var(--primary-red);
+    .action-btn.liked .action-icon {
+      color: #ef4444;
+      border-color: #ef4444;
+    }
+    .action-icon.pay-icon {
+      background: linear-gradient(135deg, var(--yape-purple), #9d2cb3);
+      border: 1px solid #d946ef;
     }
 
-    .action-badge-add {
-      background: var(--primary-red);
-      color: #fff;
-    }
-
-    .action-text {
+    .action-label {
       font-size: 11px;
       font-weight: 600;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+      text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+      color: var(--text-muted);
     }
 
-    /* Item Details Box */
-    .dish-info-box {
+    /* Información del Plato */
+    .dish-info {
       position: relative;
       z-index: 10;
-      padding: 0 74px 20px 16px;
+      padding: 0 70px 96px 16px; /* Espacio inferior para no tapar con el botón pedidos */
       width: 100%;
     }
 
-    .dish-tag {
+    .badge-tag {
       display: inline-block;
-      background: var(--yape-teal);
-      color: #061c1b;
+      background: var(--gold-badge);
+      color: #451a03;
       font-size: 10px;
       font-weight: 800;
       text-transform: uppercase;
-      padding: 2px 8px;
-      border-radius: 4px;
+      padding: 3px 8px;
+      border-radius: 6px;
       margin-bottom: 6px;
+      letter-spacing: 0.5px;
     }
 
     .dish-title {
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 800;
       line-height: 1.2;
       margin-bottom: 4px;
-      text-shadow: 0 2px 6px rgba(0,0,0,0.8);
+      text-shadow: 0 2px 8px rgba(0,0,0,0.85);
+      color: var(--text-main);
     }
 
     .dish-desc {
-      font-size: 12.5px;
-      color: #dedede;
-      line-height: 1.35;
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.4;
       margin-bottom: 8px;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+      text-shadow: 0 1px 4px rgba(0,0,0,0.8);
     }
 
-    .dish-prices {
+    .dish-price-row {
       display: flex;
       align-items: baseline;
       gap: 10px;
       margin-bottom: 10px;
     }
 
-    .main-price {
-      font-size: 21px;
+    .price-now {
+      font-size: 23px;
       font-weight: 800;
-      color: #fff;
+      color: #fef08a;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.8);
     }
-
-    .secondary-price {
-      font-size: 14px;
-      font-weight: 600;
-      color: #00e5ce;
-    }
-
-    .btn-add-order {
-      background: linear-gradient(90deg, var(--primary-red), #ff0050);
-      color: #fff;
-      border: none;
-      padding: 9px 18px;
-      border-radius: 20px;
+    .price-alt {
       font-size: 13px;
+      color: #cbd5e1;
+      font-weight: 600;
+    }
+
+    .btn-quick-add {
+      background: var(--primary-gradient);
+      border: 1px solid rgba(251, 191, 36, 0.4);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 20px;
       font-weight: 700;
+      font-size: 12px;
       display: inline-flex;
       align-items: center;
-      gap: 7px;
-      box-shadow: 0 4px 14px rgba(254, 44, 85, 0.4);
+      gap: 6px;
+      box-shadow: 0 4px 14px rgba(180, 83, 9, 0.4);
       cursor: pointer;
     }
+    .btn-quick-add:active {
+      transform: scale(0.96);
+    }
 
-    /* Modal Sheets */
-    .drawer-modal {
+    /* ==============================================================
+       BARRA INFERIOR FLOTANTE TIPO POPUP: "PEDIDOS"
+       ============================================================== */
+    .floating-orders-bar {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 28px);
+      max-width: 450px;
+      z-index: 150;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: rgba(33, 24, 20, 0.92);
+      backdrop-filter: blur(18px);
+      border: 1.5px solid rgba(245, 158, 11, 0.4);
+      border-radius: 36px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55), 0 0 15px rgba(217, 119, 6, 0.25);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .floating-orders-bar:active {
+      transform: translateX(-50%) scale(0.98);
+    }
+
+    .orders-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .orders-icon-wrap {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--primary-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(234, 88, 12, 0.4);
+      position: relative;
+    }
+
+    .orders-count-badge {
+      position: absolute;
+      top: -3px;
+      right: -3px;
+      background: #dc2626;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      min-width: 18px;
+      height: 18px;
+      line-height: 18px;
+      text-align: center;
+      border-radius: 50%;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    }
+
+    .orders-text-wrap {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .orders-title-text {
+      font-size: 14px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .orders-sub-text {
+      font-size: 11px;
+      color: #d6cbbf;
+    }
+
+    .orders-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .orders-total-highlight {
+      font-size: 16px;
+      font-weight: 900;
+      color: #fde047;
+    }
+
+    .orders-open-arrow {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #fff;
+    }
+
+    /* ==============================================================
+       MODALES / POPUPS (CARRITO Y YAPE/PLIN)
+       ============================================================== */
+    .popup-modal {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.78);
+      background: rgba(18, 12, 10, 0.82);
+      backdrop-filter: blur(6px);
       z-index: 250;
       display: none;
       align-items: flex-end;
       justify-content: center;
     }
-    .drawer-modal.active {
+    .popup-modal.active {
       display: flex;
     }
 
-    .drawer-content {
-      background: var(--card-dark);
+    .popup-sheet {
+      background: #241a15;
       width: 100%;
       max-width: 480px;
       max-height: 88dvh;
-      border-radius: 24px 24px 0 0;
-      padding: 18px 18px 24px;
+      border-radius: 26px 26px 0 0;
+      padding: 22px 20px 24px;
       display: flex;
       flex-direction: column;
-      animation: modalSlideUp 0.25s ease-out;
-      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      animation: slideUpSheet 0.25s ease-out;
+      border-top: 1.5px solid var(--glass-border);
+      box-shadow: 0 -10px 40px rgba(0,0,0,0.6);
     }
-
-    @keyframes modalSlideUp {
+    @keyframes slideUpSheet {
       from { transform: translateY(100%); }
       to { transform: translateY(0); }
     }
 
-    .drawer-header {
+    .sheet-header {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      padding-bottom: 12px;
-      margin-bottom: 12px;
+      align-items: center;
+      margin-bottom: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 10px;
     }
-    .drawer-header h3 {
-      font-size: 16px;
-      font-weight: 700;
+    .sheet-header h3 {
+      font-size: 17px;
+      font-weight: 800;
       display: flex;
       align-items: center;
       gap: 8px;
+      color: #fef3c7;
     }
 
-    .close-btn {
-      width: 28px;
-      height: 28px;
+    .sheet-close-btn {
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
-      background: #25262c;
+      background: rgba(255,255,255,0.08);
       border: none;
       color: #ccc;
-      font-size: 16px;
+      font-size: 18px;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
-    .cart-list {
+    /* Lista de Platos en Pedidos */
+    .order-items-list {
       overflow-y: auto;
       flex: 1;
       display: flex;
       flex-direction: column;
       gap: 10px;
-      max-height: 32dvh;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
+      max-height: 36dvh;
       padding-right: 2px;
     }
 
-    .cart-item {
-      background: #1d1e24;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 12px;
-      padding: 10px 12px;
+    .order-item-row {
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
+      background: #2d211b;
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.05);
     }
 
-    .item-meta {
+    .item-row-info {
       flex: 1;
+      padding-right: 10px;
     }
-    .item-name {
-      font-size: 13.5px;
+    .item-row-title {
+      font-size: 14px;
       font-weight: 700;
-      margin-bottom: 3px;
+      color: #fff;
     }
-    .item-cost {
+    .item-row-sub {
       font-size: 12px;
-      color: var(--text-muted);
+      color: #d1c7be;
+      margin-top: 2px;
     }
 
-    .qty-btn-group {
+    .qty-controls {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
     }
     .qty-btn {
-      width: 26px;
-      height: 26px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
-      background: #2b2c34;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: #3e2e26;
+      border: 1px solid rgba(245, 158, 11, 0.3);
       color: #fff;
+      font-size: 14px;
       cursor: pointer;
-      font-weight: bold;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    /* Cart Fields */
-    .input-field-group {
+    .order-form-inputs {
       display: flex;
       flex-direction: column;
       gap: 8px;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
 
     .custom-input {
-      background: #1f2026;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      padding: 9px 12px;
+      background: #2e221c;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
       color: #fff;
+      padding: 10px 14px;
       font-size: 13px;
       outline: none;
     }
     .custom-input:focus {
-      border-color: var(--primary-red);
+      border-color: #f59e0b;
     }
 
-    /* Payment Methods selector in cart */
-    .payment-selector-title {
-      font-size: 12px;
-      color: var(--text-muted);
-      font-weight: 700;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-
-    .payment-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
+    .payment-method-selector {
+      display: flex;
+      gap: 8px;
       margin-bottom: 12px;
     }
-
-    .pay-method-card {
-      background: #1f2026;
-      border: 1.5px solid rgba(255, 255, 255, 0.08);
-      border-radius: 10px;
+    .pay-chip {
+      flex: 1;
       padding: 8px 4px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .pay-method-card img, .pay-method-card i {
-      font-size: 18px;
-    }
-    .pay-method-card span {
+      text-align: center;
+      border-radius: 10px;
       font-size: 11px;
       font-weight: 700;
+      background: #2d211b;
+      border: 1px solid rgba(255,255,255,0.1);
+      cursor: pointer;
+      color: #ccc;
+    }
+    .pay-chip.selected {
+      background: var(--primary-gradient);
+      color: #fff;
+      border-color: #f59e0b;
     }
 
-    .pay-method-card.selected {
-      border-color: #00e5ce;
-      background: rgba(0, 229, 206, 0.1);
-    }
-
-    /* Cart Summary */
-    .total-summary-card {
-      background: #1b1c22;
-      border-radius: 12px;
-      padding: 10px 14px;
+    .order-totals-bar {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-    .total-label {
-      font-size: 13px;
-      color: #bbb;
-    }
-    .total-values {
-      text-align: right;
-    }
-    .total-pen {
+      align-items: baseline;
       font-size: 17px;
       font-weight: 800;
-      color: #fff;
+      margin-bottom: 14px;
+      border-top: 1px dashed rgba(255,255,255,0.15);
+      padding-top: 10px;
     }
-    .total-usd {
-      font-size: 13px;
-      color: #00e5ce;
-      font-weight: 600;
+    .order-totals-bar .totals-val {
+      font-size: 21px;
+      color: #fde047;
     }
 
-    /* Primary Cart Button */
-    .btn-submit-order {
-      background: #25d366;
+    .btn-send-whatsapp {
+      background: var(--whatsapp-green);
       color: #fff;
       border: none;
-      padding: 12px;
-      border-radius: 24px;
-      font-size: 14px;
+      padding: 14px;
+      border-radius: 26px;
+      font-size: 15px;
       font-weight: 800;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      box-shadow: 0 4px 14px rgba(37, 211, 102, 0.35);
+      box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4);
+      transition: transform 0.15s;
+    }
+    .btn-send-whatsapp:active {
+      transform: scale(0.98);
     }
 
-    /* YAPE / PLIN Payment Modal */
-    .yape-plin-sheet {
-      background: #131317;
-      border-radius: 24px 24px 0 0;
-      padding: 20px;
-      max-width: 480px;
-      width: 100%;
+    /* Modal Yape / Plin */
+    .qr-modal-body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       text-align: center;
-      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      gap: 12px;
+      padding: 10px 0;
     }
-
-    .badge-yape-plin {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 12px;
-      border-radius: 14px;
-      font-size: 12px;
-      font-weight: 800;
-      margin-bottom: 10px;
-      background: linear-gradient(90deg, var(--yape-purple), var(--plin-cyan));
-    }
-
-    .qr-container {
+    .qr-box-image {
+      width: 190px;
+      height: 190px;
       background: #fff;
-      padding: 12px;
       border-radius: 16px;
-      display: inline-block;
-      margin: 8px auto;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      padding: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
     }
-    .qr-container svg {
-      display: block;
+    .qr-box-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
     }
 
-    .copy-phone-box {
-      background: #1f2026;
-      border: 1px dashed rgba(255, 255, 255, 0.25);
-      border-radius: 12px;
-      padding: 10px 14px;
-      margin: 12px 0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .phone-number-txt {
-      font-size: 16px;
-      font-weight: 800;
-      color: #fff;
-      letter-spacing: 0.5px;
-    }
-    .btn-copy {
-      background: var(--yape-purple);
-      color: #fff;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 16px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .toast-notice {
-      position: fixed;
-      bottom: 25px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(18, 19, 24, 0.95);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(8px);
-      color: #fff;
+    .copy-phone-pill {
+      background: #2f231d;
+      border: 1px solid var(--glass-border);
       padding: 8px 16px;
       border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      z-index: 300;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.25s ease;
-    }
-    .toast-notice.show {
-      opacity: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
 
+  <!-- Cabecera Superior: Logo, Idioma, Moneda y Audio -->
   <div class="top-header">
-    <div class="top-bar">
+    <div class="top-bar-row">
       <div class="brand-title">
-        <i class="fa-solid fa-fire"></i> <span id="brandName">INKA</span> CHEF
+        <i class="fa-solid fa-utensils"></i> <span id="brandName">INKA</span> BISTRO
       </div>
 
-      <div class="header-actions">
-        <!-- Language selector -->
-        <div class="control-pill">
-          <i class="fa-solid fa-globe"></i>
-          <select id="langSelect" onchange="changeLanguage(this.value)">
-            <option value="es" selected>ES</option>
-            <option value="en">EN</option>
-            <option value="fr">FR</option>
-            <option value="pt">PT</option>
-          </select>
-        </div>
+      <div class="header-controls">
+        <!-- Idiomas -->
+        <select class="select-pill" id="langSelector" onchange="changeLanguage(this.value)">
+          <option value="es">🇪🇸 ES</option>
+          <option value="en" selected>🇬🇧 EN</option>
+          <option value="fr">🇫🇷 FR</option>
+          <option value="pt">🇧🇷 PT</option>
+        </select>
 
-        <!-- Currency toggle -->
-        <div class="control-pill" onclick="toggleCurrency()" id="currencyToggleBtn" title="Cambiar Moneda S/ ó $">
-          <i class="fa-solid fa-coins"></i>
-          <span id="currLabel">PEN S/</span>
-        </div>
+        <!-- Moneda -->
+        <select class="select-pill" id="currencySelector" onchange="changeCurrency(this.value)">
+          <option value="PEN" selected>S/ (PEN)</option>
+          <option value="USD">$ (USD)</option>
+        </select>
 
-        <!-- Sound toggle -->
-        <button class="icon-button" onclick="toggleGlobalAudio()" id="audioBtn" title="Audio">
+        <!-- Audio Global -->
+        <button class="icon-pill-btn" onclick="toggleGlobalAudio()" title="Sonido">
           <i class="fa-solid fa-volume-xmark" id="audioIcon"></i>
         </button>
-
-        <!-- Cart button -->
-        <button class="icon-button" onclick="openCart()" id="cartBtn" title="Carrito">
-          <i class="fa-solid fa-cart-shopping"></i>
-          <span class="cart-counter" id="cartCount">0</span>
-        </button>
       </div>
     </div>
 
-    <!-- Category selector -->
-    <div class="category-chips" id="categoriesBar"></div>
+    <!-- Filtro de Categorías -->
+    <div class="category-chips" id="categoryChips"></div>
   </div>
 
+  <!-- Contenedor Feed Reels con Video y Fallback -->
   <div class="app-container" id="feedContainer"></div>
 
-  <!-- Toast for fast feedback -->
-  <div class="toast-notice" id="toastBox">Copiado al portapapeles</div>
+  <!-- ==============================================================
+       BARRA INFERIOR FLOTANTE TIPO POPUP: "PEDIDOS"
+       ============================================================== -->
+  <div class="floating-orders-bar" onclick="openOrdersPopup()">
+    <div class="orders-bar-left">
+      <div class="orders-icon-wrap">
+        <i class="fa-solid fa-bell-concierge"></i>
+        <span class="orders-count-badge" id="ordersBadgeCount">0</span>
+      </div>
+      <div class="orders-text-wrap">
+        <span class="orders-title-text" id="ui_ordersBtnText">
+          Pedidos <i class="fa-solid fa-chevron-up" style="font-size:10px; color:#f59e0b;"></i>
+        </span>
+        <span class="orders-sub-text" id="ui_ordersSubText">Toca para revisar comanda</span>
+      </div>
+    </div>
+    <div class="orders-bar-right">
+      <span class="orders-total-highlight" id="ordersBarTotal">S/ 0.00</span>
+      <div class="orders-open-arrow">
+        <i class="fa-solid fa-arrow-right"></i>
+      </div>
+    </div>
+  </div>
 
-  <div class="drawer-modal" id="cartModal" onclick="closeCart(event)">
-    <div class="drawer-content" onclick="event.stopPropagation()">
-      <div class="drawer-header">
-        <h3 id="ui_cartTitle"><i class="fa-solid fa-receipt"></i> Tu Comanda</h3>
-        <button class="close-btn" onclick="closeCart()">&times;</button>
+  <!-- ==============================================================
+       POPUP / DRAWER DE PEDIDOS (CARRITO)
+       ============================================================== -->
+  <div class="popup-modal" id="ordersPopupModal" onclick="closeOrdersPopup(event)">
+    <div class="popup-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-header">
+        <h3 id="ui_cartTitle"><i class="fa-solid fa-clipboard-list" style="color:#f59e0b;"></i> Tu Comanda</h3>
+        <button class="sheet-close-btn" onclick="closeOrdersPopup()">&times;</button>
       </div>
 
-      <div class="cart-list" id="cartListItems"></div>
-
-      <div class="input-field-group">
-        <input type="text" id="inputTable" class="custom-input" placeholder="Mesa / Table Nº (Ej: Mesa 04)" />
-        <input type="text" id="inputNotes" class="custom-input" placeholder="Alergias o notas (Sin picante, poco hielo)" />
+      <div class="order-items-list" id="orderItemsList">
+        <div style="text-align:center; color:#9c8e85; padding:24px 0;" id="ui_emptyCart">No hay platos añadidos aún.</div>
       </div>
 
-      <!-- Payment method picker -->
-      <div class="payment-selector-title" id="ui_payTitle">Método de pago / Payment method:</div>
-      <div class="payment-grid">
-        <div class="pay-method-card selected" onclick="selectPayMethod('yape_plin', this)">
-          <i class="fa-solid fa-qrcode" style="color:var(--plin-cyan);"></i>
-          <span>Yape / Plin</span>
-        </div>
-        <div class="pay-method-card" onclick="selectPayMethod('tarjeta', this)">
-          <i class="fa-solid fa-credit-card" style="color:#00d2c4;"></i>
-          <span id="ui_cardLabel">Tarjeta / POS</span>
-        </div>
-        <div class="pay-method-card" onclick="selectPayMethod('efectivo', this)">
-          <i class="fa-solid fa-money-bill-wave" style="color:#25d366;"></i>
-          <span id="ui_cashLabel">Efectivo</span>
-        </div>
+      <div class="order-form-inputs">
+        <input type="text" id="tableInput" class="custom-input" placeholder="Mesa / Table Nº (ej: Mesa 04 o Terraza)" />
+        <input type="text" id="notesInput" class="custom-input" placeholder="Alergias o especificaciones (ej: sin cebolla)" />
       </div>
 
-      <!-- Total Box -->
-      <div class="total-summary-card">
-        <div class="total-label" id="ui_totalLabel">Total Estimado:</div>
-        <div class="total-values">
-          <div class="total-pen" id="summaryTotalPen">S/ 0.00</div>
-          <div class="total-usd" id="summaryTotalUsd">~ $0.00 USD</div>
+      <!-- Selector de medio de pago -->
+      <div class="payment-method-selector">
+        <div class="pay-chip selected" onclick="selectPayMethod('yape_plin', this)">Yape / Plin</div>
+        <div class="pay-chip" onclick="selectPayMethod('tarjeta', this)">Tarjeta POS</div>
+        <div class="pay-chip" onclick="selectPayMethod('efectivo', this)">Efectivo</div>
+      </div>
+
+      <div class="order-totals-bar">
+        <span id="ui_totalLabel">Total:</span>
+        <div>
+          <span class="totals-val" id="orderTotalPrice">S/ 0.00</span>
+          <div style="font-size:11px; color:#aaa; text-align:right;" id="orderSecondaryPrice">≈ $ 0.00</div>
         </div>
       </div>
 
-      <!-- WhatsApp Order Action -->
-      <button class="btn-submit-order" onclick="proceedOrderFlow()">
-        <i class="fa-brands fa-whatsapp"></i>
-        <span id="ui_submitBtn">Enviar Comanda a Cocina</span>
+      <button class="btn-send-whatsapp" onclick="sendOrderWhatsApp()">
+        <i class="fa-brands fa-whatsapp"></i> <span id="ui_sendWspBtn">Confirmar Pedido a Cocina</span>
       </button>
     </div>
   </div>
 
-  <div class="drawer-modal" id="yapePlinModal" onclick="closeYapeModal(event)">
-    <div class="yape-plin-sheet" onclick="event.stopPropagation()">
-      <div class="drawer-header" style="justify-content:center; position:relative; margin-bottom:6px;">
-        <div class="badge-yape-plin">
-          <i class="fa-solid fa-bolt"></i> Paga al instante con Yape o Plin
+  <!-- ==============================================================
+       MODAL DE PAGO DIRECTO YAPE / PLIN
+       ============================================================== -->
+  <div class="popup-modal" id="yapeModal" onclick="closeYapeModal(event)">
+    <div class="popup-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-header">
+        <h3><i class="fa-solid fa-qrcode" style="color:#742284;"></i> Pagar con Yape o Plin</h3>
+        <button class="sheet-close-btn" onclick="closeYapeModal()">&times;</button>
+      </div>
+
+      <div class="qr-modal-body">
+        <div class="qr-box-image">
+          <!-- QR dinámico para escanear en Yape o Plin -->
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=00020101021153036045802PE5915INKA%20BISTRO%20CUSCO6005CUSCO62070503***6304" alt="QR Yape Plin" />
         </div>
-        <button class="close-btn" style="position:absolute; right:0;" onclick="closeYapeModal()">&times;</button>
-      </div>
+        
+        <p style="font-size: 13px; color: #d6cbbf;">Escanea desde tu app de <b>Yape</b> o <b>Plin</b>, o transfiere al número:</p>
 
-      <p style="font-size:13px; color:#c7c7cf; margin-bottom:8px;" id="ui_yapeSubtitle">
-        Escanea el QR oficial del restaurante o copia el número:
-      </p>
-
-      <!-- SVG QR Code representation of payment wallet -->
-      <div class="qr-container">
-        <svg width="170" height="170" viewBox="0 0 170 170">
-          <rect width="170" height="170" fill="#ffffff"/>
-          <!-- Corner Finder 1 -->
-          <rect x="15" y="15" width="40" height="40" fill="#000"/>
-          <rect x="22" y="22" width="26" height="26" fill="#fff"/>
-          <rect x="27" y="27" width="16" height="16" fill="#742284"/>
-          <!-- Corner Finder 2 -->
-          <rect x="115" y="15" width="40" height="40" fill="#000"/>
-          <rect x="122" y="22" width="26" height="26" fill="#fff"/>
-          <rect x="127" y="27" width="16" height="16" fill="#00c1d5"/>
-          <!-- Corner Finder 3 -->
-          <rect x="15" y="115" width="40" height="40" fill="#000"/>
-          <rect x="22" y="122" width="26" height="26" fill="#fff"/>
-          <rect x="27" y="127" width="16" height="16" fill="#fe2c55"/>
-          <!-- Pattern Dots -->
-          <rect x="65" y="20" width="10" height="10" fill="#000"/>
-          <rect x="80" y="30" width="10" height="20" fill="#742284"/>
-          <rect x="95" y="15" width="10" height="10" fill="#000"/>
-          <rect x="20" y="65" width="15" height="10" fill="#000"/>
-          <rect x="45" y="75" width="20" height="10" fill="#00c1d5"/>
-          <rect x="70" y="65" width="30" height="30" fill="#141414"/>
-          <rect x="75" y="70" width="20" height="20" fill="#fff"/>
-          <rect x="80" y="75" width="10" height="10" fill="#742284"/>
-          <rect x="110" y="65" width="10" height="25" fill="#000"/>
-          <rect x="135" y="70" width="20" height="10" fill="#742284"/>
-          <rect x="65" y="110" width="15" height="10" fill="#00c1d5"/>
-          <rect x="90" y="115" width="15" height="20" fill="#000"/>
-          <rect x="120" y="110" width="20" height="10" fill="#000"/>
-          <rect x="140" y="130" width="15" height="15" fill="#00c1d5"/>
-          <rect x="70" y="140" width="35" height="15" fill="#742284"/>
-        </svg>
-      </div>
-
-      <div class="copy-phone-box">
-        <div style="text-align:left;">
-          <div style="font-size:11px; color:var(--text-muted);">Titular: Inka Chef S.A.C.</div>
-          <div class="phone-number-txt" id="yapePhoneText">+51 987 654 321</div>
+        <div class="copy-phone-pill" onclick="copyYapeNumber()">
+          <span id="yapePhoneNumber">+51 987 654 321</span>
+          <i class="fa-regular fa-copy" style="color:#f59e0b;"></i>
         </div>
-        <button class="btn-copy" onclick="copyWalletPhone()">
-          <i class="fa-regular fa-copy"></i> Copiar
-        </button>
+        <span style="font-size: 11px; color: #a89f97;">Titular: INKA BISTRO E.I.R.L.</span>
       </div>
-
-      <div style="font-size:12px; color:#ffdd59; margin-bottom:12px;" id="yapeAmountReminder">
-        Monto exacto a transferir: S/ 0.00
-      </div>
-
-      <button class="btn-submit-order" style="width:100%;" onclick="finalizeWhatsAppOrder()">
-        <i class="fa-brands fa-whatsapp"></i>
-        <span>Adjuntar Constancia y Enviar Orden</span>
-      </button>
     </div>
   </div>
 
   <script>
-    // Configuration
-    const RESTAURANT_WSP = "51987654321";
-    const YAPE_PHONE_RAW = "987654321";
-    const USD_EXCHANGE_RATE = 3.75; // S/. 3.75 por 1 USD (Ajustable)
+    // Configuración del Restaurante
+    const CONFIG = {
+      whatsapp: "51987654321",
+      yapePhone: "+51 987 654 321",
+      exchangeRateUSD: 3.75 // 1 USD = S/ 3.75
+    };
 
-    // Language Dictionary
+    // Traducciones
     const translations = {
       es: {
         all: "Todos",
-        specials: "Especialidades",
+        top: "Especialidades",
         mains: "Platos Fuertes",
-        drinks: "Cocteles & Bar",
-        addOrder: "Agregar a la orden",
+        drinks: "Bebidas & Cocteles",
+        addBtn: "Agregar",
+        ordersLabel: "Pedidos",
+        ordersSub: "Toca para revisar comanda",
         cartTitle: "Tu Comanda",
-        tableHint: "Mesa Nº (Ej: Mesa 05 o Barra)",
-        notesHint: "Alergias o notas (Ej: sin cebolla)",
-        payTitle: "Método de Pago:",
-        card: "Tarjeta / POS",
-        cash: "Efectivo",
-        totalLabel: "Total Estimado:",
-        submitBtn: "Enviar Comanda a Cocina",
-        emptyCart: "Tu comanda está vacía.",
-        toastCopy: "Número copiado para Yape / Plin",
-        yapeSubtitle: "Escanea el QR oficial del restaurante o copia el número:",
-        yapeReminder: "Monto exacto a transferir:",
-        wspGreeting: "¡Hola! Deseo pedir la siguiente orden desde la",
-        wspPayMethod: "Método de pago preferido",
-        wspNotes: "Indicaciones de cocina",
-        wspTotal: "Total comanda"
+        emptyCart: "No has añadido platos a tu comanda.",
+        tablePlaceholder: "Mesa Nº (ej: Mesa 04 o Terraza)",
+        notesPlaceholder: "Alergias o especificaciones (opcional)",
+        totalLabel: "Total a pagar:",
+        sendWspBtn: "Enviar Pedido por WhatsApp",
+        wspGreeting: "¡Hola! Quiero confirmar este pedido desde la mesa",
+        wspPayMethod: "Método de pago",
+        wspTotal: "Total comanda",
+        copied: "¡Número de Yape copiado al portapapeles!"
       },
       en: {
         all: "All",
-        specials: "Chef Specials",
-        mains: "Main Dishes",
-        drinks: "Cocktails & Bar",
-        addOrder: "Add to order",
-        cartTitle: "Your Order",
-        tableHint: "Table No. (e.g. Table 05 or Bar)",
-        notesHint: "Allergies or dietary notes",
-        payTitle: "Payment Method:",
-        card: "Card / POS",
-        cash: "Cash",
+        top: "Chef Specials",
+        mains: "Main Courses",
+        drinks: "Drinks & Cocktails",
+        addBtn: "Add dish",
+        ordersLabel: "Orders",
+        ordersSub: "Tap to view current order",
+        cartTitle: "Your Table Order",
+        emptyCart: "No dishes added to your order yet.",
+        tablePlaceholder: "Table Number (e.g., Table 04 or Patio)",
+        notesPlaceholder: "Allergies or special requests (optional)",
         totalLabel: "Estimated Total:",
-        submitBtn: "Send Order to Kitchen",
-        emptyCart: "Your order is empty.",
-        toastCopy: "Phone number copied for Yape / Plin",
-        yapeSubtitle: "Scan our official QR or copy the wallet number:",
-        yapeReminder: "Exact amount to transfer:",
-        wspGreeting: "Hello! I would like to order from",
+        sendWspBtn: "Send Order to Kitchen via WhatsApp",
+        wspGreeting: "Hello! I would like to confirm this order from Table",
         wspPayMethod: "Payment method",
-        wspNotes: "Kitchen notes",
-        wspTotal: "Order Total"
+        wspTotal: "Order Total",
+        copied: "Yape/Plin phone copied to clipboard!"
       },
       fr: {
         all: "Tous",
-        specials: "Spécialités",
+        top: "Spécialités",
         mains: "Plats Principaux",
-        drinks: "Boissons & Bar",
-        addOrder: "Ajouter au panier",
+        drinks: "Boissons & Cocktails",
+        addBtn: "Ajouter",
+        ordersLabel: "Commandes",
+        ordersSub: "Appuyez pour voir la commande",
         cartTitle: "Votre Commande",
-        tableHint: "Nº de table (Ex: Table 05)",
-        notesHint: "Allergies ou demandes spéciales",
-        payTitle: "Mode de Paiement:",
-        card: "Carte Bancaire",
-        cash: "Espèces",
-        totalLabel: "Total Estimé:",
-        submitBtn: "Envoyer la commande",
-        emptyCart: "Votre panier est vide.",
-        toastCopy: "Numéro copié pour Yape / Plin",
-        yapeSubtitle: "Scannez le QR officiel ou copiez le numéro:",
-        yapeReminder: "Montant exact à payer:",
-        wspGreeting: "Bonjour ! Je souhaite commander depuis la",
+        emptyCart: "Aucun plat sélectionné pour le moment.",
+        tablePlaceholder: "Numéro de table (ex: Table 04)",
+        notesPlaceholder: "Allergies ou demandes spéciales (optionnel)",
+        totalLabel: "Total estimé:",
+        sendWspBtn: "Envoyer la commande via WhatsApp",
+        wspGreeting: "Bonjour ! Je souhaite commander depuis la Table",
         wspPayMethod: "Mode de paiement",
-        wspNotes: "Notes pour la cuisine",
-        wspTotal: "Montant total"
+        wspTotal: "Total commande",
+        copied: "Numéro copié !"
       },
       pt: {
         all: "Todos",
-        specials: "Especialidades",
+        top: "Especialidades",
         mains: "Pratos Principais",
-        drinks: "Coquetéis & Bar",
-        addOrder: "Adicionar ao pedido",
-        cartTitle: "Seu Pedido",
-        tableHint: "Mesa Nº (Ex: Mesa 05 ou Balcão)",
-        notesHint: "Alergias ou notas especiais",
-        payTitle: "Forma de Pagamento:",
-        card: "Cartão / POS",
-        cash: "Dinheiro",
-        totalLabel: "Total Estimado:",
-        submitBtn: "Enviar Pedido para Cozinha",
-        emptyCart: "Seu pedido está vazio.",
-        toastCopy: "Número copiado para Yape / Plin",
-        yapeSubtitle: "Escaneie o QR oficial ou copie o número:",
-        yapeReminder: "Valor exato a transferir:",
-        wspGreeting: "Olá! Gostaria de pedir da",
+        drinks: "Bebidas & Coquetéis",
+        addBtn: "Adicionar",
+        ordersLabel: "Pedidos",
+        ordersSub: "Toque para ver a comanda",
+        cartTitle: "Sua Comanda",
+        emptyCart: "Nenhum prato adicionado ao pedido ainda.",
+        tablePlaceholder: "Mesa Nº (ex: Mesa 04 ou Varanda)",
+        notesPlaceholder: "Alergias ou observações (opcional)",
+        totalLabel: "Total a pagar:",
+        sendWspBtn: "Enviar Pedido via WhatsApp",
+        wspGreeting: "Olá! Quero confirmar este pedido da Mesa",
         wspPayMethod: "Forma de pagamento",
-        wspNotes: "Observações",
-        wspTotal: "Total a pagar"
+        wspTotal: "Total do pedido",
+        copied: "Número copiado!"
       }
     };
 
-    // Menu Dataset with MP4 vertical sample clips
-    const menuItems = [
+    // Platos de la carta
+    const menuData = [
       {
         id: "dish_1",
-        category: "specials",
-        tag: "Imperdible",
-        pricePen: 48.00,
-        poster: "https://images.unsplash.com/photo-1544025162-d76694265947?w=900&auto=format&fit=crop&q=80",
+        category: "top",
+        tag: "Plato Bandera",
+        pricePEN: 46.00,
         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-        likes: 540,
+        posterUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?w=800&auto=format&fit=crop&q=80",
+        likes: 532,
         i18n: {
-          es: { name: "Lomo Saltado Ahumado", desc: "Trozos jugosos de lomo fino flambeados al pisco, cebolla morada crocante, tomate y papas amarillas fritas." },
-          en: { name: "Smoked Lomo Saltado", desc: "Tender beef tenderloin flambéed with Pisco, red onions, plum tomatoes, served with crispy yellow fries." },
-          fr: { name: "Lomo Saltado Fumé", desc: "Émincé de bœuf mariné sauté au wok, oignons rouges croquants, tomates et frites maison." },
-          pt: { name: "Lomo Saltado Defumado", desc: "Filé mignon suculento flambado com pisco, cebola roxa crocante, tomate e batatas amarelas fritas." }
+          es: { name: "Lomo Saltado al Wok Gourmet", desc: "Trozos jugosos de lomo fino salteados a fuego vivo con cebolla morada, ají amarillo y tomate, con crocantes papas nativas." },
+          en: { name: "Wok-Seared Lomo Saltado", desc: "Juicy beef tenderloin strips flambéed with red onions, yellow chili peppers and fresh tomatoes, served with crisp native potatoes." },
+          fr: { name: "Lomo Saltado au Wok", desc: "Émincé de filet de bœuf flambé au wok avec oignons rouges, piments doux et tomates fraîches, servi avec pommes de terre andines." },
+          pt: { name: "Lomo Saltado ao Wok", desc: "Tiras suculentas de filé mignon salteadas no wok com cebola roxa, ají amarillo e tomate, acompanhadas de batatas nativas." }
         }
       },
       {
         id: "dish_2",
         category: "mains",
-        tag: "Plato Bandera",
-        pricePen: 52.00,
-        poster: "https://images.unsplash.com/photo-1535400255456-984241443b29?w=900&auto=format&fit=crop&q=80",
+        tag: "Imperdible",
+        pricePEN: 48.00,
         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-        likes: 672,
+        posterUrl: "https://images.unsplash.com/photo-1535400255456-984241443b29?w=800&auto=format&fit=crop&q=80",
+        likes: 384,
         i18n: {
-          es: { name: "Ceviche Mixto Carretillero", desc: "Pesca del día con mariscos en leche de tigre de ají limo, acompañado de camote glaseado y chicharrón de calamar." },
-          en: { name: "Street-Style Mixed Ceviche", desc: "Catch of the day and seafood cured in citrus lime chili marinade, sweet potato and crispy calamari." },
-          fr: { name: "Ceviche Mixte du Pacifique", desc: "Poisson du jour et fruits de mer marinés au citron vert frais, patate douce glacée et calamars croustillants." },
-          pt: { name: "Ceviche Misto Carretillero", desc: "Peixe do dia e frutos do mar marinados em limão com pimenta, batata-doce e lula crocante." }
+          es: { name: "Ceviche Criollo del Pacífico", desc: "Pesca fresca del día marinada en zumo puro de limón, ají limo, camote glaseado y choclo gigante del Valle Sagrado." },
+          en: { name: "Pacific Catch Ceviche", desc: "Fresh fish of the day cured in pure lime juice, chili pepper, glazed sweet potato, and giant Sacred Valley corn." },
+          fr: { name: "Ceviche du Pacifique", desc: "Poisson frais du jour mariné au citron vert pur, piment limo, patate douce glacée et maïs géant de la Vallée Sacrée." },
+          pt: { name: "Ceviche do Pacífico", desc: "Peixe fresco marinado no limão puro, pimenta limo, batata-doce caramelizada e milho gigante do Vale Sagrado." }
         }
       },
       {
         id: "dish_3",
         category: "drinks",
-        tag: "Cocktail",
-        pricePen: 28.00,
-        poster: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=900&auto=format&fit=crop&q=80",
+        tag: "Coctel de la Casa",
+        pricePEN: 28.00,
         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-        likes: 810,
+        posterUrl: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=800&auto=format&fit=crop&q=80",
+        likes: 671,
         i18n: {
-          es: { name: "Pisco Sour Catedral Clásico", desc: "Destilado peruano Quebranta de 42°, limón sutil recién exprimido, jarabe artesanal y espuma de clara suave." },
-          en: { name: "Classic Cathedral Pisco Sour", desc: "Peruvian Quebranta Pisco, fresh hand-squeezed lime juice, simple syrup, egg white foam and aromatic bitters." },
-          fr: { name: "Pisco Sour Cathédrale", desc: "Pisco Quebranta raffiné, citron vert pressé, sirop de canne et mousse onctueuse aux amers aromatiques." },
-          pt: { name: "Pisco Sour Catedral Clássico", desc: "Pisco Quebranta artesanal, limão espremido na hora, xarope caseiro e espuma cremosa com angostura." }
+          es: { name: "Pisco Sour Catedral", desc: "Destilado de Pisco Quebranta premium, limón sutil, jarabe de goma artesanal y espuma de clara con gotas de amargo." },
+          en: { name: "Cathedral Pisco Sour", desc: "Crafted with premium Quebranta Pisco, freshly pressed lime, house-made syrup, egg white foam, and Angostura bitters." },
+          fr: { name: "Pisco Sour Cathédrale", desc: "Pisco Quebranta haut de gamme, citron vert frais, sirop artisanal, mousse veloutée et gouttes d'Angostura." },
+          pt: { name: "Pisco Sour Catedral", desc: "Pisco Quebranta selecionado, limão fresco, xarope artesanal, clara de ovo batida e gotas aromáticas." }
         }
       }
     ];
 
-    // State
-    let currentLanguage = "es";
-    let selectedCurrency = "PEN"; // "PEN" or "USD"
+    // Estados
+    let currentLang = "en";
+    let currentCurrency = "PEN";
     let currentCategory = "all";
     let isGlobalMuted = true;
-    let selectedPayment = "yape_plin";
+    let selectedPayMethod = "yape_plin";
     let cart = {}; // { dish_id: quantity }
     let videoObserver = null;
 
+    function init() {
+      renderCategoryChips();
+      renderFeed();
+      updateStaticTexts();
+      setupObserver();
+      updateOrdersBar();
+    }
+
     function changeLanguage(lang) {
-      currentLanguage = lang;
-      renderCategories();
+      currentLang = lang;
+      renderCategoryChips();
       renderFeed();
-      updateStaticLabels();
-      renderCartItems();
+      updateStaticTexts();
+      updateOrdersPopupUI();
+      updateOrdersBar();
     }
 
-    function toggleCurrency() {
-      selectedCurrency = selectedCurrency === "PEN" ? "USD" : "PEN";
-      document.getElementById("currLabel").innerText = selectedCurrency === "PEN" ? "PEN S/" : "USD $";
+    function changeCurrency(curr) {
+      currentCurrency = curr;
       renderFeed();
-      renderCartItems();
+      updateOrdersBar();
+      updateOrdersPopupUI();
     }
 
-    function formatPrice(penValue) {
-      if (selectedCurrency === "PEN") {
-        return `S/ ${penValue.toFixed(2)}`;
-      } else {
-        const usd = penValue / USD_EXCHANGE_RATE;
-        return `$ ${usd.toFixed(2)} USD`;
+    function formatPrice(amountPEN) {
+      if (currentCurrency === "USD") {
+        const valUSD = amountPEN / CONFIG.exchangeRateUSD;
+        return `$ ${valUSD.toFixed(2)}`;
       }
+      return `S/ ${amountPEN.toFixed(2)}`;
     }
 
-    function getAlternatePriceString(penValue) {
-      if (selectedCurrency === "PEN") {
-        const usd = penValue / USD_EXCHANGE_RATE;
-        return `~ $${usd.toFixed(2)} USD`;
-      } else {
-        return `~ S/ ${penValue.toFixed(2)}`;
+    function formatSecondaryPrice(amountPEN) {
+      if (currentCurrency === "PEN") {
+        const valUSD = amountPEN / CONFIG.exchangeRateUSD;
+        return `≈ $ ${valUSD.toFixed(2)}`;
       }
+      return `≈ S/ ${amountPEN.toFixed(2)}`;
     }
 
-    function updateStaticLabels() {
-      const t = translations[currentLanguage];
-      document.getElementById("ui_cartTitle").innerHTML = `<i class="fa-solid fa-receipt"></i> ${t.cartTitle}`;
-      document.getElementById("inputTable").placeholder = t.tableHint;
-      document.getElementById("inputNotes").placeholder = t.notesHint;
-      document.getElementById("ui_payTitle").innerText = t.payTitle;
-      document.getElementById("ui_cardLabel").innerText = t.card;
-      document.getElementById("ui_cashLabel").innerText = t.cash;
+    function updateStaticTexts() {
+      const t = translations[currentLang];
+      document.getElementById("ui_ordersBtnText").innerHTML = `${t.ordersLabel} <i class="fa-solid fa-chevron-up" style="font-size:10px; color:#f59e0b;"></i>`;
+      document.getElementById("ui_ordersSubText").innerText = t.ordersSub;
+      document.getElementById("ui_cartTitle").innerHTML = `<i class="fa-solid fa-clipboard-list" style="color:#f59e0b;"></i> ${t.cartTitle}`;
+      document.getElementById("ui_emptyCart").innerText = t.emptyCart;
+      document.getElementById("tableInput").placeholder = t.tablePlaceholder;
+      document.getElementById("notesInput").placeholder = t.notesPlaceholder;
       document.getElementById("ui_totalLabel").innerText = t.totalLabel;
-      document.getElementById("ui_submitBtn").innerText = t.submitBtn;
-      document.getElementById("ui_yapeSubtitle").innerText = t.yapeSubtitle;
+      document.getElementById("ui_sendWspBtn").innerText = t.sendWspBtn;
     }
 
-    function renderCategories() {
-      const t = translations[currentLanguage];
+    function renderCategoryChips() {
+      const t = translations[currentLang];
       const categories = [
         { key: "all", label: t.all },
-        { key: "specials", label: `🔥 ${t.specials}` },
+        { key: "top", label: `🔥 ${t.top}` },
         { key: "mains", label: t.mains },
         { key: "drinks", label: t.drinks }
       ];
 
-      const bar = document.getElementById("categoriesBar");
-      bar.innerHTML = categories.map(c => `
+      const container = document.getElementById("categoryChips");
+      container.innerHTML = categories.map(c => `
         <div class="chip ${c.key === currentCategory ? 'active' : ''}" onclick="selectCategory('${c.key}')">
           ${c.label}
         </div>
@@ -1052,119 +1025,98 @@
 
     function selectCategory(cat) {
       currentCategory = cat;
-      renderCategories();
+      renderCategoryChips();
       renderFeed();
       document.getElementById("feedContainer").scrollTo({ top: 0, behavior: "smooth" });
     }
 
+    // Render del Feed
     function renderFeed() {
       const feed = document.getElementById("feedContainer");
       feed.innerHTML = "";
-      const t = translations[currentLanguage];
+      const t = translations[currentLang];
 
-      const filtered = currentCategory === "all"
-        ? menuItems
-        : menuItems.filter(item => item.category === currentCategory);
+      const filtered = currentCategory === "all" 
+        ? menuData 
+        : menuData.filter(d => d.category === currentCategory);
 
-      filtered.forEach(item => {
-        const data = item.i18n[currentLanguage] || item.i18n.es;
+      filtered.forEach((item) => {
+        const dishInfo = item.i18n[currentLang] || item.i18n["en"];
         const slide = document.createElement("div");
         slide.className = "video-slide";
-        slide.style.backgroundImage = `url('${item.poster}')`;
 
         slide.innerHTML = `
           <video class="video-player" 
                  src="${item.videoUrl}" 
-                 poster="${item.poster}"
-                 loop 
-                 playsinline 
-                 preload="metadata" 
+                 poster="${item.posterUrl}" 
+                 loop playsinline preload="metadata" 
                  ${isGlobalMuted ? 'muted' : ''} 
-                 onerror="handleVideoError(this)" 
-                 onclick="handleVideoTap(this)">
+                 onclick="toggleVideoPlayback(this)"
+                 onerror="handleVideoError(this)">
           </video>
-          <div class="slide-gradient"></div>
+          <div class="slide-overlay"></div>
 
+          <!-- Acciones laterales -->
           <div class="side-actions">
             <button class="action-btn" onclick="toggleLike(this, ${item.likes})">
-              <div class="action-icon-circle"><i class="fa-solid fa-heart"></i></div>
-              <span class="action-text">${item.likes}</span>
+              <div class="action-icon"><i class="fa-solid fa-heart"></i></div>
+              <span class="action-label">${item.likes}</span>
             </button>
 
-            <button class="action-btn" onclick="quickAddCart('${item.id}')">
-              <div class="action-icon-circle action-badge-add"><i class="fa-solid fa-plus"></i></div>
-              <span class="action-text">+1</span>
+            <button class="action-btn" onclick="openYapeModal()">
+              <div class="action-icon pay-icon"><i class="fa-solid fa-qrcode"></i></div>
+              <span class="action-label">Yape/Plin</span>
             </button>
 
-            <button class="action-btn" onclick="shareDish('${data.name.replace(/'/g, "\\'")}')">
-              <div class="action-icon-circle"><i class="fa-solid fa-share"></i></div>
-              <span class="action-text">Share</span>
+            <button class="action-btn" onclick="shareDish('${dishInfo.name.replace(/'/g, "\\'")}')">
+              <div class="action-icon"><i class="fa-solid fa-share"></i></div>
+              <span class="action-label">Share</span>
             </button>
           </div>
 
-          <div class="dish-info-box">
-            ${item.tag ? `<span class="dish-tag">${item.tag}</span>` : ""}
-            <h2 class="dish-title">${data.name}</h2>
-            <p class="dish-desc">${data.desc}</p>
+          <!-- Información del plato -->
+          <div class="dish-info">
+            ${item.tag ? `<span class="badge-tag">${item.tag}</span>` : ""}
+            <h2 class="dish-title">${dishInfo.name}</h2>
+            <p class="dish-desc">${dishInfo.desc}</p>
             
-            <div class="dish-prices">
-              <span class="main-price">${formatPrice(item.pricePen)}</span>
-              <span class="secondary-price">${getAlternatePriceString(item.pricePen)}</span>
+            <div class="dish-price-row">
+              <span class="price-now">${formatPrice(item.pricePEN)}</span>
+              <span class="price-alt">${formatSecondaryPrice(item.pricePEN)}</span>
             </div>
 
-            <button class="btn-add-order" onclick="quickAddCart('${item.id}')">
-              <i class="fa-solid fa-cart-plus"></i> ${t.addOrder}
+            <button class="btn-quick-add" onclick="addToCart('${item.id}')">
+              <i class="fa-solid fa-plus"></i> ${t.addBtn}
             </button>
           </div>
         `;
         feed.appendChild(slide);
       });
 
-      setupObserver();
+      if (videoObserver) setupObserver();
     }
 
-    function handleVideoError(video) {
-      video.classList.add("has-error");
-      video.removeAttribute("src");
-      video.load();
-    }
-
-    function safePlayVideo(video) {
-      if (!video || video.classList.contains("has-error")) return;
-      video.muted = isGlobalMuted;
-      try {
-        const playPromise = video.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(() => {
-            // Intento seguro con silenciado en caso de bloqueo de políticas
-            video.muted = true;
-            try {
-              const retryPromise = video.play();
-              if (retryPromise !== undefined) {
-                retryPromise.catch(() => {});
-              }
-            } catch (e) {}
-          });
-        }
-      } catch (e) {}
-    }
-
+    // Observer para reproducción automática sin errores
     function setupObserver() {
       if (videoObserver) videoObserver.disconnect();
 
       const options = { root: document.getElementById("feedContainer"), threshold: 0.65 };
       videoObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
+        entries.forEach((entry) => {
           const video = entry.target.querySelector("video");
-          if (!video || video.classList.contains("has-error")) return;
+          if (!video) return;
 
           if (entry.isIntersecting) {
-            safePlayVideo(video);
-          } else {
+            video.muted = isGlobalMuted;
             try {
-              video.pause();
-              video.currentTime = 0;
+              const playPromise = video.play();
+              if (playPromise !== undefined) {
+                playPromise.catch(() => {});
+              }
             } catch (e) {}
+          } else {
+            video.pause();
+            video.currentTime = 0;
           }
         });
       }, options);
@@ -1172,21 +1124,22 @@
       document.querySelectorAll(".video-slide").forEach(slide => videoObserver.observe(slide));
     }
 
-    function handleVideoTap(video) {
-      if (!video || video.classList.contains("has-error")) return;
+    function toggleVideoPlayback(video) {
       if (video.paused) {
-        safePlayVideo(video);
+        video.play().catch(() => {});
       } else {
-        try {
-          video.pause();
-        } catch (e) {}
+        video.pause();
       }
+    }
+
+    function handleVideoError(video) {
+      video.style.display = "none";
     }
 
     function toggleGlobalAudio() {
       isGlobalMuted = !isGlobalMuted;
-      const icon = document.getElementById("audioIcon");
-      icon.className = isGlobalMuted ? "fa-solid fa-volume-xmark" : "fa-solid fa-volume-high";
+      const audioIcon = document.getElementById("audioIcon");
+      audioIcon.className = isGlobalMuted ? "fa-solid fa-volume-xmark" : "fa-solid fa-volume-high";
 
       document.querySelectorAll("video").forEach(v => {
         v.muted = isGlobalMuted;
@@ -1195,202 +1148,165 @@
 
     function toggleLike(btn, base) {
       btn.classList.toggle("liked");
-      const text = btn.querySelector(".action-text");
+      const label = btn.querySelector(".action-label");
       const isLiked = btn.classList.contains("liked");
-      text.innerText = isLiked ? base + 1 : base;
+      label.innerText = isLiked ? base + 1 : base;
     }
 
-    function quickAddCart(dishId) {
+    // ==============================================================
+    // GESTIÓN DE PEDIDOS Y BARRA FLOTANTE
+    // ==============================================================
+    function addToCart(dishId) {
       cart[dishId] = (cart[dishId] || 0) + 1;
-      updateCartBadge();
-      showToast("+1 agregado a tu comanda");
+      updateOrdersBar();
+      updateOrdersPopupUI();
     }
 
-    function modifyQty(dishId, delta) {
+    function changeQty(dishId, delta) {
       if (!cart[dishId]) return;
       cart[dishId] += delta;
       if (cart[dishId] <= 0) {
         delete cart[dishId];
       }
-      updateCartBadge();
-      renderCartItems();
+      updateOrdersBar();
+      updateOrdersPopupUI();
     }
 
-    function updateCartBadge() {
-      const badge = document.getElementById("cartCount");
-      const count = Object.values(cart).reduce((a, b) => a + b, 0);
-      badge.innerText = count;
-      badge.style.display = count > 0 ? "flex" : "none";
+    function calculateTotalPEN() {
+      let totalPEN = 0;
+      Object.keys(cart).forEach(id => {
+        const dish = menuData.find(d => d.id === id);
+        if (dish) {
+          totalPEN += dish.pricePEN * cart[id];
+        }
+      });
+      return totalPEN;
     }
 
-    function renderCartItems() {
-      const list = document.getElementById("cartListItems");
+    function updateOrdersBar() {
+      const totalCount = Object.values(cart).reduce((a, b) => a + b, 0);
+      const totalPEN = calculateTotalPEN();
+
+      document.getElementById("ordersBadgeCount").innerText = totalCount;
+      document.getElementById("ordersBarTotal").innerText = formatPrice(totalPEN);
+    }
+
+    function updateOrdersPopupUI() {
+      const list = document.getElementById("orderItemsList");
       const dishIds = Object.keys(cart);
-      const t = translations[currentLanguage];
+      const t = translations[currentLang];
+      const totalPEN = calculateTotalPEN();
 
       if (dishIds.length === 0) {
-        list.innerHTML = `<div style="text-align:center; color:#888; padding:24px 0;">${t.emptyCart}</div>`;
-        document.getElementById("summaryTotalPen").innerText = "S/ 0.00";
-        document.getElementById("summaryTotalUsd").innerText = "~ $0.00 USD";
+        list.innerHTML = `<div style="text-align:center; color:#9c8e85; padding:24px 0;">${t.emptyCart}</div>`;
+        document.getElementById("orderTotalPrice").innerText = formatPrice(0);
+        document.getElementById("orderSecondaryPrice").innerText = formatSecondaryPrice(0);
         return;
       }
 
-      let totalPen = 0;
       let html = "";
-
       dishIds.forEach(id => {
-        const dish = menuItems.find(d => d.id === id);
+        const dish = menuData.find(d => d.id === id);
         if (!dish) return;
         const qty = cart[id];
-        const subtotalPen = dish.pricePen * qty;
-        totalPen += subtotalPen;
-
-        const info = dish.i18n[currentLanguage] || dish.i18n.es;
+        const subtotalPEN = dish.pricePEN * qty;
+        const dishName = (dish.i18n[currentLang] || dish.i18n["en"]).name;
 
         html += `
-          <div class="cart-item">
-            <div class="item-meta">
-              <div class="item-name">${info.name}</div>
-              <div class="item-cost">${formatPrice(dish.pricePen)} x ${qty} = <b>${formatPrice(subtotalPen)}</b></div>
+          <div class="order-item-row">
+            <div class="item-row-info">
+              <div class="item-row-title">${dishName}</div>
+              <div class="item-row-sub">${formatPrice(dish.pricePEN)} x ${qty} = <b>${formatPrice(subtotalPEN)}</b></div>
             </div>
-            <div class="qty-btn-group">
-              <button class="qty-btn" onclick="modifyQty('${id}', -1)">-</button>
-              <span style="font-size:13px; font-weight:800; min-width:18px; text-align:center;">${qty}</span>
-              <button class="qty-btn" onclick="modifyQty('${id}', 1)">+</button>
+            <div class="qty-controls">
+              <button class="qty-btn" onclick="changeQty('${id}', -1)">-</button>
+              <span style="font-weight:800; font-size:14px; color:#fff;">${qty}</span>
+              <button class="qty-btn" onclick="changeQty('${id}', 1)">+</button>
             </div>
           </div>
         `;
       });
 
       list.innerHTML = html;
-      const totalUsd = totalPen / USD_EXCHANGE_RATE;
-      document.getElementById("summaryTotalPen").innerText = `S/ ${totalPen.toFixed(2)}`;
-      document.getElementById("summaryTotalUsd").innerText = `~ $${totalUsd.toFixed(2)} USD`;
+      document.getElementById("orderTotalPrice").innerText = formatPrice(totalPEN);
+      document.getElementById("orderSecondaryPrice").innerText = formatSecondaryPrice(totalPEN);
+    }
+
+    function openOrdersPopup() {
+      document.getElementById("ordersPopupModal").classList.add("active");
+    }
+
+    function closeOrdersPopup(e) {
+      document.getElementById("ordersPopupModal").classList.remove("active");
     }
 
     function selectPayMethod(method, element) {
-      selectedPayment = method;
-      document.querySelectorAll(".pay-method-card").forEach(el => el.classList.remove("selected"));
+      selectedPayMethod = method;
+      document.querySelectorAll(".pay-chip").forEach(c => c.classList.remove("selected"));
       element.classList.add("selected");
     }
 
-    function openCart() {
-      renderCartItems();
-      document.getElementById("cartModal").classList.add("active");
-    }
-
-    function closeCart(e) {
-      document.getElementById("cartModal").classList.remove("active");
-    }
-
-    function proceedOrderFlow() {
+    // Envío de la comanda por WhatsApp
+    function sendOrderWhatsApp() {
       const dishIds = Object.keys(cart);
-      const t = translations[currentLanguage];
-
+      const t = translations[currentLang];
       if (dishIds.length === 0) {
-        showToast(t.emptyCart);
+        alert(t.emptyCart);
         return;
       }
 
-      let totalPen = 0;
+      const tableNo = document.getElementById("tableInput").value.trim() || "No especificada";
+      const notes = document.getElementById("notesInput").value.trim();
+      const totalPEN = calculateTotalPEN();
+
+      let orderText = `🛎️ *${t.wspGreeting}: ${tableNo}*\n\n`;
+
       dishIds.forEach(id => {
-        const dish = menuItems.find(d => d.id === id);
-        if (dish) totalPen += dish.pricePen * cart[id];
+        const dish = menuData.find(d => d.id === id);
+        const qty = cart[id];
+        const subtotalPEN = dish.pricePEN * qty;
+        const name = (dish.i18n[currentLang] || dish.i18n["en"]).name;
+        orderText += `▪️ *${qty}x* ${name} — ${formatPrice(subtotalPEN)}\n`;
       });
 
-      if (selectedPayment === "yape_plin") {
-        document.getElementById("yapeAmountReminder").innerText = `${t.yapeReminder} S/ ${totalPen.toFixed(2)}`;
-        closeCart();
-        openYapeModal();
-      } else {
-        finalizeWhatsAppOrder();
+      orderText += `\n💰 *${t.wspTotal}:* ${formatPrice(totalPEN)} (${formatSecondaryPrice(totalPEN)})`;
+      orderText += `\n💳 *${t.wspPayMethod}:* ${selectedPayMethod.toUpperCase()}`;
+
+      if (notes) {
+        orderText += `\n📝 *Notas:* ${notes}`;
       }
-    }
 
-    function openYapeModal() {
-      document.getElementById("yapePlinModal").classList.add("active");
-    }
+      orderText += `\n\n_(Pedido generado desde la carta QR interactiva)_`;
 
-    function closeYapeModal(e) {
-      document.getElementById("yapePlinModal").classList.remove("active");
-    }
-
-    function copyWalletPhone() {
-      const t = translations[currentLanguage];
-      const dummy = document.createElement("textarea");
-      dummy.value = YAPE_PHONE_RAW;
-      document.body.appendChild(dummy);
-      dummy.select();
-      document.execCommand("copy");
-      document.body.removeChild(dummy);
-      showToast(t.toastCopy);
-    }
-
-    function finalizeWhatsAppOrder() {
-      const dishIds = Object.keys(cart);
-      const t = translations[currentLanguage];
-      const table = document.getElementById("inputTable").value.trim() || "No especificada / Sin mesa";
-      const notes = document.getElementById("inputNotes").value.trim();
-
-      let totalPen = 0;
-      let orderLines = "";
-
-      dishIds.forEach(id => {
-        const dish = menuItems.find(d => d.id === id);
-        if (dish) {
-          const qty = cart[id];
-          const subPen = dish.pricePen * qty;
-          totalPen += subPen;
-          const name = (dish.i18n[currentLanguage] || dish.i18n.es).name;
-          orderLines += `• *${qty}x* ${name} (S/ ${subPen.toFixed(2)})\n`;
-        }
-      });
-
-      const totalUsd = totalPen / USD_EXCHANGE_RATE;
-
-      let paymentText = "Yape / Plin (Adjunto comprobante)";
-      if (selectedPayment === "tarjeta") paymentText = "Tarjeta / POS Móvil en mesa";
-      if (selectedPayment === "efectivo") paymentText = "Efectivo";
-
-      const message = 
-        `🛎️ *${t.wspGreeting}: ${table}*\n\n` +
-        `📝 *Comanda / Order Details:*\n` +
-        orderLines +
-        `\n💰 *${t.wspTotal}:*\n` +
-        `• S/ ${totalPen.toFixed(2)} PEN\n` +
-        `• ~$${totalUsd.toFixed(2)} USD\n\n` +
-        `💳 *${t.wspPayMethod}:* ${paymentText}\n` +
-        (notes ? `📌 *${t.wspNotes}:* ${notes}\n` : "") +
-        `\n_Enviado desde el Catálogo Digital QR TikTok_`;
-
-      const wspUrl = `https://wa.me/${RESTAURANT_WSP}?text=${encodeURIComponent(message)}`;
+      const wspUrl = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(orderText)}`;
       window.open(wspUrl, "_blank");
+    }
 
-      closeYapeModal();
-      closeCart();
+    // Modal Yape / Plin
+    function openYapeModal() {
+      document.getElementById("yapeModal").classList.add("active");
+    }
+
+    function closeYapeModal() {
+      document.getElementById("yapeModal").classList.remove("active");
+    }
+
+    function copyYapeNumber() {
+      navigator.clipboard.writeText(CONFIG.yapePhone).then(() => {
+        alert(translations[currentLang].copied);
+      });
     }
 
     function shareDish(name) {
       if (navigator.share) {
-        navigator.share({ title: name, text: `Mira este plato en el restaurante: ${name}`, url: window.location.href });
+        navigator.share({ title: name, text: `Mira este plato en el menú: ${name}`, url: window.location.href });
       } else {
-        showToast("Enlace de carta listo");
+        navigator.clipboard.writeText(window.location.href);
+        alert("Enlace copiado al portapapeles");
       }
     }
 
-    function showToast(msg) {
-      const toast = document.getElementById("toastBox");
-      toast.innerText = msg;
-      toast.classList.add("show");
-      setTimeout(() => toast.classList.remove("show"), 2200);
-    }
-
-    window.addEventListener("DOMContentLoaded", () => {
-      renderCategories();
-      renderFeed();
-      updateStaticLabels();
-      updateCartBadge();
-    });
+    window.addEventListener("DOMContentLoaded", init);
   </script>
 </body>
 </html>
