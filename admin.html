@@ -32,6 +32,7 @@
     .brand-box { display: flex; align-items: center; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08); }
     .brand-avatar { width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(135deg, var(--accent), var(--primary)); display: flex; align-items: center; justify-content: center; font-size: 22px; color: #fff; }
 
+    /* ACORDEÓN PROTEGIDO */
     .token-box { background: #251a15; border: 1.5px dashed var(--accent); border-radius: 10px; overflow: hidden; }
     .token-trigger { width: 100%; background: none; border: none; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 800; color: var(--gold); font-size: 12px; }
     .token-content { display: none; padding: 12px; background: #18100c; border-top: 1px solid rgba(255,255,255,0.08); }
@@ -143,11 +144,11 @@
         </div>
       </div>
 
-      <!-- ACORDEÓN TOKEN GITHUB -->
+      <!-- ACORDEÓN TOKEN GITHUB PROTEGIDO CON CONTRASEÑA -->
       <div class="token-box">
         <button class="token-trigger" type="button" onclick="alternarAcordeonToken()">
-          <span><i class="fa-brands fa-github"></i> Token GitHub</span>
-          <span id="tokenStatusBadge" style="color:#86efac;">● Activo</span>
+          <span><i class="fa-solid fa-lock"></i> Token GitHub</span>
+          <span id="tokenStatusBadge" style="color:#86efac;">🔒 Protegido</span>
         </button>
         <div class="token-content" id="contenidoAcordeonToken">
           <label style="margin-top:0;">Personal Token (ghp_...):</label>
@@ -199,7 +200,7 @@
     <!-- PANEL DERECHO -->
     <main class="main-view">
 
-      <!-- VISTA 1: PANTALLA KDS DE COMANDAS EN VIVO -->
+      <!-- VISTA 1: COMANDAS EN VIVO -->
       <section id="viewComandas">
         <div class="view-header">
           <div>
@@ -332,8 +333,12 @@
 
   <script>
     const USUARIO = "phyxcius";
-    const REPOSITORIO = "restaurante"; // Repositorio restaurante
+    const REPOSITORIO = "restaurante";
     const ARCHIVO = "productos.json";
+
+    // CONTRASEÑA MAESTRA PARA DESPLEGAR EL TOKEN
+    const PASSWORD_MAESTRA_TOKEN = "42423549";
+    let tokenDesbloqueado = false;
     
     const STORAGE_KEY_SECRETA = "inkabistro_vault_secret_token";
     const STORAGE_KEY_AUTH = "inkabistro_admin_sesion_activa";
@@ -369,7 +374,7 @@
       document.getElementById('ghTokenInput').value = obtenerTokenSecreto();
       cargarDesdeGitHub();
       cargarComandasEnVivo();
-      setInterval(cargarComandasEnVivo, 10000); // Actualización automática de comandas cada 10 seg
+      setInterval(cargarComandasEnVivo, 10000);
     }
 
     function cerrarSesionAdmin() {
@@ -391,25 +396,50 @@
       if (s === 'mesas') actualizarQRVisual();
     }
 
+    // ==============================================================
+    // ACORDEÓN TOKEN CON VALIDACIÓN DE CONTRASEÑA 42423549
+    // ==============================================================
     function alternarAcordeonToken() {
-      const b = document.getElementById('contenidoAcordeonToken');
-      b.style.display = b.style.display === 'block' ? 'none' : 'block';
+      const box = document.getElementById('contenidoAcordeonToken');
+      const badge = document.getElementById('tokenStatusBadge');
+
+      if (box.style.display === 'block') {
+        box.style.display = 'none';
+        badge.innerHTML = '🔒 Protegido';
+        return;
+      }
+
+      if (!tokenDesbloqueado) {
+        const clave = prompt("🔐 ACCESO CREADOR:\n\nIngresa la contraseña de seguridad para desplegar el token:");
+        if (clave === PASSWORD_MAESTRA_TOKEN) {
+          tokenDesbloqueado = true;
+          box.style.display = 'block';
+          badge.innerHTML = '🔓 Desbloqueado';
+        } else if (clave !== null) {
+          alert("⛔ Contraseña incorrecta. Acceso denegado.");
+        }
+      } else {
+        box.style.display = 'block';
+        badge.innerHTML = '🔓 Desbloqueado';
+      }
     }
+
     function obtenerTokenSecreto() { return localStorage.getItem(STORAGE_KEY_SECRETA) || ""; }
     function guardarTokenManual() {
       const t = document.getElementById('ghTokenInput').value.trim();
       localStorage.setItem(STORAGE_KEY_SECRETA, t);
-      alert("Token guardado.");
+      alert("✔ Token guardado.");
       cargarDesdeGitHub();
     }
     function borrarTokenManual() {
-      localStorage.removeItem(STORAGE_KEY_SECRETA);
-      document.getElementById('ghTokenInput').value = '';
+      if (confirm("¿Deseas eliminar el token guardado?")) {
+        localStorage.removeItem(STORAGE_KEY_SECRETA);
+        document.getElementById('ghTokenInput').value = '';
+        alert("Token eliminado.");
+      }
     }
 
-    // ==============================================================
-    // KDS: PANTALLA DE COCINA & COMANDAS EN VIVO
-    // ==============================================================
+    // PANTALLA DE COCINA (KDS)
     function cargarComandasEnVivo() {
       const grid = document.getElementById('liveOrdersGrid');
       let comandas = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
@@ -588,7 +618,7 @@
       document.getElementById('imgQRGenerado').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(link)}`;
     }
 
-    // CARGA DE ARCHIVO DESDE GITHUB (REPOSITORIO restaurante)
+    // CARGA DE DATOS DESDE GITHUB
     async function cargarDesdeGitHub() {
       const token = obtenerTokenSecreto();
       try {
@@ -608,11 +638,11 @@
     // PUBLICAR EN GITHUB
     async function sincronizarConGitHub() {
       const token = obtenerTokenSecreto();
-      if (!token) return alert("Configura tu token arriba.");
+      if (!token) return alert("Configura tu token en el acordeón de la izquierda.");
 
       const btn = document.getElementById('btnPublicarSidebar');
       btn.disabled = true;
-      btn.innerText = "⏳ Guardando...";
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
 
       let sha = "";
       try {
