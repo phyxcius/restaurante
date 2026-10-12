@@ -117,9 +117,9 @@
 
     .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 10px; }
     
-    /* CORRECCIÓN VISUAL: ALTURA MÍNIMA FIJA PARA EVITAR QUE EL PLATO SE OCULTE */
+    /* ALTURA MÍNIMA FIJA PARA EVITAR QUE EL NOMBRE DEL PLATO DESAPAREZCA */
     .order-items-list {
-      min-height: 55px;
+      min-height: 58px;
       max-height: 25dvh;
       overflow-y: auto;
       display: flex;
@@ -154,7 +154,7 @@
     }
     .table-box-btn.extra { grid-column: span 2; font-size: 11px; }
 
-    /* Mesa Bloqueada / Ocupada */
+    /* MESA BLOQUEADA / OCUPADA */
     .table-box-btn.bloqueada {
       background: #501616 !important;
       border-color: #ef4444 !important;
@@ -306,6 +306,11 @@
   </div>
 
   <script>
+    // ==============================================================
+    // CONFIGURACIÓN DE FIREBASE RTDB (TU URL CONECTADA)
+    // ==============================================================
+    const FIREBASE_DB_URL = "https://restaurante1-695f7-default-rtdb.firebaseio.com/";
+
     let CONFIG = {
       nombre: "Inka Bistro Cusco",
       eslogan: "Cusco • Gourmet",
@@ -344,30 +349,36 @@
       { id: "Terraza 2", label: "☀️ Ter. 2", extra: true }
     ];
 
-    // CORRECCIÓN ANTI-CACHÉ ESTRICTA: LEE comandas.json SIN PASAR POR CACHÉ
+    function normalizarNombreMesa(m) {
+      if (!m) return "";
+      let s = m.trim();
+      const match = s.match(/\d+/);
+      if (match && s.toLowerCase().includes("mesa")) {
+        const num = parseInt(match[0]);
+        return "Mesa " + (num < 10 ? "0" + num : num);
+      }
+      return s;
+    }
+
+    // ==============================================================
+    // CONSULTA INSTANTÁNEA EN FIREBASE REALTIME DATABASE
+    // ==============================================================
     async function obtenerMesasOcupadasEnRed() {
       let comandas = [];
 
+      // Consulta directa a Firebase (tiempo de respuesta < 200 ms)
       try {
-        const res = await fetch(`comandas.json?nocache=${Date.now()}`, {
-          cache: 'no-store',
-          headers: {
-            'Pragma': 'no-cache',
-            'Cache-Control': 'no-cache, no-store, must-revalidate'
+        const resFB = await fetch(`${FIREBASE_DB_URL}comandas.json`);
+        if (resFB.ok) {
+          const dataFB = await resFB.json();
+          if (dataFB) {
+            comandas = Object.values(dataFB);
           }
-        });
-        if (res.ok) {
-          const cloudData = await res.json();
-          if (Array.isArray(cloudData)) comandas = cloudData;
         }
-      } catch (e) {}
-
-      // Mezclar con el almacenamiento local del dispositivo
-      const local = JSON.parse(localStorage.getItem("inkabistro_comandas_activas")) || [];
-      if (Array.isArray(local)) {
-        local.forEach(l => {
-          if (!comandas.some(c => c.id === l.id)) comandas.push(l);
-        });
+      } catch (e) {
+        // Fallback local
+        const local = JSON.parse(localStorage.getItem("inkabistro_comandas_activas")) || [];
+        if (Array.isArray(local)) comandas = local;
       }
 
       // Filtrar mesas con pedidos activos
@@ -380,17 +391,6 @@
         .map(c => normalizarNombreMesa(c.mesa));
 
       return ocupadas;
-    }
-
-    function normalizarNombreMesa(m) {
-      if (!m) return "";
-      let s = m.trim();
-      const match = s.match(/\d+/);
-      if (match && s.toLowerCase().includes("mesa")) {
-        const num = parseInt(match[0]);
-        return "Mesa " + (num < 10 ? "0" + num : num);
-      }
-      return s;
     }
 
     async function renderizarCuadriculaMesas() {
@@ -476,11 +476,11 @@
       detectarMesaDesdeURL();
       verificarEstadoComandaEnVivo();
 
-      // Refresco constante cada 3 segundos
+      // Refresco en tiempo real cada 1.5 segundos
       setInterval(async () => {
         await verificarEstadoComandaEnVivo();
         await renderizarCuadriculaMesas();
-      }, 3000);
+      }, 1500);
     }
 
     function formatPrice(pen) {
@@ -572,7 +572,7 @@
       actualizarVistaPopup();
     }
 
-    // CORRECCIÓN VISUAL: RENDERIZA SIEMPRE EL CONTENEDOR DE PLATOS CON ALTURA GARANTIZADA
+    // LISTADO VISIBLE Y GARANTIZADO DE PLATOS
     function actualizarVistaPopup() {
       const list = document.getElementById('orderItemsList');
       list.innerHTML = '';
@@ -596,7 +596,7 @@
             <div style="display:flex; gap:6px; align-items:center;">
               <button style="width:26px; height:26px; border-radius:5px; background:#443027; color:#fff; border:none; cursor:pointer;" onclick="changeQty('${id}', -1)">-</button>
               <span style="font-weight:bold; font-size:13px; min-width:18px; text-align:center;">${cant}</span>
-              <button style="width:26px; height:26px; border-radius:5px; background:#443027; color:#fff; border:none; cursor:pointer;" onclick="changeQty('${id}', 1)">+</button>
+              <button style="width:26px; height:26px; border-radius:5px; background:#443027; color:#fff; border:none;" onclick="changeQty('${id}', 1)">+</button>
             </div>
           </div>
         `;
@@ -657,14 +657,14 @@
       }
     }
 
-    // TRANSMISIÓN DE COMANDA
+    // TRANSMISIÓN INSTANTÁNEA A FIREBASE
     async function enviarComandaDirectaAlPanel() {
       const itemIds = Object.keys(pedido);
       if (itemIds.length === 0) return alert("Por favor añade al menos un plato a la comanda.");
 
       const mesaNorm = normalizarNombreMesa(mesaSeleccionada);
 
-      // Verificación en tiempo real sin caché antes de enviar
+      // Verificación en Firebase antes de enviar
       const mesasOcupadas = await obtenerMesasOcupadasEnRed();
       if (mesasOcupadas.includes(mesaNorm)) {
         alert(`⛔ La ${mesaSeleccionada} ya se encuentra ocupada con otra orden en curso. Por favor selecciona otra mesa disponible.`);
@@ -703,12 +703,23 @@
         estado: "por_confirmar"
       };
 
+      // Guardar directamente en Firebase
+      try {
+        await fetch(`${FIREBASE_DB_URL}comandas/${nuevaComanda.id}.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(nuevaComanda)
+        });
+      } catch (e) {
+        console.warn("Error enviando comanda a Firebase:", e);
+      }
+
       // Guardar localmente
       let comandasActivas = JSON.parse(localStorage.getItem("inkabistro_comandas_activas")) || [];
       comandasActivas.unshift(nuevaComanda);
       localStorage.setItem("inkabistro_comandas_activas", JSON.stringify(comandasActivas));
 
-      // Guardar ID propio
+      // Guardar ID propio para seguimiento
       comandaActivaId = nuevaComanda.id;
       localStorage.setItem("inkabistro_mi_comanda_id", comandaActivaId);
 
@@ -720,24 +731,25 @@
         closeOrdersPopup();
         verificarEstadoComandaEnVivo();
         renderizarCuadriculaMesas();
-      }, 700);
+      }, 400);
     }
 
     // RASTREO KDS EN VIVO
     async function verificarEstadoComandaEnVivo() {
       if (!comandaActivaId) return;
 
-      let comandas = [];
+      let miComanda = null;
+
       try {
-        const res = await fetch(`comandas.json?_nocache=${Date.now()}`, { cache: 'no-store' });
-        if (res.ok) comandas = await res.json();
+        const resFB = await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`);
+        if (resFB.ok) miComanda = await resFB.json();
       } catch (e) {}
 
-      if (!Array.isArray(comandas) || comandas.length === 0) {
-        comandas = JSON.parse(localStorage.getItem("inkabistro_comandas_activas")) || [];
+      if (!miComanda) {
+        const local = JSON.parse(localStorage.getItem("inkabistro_comandas_activas")) || [];
+        miComanda = local.find(c => c.id === comandaActivaId);
       }
 
-      const miComanda = comandas.find(c => c.id === comandaActivaId);
       const card = document.getElementById('kdsTrackingCard');
       const badge = document.getElementById('kdsBadge');
       const msg = document.getElementById('kdsMsg');
