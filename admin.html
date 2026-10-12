@@ -796,6 +796,7 @@
       cargarIdentidadFirebase();
     }
 
+    // CATÁLOGO DE PLATOS
     async function cargarPlatosFirebase() {
       try {
         const res = await fetch(`${FIREBASE_DB_URL}catalogo_platos.json`);
@@ -915,7 +916,6 @@
         if (resFB.ok) {
           const dataFB = await resFB.json();
           if (dataFB) {
-            // Filtrar estrictamente solo objetos válidos con ID
             comandas = Object.values(dataFB).filter(c => c && typeof c === 'object' && c.id);
           }
         }
@@ -923,7 +923,6 @@
         console.error("Error al traer comandas:", e);
       }
 
-      // Ordenar por ID de forma segura
       comandas.sort((a, b) => String(b.id || "").localeCompare(String(a.id || "")));
       const pedidosActivos = comandas.filter(c => c.estado !== 'liberado');
 
@@ -1089,7 +1088,7 @@
 
     async function desocuparMesaDirectaManual(nombreMesa, estaOcupada) {
       if (!estaOcupada) return;
-      if (confirm(`¿Liberar manualmente la ${nombreMesa}?`)) {
+      if (confirm(`¿Liberar la ${nombreMesa}?`)) {
         try {
           const res = await fetch(`${FIREBASE_DB_URL}comandas.json`);
           if (res.ok) {
