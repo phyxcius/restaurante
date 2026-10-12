@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Inka Bistro Cusco | Menú Digital</title>
+  <title>La Cusqueñita | Menú Digital & Estado</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
     :root {
@@ -18,7 +18,6 @@
 
       --modal-bg: #eab308;
       --modal-green: #4d7c0f;
-      --modal-green-dark: #365314;
       --modal-dark: #1c1917;
       --modal-card-bg: #fef08a;
     }
@@ -45,23 +44,18 @@
 
     .chuspa-nav-badge {
       display: flex; align-items: center; gap: 6px;
-      background: rgba(254, 252, 232, 0.12);
-      border: 1px solid rgba(234, 179, 8, 0.45);
-      padding: 3px 8px 3px 5px; border-radius: 20px;
-      text-decoration: none; backdrop-filter: blur(8px);
+      background: rgba(254, 252, 232, 0.12); border: 1px solid rgba(234, 179, 8, 0.45);
+      padding: 3px 8px 3px 5px; border-radius: 20px; text-decoration: none;
     }
-    .chuspa-nav-badge:active { transform: scale(0.96); }
     .chuspa-nav-img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; background: #fff; border: 1px solid #ca8a04; }
-    .chuspa-nav-info { display: flex; flex-direction: column; line-height: 1.1; }
     .chuspa-nav-title { font-size: 10px; font-weight: 900; color: #fde047; }
     .chuspa-nav-sub { font-size: 7.5px; font-weight: 700; color: #fed7aa; }
 
     .header-controls { display: flex; align-items: center; gap: 5px; }
     .select-pill { background: var(--glass-panel); border: 1px solid var(--glass-border); color: #fff; padding: 4px 6px; border-radius: 14px; font-size: 10.5px; font-weight: 700; outline: none; }
-    .select-pill option { background: #221510; }
     .icon-pill-btn { width: 30px; height: 30px; border-radius: 50%; background: var(--glass-panel); border: 1px solid var(--glass-border); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; }
 
-    /* SEGUIMIENTO KDS */
+    /* TARJETA KDS EN VIVO */
     .kds-tracking-card {
       display: none; width: calc(100% - 10px); margin: 0 auto;
       padding: 9px 12px; border-radius: 12px; backdrop-filter: blur(12px);
@@ -88,69 +82,64 @@
       display: none; background: linear-gradient(135deg, #fef08a, #fde047); color: #1c1917;
       border: 2px solid #ca8a04; border-radius: 10px; padding: 9px 12px; margin-top: 6px;
     }
-    .mozo-prompt-banner p { font-size: 12px; font-weight: 900; margin-bottom: 6px; }
-    .mozo-btn-row { display: flex; gap: 6px; }
+    .mozo-btn-row { display: flex; gap: 6px; margin-top: 6px; }
     .btn-mozo-si { flex: 1; background: #4d7c0f; color: #fff; border: none; padding: 6px; border-radius: 6px; font-weight: 900; font-size: 11px; cursor: pointer; }
     .btn-mozo-no { background: #78350f; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 800; font-size: 11px; cursor: pointer; }
 
-    /* FILTROS */
-    .category-chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
-    .category-chips::-webkit-scrollbar { display: none; }
-    .chip { background: rgba(43, 31, 26, 0.7); border: 1px solid rgba(251, 191, 36, 0.25); color: var(--text-muted); padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer; }
-    .chip.active { background: linear-gradient(135deg, var(--primary), var(--accent)); border-color: var(--accent); color: #fff; font-weight: 700; }
+    /* MÓDULO RESEÑAS RESTAURADO */
+    .review-box-client {
+      display: none; background: #261c16; border: 1.5px solid var(--accent);
+      border-radius: 10px; padding: 10px; margin-top: 8px;
+    }
+    .stars-row { display: flex; gap: 6px; font-size: 18px; color: #facc15; cursor: pointer; margin: 4px 0; }
 
     /* FEED */
-    .video-slide { width: 100%; height: 100dvh; scroll-snap-align: start; scroll-snap-stop: always; position: relative; background: #1c1411; overflow: hidden; display: flex; align-items: flex-end; }
-    .video-player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-    .slide-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(24,17,14,0.4) 0%, transparent 50%, rgba(24,17,14,0.92) 100%); pointer-events: none; }
+    .category-chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+    .chip { background: rgba(43, 31, 26, 0.7); border: 1px solid rgba(251, 191, 36, 0.25); color: var(--text-muted); padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; }
+    .chip.active { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; }
 
-    .side-actions { position: absolute; right: 12px; bottom: 105px; display: flex; flex-direction: column; align-items: center; gap: 15px; z-index: 10; }
-    .action-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; color: #fff; cursor: pointer; }
-    .action-icon { width: 44px; height: 44px; border-radius: 50%; background: var(--glass-panel); border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; font-size: 18px; color: #fff; }
-    .action-label { font-size: 11px; font-weight: 600; color: var(--text-muted); }
+    .video-slide { width: 100%; height: 100dvh; scroll-snap-align: start; position: relative; background: #1c1411; overflow: hidden; display: flex; align-items: flex-end; }
+    .video-player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+    .slide-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(24,17,14,0.4) 0%, transparent 50%, rgba(24,17,14,0.92) 100%); }
 
     .dish-info { position: relative; z-index: 10; padding: 0 75px 85px 16px; width: 100%; }
-    .badge-tag { display: inline-block; background: var(--gold-badge); color: #381504; font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; margin-bottom: 6px; }
-    .dish-title { font-size: 21px; font-weight: 800; line-height: 1.2; margin-bottom: 4px; }
-    .dish-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .dish-price-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
-    .price-now { font-size: 23px; font-weight: 800; color: #fef08a; }
-    .price-alt { font-size: 13px; color: #cbd5e1; font-weight: 600; }
-    .btn-quick-add { background: linear-gradient(135deg, var(--primary), var(--accent)); border: 1px solid rgba(251, 191, 36, 0.4); color: #fff; padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+    .dish-title { font-size: 21px; font-weight: 800; margin-bottom: 4px; }
+    .dish-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
+    .price-now { font-size: 23px; font-weight: 800; color: #fef08a; margin-bottom: 8px; display: block; }
+    .btn-quick-add { background: linear-gradient(135deg, var(--primary), var(--accent)); border: none; color: #fff; padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 12px; cursor: pointer; }
 
     /* BOTÓN FLOTANTE */
     .chat-bubble-container { position: fixed; bottom: 20px; right: 18px; display: flex; align-items: center; gap: 8px; z-index: 99999; cursor: pointer; }
-    .chat-bubble-label { background: linear-gradient(135deg, #fef08a, #fde047); color: #78350f; font-weight: 900; font-size: 13px; padding: 8px 14px; border-radius: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.4); border: 2px solid var(--accent); }
-    .chat-bubble-btn { position: relative; width: 56px; height: 56px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #facc15; }
-    .chat-badge { position: absolute; top: -3px; right: -3px; background-color: #ef4444; color: #fff; border: 2px solid #fff; font-size: 11px; font-weight: 800; min-width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .chat-bubble-label { background: linear-gradient(135deg, #fef08a, #fde047); color: #78350f; font-weight: 900; font-size: 13px; padding: 8px 14px; border-radius: 20px; border: 2px solid var(--accent); }
+    .chat-bubble-btn { width: 56px; height: 56px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #facc15; }
+    .chat-badge { position: absolute; top: -3px; right: -3px; background: #ef4444; color: #fff; font-size: 11px; font-weight: 800; min-width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
-    /* POPUP DE COMANDA */
+    /* POPUP MEXICAN DELIGHT */
     .popup-modal { position: fixed; inset: 0; background: rgba(18, 12, 10, 0.88); backdrop-filter: blur(6px); z-index: 100000; display: none; align-items: flex-end; justify-content: center; }
     .popup-modal.active { display: flex; }
     .popup-sheet {
       background: var(--modal-bg); color: var(--modal-dark); width: 100%; max-width: 480px; max-height: 90dvh;
       border-radius: 26px 26px 0 0; padding: 20px 18px 24px; display: flex; flex-direction: column;
-      border-top: 3px solid var(--modal-green); box-shadow: 0 -10px 30px rgba(0,0,0,0.6); overflow-y: auto;
+      border-top: 3px solid var(--modal-green); overflow-y: auto;
     }
     .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 2px solid rgba(28, 25, 23, 0.15); padding-bottom: 10px; }
-    .sheet-header h3 { font-size: 17px; font-weight: 900; text-transform: uppercase; }
-
-    .order-items-list { min-height: 58px; max-height: 25dvh; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; flex-shrink: 0; }
-    .order-item-row { display: flex; justify-content: space-between; align-items: center; background: var(--modal-card-bg); padding: 9px 12px; border-radius: 12px; border: 1.5px solid rgba(28, 25, 23, 0.12); }
+    
+    .order-items-list { min-height: 58px; max-height: 25dvh; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+    .order-item-row { display: flex; justify-content: space-between; align-items: center; background: var(--modal-card-bg); padding: 9px 12px; border-radius: 12px; }
     .btn-qty-ctrl { width: 26px; height: 26px; border-radius: 6px; background: var(--modal-green); color: #fff; border: none; font-weight: 900; cursor: pointer; }
 
     .quick-add-catalog { background: rgba(255, 255, 255, 0.6); border-radius: 12px; padding: 10px; margin-bottom: 12px; border: 1.5px dashed var(--modal-green); }
     .quick-add-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; max-height: 120px; overflow-y: auto; margin-top: 6px; }
-    .btn-quick-item { background: #fff; border: 1px solid rgba(0,0,0,0.15); padding: 6px; border-radius: 6px; font-size: 11px; font-weight: 800; text-align: left; cursor: pointer; display: flex; justify-content: space-between; }
+    .btn-quick-item { background: #fff; border: 1px solid rgba(0,0,0,0.15); padding: 6px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; justify-content: space-between; }
 
     .table-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 12px; }
     .table-box-btn { background: var(--modal-card-bg); border: 1.5px solid rgba(28, 25, 23, 0.2); color: var(--modal-dark); font-weight: 900; font-size: 12px; padding: 9px 4px; border-radius: 8px; text-align: center; }
     .table-box-btn.selected { background: var(--modal-green); color: #fff; }
-    .table-box-btn.deshabilitada-qr { opacity: 0.35 !important; cursor: not-allowed !important; filter: grayscale(1); }
+    .table-box-btn.deshabilitada-qr { opacity: 0.35 !important; cursor: not-allowed; }
 
     .btn-submit-order { background: var(--modal-green); color: #fff; border: none; padding: 14px; border-radius: 24px; font-size: 15px; font-weight: 900; cursor: pointer; width: 100%; margin-top: 10px; }
 
-    /* PANTALLA COMPLETA DE AGRADECIMIENTO TRAS COBRAR */
+    /* AGRADECIMIENTO Y RESERVAS */
     .screen-agradecimiento-overlay {
       position: fixed; inset: 0; background: rgba(18, 12, 10, 0.96); backdrop-filter: blur(10px);
       z-index: 200000; display: none; align-items: center; justify-content: center; padding: 24px; text-align: center;
@@ -168,18 +157,18 @@
 </head>
 <body>
 
-  <!-- PANTALLA FINAL DE AGRADECIMIENTO Y RESERVAS PREPAGO -->
+  <!-- AGRADECIMIENTO TRAS COBRO -->
   <div class="screen-agradecimiento-overlay" id="pantallaAgradecimiento">
     <div class="box-agradecimiento">
       <div id="agradeceLogo" style="font-size:46px;">🍽️</div>
-      <h2 style="color:var(--gold); font-size:22px; font-weight:900;" id="agradeceNombreLocal">Inka Bistro Cusco</h2>
+      <h2 style="color:var(--gold); font-size:22px; font-weight:900;" id="agradeceNombreLocal">La Cusqueñita</h2>
       <p style="font-size:14px; color:#ddd; line-height:1.5;">
-        ¡Muchas gracias por tu visita! Tu comanda ha sido cancelada y la mesa ha quedado libre. Esperamos que hayas disfrutado tu experiencia gastronómica.
+        ¡Muchas gracias por visitarnos! Tu cuenta ha sido cancelada en caja y la mesa ha quedado liberada.
       </p>
 
       <div style="background:rgba(255,255,255,0.06); padding:12px; border-radius:12px; width:100%; margin-top:4px;">
         <span style="font-size:12px; color:#fde047; font-weight:800; display:block; margin-bottom:8px;">
-          ¿Planeas volver? Reserva tu mesa para Eventos, Grupos o Familias
+          ¿Deseas volver? Realiza tu Reserva para Eventos o Familias
         </span>
         <a href="reservas.html" class="btn-ir-reservas">
           <i class="fa-solid fa-calendar-check"></i> Ir al Catálogo de Reservas
@@ -194,7 +183,7 @@
       <div class="brand-section">
         <div class="brand-icon" id="topIcon">🍽️</div>
         <div class="brand-text">
-          <h1 id="topTitle">Inka Bistro</h1>
+          <h1 id="topTitle">La Cusqueñita</h1>
           <span id="topSlogan">Cusco • Gourmet</span>
         </div>
       </div>
@@ -208,10 +197,6 @@
       </a>
 
       <div class="header-controls">
-        <select class="select-pill" id="langSelector" onchange="changeLanguage(this.value)">
-          <option value="es" selected>🇪🇸 ES</option>
-          <option value="en">🇬🇧 EN</option>
-        </select>
         <button class="icon-pill-btn" onclick="toggleGlobalAudio()"><i class="fa-solid fa-volume-xmark" id="audioIcon"></i></button>
       </div>
     </div>
@@ -234,6 +219,16 @@
           <button type="button" class="btn-mozo-si" onclick="abrirParaAgregarPlatos()">Sí, agregar platos</button>
           <button type="button" class="btn-mozo-no" onclick="responderMozo(false)">No, gracias</button>
         </div>
+      </div>
+
+      <!-- FORMULARIO RESEÑAS -->
+      <div class="review-box-client" id="clientReviewBox">
+        <span style="font-size:11px; color:#fde047; font-weight:800;">⭐ ¡Califica tu experiencia gastronómica!</span>
+        <div class="stars-row" id="starsRow">
+          <span onclick="setRating(1)">★</span><span onclick="setRating(2)">★</span><span onclick="setRating(3)">★</span><span onclick="setRating(4)">★</span><span onclick="setRating(5)">★</span>
+        </div>
+        <input type="text" id="clientReviewTxt" style="width:100%; padding:6px; border-radius:6px; font-size:12px; margin-bottom:4px;" placeholder="Tu comentario...">
+        <button type="button" class="btn-mozo-si" style="width:100%;" onclick="enviarResenaFirebase()">Enviar Reseña</button>
       </div>
 
       <div class="kds-details-row">
@@ -284,16 +279,30 @@
     const FIREBASE_DB_URL = "https://restaurante1-695f7-default-rtdb.firebaseio.com/";
 
     let CONFIG = {
-      nombre: "Inka Bistro Cusco",
+      nombre: "La Cusqueñita",
       eslogan: "Cusco • Gourmet",
       logo: "🍽️"
     };
 
-    let catalogo = [];
+    let catalogo = [
+      {
+        id: "dish-saltado", category: "mains", tag: "Plato Fuerte", precioPEN: 35.00, disponible: true,
+        posterUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?w=500",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+        i18n: { es: { name: "Saltado", desc: "Papas fritas con carne picada y arroz" } }
+      },
+      {
+        id: "dish-aji", category: "mains", tag: "Plato Fuerte", precioPEN: 35.00, disponible: true,
+        posterUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?w=500",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+        i18n: { es: { name: "Aji de gallina", desc: "Gallina al hilo servida con crema de ají y arroz" } }
+      }
+    ];
+
     const pedido = {};
-    let currentLang = "es";
     let isGlobalMuted = true;
     let ultimoTotalPagarPEN = 0;
+    let ratingSeleccionado = 5;
 
     let mesaFijadaPorQR = false;
     let mesaSeleccionada = sessionStorage.getItem("inkabistro_mesa_qr") || "Mesa 01";
@@ -303,10 +312,7 @@
       { id: "Mesa 01", label: "1" }, { id: "Mesa 02", label: "2" }, { id: "Mesa 03", label: "3" },
       { id: "Mesa 04", label: "4" }, { id: "Mesa 05", label: "5" }, { id: "Mesa 06", label: "6" },
       { id: "Mesa 07", label: "7" }, { id: "Mesa 08", label: "8" }, { id: "Mesa 09", label: "9" },
-      { id: "Mesa 10", label: "10" }, { id: "Mesa 11", label: "11" }, { id: "Mesa 12", label: "12" },
-      { id: "Barra", label: "🍸 Barra", extra: true },
-      { id: "Terraza 1", label: "☀️ Ter. 1", extra: true },
-      { id: "Terraza 2", label: "☀️ Ter. 2", extra: true }
+      { id: "Mesa 10", label: "10" }, { id: "Mesa 11", label: "11" }, { id: "Mesa 12", label: "12" }
     ];
 
     function normalizarNombreMesa(m) {
@@ -344,10 +350,10 @@
       } catch (e) {}
 
       try {
-        const res = await fetch(`productos.json?v=${Date.now()}`);
-        if (res.ok) {
-          const d = await res.json();
-          catalogo = d.productos || d.catalogo || [];
+        const resPlat = await fetch(`${FIREBASE_DB_URL}catalogo_platos.json`);
+        if (resPlat.ok) {
+          const d = await resPlat.json();
+          if (d) catalogo = Object.values(d);
         }
       } catch (e) {}
 
@@ -361,14 +367,12 @@
       renderQuickCatalogPopup();
       verificarEstadoComandaEnVivo();
 
+      // Sondeo estricto cada 2 segundos a Firebase
       setInterval(verificarEstadoComandaEnVivo, 2000);
     }
 
     function renderCategoryChips() {
-      const cats = [
-        { key: "all", label: "Todos" }, { key: "top", label: "🔥 Especialidades" },
-        { key: "mains", label: "Platos Fuertes" }, { key: "drinks", label: "Bebidas" }
-      ];
+      const cats = [{ key: "all", label: "Todos" }, { key: "mains", label: "Platos Fuertes" }];
       document.getElementById('categoryChips').innerHTML = cats.map(c => `
         <div class="chip ${c.key === 'all' ? 'active' : ''}">${c.label}</div>
       `).join('');
@@ -385,9 +389,7 @@
             <div class="dish-info">
               <h2 class="dish-title">${es.name}</h2>
               <p class="dish-desc">${es.desc}</p>
-              <div class="dish-price-row">
-                <span class="price-now">S/ ${(item.precioPEN || item.precio || 0).toFixed(2)}</span>
-              </div>
+              <span class="price-now">S/ ${(item.precioPEN || item.precio || 0).toFixed(2)}</span>
               <button class="btn-quick-add" onclick="addToOrder('${item.id}')"><i class="fa-solid fa-plus"></i> Pedir Plato</button>
             </div>
           </div>
@@ -475,6 +477,11 @@
     }
     function closeOrdersPopup() { document.getElementById('ordersPopupModal').classList.remove('active'); }
 
+    function abrirParaAgregarPlatos() {
+      responderMozo(true);
+      openOrdersPopup();
+    }
+
     async function enviarComandaDirectaAlPanel() {
       const ids = Object.keys(pedido);
       if (ids.length === 0) return alert("Añade al menos un plato.");
@@ -485,6 +492,32 @@
         txt += `${pedido[id]}x ${(dish.i18n?.es || dish).name || dish.nombre}, `;
       });
 
+      // Si ya tenía comanda, acumularla
+      if (comandaActivaId) {
+        try {
+          const res = await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`);
+          if (res.ok) {
+            const vieja = await res.json();
+            if (vieja && vieja.estado !== 'liberado') {
+              await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  productos: vieja.productos + ", " + txt.replace(/, $/, ""),
+                  totalPEN: (vieja.totalPEN || 0) + ultimoTotalPagarPEN,
+                  mozoPregunta: false
+                })
+              });
+              for (let k in pedido) delete pedido[k];
+              actualizarVistaPopup();
+              closeOrdersPopup();
+              verificarEstadoComandaEnVivo();
+              return;
+            }
+          }
+        } catch (e) {}
+      }
+
       const nueva = {
         id: "CMD-" + Date.now(),
         fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }),
@@ -493,16 +526,15 @@
         productos: txt.replace(/, $/, ""),
         totalPEN: ultimoTotalPagarPEN,
         estado: "por_confirmar",
-        pago: "Efectivo"
+        pago: "Efectivo",
+        mozoPregunta: false
       };
 
-      try {
-        await fetch(`${FIREBASE_DB_URL}comandas/${nueva.id}.json`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(nueva)
-        });
-      } catch (e) {}
+      await fetch(`${FIREBASE_DB_URL}comandas/${nueva.id}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(nueva)
+      });
 
       comandaActivaId = nueva.id;
       localStorage.setItem("inkabistro_mi_comanda_id", comandaActivaId);
@@ -513,30 +545,28 @@
       verificarEstadoComandaEnVivo();
     }
 
-    // EL CLIENTE PRESIONA PARA PAGAR EN CAJA (ACTIVA EL HALO EN EL PANEL)
     async function solicitarCuentaEnCaja() {
       if (!comandaActivaId) return;
-      try {
-        await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ clientePidiendoCuenta: true })
-        });
-        alert("✔ El personal de caja ha sido alertado. Acércate a caja para cancelar tu cuenta.");
-      } catch (e) {}
+      await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clientePidiendoCuenta: true })
+      });
+      alert("✔ Se ha avisado a caja.");
     }
 
+    // SONDEO EN VIVO A FIREBASE
     async function verificarEstadoComandaEnVivo() {
       if (!comandaActivaId) return;
+
       let comanda = null;
       try {
-        const res = await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`);
+        const res = await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json?_t=${Date.now()}`);
         if (res.ok) comanda = await res.json();
       } catch (e) {}
 
       if (!comanda) return;
 
-      // SI EL CAJERO CONFIRMÓ EL COBRO, BLOQUEAR CON AGRADECIMIENTO Y RESERVAS
       if (comanda.agradecimientoFinal === true || comanda.estado === 'liberado') {
         document.getElementById('pantallaAgradecimiento').classList.add('active');
         localStorage.removeItem("inkabistro_mi_comanda_id");
@@ -550,15 +580,78 @@
       document.getElementById('kdsTotalTxt').innerText = `S/ ${(comanda.totalPEN || 0).toFixed(2)}`;
 
       const badge = document.getElementById('kdsBadge');
-      if (comanda.estado === 'por_confirmar') badge.innerText = "🟡 Por Confirmar";
-      else if (comanda.estado === 'cocina') badge.innerText = "🔵 En Cocina";
-      else if (comanda.estado === 'servido') badge.innerText = "🟢 Servido en Mesa";
+      const msg = document.getElementById('kdsMsg');
+
+      if (comanda.estado === 'por_confirmar') {
+        badge.className = "kds-status-badge badge-por_confirmar";
+        badge.innerText = "🟡 Por Confirmar";
+        msg.innerText = "Esperando que caja o mozo confirme tu comanda...";
+      } else if (comanda.estado === 'cocina') {
+        badge.className = "kds-status-badge badge-cocina";
+        badge.innerText = "🔵 En Cocina";
+        msg.innerText = "¡Tu orden fue aceptada! El chef la está preparando en este momento 🍳";
+      } else if (comanda.estado === 'servido') {
+        badge.className = "kds-status-badge badge-servido";
+        badge.innerText = "🟢 Servido en Mesa";
+        msg.innerText = "¡Buen provecho! Tu pedido ya está en tu mesa.";
+      }
+
+      // Banner del mozo
+      document.getElementById('mozoPromptBanner').style.display = (comanda.mozoPregunta === true) ? 'block' : 'none';
+
+      // Reseñas visibles si está servido
+      document.getElementById('clientReviewBox').style.display = (comanda.estado === 'servido' && !comanda.resenaEnviada) ? 'block' : 'none';
+    }
+
+    function setRating(n) {
+      ratingSeleccionado = n;
+      const stars = document.getElementById('starsRow').children;
+      for (let i = 0; i < 5; i++) stars[i].style.color = (i < n) ? '#facc15' : '#78716c';
+    }
+
+    async function enviarResenaFirebase() {
+      const txt = document.getElementById('clientReviewTxt').value.trim();
+      if (!txt) return alert("Ingresa un comentario.");
+
+      await fetch(`${FIREBASE_DB_URL}resenas.json`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fecha: new Date().toLocaleDateString(),
+          autor: `Comensal ${mesaSeleccionada}`,
+          rating: ratingSeleccionado,
+          texto: txt
+        })
+      });
+
+      await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resenaEnviada: true })
+      });
+
+      alert("✔ Gracias por tu reseña.");
+      document.getElementById('clientReviewBox').style.display = 'none';
+    }
+
+    async function responderMozo(deseaMas) {
+      document.getElementById('mozoPromptBanner').style.display = 'none';
+      await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mozoPregunta: false })
+      });
     }
 
     function cerrarSeguimiento() {
       comandaActivaId = null;
       localStorage.removeItem("inkabistro_mi_comanda_id");
       document.getElementById('kdsTrackingCard').style.display = 'none';
+    }
+
+    function toggleGlobalAudio() {
+      isGlobalMuted = !isGlobalMuted;
+      document.querySelectorAll('video').forEach(v => v.muted = isGlobalMuted);
     }
 
     window.addEventListener('DOMContentLoaded', cargarDatos);
