@@ -94,7 +94,7 @@
     .btn-mozo-si { flex: 1; background: #4d7c0f; color: #fff; border: none; padding: 6px; border-radius: 6px; font-weight: 900; font-size: 11px; cursor: pointer; }
     .btn-mozo-no { background: #78350f; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 800; font-size: 11px; cursor: pointer; }
 
-    /* MODAL DE RESEÑA PARA CLIENTE SERVIDO */
+    /* RESEÑAS */
     .review-box-client {
       display: none; background: #261c16; border: 1.5px solid var(--accent);
       border-radius: 10px; padding: 10px; margin-top: 8px;
@@ -127,14 +127,48 @@
 
     .btn-quick-add { background: linear-gradient(135deg, var(--primary), var(--accent)); border: 1px solid rgba(251, 191, 36, 0.4); color: #fff; padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
 
-    /* BOTÓN FLOTANTE */
-    .chat-bubble-container { position: fixed; bottom: 20px; right: 18px; display: flex; align-items: center; gap: 8px; z-index: 1500; cursor: pointer; }
-    .chat-bubble-label { background: linear-gradient(135deg, #fef08a 0%, #fde047 100%); color: #78350f; font-weight: 900; font-size: 13px; padding: 8px 14px; border-radius: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.4); border: 2px solid var(--accent); }
-    .chat-bubble-btn { position: relative; width: 56px; height: 56px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 50%; box-shadow: 0 6px 20px rgba(194, 65, 12, 0.5); display: flex; align-items: center; justify-content: center; border: 2px solid #facc15; }
+    /* BOTÓN FLOTANTE CORREGIDO CON PRIORIDAD DE EVENTOS Y Z-INDEX MÁXIMO */
+    .chat-bubble-container {
+      position: fixed;
+      bottom: 20px;
+      right: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 99999;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+    .chat-bubble-label {
+      background: linear-gradient(135deg, #fef08a 0%, #fde047 100%);
+      color: #78350f;
+      font-weight: 900;
+      font-size: 13px;
+      padding: 8px 14px;
+      border-radius: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      border: 2px solid var(--accent);
+      cursor: pointer;
+      pointer-events: auto;
+    }
+    .chat-bubble-btn {
+      position: relative;
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 50%;
+      box-shadow: 0 6px 20px rgba(194, 65, 12, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #facc15;
+      cursor: pointer;
+      pointer-events: auto;
+    }
     .chat-badge { position: absolute; top: -3px; right: -3px; background-color: #ef4444; color: #fff; border: 2px solid #fff; font-size: 11px; font-weight: 800; min-width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
     /* POPUP DE COMANDA (MEXICAN DELIGHT) */
-    .popup-modal { position: fixed; inset: 0; background: rgba(18, 12, 10, 0.88); backdrop-filter: blur(6px); z-index: 2000; display: none; align-items: flex-end; justify-content: center; }
+    .popup-modal { position: fixed; inset: 0; background: rgba(18, 12, 10, 0.88); backdrop-filter: blur(6px); z-index: 100000; display: none; align-items: flex-end; justify-content: center; }
     .popup-modal.active { display: flex; }
     .popup-sheet {
       background: var(--modal-bg);
@@ -170,7 +204,6 @@
       background: var(--modal-green); color: #fff; border: none; font-weight: 900; cursor: pointer;
     }
 
-    /* SELECTOR DE PLATOS RÁPIDO DENTRO DEL POPUP */
     .quick-add-catalog {
       background: rgba(255, 255, 255, 0.6);
       border-radius: 12px; padding: 10px; margin-bottom: 12px; border: 1.5px dashed var(--modal-green);
@@ -183,7 +216,6 @@
       font-size: 11px; font-weight: 800; text-align: left; cursor: pointer; display: flex; justify-content: space-between;
     }
 
-    /* SELECTOR DE MESAS */
     .table-selector-label {
       font-size: 11px; font-weight: 900; text-transform: uppercase; color: var(--modal-dark);
       letter-spacing: 0.5px; margin-bottom: 6px; display: flex; justify-content: space-between;
@@ -198,7 +230,6 @@
     .table-box-btn.extra { grid-column: span 2; font-size: 11px; }
     .table-box-btn.bloqueada { background: #dc2626 !important; border-color: #991b1b !important; color: #fff !important; cursor: not-allowed; }
 
-    /* PAGOS */
     .grid-payments { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
     .btn-pay-option {
       background: var(--modal-card-bg); border: 1.5px solid rgba(28, 25, 23, 0.18);
@@ -303,10 +334,10 @@
   <!-- FEED TIKTOK -->
   <div class="app-container" id="feedContainer"></div>
 
-  <!-- BOTÓN FLOTANTE PEDIDOS -->
+  <!-- BOTÓN FLOTANTE PEDIDOS CON EVENTOS DIRECTOS Y PRIORIDAD -->
   <div class="chat-bubble-container" onclick="openOrdersPopup()">
-    <div class="chat-bubble-label"><span>🔥 Pedidos</span></div>
-    <div class="chat-bubble-btn">
+    <div class="chat-bubble-label" onclick="openOrdersPopup()"><span>🔥 Pedidos</span></div>
+    <div class="chat-bubble-btn" onclick="openOrdersPopup()">
       <i class="fa-solid fa-bell-concierge" style="color:#fff; font-size:22px;"></i>
       <div class="chat-badge" id="ordersBadgeCount">0</div>
     </div>
@@ -437,7 +468,6 @@
         if (Array.isArray(local)) comandas = local;
       }
 
-      // La mesa queda bloqueada en por_confirmar, cocina y SERVIDO (hasta que se libere)
       const ocupadas = comandas
         .filter(c => {
           const est = (c.estado || "").toLowerCase().trim();
@@ -485,7 +515,7 @@
       document.getElementById('selectedTableBadge').innerText = numMesa;
     }
 
-    function renderizarQuickCatalogPopup() {
+    function renderQuickCatalogPopup() {
       const box = document.getElementById('quickAddCatalogGrid');
       if (!box) return;
       box.innerHTML = catalogo.map(d => {
@@ -500,7 +530,7 @@
     }
 
     async function cargarDatos() {
-      // 1. Cargar Identidad del Negocio desde Firebase
+      // 1. Cargar Identidad desde Firebase
       try {
         const resConf = await fetch(`${FIREBASE_DB_URL}config/identidad.json`);
         if (resConf.ok) {
@@ -509,7 +539,7 @@
         }
       } catch (e) {}
 
-      // 2. Cargar Platos
+      // 2. Cargar Catálogo
       try {
         const res = await fetch(`productos.json?v=${Date.now()}`, { cache: 'no-store' });
         if (res.ok) {
@@ -546,6 +576,7 @@
       renderCategoryChips();
       renderFeed();
       setupObserver();
+      detectarMesaDesdeURL();
       renderQuickCatalogPopup();
       verificarEstadoComandaEnVivo();
 
@@ -646,6 +677,7 @@
 
     function actualizarVistaPopup() {
       const list = document.getElementById('orderItemsList');
+      if (!list) return;
       list.innerHTML = '';
       let totalU = 0, totalMonto = 0;
 
@@ -678,18 +710,43 @@
       }
 
       ultimoTotalPagarPEN = totalMonto;
-      document.getElementById('ordersBadgeCount').innerText = totalU;
-      document.getElementById('orderTotalPrice').innerText = formatPrice(totalMonto);
-      document.getElementById('orderSecondaryPrice').innerText = formatSecondaryPrice(totalMonto);
+      const badge = document.getElementById('ordersBadgeCount');
+      if (badge) badge.innerText = totalU;
+
+      const totalEl = document.getElementById('orderTotalPrice');
+      if (totalEl) totalEl.innerText = formatPrice(totalMonto);
+
+      const secEl = document.getElementById('orderSecondaryPrice');
+      if (secEl) secEl.innerText = formatSecondaryPrice(totalMonto);
+
       if (metodoPago === 'Efectivo') calcularVueltoEfectivo();
     }
 
+    // FUNCIÓN DE APERTURA SEGURA Y BLINDADA CONTRA ERRORES
     function openOrdersPopup() { 
-      renderizarCuadriculaMesas();
-      renderQuickCatalogPopup();
-      document.getElementById('ordersPopupModal').classList.add('active'); 
+      const modal = document.getElementById('ordersPopupModal');
+      if (!modal) return;
+
+      actualizarVistaPopup();
+
+      try {
+        renderizarCuadriculaMesas();
+      } catch (e) {}
+
+      try {
+        renderQuickCatalogPopup();
+      } catch (e) {}
+
+      modal.classList.add('active'); 
     }
-    function closeOrdersPopup() { document.getElementById('ordersPopupModal').classList.remove('active'); }
+
+    function closeOrdersPopup(event) { 
+      if (event && event.target && event.target !== document.getElementById('ordersPopupModal') && event.target.tagName !== 'BUTTON') {
+        return;
+      }
+      const modal = document.getElementById('ordersPopupModal');
+      if (modal) modal.classList.remove('active'); 
+    }
 
     function abrirParaAgregarPlatos() {
       responderMozo(true);
@@ -735,14 +792,12 @@
       }
     }
 
-    // TRANSMISIÓN INSTANTÁNEA / AGREGAR A LA COMANDA EN CURSO
     async function enviarComandaDirectaAlPanel() {
       const itemIds = Object.keys(pedido);
       if (itemIds.length === 0) return alert("Por favor añade al menos un plato a la comanda.");
 
       const mesaNorm = normalizarNombreMesa(mesaSeleccionada);
 
-      // Verificación de ocupación en red si es una comanda totalmente nueva
       if (!comandaActivaId) {
         const mesasOcupadas = await obtenerMesasOcupadasEnRed();
         if (mesasOcupadas.includes(mesaNorm)) {
@@ -770,7 +825,6 @@
         platosComanda.push({ id, nombre: nom, cantidad: cant, precio: dish.precioPEN });
       });
 
-      // Si el cliente ya tenía una orden activa y aceptó agregar platos
       if (comandaActivaId) {
         try {
           const res = await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`);
@@ -803,7 +857,6 @@
         } catch (e) {}
       }
 
-      // Orden nueva estándar
       const nuevaComanda = {
         id: "CMD-" + Date.now(),
         fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -844,7 +897,6 @@
       }, 400);
     }
 
-    // RASTREO KDS
     async function verificarEstadoComandaEnVivo() {
       if (!comandaActivaId) return;
 
@@ -876,14 +928,12 @@
       totalTxt.innerText = `S/ ${(miComanda.totalPEN || 0).toFixed(2)}`;
       card.className = "kds-tracking-card " + miComanda.estado;
 
-      // Banner mozo
       if (miComanda.mozoPregunta === true && miComanda.estado !== 'liberado') {
         mozoBanner.style.display = 'block';
       } else {
         mozoBanner.style.display = 'none';
       }
 
-      // Caja de reseña para comensal atendido
       if (miComanda.estado === 'servido' && !miComanda.resenaEnviada) {
         revBox.style.display = 'block';
       } else {
@@ -961,6 +1011,17 @@
       localStorage.removeItem("inkabistro_mi_comanda_id");
       comandaActivaId = null;
       document.getElementById('kdsTrackingCard').style.display = 'none';
+      renderizarCuadriculaMesas();
+    }
+
+    function detectarMesaDesdeURL() {
+      const params = new URLSearchParams(window.location.search);
+      const mesa = params.get('mesa');
+      if (mesa) {
+        mesaSeleccionada = decodeURIComponent(mesa);
+        const badge = document.getElementById('selectedTableBadge');
+        if (badge) badge.innerText = mesaSeleccionada;
+      }
       renderizarCuadriculaMesas();
     }
 
