@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel de Control & Cocina | Inka Bistro Cusco</title>
+  <title>Panel de Control & Cocina</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
@@ -79,7 +79,6 @@
       width: 290px;
     }
 
-    /* ESTADO COLAPSADO EN ESCRITORIO Y MÓVIL */
     .admin-layout.sidebar-collapsed {
       grid-template-columns: 0px 1fr;
     }
@@ -90,7 +89,6 @@
       visibility: hidden;
     }
 
-    /* CABECERA DEL MENÚ */
     .brand-box {
       display: flex;
       align-items: center;
@@ -240,7 +238,6 @@
     .switch-btn.btn-to-off { background: #451a1a; color: #fca5a5; border: 1px solid #dc2626; }
     .switch-btn.btn-to-on { background: #14532d; color: #86efac; border: 1px solid #16a34a; }
 
-    /* OVERLAY OSCURO PARA MÓVIL */
     .sidebar-backdrop {
       display: none;
       position: fixed;
@@ -251,38 +248,32 @@
 
     /* MÓVILES */
     @media (max-width: 860px) {
-      .top-admin-bar {
-        display: flex;
-      }
-      .admin-layout {
-        display: block;
-      }
+      .top-admin-bar { display: flex; }
+      .admin-layout { display: block; }
       .sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 290px;
-        transform: translateX(-100%);
-        visibility: hidden;
+        position: fixed; top: 0; left: 0; width: 290px;
+        transform: translateX(-100%); visibility: hidden;
       }
       .admin-layout.sidebar-open .sidebar {
-        transform: translateX(0);
-        visibility: visible;
+        transform: translateX(0); visibility: visible;
       }
       .admin-layout.sidebar-open .sidebar-backdrop {
         display: block;
       }
       .main-view {
-        padding: 16px 14px;
-        max-height: none;
+        padding: 16px 14px; max-height: none;
       }
     }
 
     /* FORMATO IMPRESIÓN */
     @media print {
       body * { visibility: hidden; }
-      #ticketImpresionArea, #ticketImpresionArea * { visibility: visible; }
-      #ticketImpresionArea { position: absolute; left: 0; top: 0; width: 80mm; font-family: monospace; color: #000 !important; background: #fff !important; padding: 10px; }
+      #ticketImpresionArea, #ticketImpresionArea *,
+      #areaImpresionQR, #areaImpresionQR * { visibility: visible; }
+      #ticketImpresionArea, #areaImpresionQR {
+        position: absolute; left: 0; top: 0; width: 80mm; font-family: sans-serif;
+        color: #000 !important; background: #fff !important; padding: 10px; text-align: center;
+      }
       .no-print { display: none !important; }
     }
   </style>
@@ -308,7 +299,6 @@
   <!-- DASHBOARD PRINCIPAL -->
   <div id="panelAdminPrincipal" style="display: none;">
 
-    <!-- BARRA SUPERIOR FIJA PARA MÓVILES (SIEMPRE DISPONIBLE PARA ABRIR MENÚ) -->
     <header class="top-admin-bar no-print">
       <button type="button" class="btn-open-sidebar" onclick="abrirMenuLateral()">
         <i class="fa-solid fa-bars"></i> <span>Menú</span>
@@ -318,10 +308,9 @@
     </header>
 
     <div class="admin-layout" id="adminLayoutWrapper">
-      <!-- FONDO OSCURO PARA CERRAR EL MENÚ AL TOCAR FUERA EN CELULAR -->
       <div class="sidebar-backdrop" onclick="cerrarMenuLateral()"></div>
 
-      <!-- PANEL IZQUIERDO (SIDEBAR) -->
+      <!-- PANEL IZQUIERDO -->
       <aside class="sidebar no-print" id="sidebarPanel">
         <div class="brand-box">
           <div class="brand-left">
@@ -332,7 +321,6 @@
             </div>
           </div>
 
-          <!-- BOTÓN DENTRO DEL PANEL PARA COLAPSAR/CERRAR MENÚ -->
           <button type="button" class="btn-toggle-menu" onclick="cerrarMenuLateral()" title="Ocultar menú lateral">
             <i class="fa-solid fa-chevron-left" id="iconToggleMenu"></i>
           </button>
@@ -346,7 +334,7 @@
           </div>
         </a>
 
-        <!-- ACORDEÓN TOKEN CON CONTRASEÑA 42423549 -->
+        <!-- TOKEN GITHUB -->
         <div class="token-box">
           <button class="token-trigger" type="button" onclick="alternarAcordeonToken()">
             <span><i class="fa-solid fa-lock"></i> Token GitHub</span>
@@ -468,18 +456,23 @@
           </div>
         </section>
 
-        <!-- VISTA 5: QR MESAS -->
+        <!-- VISTA 5: QR MESAS (CON NOMBRE Y CONTACTO ACTUALIZADO) -->
         <section id="viewMesas" style="display:none;">
           <div class="view-header"><h1>🏷️ Códigos QR por Mesa</h1></div>
           <div class="card">
             <label>Mesa:</label><input type="text" id="qrMesaNumero" value="Mesa 01" oninput="actualizarQRVisual()">
             <label>URL Menú:</label><input type="text" id="qrUrlBase" value="https://phyxcius.github.io/restaurante/" oninput="actualizarQRVisual()">
-            <div style="text-align:center; padding:12px; background:#fff; border-radius:12px; max-width:240px; margin:10px auto;">
-              <h4 id="qrPrintBusinessName" style="color:#000;">INKA BISTRO</h4>
-              <img id="imgQRGenerado" src="" alt="QR" style="width:180px; height:180px;">
-              <span id="lblQRMesa" style="color:#000; font-weight:bold;">Mesa 01</span>
+            
+            <!-- TARJETA VISUAL QR -->
+            <div id="areaImpresionQR" style="text-align:center; padding:16px; background:#fff; border-radius:14px; max-width:260px; margin:14px auto; box-shadow:0 4px 15px rgba(0,0,0,0.3);">
+              <h3 id="qrPrintBusinessName" style="color:#000; font-size:16px; font-weight:900; text-transform:uppercase; margin-bottom:2px;">INKA BISTRO</h3>
+              <p id="qrPrintBusinessPhone" style="color:#555; font-size:11px; margin-bottom:8px; font-weight:bold;">Pedidos: 51969773064</p>
+              <img id="imgQRGenerado" src="" alt="QR" style="width:190px; height:190px; object-fit:contain; display:block; margin:0 auto;">
+              <h2 id="lblQRMesa" style="color:#000; font-size:18px; font-weight:900; margin-top:8px; text-transform:uppercase;">Mesa 01</h2>
+              <span style="font-size:10px; color:#777; display:block; margin-top:2px;">Escanea para ver la carta y pedir</span>
             </div>
-            <button class="btn btn-add" style="width:100%;" onclick="window.print()">Imprimir QR</button>
+
+            <button class="btn btn-add" style="width:100%;" onclick="imprimirTarjetaMesaQR()"><i class="fa-solid fa-print"></i> Imprimir QR de esta Mesa</button>
           </div>
         </section>
 
@@ -590,9 +583,6 @@
     let totalComandasPrevias = 0;
     let todasLasVentas = [];
 
-    // ==============================================================
-    // CONTROL DEL MENÚ LATERAL (ABRIR / CERRAR)
-    // ==============================================================
     function abrirMenuLateral() {
       const wrapper = document.getElementById('adminLayoutWrapper');
       wrapper.classList.remove('sidebar-collapsed');
@@ -607,10 +597,7 @@
 
     function seleccionarOpcionNav(sec) {
       mostrarSeccion(sec);
-      // En celular, cerrar el menú tras elegir para ver la vista completa
-      if (window.innerWidth <= 860) {
-        cerrarMenuLateral();
-      }
+      if (window.innerWidth <= 860) cerrarMenuLateral();
     }
 
     function verificarLoginAdmin(e) {
@@ -630,6 +617,7 @@
       cargarDesdeGitHub();
       cargarComandasEnVivo();
       cargarResenasFirebase();
+      actualizarQRVisual();
       setInterval(cargarComandasEnVivo, 1800);
     }
 
@@ -708,10 +696,11 @@
     }
 
     function aplicarIdentidadEnInterfaz() {
-      document.getElementById('headerBusinessName').innerText = configRestaurante.nombre;
-      document.getElementById('headerBusinessSlogan').innerText = configRestaurante.eslogan;
-      document.getElementById('loginTitlePreview').innerText = configRestaurante.nombre;
-      document.getElementById('topBarTitle').innerText = configRestaurante.nombre;
+      const nombreActual = configRestaurante.nombre || "Inka Bistro Cusco";
+      document.getElementById('headerBusinessName').innerText = nombreActual;
+      document.getElementById('headerBusinessSlogan').innerText = configRestaurante.eslogan || "";
+      document.getElementById('loginTitlePreview').innerText = nombreActual;
+      document.getElementById('topBarTitle').innerText = nombreActual;
       
       const av = document.getElementById('headerAvatar');
       const prev = document.getElementById('previewCurrentLogo');
@@ -722,6 +711,8 @@
         av.innerText = configRestaurante.logo || "🍽️";
         prev.innerText = configRestaurante.logo || "🍽️";
       }
+
+      actualizarQRVisual();
     }
 
     function convertirLogoABase64(event) {
@@ -755,6 +746,64 @@
       } catch (e) {
         alert("Error al guardar en Firebase.");
       }
+    }
+
+    // ACTUALIZAR QR CON EL NOMBRE Y TELÉFONO MODIFICADOS
+    function actualizarQRVisual() {
+      const m = document.getElementById('qrMesaNumero').value.trim() || "Mesa 01";
+      const u = document.getElementById('qrUrlBase').value.trim() || "https://phyxcius.github.io/restaurante/";
+      const link = `${u}?mesa=${encodeURIComponent(m)}`;
+      
+      const nombreNegocio = (configRestaurante.nombre || "INKA BISTRO").toUpperCase();
+      const telefonoNegocio = configRestaurante.whatsapp || configRestaurante.yapePhone || "51969773064";
+
+      // Actualizar en la tarjeta visual del panel
+      document.getElementById('qrPrintBusinessName').innerText = nombreNegocio;
+      document.getElementById('qrPrintBusinessPhone').innerText = `Pedidos WhatsApp: +${telefonoNegocio}`;
+      document.getElementById('lblQRMesa').innerText = m;
+      document.getElementById('imgQRGenerado').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(link)}`;
+    }
+
+    function imprimirTarjetaMesaQR() {
+      const m = document.getElementById('qrMesaNumero').value.trim() || "Mesa 01";
+      const u = document.getElementById('qrUrlBase').value.trim() || "https://phyxcius.github.io/restaurante/";
+      const link = `${u}?mesa=${encodeURIComponent(m)}`;
+      const qrImgSrc = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(link)}`;
+      
+      const nombreNegocio = (configRestaurante.nombre || "INKA BISTRO").toUpperCase();
+      const esloganNegocio = configRestaurante.eslogan || "";
+      const telefonoNegocio = configRestaurante.whatsapp || configRestaurante.yapePhone || "";
+
+      const ventana = window.open('', '_blank');
+      ventana.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>QR ${m} - ${nombreNegocio}</title>
+          <style>
+            body { font-family: system-ui, sans-serif; text-align: center; padding: 25px; margin: 0; }
+            .card-qr { border: 2px dashed #333; border-radius: 16px; padding: 20px; max-width: 300px; margin: 0 auto; }
+            h2 { margin: 0 0 4px; font-size: 20px; letter-spacing: 0.5px; }
+            p { margin: 2px 0 10px; font-size: 12px; color: #555; }
+            img { width: 200px; height: 200px; margin: 8px 0; }
+            h1 { margin: 6px 0 2px; font-size: 24px; color: #c2410c; }
+            .foot { font-size: 11px; color: #777; margin-top: 6px; }
+          </style>
+        </head>
+        <body>
+          <div class="card-qr">
+            <h2>${nombreNegocio}</h2>
+            <p>${esloganNegocio}</p>
+            <img src="${qrImgSrc}" alt="QR">
+            <h1>${m.toUpperCase()}</h1>
+            <p class="foot">Escanea con tu celular para ver la carta y pedir</p>
+            ${telefonoNegocio ? `<p style="font-weight:bold; font-size:11px; margin-top:4px;">Pedidos: +${telefonoNegocio}</p>` : ''}
+          </div>
+          <script>window.onload = function(){ window.print(); window.close(); }<\/script>
+        </body>
+        </html>
+      `);
+      ventana.document.close();
     }
 
     // KDS Y COMANDAS
@@ -936,7 +985,7 @@
       }
     }
 
-    // IMPRESIÓN DE TICKET
+    // IMPRESIÓN DE TICKET DE COCINA
     async function imprimirTicketCocina(idComanda) {
       let comanda = null;
       try {
@@ -946,7 +995,7 @@
 
       if (!comanda) return alert("No se pudo cargar la comanda.");
 
-      document.getElementById('ticketTitleLocal').innerText = configRestaurante.nombre.toUpperCase();
+      document.getElementById('ticketTitleLocal').innerText = (configRestaurante.nombre || "INKA BISTRO").toUpperCase();
       document.getElementById('ticketFechaHora').innerText = comanda.fecha;
       document.getElementById('ticketMesaNom').innerText = comanda.cliente || comanda.mesa;
       document.getElementById('ticketDetallePlatos').innerHTML = comanda.productos.split(', ').map(p => `<div>• ${p}</div>`).join('');
@@ -1072,14 +1121,6 @@
     function toggleStock(idx) {
       catalogo[idx].disponible = (catalogo[idx].disponible === false) ? true : false;
       renderizarVisualDishes();
-    }
-
-    function actualizarQRVisual() {
-      const m = document.getElementById('qrMesaNumero').value.trim() || "Mesa 01";
-      const u = document.getElementById('qrUrlBase').value.trim() || "https://phyxcius.github.io/restaurante/";
-      const link = `${u}?mesa=${encodeURIComponent(m)}`;
-      document.getElementById('lblQRMesa').innerText = m;
-      document.getElementById('imgQRGenerado').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(link)}`;
     }
 
     async function cargarDesdeGitHub() {
