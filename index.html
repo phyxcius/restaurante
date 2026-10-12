@@ -23,7 +23,7 @@
     .app-container { width: 100%; max-width: 480px; height: 100dvh; margin: 0 auto; position: relative; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
     .app-container::-webkit-scrollbar { display: none; }
 
-    /* CABECERA SUPERIOR */
+    /* CABECERA */
     .top-header {
       position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; z-index: 120;
       padding: 10px 14px 6px; background: linear-gradient(180deg, rgba(24, 17, 14, 0.98) 0%, rgba(24, 17, 14, 0.7) 75%, transparent 100%);
@@ -36,28 +36,16 @@
     .brand-text h1 { font-size: 14px; font-weight: 900; line-height: 1.1; text-transform: uppercase; }
     .brand-text span { font-size: 9.5px; text-transform: uppercase; color: var(--accent); font-weight: 700; }
 
-    /* INSIGNIA LA CHUSPA TECH */
+    /* LA CHUSPA TECH */
     .chuspa-nav-badge {
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      display: flex; align-items: center; gap: 6px;
       background: rgba(254, 252, 232, 0.12);
       border: 1px solid rgba(234, 179, 8, 0.45);
-      padding: 3px 8px 3px 5px;
-      border-radius: 20px;
-      text-decoration: none;
-      backdrop-filter: blur(8px);
-      transition: transform 0.2s;
+      padding: 3px 8px 3px 5px; border-radius: 20px;
+      text-decoration: none; backdrop-filter: blur(8px);
     }
     .chuspa-nav-badge:active { transform: scale(0.96); }
-    .chuspa-nav-img {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      object-fit: cover;
-      background: #fff;
-      border: 1px solid #ca8a04;
-    }
+    .chuspa-nav-img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; background: #fff; border: 1px solid #ca8a04; }
     .chuspa-nav-info { display: flex; flex-direction: column; line-height: 1.1; }
     .chuspa-nav-title { font-size: 10px; font-weight: 900; color: #fde047; }
     .chuspa-nav-sub { font-size: 7.5px; font-weight: 700; color: #fed7aa; }
@@ -67,46 +55,19 @@
     .select-pill option { background: #221510; }
     .icon-pill-btn { width: 30px; height: 30px; border-radius: 50%; background: var(--glass-panel); border: 1px solid var(--glass-border); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; }
 
-    /* TARJETA KDS EN VIVO */
+    /* TARJETA DE SEGUIMIENTO EN VIVO (4 ESTADOS) */
     .kds-tracking-card {
-      display: none;
-      width: calc(100% - 10px);
-      margin: 0 auto;
-      padding: 9px 12px;
-      border-radius: 12px;
-      backdrop-filter: blur(12px);
-      border: 1.5px solid transparent;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      display: none; width: calc(100% - 10px); margin: 0 auto;
+      padding: 9px 12px; border-radius: 12px; backdrop-filter: blur(12px);
+      border: 1.5px solid transparent; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
       animation: fadeInDown 0.3s ease-out;
     }
-    @keyframes fadeInDown {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .kds-tracking-card.por_confirmar {
-      display: block;
-      background: rgba(45, 30, 24, 0.95);
-      border-color: #f59e0b;
-      box-shadow: 0 0 16px rgba(245, 158, 11, 0.35);
-    }
-    .kds-tracking-card.cocina {
-      display: block;
-      background: rgba(20, 32, 45, 0.95);
-      border-color: #38bdf8;
-      box-shadow: 0 0 16px rgba(56, 189, 248, 0.35);
-    }
-    .kds-tracking-card.servido {
-      display: block;
-      background: rgba(18, 38, 26, 0.95);
-      border-color: #4ade80;
-      box-shadow: 0 0 16px rgba(74, 222, 128, 0.35);
-    }
-    .kds-tracking-card.rechazado {
-      display: block;
-      background: rgba(45, 20, 20, 0.95);
-      border-color: #ef4444;
-      box-shadow: 0 0 16px rgba(239, 68, 68, 0.35);
-    }
+    @keyframes fadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .kds-tracking-card.por_confirmar { display: block; background: rgba(45, 30, 24, 0.95); border-color: #f59e0b; box-shadow: 0 0 16px rgba(245, 158, 11, 0.35); }
+    .kds-tracking-card.cocina { display: block; background: rgba(20, 32, 45, 0.95); border-color: #38bdf8; box-shadow: 0 0 16px rgba(56, 189, 248, 0.35); }
+    .kds-tracking-card.servido { display: block; background: rgba(18, 38, 26, 0.95); border-color: #4ade80; box-shadow: 0 0 16px rgba(74, 222, 128, 0.35); }
+    .kds-tracking-card.rechazado { display: block; background: rgba(45, 20, 20, 0.95); border-color: #ef4444; box-shadow: 0 0 16px rgba(239, 68, 68, 0.35); }
 
     .kds-tracking-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
     .kds-status-badge { font-size: 10.5px; font-weight: 900; text-transform: uppercase; padding: 2px 7px; border-radius: 5px; }
@@ -158,7 +119,7 @@
     .order-items-list { overflow-y: auto; max-height: 20dvh; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
     .order-item-row { display: flex; justify-content: space-between; align-items: center; background: #2d211b; padding: 8px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); }
 
-    /* SELECTOR DE MESAS CON BLOQUEO */
+    /* CUADRADITOS DE MESAS CON BLOQUEO */
     .table-selector-label { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--gold-badge); letter-spacing: 0.5px; margin-bottom: 6px; display: flex; justify-content: space-between; }
     .table-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 12px; }
     .table-box-btn {
@@ -182,7 +143,7 @@
     }
     .table-box-btn.extra { grid-column: span 2; font-size: 11px; }
 
-    /* Estilo para mesas ocupadas */
+    /* Mesa Bloqueada en Atención */
     .table-box-btn.bloqueada {
       background: #3f1818 !important;
       border-color: #dc2626 !important;
@@ -220,7 +181,7 @@
         </div>
       </div>
 
-      <!-- LOGO LA CHUSPA TECH (REDIRECCIONA A WWW.LACHUSPAANUNCIOS.COM) -->
+      <!-- REDIRECCIÓN OFICIAL A LA CHUSPA ANUNCIOS -->
       <a href="https://www.lachuspaanuncios.com/" target="_blank" rel="noopener noreferrer" class="chuspa-nav-badge" title="Visitar La Chuspa Anuncios">
         <img src="CHUSPITA-circulo.png" alt="La Chuspa" class="chuspa-nav-img" onerror="this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png'">
         <div class="chuspa-nav-info">
@@ -244,7 +205,7 @@
       </div>
     </div>
 
-    <!-- TARJETA VISUAL DE SEGUIMIENTO KDS -->
+    <!-- TARJETA KDS EN VIVO (4 ESTADOS) -->
     <div class="kds-tracking-card" id="kdsTrackingCard">
       <div class="kds-tracking-header">
         <span class="kds-status-badge" id="kdsBadge">🟡 Por Confirmar</span>
@@ -282,14 +243,12 @@
 
       <div class="order-items-list" id="orderItemsList"></div>
 
-      <!-- SELECTOR DE MESAS CON BLOQUEO ACTIVO -->
+      <!-- SELECTOR DE MESAS -->
       <div class="table-selector-label">
         <span>📍 Selecciona tu Mesa:</span>
         <span id="selectedTableBadge" style="color:#fde047;">Mesa 01</span>
       </div>
-      <div class="table-grid" id="tableGridContainer">
-        <!-- Renderizado dinámicamente con validación de mesas ocupadas -->
-      </div>
+      <div class="table-grid" id="tableGridContainer"></div>
 
       <!-- PAGO Y VUELTO -->
       <div class="grid-payments">
@@ -314,7 +273,7 @@
         </div>
       </div>
 
-      <!-- NOTAS -->
+      <!-- DATOS ADICIONALES -->
       <input type="text" id="clientNameInput" class="custom-input" placeholder="Nombre de quien pide (opcional)" />
       <input type="text" id="notesInput" class="custom-input" placeholder="Notas para cocina (término de carne, alergias, etc.)" />
 
@@ -335,6 +294,9 @@
   </div>
 
   <script>
+    const USUARIO = "phyxcius";
+    const REPOSITORIO = "restaurante";
+
     let CONFIG = {
       nombre: "Inka Bistro Cusco",
       eslogan: "Cusco • Gourmet",
@@ -355,7 +317,16 @@
     let mesaSeleccionada = "Mesa 01";
     let comandaActivaId = localStorage.getItem("inkabistro_mi_comanda_id") || null;
 
-    // LISTADO DE MESAS DEL RESTAURANTE
+    // CANAL DE SINCRONIZACIÓN EN VIVO (BroadcastChannel para sincronizar entre pestañas normales e incógnitas)
+    const syncChannel = ("BroadcastChannel" in window) ? new BroadcastChannel("inkabistro_sync_mesas") : null;
+    if (syncChannel) {
+      syncChannel.onmessage = (ev) => {
+        if (ev.data && ev.data.tipo === "ACTUALIZAR_MESAS") {
+          sincronizarMesasDesdeServidor();
+        }
+      };
+    }
+
     const listaMesas = [
       { id: "Mesa 01", label: "1" },
       { id: "Mesa 02", label: "2" },
@@ -374,20 +345,40 @@
       { id: "Terraza 2", label: "☀️ Ter. 2", extra: true }
     ];
 
-    // ==============================================================
-    // BLOQUEO DE MESAS EN ATENCIÓN
-    // ==============================================================
-    function renderizarCuadriculaMesas() {
+    // Obtener mesas bloqueadas globales (consulta comandas.json o localStorage como fallback)
+    async function obtenerMesasOcupadasGlobales() {
+      let comandas = [];
+      try {
+        const res = await fetch(`comandas.json?_t=${Date.now()}`);
+        if (res.ok) {
+          comandas = await res.json();
+        }
+      } catch (e) {
+        // Fallback local
+        comandas = JSON.parse(localStorage.getItem("inkabistro_comandas_activas")) || [];
+      }
+
+      if (!Array.isArray(comandas)) comandas = [];
+
+      // Una mesa se bloquea si tiene una orden activa: por_confirmar, cocina o servido (hasta que se libere)
+      const mesasBloqueadas = comandas
+        .filter(c => {
+          const est = (c.estado || "").toLowerCase();
+          const esActivo = (est === "por_confirmar" || est === "cocina" || est === "servido");
+          // Si es el mismo dispositivo que pidió, no se auto-bloquea a sí mismo
+          return esActivo && c.id !== comandaActivaId;
+        })
+        .map(c => (c.mesa || "").trim());
+
+      return mesasBloqueadas;
+    }
+
+    async function renderizarCuadriculaMesas() {
       const container = document.getElementById("tableGridContainer");
+      if (!container) return;
       container.innerHTML = "";
 
-      // Consultar comandas activas
-      const comandas = JSON.parse(localStorage.getItem("inkabistro_comandas_activas")) || [];
-
-      // Identificar mesas ocupadas (estado por_confirmar o cocina)
-      const mesasOcupadas = comandas
-        .filter(c => (c.estado === "por_confirmar" || c.estado === "cocina") && c.id !== comandaActivaId)
-        .map(c => (c.mesa || "").trim());
+      const mesasOcupadas = await obtenerMesasOcupadasGlobales();
 
       listaMesas.forEach(m => {
         const estaOcupada = mesasOcupadas.includes(m.id);
@@ -400,7 +391,7 @@
         if (estaOcupada) {
           btn.innerHTML = `${m.label} <span style="font-size:9px;">🔒</span>`;
           btn.title = `La ${m.id} está siendo atendida en este momento.`;
-          btn.onclick = () => alert(`⚠️ La ${m.id} ya tiene un pedido en curso y está siendo atendida. Por favor selecciona otra mesa disponible.`);
+          btn.onclick = () => alert(`⚠️ La ${m.id} ya tiene una comanda en curso y está siendo atendida. Por favor selecciona otra mesa disponible.`);
         } else {
           btn.innerText = m.label;
           btn.onclick = () => selectTableRow(m.id, btn);
@@ -463,10 +454,12 @@
       setupObserver();
       detectarMesaDesdeURL();
       verificarEstadoComandaEnVivo();
-      setInterval(() => {
-        verificarEstadoComandaEnVivo();
-        renderizarCuadriculaMesas();
-      }, 3000);
+      setInterval(sincronizarMesasDesdeServidor, 4000); // Consulta en red periódica
+    }
+
+    function sincronizarMesasDesdeServidor() {
+      verificarEstadoComandaEnVivo();
+      renderizarCuadriculaMesas();
     }
 
     function formatPrice(pen) {
@@ -645,12 +638,10 @@
       const itemIds = Object.keys(pedido);
       if (itemIds.length === 0) return alert("Por favor añade al menos un plato a la comanda.");
 
-      // Verificar si la mesa fue ocupada justo antes de enviar
-      const comandas = JSON.parse(localStorage.getItem("inkabistro_comandas_activas")) || [];
-      const mesaYaOcupada = comandas.some(c => (c.estado === "por_confirmar" || c.estado === "cocina") && c.mesa === mesaSeleccionada && c.id !== comandaActivaId);
-
-      if (mesaYaOcupada) {
-        alert(`⛔ La ${mesaSeleccionada} acaba de ser ocupada con otra orden en curso. Por favor selecciona otra mesa.`);
+      // Verificar que la mesa no esté bloqueada antes de enviar
+      const mesasOcupadas = await obtenerMesasOcupadasGlobales();
+      if (mesasOcupadas.includes(mesaSeleccionada)) {
+        alert(`⛔ La ${mesaSeleccionada} ya se encuentra ocupada con una orden en atención. Por favor selecciona otra mesa disponible.`);
         renderizarCuadriculaMesas();
         return;
       }
@@ -686,13 +677,19 @@
         estado: "por_confirmar"
       };
 
-      // Guardar en almacenamiento compartido
+      // Guardar localmente
       let comandasActivas = JSON.parse(localStorage.getItem("inkabistro_comandas_activas")) || [];
       comandasActivas.unshift(nuevaComanda);
       localStorage.setItem("inkabistro_comandas_activas", JSON.stringify(comandasActivas));
 
+      // Guardar ID propio para seguimiento
       comandaActivaId = nuevaComanda.id;
       localStorage.setItem("inkabistro_mi_comanda_id", comandaActivaId);
+
+      // Notificar a otras pestañas e incógnito por BroadcastChannel
+      if (syncChannel) {
+        syncChannel.postMessage({ tipo: "ACTUALIZAR_MESAS", mesa: mesaSeleccionada });
+      }
 
       setTimeout(() => {
         for (let k in pedido) delete pedido[k];
@@ -706,12 +703,20 @@
     }
 
     // RASTREO EN VIVO EN EL CELULAR
-    function verificarEstadoComandaEnVivo() {
+    async function verificarEstadoComandaEnVivo() {
       if (!comandaActivaId) return;
 
-      const comandas = JSON.parse(localStorage.getItem("inkabistro_comandas_activas")) || [];
-      const miComanda = comandas.find(c => c.id === comandaActivaId);
+      let comandas = [];
+      try {
+        const res = await fetch(`comandas.json?_t=${Date.now()}`);
+        if (res.ok) comandas = await res.json();
+      } catch (e) {}
 
+      if (!Array.isArray(comandas) || comandas.length === 0) {
+        comandas = JSON.parse(localStorage.getItem("inkabistro_comandas_activas")) || [];
+      }
+
+      const miComanda = comandas.find(c => c.id === comandaActivaId);
       const card = document.getElementById('kdsTrackingCard');
       const badge = document.getElementById('kdsBadge');
       const msg = document.getElementById('kdsMsg');
@@ -737,7 +742,7 @@
         msg.innerText = "¡Pedido confirmado! El chef está preparando tus platos en este momento 🍳";
       } else if (miComanda.estado === 'servido') {
         badge.className = "kds-status-badge badge-servido";
-        badge.innerHTML = "🟢 3. Servido / En Mesa";
+        badge.innerHTML = "🟢 3. Servido en Mesa";
         msg.innerText = "¡Buen provecho! Tu pedido ya está servido en tu mesa 🍽️";
       } else if (miComanda.estado === 'rechazado') {
         badge.className = "kds-status-badge badge-rechazado";
