@@ -1,925 +1,757 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel de Control & Cocina | Inka Bistro Cusco</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Inka Bistro Cusco | Menú Digital & Estado de Comanda</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
     :root {
       --primary: #c2410c;
       --accent: #f59e0b;
-      --bg-dark: #120c0a;
-      --sidebar-bg: #1c1310;
-      --card-bg: #221814;
-      --card-border: rgba(245, 158, 11, 0.22);
-      --input-bg: #160e0b;
+      --bg-warm: #18110e;
+      --glass-panel: rgba(38, 28, 24, 0.92);
+      --glass-border: rgba(245, 158, 11, 0.28);
       --text-main: #fffdfa;
-      --text-muted: #d1c7be;
-      --gold: #fbbf24;
-      --danger: #ef4444;
-      --success: #16a34a;
-      --blue: #2563eb;
+      --text-muted: #d6cbbf;
+      --gold-badge: #fbbf24;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-    body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; font-family: system-ui, -apple-system, sans-serif; }
+    body, html { width: 100%; height: 100%; overflow: hidden; background-color: var(--bg-warm); color: var(--text-main); }
 
-    .admin-layout { display: grid; grid-template-columns: 290px 1fr; min-height: 100vh; width: 100%; }
+    .app-container { width: 100%; max-width: 480px; height: 100dvh; margin: 0 auto; position: relative; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
+    .app-container::-webkit-scrollbar { display: none; }
 
-    /* SIDEBAR */
-    .sidebar { background: var(--sidebar-bg); border-right: 1.5px solid var(--card-border); padding: 20px 16px; display: flex; flex-direction: column; gap: 14px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
-    .brand-box { display: flex; align-items: center; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); }
-    .brand-avatar { width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(135deg, var(--accent), var(--primary)); display: flex; align-items: center; justify-content: center; font-size: 22px; color: #fff; }
-
-    /* ENLACE LA CHUSPA TECH */
-    .chuspa-badge-sidebar {
-      display: flex; align-items: center; gap: 8px;
-      background: rgba(254, 252, 232, 0.08);
-      border: 1px solid rgba(234, 179, 8, 0.35);
-      padding: 6px 10px; border-radius: 20px;
-      text-decoration: none; transition: transform 0.2s;
+    /* CABECERA */
+    .top-header {
+      position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; z-index: 120;
+      padding: 10px 14px 6px; background: linear-gradient(180deg, rgba(24, 17, 14, 0.98) 0%, rgba(24, 17, 14, 0.7) 75%, transparent 100%);
+      display: flex; flex-direction: column; gap: 8px;
     }
-    .chuspa-badge-sidebar:hover { transform: scale(1.02); background: rgba(254, 252, 232, 0.15); }
-    .chuspa-img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1px solid #ca8a04; background: #fff; }
+    .top-bar-row { display: flex; align-items: center; justify-content: space-between; }
+    
+    .brand-section { display: flex; align-items: center; gap: 8px; }
+    .brand-icon { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, var(--accent), var(--primary)); display: flex; align-items: center; justify-content: center; font-size: 17px; color: #fff; }
+    .brand-text h1 { font-size: 14px; font-weight: 900; line-height: 1.1; text-transform: uppercase; }
+    .brand-text span { font-size: 9.5px; text-transform: uppercase; color: var(--accent); font-weight: 700; }
 
-    /* ACORDEÓN TOKEN CON CONTRASEÑA 42423549 */
-    .token-box { background: #251a15; border: 1.5px dashed var(--accent); border-radius: 10px; overflow: hidden; }
-    .token-trigger { width: 100%; background: none; border: none; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 800; color: var(--gold); font-size: 12px; }
-    .token-content { display: none; padding: 12px; background: #18100c; border-top: 1px solid rgba(255,255,255,0.08); }
-    .token-content input { width: 100%; padding: 7px; background: #110907; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #fff; font-size: 12px; margin-top: 4px; outline: none; }
-
-    .nav-menu { display: flex; flex-direction: column; gap: 6px; flex: 1; }
-    .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 10px; border: 1px solid transparent; background: transparent; color: var(--text-muted); font-size: 13px; font-weight: 700; cursor: pointer; text-align: left; }
-    .nav-item i { font-size: 15px; width: 20px; text-align: center; color: var(--accent); }
-    .nav-item:hover { background: #281c17; color: #fff; }
-    .nav-item.active { background: #38241b; color: var(--gold); border-color: var(--card-border); }
-    .badge-live-orders { background: #ef4444; color: #fff; font-size: 10px; padding: 2px 7px; border-radius: 12px; margin-left: auto; }
-
-    /* VISTA PRINCIPAL */
-    .main-view { padding: 24px 28px; overflow-y: auto; max-height: 100vh; }
-    .view-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px; border-bottom: 1.5px solid rgba(255,255,255,0.08); padding-bottom: 14px; }
-    .view-header h1 { font-size: 22px; font-weight: 900; color: var(--gold); }
-
-    .card { background: var(--card-bg); padding: 18px 20px; border-radius: 14px; border: 1px solid var(--card-border); margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.25); }
-    label { font-size: 11px; font-weight: 800; color: var(--gold); display: block; margin-top: 8px; text-transform: uppercase; }
-    input, textarea, select { width: 100%; padding: 9px 12px; margin-top: 4px; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; font-size: 13.5px; background: var(--input-bg); color: #fff; }
-
-    .btn { padding: 9px 14px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 7px; font-size: 13px; }
-    .btn-save { background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; }
-    .btn-add { background: var(--success); color: white; }
-    .btn-del { background: #451a1a; color: #fca5a5; border: 1px solid #dc2626; }
-    .btn-print { background: var(--blue); color: #fff; }
-
-    /* MONITOR DE MESAS OCUPADAS / LIBRES */
-    .tables-monitor-bar {
-      background: #1a110e;
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 12px 14px;
-      margin-bottom: 18px;
+    /* LA CHUSPA TECH */
+    .chuspa-nav-badge {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(254, 252, 232, 0.12);
+      border: 1px solid rgba(234, 179, 8, 0.45);
+      padding: 3px 8px 3px 5px; border-radius: 20px;
+      text-decoration: none; backdrop-filter: blur(8px);
     }
-    .tables-monitor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--gold); }
-    .tables-monitor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); gap: 6px; }
-    .table-pill {
-      padding: 6px 4px;
-      text-align: center;
-      border-radius: 6px;
-      font-size: 11px;
+    .chuspa-nav-badge:active { transform: scale(0.96); }
+    .chuspa-nav-img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; background: #fff; border: 1px solid #ca8a04; }
+    .chuspa-nav-info { display: flex; flex-direction: column; line-height: 1.1; }
+    .chuspa-nav-title { font-size: 10px; font-weight: 900; color: #fde047; }
+    .chuspa-nav-sub { font-size: 7.5px; font-weight: 700; color: #fed7aa; }
+
+    .header-controls { display: flex; align-items: center; gap: 5px; }
+    .select-pill { background: var(--glass-panel); border: 1px solid var(--glass-border); color: #fff; padding: 4px 6px; border-radius: 14px; font-size: 10.5px; font-weight: 700; outline: none; }
+    .select-pill option { background: #221510; }
+    .icon-pill-btn { width: 30px; height: 30px; border-radius: 50%; background: var(--glass-panel); border: 1px solid var(--glass-border); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; }
+
+    /* TARJETA KDS EN VIVO */
+    .kds-tracking-card {
+      display: none; width: calc(100% - 10px); margin: 0 auto;
+      padding: 9px 12px; border-radius: 12px; backdrop-filter: blur(12px);
+      border: 1.5px solid transparent; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      animation: fadeInDown 0.3s ease-out;
+    }
+    @keyframes fadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .kds-tracking-card.por_confirmar { display: block; background: rgba(45, 30, 24, 0.95); border-color: #f59e0b; box-shadow: 0 0 16px rgba(245, 158, 11, 0.35); }
+    .kds-tracking-card.cocina { display: block; background: rgba(20, 32, 45, 0.95); border-color: #38bdf8; box-shadow: 0 0 16px rgba(56, 189, 248, 0.35); }
+    .kds-tracking-card.servido { display: block; background: rgba(18, 38, 26, 0.95); border-color: #4ade80; box-shadow: 0 0 16px rgba(74, 222, 128, 0.35); }
+    .kds-tracking-card.rechazado { display: block; background: rgba(45, 20, 20, 0.95); border-color: #ef4444; box-shadow: 0 0 16px rgba(239, 68, 68, 0.35); }
+
+    .kds-tracking-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
+    .kds-status-badge { font-size: 10.5px; font-weight: 900; text-transform: uppercase; padding: 2px 7px; border-radius: 5px; }
+    .badge-por_confirmar { background: #f59e0b; color: #000; }
+    .badge-cocina { background: #0284c7; color: #fff; }
+    .badge-servido { background: #16a34a; color: #fff; }
+    .badge-rechazado { background: #dc2626; color: #fff; }
+    .kds-msg-text { font-size: 11.5px; color: #eee; line-height: 1.25; }
+    .kds-details-row { font-size: 10.5px; color: #bbb; display: flex; justify-content: space-between; margin-top: 4px; }
+
+    /* FILTROS */
+    .category-chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+    .category-chips::-webkit-scrollbar { display: none; }
+    .chip { background: rgba(43, 31, 26, 0.7); border: 1px solid rgba(251, 191, 36, 0.25); color: var(--text-muted); padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer; }
+    .chip.active { background: linear-gradient(135deg, var(--primary), var(--accent)); border-color: var(--accent); color: #fff; font-weight: 700; }
+
+    /* REEL */
+    .video-slide { width: 100%; height: 100dvh; scroll-snap-align: start; scroll-snap-stop: always; position: relative; background: #1c1411; overflow: hidden; display: flex; align-items: flex-end; }
+    .video-player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+    .slide-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(24,17,14,0.4) 0%, transparent 50%, rgba(24,17,14,0.92) 100%); pointer-events: none; }
+
+    .side-actions { position: absolute; right: 12px; bottom: 105px; display: flex; flex-direction: column; align-items: center; gap: 15px; z-index: 10; }
+    .action-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; color: #fff; cursor: pointer; }
+    .action-icon { width: 44px; height: 44px; border-radius: 50%; background: var(--glass-panel); border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; font-size: 18px; color: #fff; }
+    .action-label { font-size: 11px; font-weight: 600; color: var(--text-muted); }
+
+    .dish-info { position: relative; z-index: 10; padding: 0 75px 85px 16px; width: 100%; }
+    .badge-tag { display: inline-block; background: var(--gold-badge); color: #381504; font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; margin-bottom: 6px; }
+    .dish-title { font-size: 21px; font-weight: 800; line-height: 1.2; margin-bottom: 4px; }
+    .dish-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .dish-price-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+    .price-now { font-size: 23px; font-weight: 800; color: #fef08a; }
+    .price-alt { font-size: 13px; color: #cbd5e1; font-weight: 600; }
+
+    .btn-quick-add { background: linear-gradient(135deg, var(--primary), var(--accent)); border: 1px solid rgba(251, 191, 36, 0.4); color: #fff; padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+
+    /* BOTÓN FLOTANTE */
+    .chat-bubble-container { position: fixed; bottom: 20px; right: 18px; display: flex; align-items: center; gap: 8px; z-index: 1500; cursor: pointer; }
+    .chat-bubble-label { background: linear-gradient(135deg, #fef08a 0%, #fde047 100%); color: #78350f; font-weight: 900; font-size: 13px; padding: 8px 14px; border-radius: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.4); border: 2px solid var(--accent); }
+    .chat-bubble-btn { position: relative; width: 56px; height: 56px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 50%; box-shadow: 0 6px 20px rgba(194, 65, 12, 0.5); display: flex; align-items: center; justify-content: center; border: 2px solid #facc15; }
+    .chat-badge { position: absolute; top: -3px; right: -3px; background-color: #ef4444; color: #fff; border: 2px solid #fff; font-size: 11px; font-weight: 800; min-width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+    /* POPUP DE COMANDA */
+    .popup-modal { position: fixed; inset: 0; background: rgba(18, 12, 10, 0.85); backdrop-filter: blur(6px); z-index: 2000; display: none; align-items: flex-end; justify-content: center; }
+    .popup-modal.active { display: flex; }
+    .popup-sheet { background: #241a15; width: 100%; max-width: 480px; max-height: 90dvh; border-radius: 24px 24px 0 0; padding: 18px 18px 24px; display: flex; flex-direction: column; border-top: 1.5px solid var(--glass-border); overflow-y: auto; }
+
+    .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 10px; }
+    .order-items-list { overflow-y: auto; max-height: 20dvh; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+    .order-item-row { display: flex; justify-content: space-between; align-items: center; background: #2d211b; padding: 8px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); }
+
+    /* SELECTOR DE MESAS CON BLOQUEO */
+    .table-selector-label { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--gold-badge); letter-spacing: 0.5px; margin-bottom: 6px; display: flex; justify-content: space-between; }
+    .table-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 12px; }
+    .table-box-btn {
+      background: #2e201b;
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      color: #fff;
       font-weight: 800;
-      border: 1px solid transparent;
+      font-size: 12px;
+      padding: 9px 4px;
+      border-radius: 8px;
       cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+      position: relative;
     }
-    .table-pill.libre { background: rgba(22, 163, 74, 0.15); border-color: #16a34a; color: #86efac; }
-    .table-pill.ocupada { background: rgba(220, 38, 38, 0.25); border-color: #dc2626; color: #fca5a5; animation: pulseRed 2s infinite; }
-    @keyframes pulseRed { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-
-    /* COMANDAS EN VIVO */
-    .live-orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
-    .order-card {
-      background: #241914;
-      border-radius: 14px;
-      border: 2px solid rgba(245, 158, 11, 0.3);
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    .table-box-btn.selected {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-color: #facc15;
+      color: #fff;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
     }
-    
-    .order-card.por_confirmar { border-color: #f59e0b; background: #2b1d16; box-shadow: 0 0 16px rgba(245, 158, 11, 0.25); }
-    .order-card.cocina { border-color: #0284c7; background: #172330; box-shadow: 0 0 16px rgba(2, 132, 199, 0.25); }
-    .order-card.servido { border-color: #16a34a; background: #15271c; }
-    .order-card.rechazado { border-color: #dc2626; background: #2c1616; opacity: 0.7; }
+    .table-box-btn.extra { grid-column: span 2; font-size: 11px; }
 
-    .order-card-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px dashed rgba(255,255,255,0.12); padding-bottom: 8px; }
-    .order-status-badge { font-size: 11px; font-weight: 900; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; letter-spacing: 0.5px; }
-    .status-por_confirmar { background: #f59e0b; color: #000; animation: pulseOrder 2s infinite; }
-    .status-cocina { background: #0284c7; color: #fff; }
-    .status-servido { background: #16a34a; color: #fff; }
-    .status-rechazado { background: #dc2626; color: #fff; }
-
-    @keyframes pulseOrder { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-
-    .order-items-box { font-size: 14px; font-weight: 800; color: #fde047; line-height: 1.4; padding: 4px 0; }
-    .order-notes-tag { font-size: 12px; color: #fca5a5; background: rgba(0,0,0,0.3); padding: 5px 8px; border-radius: 6px; border-left: 3px solid #f87171; }
-    .order-bottom-bar { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 8px; font-size: 12.5px; }
-    
-    .order-actions-container { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
-    .btn-action-confirm {
-      flex: 1; background: linear-gradient(135deg, #16a34a, #22c55e); color: #fff;
-      padding: 10px; font-size: 12px; border-radius: 8px; border: none; font-weight: 800; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; gap: 6px;
-    }
-    .btn-action-kitchen {
-      flex: 1; background: linear-gradient(135deg, #0284c7, #38bdf8); color: #fff;
-      padding: 10px; font-size: 12px; border-radius: 8px; border: none; font-weight: 800; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; gap: 6px;
-    }
-    .btn-action-liberar {
-      flex: 1; background: #374151; color: #facc15;
-      padding: 10px; font-size: 12px; border-radius: 8px; border: 1px solid #4b5563; font-weight: 800; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; gap: 6px;
+    /* Mesa Bloqueada / Ocupada */
+    .table-box-btn.bloqueada {
+      background: #451717 !important;
+      border-color: #ef4444 !important;
+      color: #fca5a5 !important;
+      cursor: not-allowed;
+      opacity: 0.7;
     }
 
-    /* CATÁLOGO VISUAL */
-    .dishes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
-    .dish-card-visual { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
-    .dish-card-visual.agotado { opacity: 0.65; border-color: #7f1d1d; }
-    .dish-media { height: 150px; background: #000; overflow: hidden; position: relative; }
-    .dish-media img { width: 100%; height: 100%; object-fit: cover; }
-    .switch-btn { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; border: none; cursor: pointer; }
-    .switch-btn.btn-to-off { background: #451a1a; color: #fca5a5; border: 1px solid #dc2626; }
-    .switch-btn.btn-to-on { background: #14532d; color: #86efac; border: 1px solid #16a34a; }
+    .grid-payments { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
+    .btn-pay-option { background: #2d211b; border: 1px solid rgba(255, 255, 255, 0.12); color: var(--text-muted); padding: 8px 4px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; text-align: center; }
+    .btn-pay-option.active { background: linear-gradient(135deg, var(--primary), var(--accent)); border-color: var(--accent); color: #fff; }
 
-    .custom-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
-    .custom-table th, .custom-table td { border: 1px solid rgba(255,255,255,0.1); padding: 9px 10px; }
-    .custom-table th { background: #2f221c; color: var(--gold); }
+    .cash-box-drawer { background: #2b1f1a; border: 1.5px dashed rgba(245, 158, 11, 0.4); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; }
+    .cash-input { width: 100%; padding: 8px 12px; font-size: 15px; font-weight: 800; border: 1px solid var(--accent); border-radius: 8px; color: #fff; background: #1c1411; margin-top: 4px; }
+    .cash-quick-btns { display: flex; gap: 6px; margin-top: 7px; flex-wrap: wrap; }
+    .btn-quick-cash { background: #3a2a23; border: 1px solid rgba(245, 158, 11, 0.3); color: #fde047; font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 6px; cursor: pointer; }
 
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 500; display: none; align-items: center; justify-content: center; padding: 20px; }
-    .modal-overlay.active { display: flex; }
-    .modal-box { background: var(--card-bg); border: 1.5px solid var(--card-border); border-radius: 16px; max-width: 650px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 22px; display: flex; flex-direction: column; gap: 14px; }
-    .lang-tabs { display: flex; gap: 6px; background: #150d0a; padding: 4px; border-radius: 8px; }
-    .lang-btn { flex: 1; padding: 6px 8px; font-size: 11.5px; font-weight: 800; background: none; border: none; color: #aaa; border-radius: 6px; cursor: pointer; }
-    .lang-btn.active { background: var(--primary); color: #fff; }
+    .vuelto-badge-box { margin-top: 8px; padding: 8px 10px; border-radius: 8px; font-size: 12px; font-weight: 800; display: flex; justify-content: space-between; align-items: center; background: rgba(21, 128, 61, 0.25); color: #86efac; border: 1px solid #15803d; }
+    .vuelto-badge-box.alerta { background: rgba(220, 38, 38, 0.25); color: #fca5a5; border-color: #dc2626; }
 
-    .qr-preview-box { background: #fff; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 14px auto; max-width: 250px; }
-    .qr-preview-box img { width: 180px; height: 180px; object-fit: contain; }
-
-    @media (max-width: 860px) {
-      .admin-layout { grid-template-columns: 1fr; }
-      .sidebar { height: auto; position: static; }
-    }
+    .custom-input { width: 100%; background: #2e221c; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; color: #fff; padding: 9px 12px; font-size: 13px; outline: none; margin-bottom: 8px; }
+    .btn-submit-order { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; border: none; padding: 14px; border-radius: 24px; font-size: 15px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
   </style>
 </head>
 <body>
 
-  <!-- LOGIN -->
-  <div id="pantallaLogin" style="display:flex; justify-content:center; align-items:center; min-height:80vh;">
-    <div class="card" style="max-width:380px; width:100%; padding:28px;">
-      <div style="text-align:center; font-size:38px; margin-bottom:6px;">🍽️</div>
-      <h3 style="color:var(--gold); text-align:center; margin-bottom:4px;" id="loginTitlePreview">Inka Bistro Cusco</h3>
-      <p style="font-size:12px; color:var(--text-muted); text-align:center; margin-bottom:16px;">Acceso Administrador & Cocina</p>
-      <form onsubmit="verificarLoginAdmin(event)">
-        <label>Usuario</label>
-        <input type="text" id="loginUsuario" placeholder="admin" required autofocus>
-        <label>Contraseña</label>
-        <input type="password" id="loginPassword" placeholder="••••••••" required>
-        <button type="submit" class="btn btn-save" style="margin-top:16px; width:100%;">Ingresar al Panel</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- DASHBOARD PRINCIPAL -->
-  <div id="panelAdminPrincipal" class="admin-layout" style="display: none;">
-
-    <!-- PANEL IZQUIERDO -->
-    <aside class="sidebar no-print">
-      <div class="brand-box">
-        <div class="brand-avatar" id="headerAvatar">🍽️</div>
-        <div>
-          <h2 id="headerBusinessName" style="font-size:16px; color:var(--gold);">Inka Bistro</h2>
-          <span id="headerBusinessSlogan" style="font-size:11px; color:#aaa;">Cusco • Gourmet</span>
+  <!-- CABECERA -->
+  <div class="top-header">
+    <div class="top-bar-row">
+      <div class="brand-section">
+        <div class="brand-icon" id="topIcon">🍽️</div>
+        <div class="brand-text">
+          <h1 id="topTitle">Inka Bistro</h1>
+          <span id="topSlogan">Cusco • Gourmet</span>
         </div>
       </div>
 
-      <!-- ENLACE LA CHUSPA TECH -->
-      <a href="https://www.lachuspaanuncios.com/" target="_blank" rel="noopener noreferrer" class="chuspa-badge-sidebar" title="Visitar La Chuspa Anuncios">
-        <img src="CHUSPITA-circulo.png" alt="La Chuspa" class="chuspa-img" onerror="this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png'">
-        <div style="display:flex; flex-direction:column; line-height:1.15;">
-          <span style="font-size:11px; font-weight:900; color:#fde047;">La Chuspa Tech</span>
-          <span style="font-size:8.5px; font-weight:700; color:#fed7aa;">by La Chuspa</span>
+      <!-- REDIRECCIÓN OFICIAL A LA CHUSPA ANUNCIOS -->
+      <a href="https://www.lachuspaanuncios.com/" target="_blank" rel="noopener noreferrer" class="chuspa-nav-badge" title="Visitar La Chuspa Anuncios">
+        <img src="CHUSPITA-circulo.png" alt="La Chuspa" class="chuspa-nav-img" onerror="this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png'">
+        <div class="chuspa-nav-info">
+          <span class="chuspa-nav-title">La Chuspa Tech</span>
+          <span class="chuspa-nav-sub">by La Chuspa</span>
         </div>
       </a>
 
-      <!-- ACORDEÓN TOKEN CON CONTRASEÑA 42423549 -->
-      <div class="token-box">
-        <button class="token-trigger" type="button" onclick="alternarAcordeonToken()">
-          <span><i class="fa-solid fa-lock"></i> Token GitHub</span>
-          <span id="tokenStatusBadge" style="color:#86efac;">🔒 Protegido</span>
-        </button>
-        <div class="token-content" id="contenidoAcordeonToken">
-          <label style="margin-top:0;">Personal Token (ghp_...):</label>
-          <input type="password" id="ghTokenInput" placeholder="Pega el token aquí">
-          <div style="display:flex; gap:6px; margin-top:8px;">
-            <button class="btn btn-save" style="font-size:11px; padding:6px 10px;" onclick="guardarTokenManual()">Guardar</button>
-            <button class="btn btn-del" style="font-size:11px; padding:6px 10px;" onclick="borrarTokenManual()">Borrar</button>
-          </div>
-        </div>
+      <div class="header-controls">
+        <select class="select-pill" id="langSelector" onchange="changeLanguage(this.value)">
+          <option value="es" selected>🇪🇸 ES</option>
+          <option value="en">🇬🇧 EN</option>
+          <option value="fr">🇫🇷 FR</option>
+          <option value="pt">🇧🇷 PT</option>
+        </select>
+        <select class="select-pill" id="currencySelector" onchange="changeCurrency(this.value)">
+          <option value="PEN" selected>S/ (PEN)</option>
+          <option value="USD">$ (USD)</option>
+        </select>
+        <button class="icon-pill-btn" onclick="toggleGlobalAudio()"><i class="fa-solid fa-volume-xmark" id="audioIcon"></i></button>
       </div>
+    </div>
 
-      <!-- MENÚ -->
-      <nav class="nav-menu">
-        <button class="nav-item active" id="btnNavComandas" onclick="mostrarSeccion('comandas')">
-          <i class="fa-solid fa-bell-concierge"></i> Comandas en Vivo
-          <span class="badge-live-orders" id="badgeTotalComandas">0</span>
-        </button>
-        <button class="nav-item" id="btnNavPlatos" onclick="mostrarSeccion('platos')">
-          <i class="fa-solid fa-utensils"></i> Catálogo de Platos
-        </button>
-        <button class="nav-item" id="btnNavIdentidad" onclick="mostrarSeccion('identidad')">
-          <i class="fa-solid fa-store"></i> Identidad del Negocio
-        </button>
-        <button class="nav-item" id="btnNavConfig" onclick="mostrarSeccion('config')">
-          <i class="fa-solid fa-credit-card"></i> Pagos & Contacto
-        </button>
-        <button class="nav-item" id="btnNavMesas" onclick="mostrarSeccion('mesas')">
-          <i class="fa-solid fa-qrcode"></i> Códigos QR Mesas
-        </button>
-        <button class="nav-item" id="btnNavReportes" onclick="mostrarSeccion('reportes')">
-          <i class="fa-solid fa-chart-line"></i> Reporte Contable
-        </button>
-        <button class="nav-item" id="btnNavResenas" onclick="mostrarSeccion('resenas')">
-          <i class="fa-solid fa-star"></i> Reseñas de Clientes
-        </button>
-      </nav>
-
-      <div style="margin-top:auto; display:flex; flex-direction:column; gap:8px;">
-        <button class="btn btn-save" id="btnPublicarSidebar" style="width:100%;" onclick="sincronizarConGitHub()">
-          <i class="fa-solid fa-cloud-arrow-up"></i> Publicar en GitHub
-        </button>
-        <button class="btn btn-del" style="width:100%;" onclick="cerrarSesionAdmin()">
-          <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
-        </button>
-        <div id="statusMsgSidebar" style="font-size:11px; text-align:center; font-weight:bold;"></div>
+    <!-- TARJETA KDS EN VIVO (4 ESTADOS) -->
+    <div class="kds-tracking-card" id="kdsTrackingCard">
+      <div class="kds-tracking-header">
+        <span class="kds-status-badge" id="kdsBadge">🟡 Por Confirmar</span>
+        <button style="background:none; border:none; color:#aaa; font-size:12px; cursor:pointer;" onclick="cerrarSeguimiento()">✕</button>
       </div>
-    </aside>
+      <p class="kds-msg-text" id="kdsMsg">Esperando que el mozo o caja acepte tu comanda...</p>
+      <div class="kds-details-row">
+        <span id="kdsMesaTxt">Mesa 01</span>
+        <span id="kdsTotalTxt">S/ 0.00</span>
+      </div>
+    </div>
 
-    <!-- PANEL DERECHO -->
-    <main class="main-view">
-
-      <!-- VISTA 1: COMANDAS EN VIVO Y MONITOR DE MESAS -->
-      <section id="viewComandas">
-        <div class="view-header">
-          <div>
-            <h1>🛎️ Pantalla KDS: Aceptar y Preparar Comandas</h1>
-            <p>Revisa y reconfirma las órdenes entrantes para enviarlas a cocina.</p>
-          </div>
-          <button class="btn btn-add" onclick="cargarComandasEnVivo()"><i class="fa-solid fa-rotate"></i> Actualizar Ahora</button>
-        </div>
-
-        <!-- Monitor de Mesas Libres y Ocupadas -->
-        <div class="tables-monitor-bar">
-          <div class="tables-monitor-header">
-            <span>📍 Monitor de Mesas (Rojo = Ocupada | Verde = Libre):</span>
-            <span style="font-size:11px; color:#aaa;">Toca una mesa ocupada para liberarla</span>
-          </div>
-          <div class="tables-monitor-grid" id="tablesMonitorGrid"></div>
-        </div>
-
-        <div class="live-orders-grid" id="liveOrdersGrid"></div>
-      </section>
-
-      <!-- VISTA 2: CATÁLOGO DE PLATOS -->
-      <section id="viewPlatos" style="display:none;">
-        <div class="view-header">
-          <div>
-            <h1>🍽️ Catálogo Visual de la Carta</h1>
-            <p>Activa o desactiva platos en tiempo real y edita recetas en 4 idiomas.</p>
-          </div>
-          <button class="btn btn-add" onclick="abrirModalPlato()"><i class="fa-solid fa-plus"></i> Nuevo Plato</button>
-        </div>
-        <div class="dishes-grid" id="dishesVisualGrid"></div>
-      </section>
-
-      <!-- VISTA 3: IDENTIDAD -->
-      <section id="viewIdentidad" style="display:none;">
-        <div class="view-header"><h1>🏪 Identidad del Restaurante</h1></div>
-        <div class="card">
-          <label>Nombre:</label>
-          <input type="text" id="cfgBusinessName" oninput="previsualizarIdentidad()">
-          <label>Eslogan:</label>
-          <input type="text" id="cfgBusinessSlogan" oninput="previsualizarIdentidad()">
-          <label>Logo / Emoji:</label>
-          <input type="text" id="cfgBusinessLogo" oninput="previsualizarIdentidad()">
-          <button class="btn btn-save" style="margin-top:16px; width:100%;" onclick="sincronizarConGitHub()">Guardar Identidad</button>
-        </div>
-      </section>
-
-      <!-- VISTA 4: PAGOS -->
-      <section id="viewConfig" style="display:none;">
-        <div class="view-header"><h1>💳 Canales de Cobro</h1></div>
-        <div class="card">
-          <label>WhatsApp:</label><input type="text" id="cfgWhatsApp">
-          <label>Celular Yape/Plin:</label><input type="text" id="cfgYapePhone">
-          <label>Titular:</label><input type="text" id="cfgTitular">
-          <label>Tipo de Cambio USD:</label><input type="number" step="0.01" id="cfgTipoCambio">
-          <button class="btn btn-save" style="margin-top:16px; width:100%;" onclick="sincronizarConGitHub()">Guardar Pagos</button>
-        </div>
-      </section>
-
-      <!-- VISTA 5: QR MESAS -->
-      <section id="viewMesas" style="display:none;">
-        <div class="view-header"><h1>🏷️ Códigos QR por Mesa</h1></div>
-        <div class="card">
-          <label>Mesa:</label><input type="text" id="qrMesaNumero" value="Mesa 01" oninput="actualizarQRVisual()">
-          <label>URL Menú:</label><input type="text" id="qrUrlBase" value="https://phyxcius.github.io/restaurante/" oninput="actualizarQRVisual()">
-          <div class="qr-preview-box">
-            <h4 id="qrPrintBusinessName">INKA BISTRO</h4>
-            <img id="imgQRGenerado" src="" alt="QR">
-            <span class="qr-table-text" id="lblQRMesa">Mesa 01</span>
-          </div>
-          <button class="btn btn-add" style="width:100%;" onclick="window.print()">Imprimir QR</button>
-        </div>
-      </section>
-
-      <!-- VISTA 6: REPORTES CONTABLES -->
-      <section id="viewReportes" style="display:none;">
-        <div class="view-header">
-          <h1>📊 Reporte Contable</h1>
-          <button class="btn btn-print no-print" onclick="window.print()"><i class="fa-solid fa-print"></i> Imprimir</button>
-        </div>
-        <div class="card" id="areaImpresionReporte">
-          <table class="custom-table">
-            <thead>
-              <tr><th>Fecha</th><th>Mesa</th><th>Platos</th><th>Total</th><th>Pago</th></tr>
-            </thead>
-            <tbody id="tablaVentasBody"></tbody>
-          </table>
-          <div style="margin-top:14px; text-align:right; font-size:16px; font-weight:bold; color:var(--gold);" id="repPrintTotales">Total: S/ 0.00</div>
-        </div>
-      </section>
-
-      <!-- VISTA 7: RESEÑAS -->
-      <section id="viewResenas" style="display:none;">
-        <div class="view-header"><h1>⭐ Reseñas</h1></div>
-        <div class="card"><div id="contenedorResenasAdmin">Cargando...</div></div>
-      </section>
-
-    </main>
+    <div class="category-chips" id="categoryChips"></div>
   </div>
 
-  <!-- MODAL PLATO -->
-  <div class="modal-overlay" id="dishModal">
-    <div class="modal-box">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h3 id="modalDishTitle" style="color:var(--gold);">Editar Plato</h3>
-        <button style="background:none; border:none; color:#ccc; font-size:22px; cursor:pointer;" onclick="cerrarModalPlato()">&times;</button>
+  <!-- FEED TIKTOK -->
+  <div class="app-container" id="feedContainer"></div>
+
+  <!-- BOTÓN FLOTANTE PEDIDOS -->
+  <div class="chat-bubble-container" onclick="openOrdersPopup()">
+    <div class="chat-bubble-label"><span>🔥 Pedidos</span></div>
+    <div class="chat-bubble-btn">
+      <i class="fa-solid fa-bell-concierge" style="color:#fff; font-size:22px;"></i>
+      <div class="chat-badge" id="ordersBadgeCount">0</div>
+    </div>
+  </div>
+
+  <!-- POPUP COMANDA -->
+  <div class="popup-modal" id="ordersPopupModal" onclick="closeOrdersPopup(event)">
+    <div class="popup-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-header">
+        <h3 style="color:#fef3c7;"><i class="fa-solid fa-receipt" style="color:#f59e0b;"></i> Confirmar Comanda</h3>
+        <button style="background:none; border:none; color:#ccc; font-size:22px; cursor:pointer;" onclick="closeOrdersPopup()">&times;</button>
       </div>
 
-      <div class="lang-tabs">
-        <button class="lang-btn active" onclick="switchLangTab('es')">🇪🇸 ES</button>
-        <button class="lang-btn" onclick="switchLangTab('en')">🇬🇧 EN</button>
-        <button class="lang-btn" onclick="switchLangTab('fr')">🇫🇷 FR</button>
-        <button class="lang-btn" onclick="switchLangTab('pt')">🇧🇷 PT</button>
+      <div class="order-items-list" id="orderItemsList"></div>
+
+      <!-- SELECTOR DE MESAS -->
+      <div class="table-selector-label">
+        <span>📍 Selecciona tu Mesa:</span>
+        <span id="selectedTableBadge" style="color:#fde047;">Mesa 01</span>
+      </div>
+      <div class="table-grid" id="tableGridContainer"></div>
+
+      <!-- PAGO Y VUELTO -->
+      <div class="grid-payments">
+        <button type="button" class="btn-pay-option active" id="btnPayEfectivo" onclick="elegirPago('Efectivo', this)">💵 Efectivo</button>
+        <button type="button" class="btn-pay-option" onclick="elegirPago('Yape', this)">🟣 Yape</button>
+        <button type="button" class="btn-pay-option" onclick="elegirPago('Plin', this)">🔵 Plin</button>
+        <button type="button" class="btn-pay-option" onclick="elegirPago('Tarjeta POS', this)">💳 POS</button>
       </div>
 
-      <label id="lblDishName">Nombre (ES):</label><input type="text" id="inputDishName"/>
-      <label id="lblDishDesc">Descripción (ES):</label><textarea id="inputDishDesc" rows="2"></textarea>
-      
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-        <div><label>Precio (S/):</label><input type="number" step="0.5" id="inputDishPrice"/></div>
-        <div>
-          <label>Categoría:</label>
-          <select id="inputDishCategory">
-            <option value="top">🔥 Especialidad</option>
-            <option value="mains">Plato Fuerte</option>
-            <option value="drinks">Bebida</option>
-          </select>
+      <div class="cash-box-drawer" id="cajaEfectivoDesplegable">
+        <div style="font-size: 11.5px; font-weight: 800; color: #fde047;">💵 ¿Con cuánto en efectivo pagarás?</div>
+        <input type="number" id="montoEfectivoIngresado" class="cash-input" placeholder="Ej. 100" min="0" step="5" oninput="calcularVueltoEfectivo()"/>
+        <div class="cash-quick-btns">
+          <button type="button" class="btn-quick-cash" onclick="setMontoEfectivoRapido('exacto')">Pagar Exacto</button>
+          <button type="button" class="btn-quick-cash" onclick="setMontoEfectivoRapido(50)">S/ 50</button>
+          <button type="button" class="btn-quick-cash" onclick="setMontoEfectivoRapido(100)">S/ 100</button>
+          <button type="button" class="btn-quick-cash" onclick="setMontoEfectivoRapido(200)">S/ 200</button>
+        </div>
+        <div class="vuelto-badge-box" id="cajaRespuestaVuelto">
+          <span id="textoDetalleVuelto">Calculando vuelto...</span>
+          <span id="montoCalculadoVuelto" style="font-size: 14px;"></span>
         </div>
       </div>
-      <label>URL Video MP4:</label><input type="text" id="inputDishVideo"/>
-      <label>URL Poster:</label><input type="text" id="inputDishPoster"/>
 
-      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;">
-        <button class="btn btn-del" onclick="cerrarModalPlato()">Cancelar</button>
-        <button class="btn btn-save" onclick="guardarPlatoDesdeModal()">Guardar Plato</button>
+      <!-- DATOS ADICIONALES -->
+      <input type="text" id="clientNameInput" class="custom-input" placeholder="Nombre de quien pide (opcional)" />
+      <input type="text" id="notesInput" class="custom-input" placeholder="Notas para cocina (término de carne, alergias, etc.)" />
+
+      <!-- TOTAL Y ENVÍO -->
+      <div style="display:flex; justify-content:space-between; align-items:baseline; margin: 10px 0; border-top:1px dashed rgba(255,255,255,0.15); padding-top:8px;">
+        <span style="font-weight:800;">Total comanda:</span>
+        <div>
+          <span style="font-size:20px; font-weight:900; color:#fde047;" id="orderTotalPrice">S/ 0.00</span>
+          <div style="font-size:11px; color:#aaa; text-align:right;" id="orderSecondaryPrice">≈ $ 0.00</div>
+        </div>
       </div>
+
+      <button class="btn-submit-order" id="btnEnviarComanda" onclick="enviarComandaDirectaAlPanel()">
+        <i class="fa-solid fa-bell-concierge"></i> <span>Enviar Comanda al Panel / Cocina</span>
+      </button>
+      <div id="orderStatusMsg" style="text-align:center; font-size:12px; margin-top:6px; color:#86efac;"></div>
     </div>
   </div>
 
   <script>
     const USUARIO = "phyxcius";
     const REPOSITORIO = "restaurante";
-    const ARCHIVO = "productos.json";
-    const ARCHIVO_COMANDAS = "comandas.json";
 
-    const PASSWORD_MAESTRA_TOKEN = "42423549";
-    let tokenDesbloqueado = false;
-    
-    const STORAGE_KEY_SECRETA = "inkabistro_vault_secret_token";
-    const STORAGE_KEY_AUTH = "inkabistro_admin_sesion_activa";
-    const STORAGE_KEY_COMANDAS = "inkabistro_comandas_activas";
-    const STORAGE_KEY_VENTAS = "inkabistro_ventas_registro";
-
-    // BroadcastChannel para sincronizar con index.html al instante
-    const syncChannel = ("BroadcastChannel" in window) ? new BroadcastChannel("inkabistro_sync_mesas") : null;
-
-    let catalogo = [];
-    let configRestaurante = {
+    let CONFIG = {
       nombre: "Inka Bistro Cusco",
       eslogan: "Cusco • Gourmet",
       logo: "🍽️",
       whatsapp: "51969773064",
-      yapePhone: "+51 987 654 321",
-      titular: "INKA BISTRO CUSCO E.I.R.L.",
       exchangeRateUSD: 3.75
     };
 
-    const todasLasMesas = [
-      "Mesa 01", "Mesa 02", "Mesa 03", "Mesa 04", "Mesa 05",
-      "Mesa 06", "Mesa 07", "Mesa 08", "Mesa 09", "Mesa 10",
-      "Mesa 11", "Mesa 12", "Barra", "Terraza 1", "Terraza 2"
+    let catalogo = [];
+    const pedido = {};
+    let currentLang = "es";
+    let currentCurrency = "PEN";
+    let currentCategory = "all";
+    let isGlobalMuted = true;
+    let metodoPago = "Efectivo";
+    let videoObserver = null;
+    let ultimoTotalPagarPEN = 0;
+    let mesaSeleccionada = "Mesa 01";
+    let comandaActivaId = localStorage.getItem("inkabistro_mi_comanda_id") || null;
+
+    const listaMesas = [
+      { id: "Mesa 01", label: "1" },
+      { id: "Mesa 02", label: "2" },
+      { id: "Mesa 03", label: "3" },
+      { id: "Mesa 04", label: "4" },
+      { id: "Mesa 05", label: "5" },
+      { id: "Mesa 06", label: "6" },
+      { id: "Mesa 07", label: "7" },
+      { id: "Mesa 08", label: "8" },
+      { id: "Mesa 09", label: "9" },
+      { id: "Mesa 10", label: "10" },
+      { id: "Mesa 11", label: "11" },
+      { id: "Mesa 12", label: "12" },
+      { id: "Barra", label: "🍸 Barra", extra: true },
+      { id: "Terraza 1", label: "☀️ Ter. 1", extra: true },
+      { id: "Terraza 2", label: "☀️ Ter. 2", extra: true }
     ];
 
-    let currentEditingId = null;
-    let modalLang = "es";
-    let modalTempI18n = {};
-    let totalComandasPrevias = 0;
+    // SINCRONIZACIÓN EN TIEMPO REAL NUBE + LOCAL
+    async function obtenerMesasOcupadasEnRed() {
+      let comandas = [];
+      try {
+        // Consulta siempre fresca con timestamp anti-caché
+        const res = await fetch(`comandas.json?_nocache=${Date.now()}`);
+        if (res.ok) {
+          comandas = await res.json();
+        }
+      } catch (e) {}
 
-    function verificarLoginAdmin(e) {
-      e.preventDefault();
-      if (document.getElementById('loginUsuario').value.trim() === 'admin' && document.getElementById('loginPassword').value.trim() === 'regocijo123') {
-        sessionStorage.setItem(STORAGE_KEY_AUTH, "true");
-        mostrarPanelAdmin();
-      } else alert("Credenciales incorrectas.");
+      // Combinar con almacenamiento del dispositivo
+      const local = JSON.parse(localStorage.getItem("inkabistro_comandas_activas")) || [];
+      if (Array.isArray(local) && local.length > 0) {
+        local.forEach(loc => {
+          if (!comandas.some(c => c.id === loc.id)) {
+            comandas.push(loc);
+          }
+        });
+      }
+
+      if (!Array.isArray(comandas)) return [];
+
+      // Una mesa se bloquea si tiene una comanda activa: por_confirmar, cocina o servido
+      const ocupadas = comandas
+        .filter(c => {
+          const est = (c.estado || "").toLowerCase();
+          const activa = (est === "por_confirmar" || est === "cocina" || est === "servido");
+          // Si este dispositivo tiene esa orden, no se auto-bloquea a sí mismo
+          return activa && c.id !== comandaActivaId;
+        })
+        .map(c => (c.mesa || "").trim());
+
+      return ocupadas;
     }
 
-    function mostrarPanelAdmin() {
-      document.getElementById('pantallaLogin').style.display = 'none';
-      document.getElementById('panelAdminPrincipal').style.display = 'grid';
-      document.getElementById('ghTokenInput').value = obtenerTokenSecreto();
-      cargarDesdeGitHub();
-      cargarComandasEnVivo();
-      setInterval(cargarComandasEnVivo, 4000);
-    }
+    async function renderizarCuadriculaMesas() {
+      const container = document.getElementById("tableGridContainer");
+      if (!container) return;
+      container.innerHTML = "";
 
-    function cerrarSesionAdmin() {
-      sessionStorage.removeItem(STORAGE_KEY_AUTH);
-      window.location.reload();
-    }
+      const mesasOcupadas = await obtenerMesasOcupadasEnRed();
 
-    function mostrarSeccion(s) {
-      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-      ['comandas','platos','identidad','config','mesas','reportes','resenas'].forEach(id => {
-        document.getElementById('view' + id.charAt(0).toUpperCase() + id.slice(1)).style.display = 'none';
+      listaMesas.forEach(m => {
+        const estaOcupada = mesasOcupadas.includes(m.id);
+        const esSeleccionada = (mesaSeleccionada === m.id);
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = `table-box-btn ${m.extra ? 'extra' : ''} ${esSeleccionada ? 'selected' : ''} ${estaOcupada ? 'bloqueada' : ''}`;
+        
+        if (estaOcupada) {
+          btn.innerHTML = `${m.label} <span style="font-size:9px;">🔒</span>`;
+          btn.title = `La ${m.id} está siendo atendida en este momento.`;
+          btn.onclick = () => alert(`⚠️ La ${m.id} ya tiene un pedido en curso y está siendo atendida. Por favor selecciona otra mesa disponible.`);
+        } else {
+          btn.innerText = m.label;
+          btn.onclick = () => selectTableRow(m.id, btn);
+        }
+
+        container.appendChild(btn);
       });
-      document.getElementById('btnNav' + s.charAt(0).toUpperCase() + s.slice(1)).classList.add('active');
-      document.getElementById('view' + s.charAt(0).toUpperCase() + s.slice(1)).style.display = 'block';
-
-      if (s === 'comandas') cargarComandasEnVivo();
-      if (s === 'platos') renderizarVisualDishes();
-      if (s === 'reportes') renderizarReporte();
-      if (s === 'mesas') actualizarQRVisual();
     }
 
-    function alternarAcordeonToken() {
-      const box = document.getElementById('contenidoAcordeonToken');
-      const badge = document.getElementById('tokenStatusBadge');
+    function selectTableRow(numMesa, boton) {
+      mesaSeleccionada = numMesa;
+      document.querySelectorAll('.table-box-btn').forEach(b => b.classList.remove('selected'));
+      boton.classList.add('selected');
+      document.getElementById('selectedTableBadge').innerText = numMesa;
+    }
 
-      if (box.style.display === 'block') {
-        box.style.display = 'none';
-        badge.innerHTML = '🔒 Protegido';
+    function detectarMesaDesdeURL() {
+      const params = new URLSearchParams(window.location.search);
+      const mesa = params.get('mesa');
+      if (mesa) {
+        mesaSeleccionada = decodeURIComponent(mesa);
+        document.getElementById('selectedTableBadge').innerText = mesaSeleccionada;
+      }
+      renderizarCuadriculaMesas();
+    }
+
+    async function cargarDatos() {
+      try {
+        const res = await fetch(`productos.json?_t=${Date.now()}`);
+        if (res.ok) {
+          const data = await res.json();
+          catalogo = data.productos || data.catalogo || [];
+          if (data.config) CONFIG = Object.assign(CONFIG, data.config);
+          if (data.restaurante) CONFIG.nombre = data.restaurante;
+        }
+      } catch (e) { console.warn("Catálogo local", e); }
+
+      if (catalogo.length === 0) {
+        catalogo = [
+          {
+            id: "dish-1", category: "top", tag: "Plato Bandera", precioPEN: 46.00, disponible: true, likes: 542,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+            posterUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?w=800",
+            i18n: {
+              es: { name: "Lomo Saltado al Wok Gourmet", desc: "Trozos jugosos de lomo fino salteados a fuego vivo con cebolla morada, tomate y papas nativas." },
+              en: { name: "Wok-Seared Lomo Saltado", desc: "Tender beef tenderloin strips sautéed with red onions, tomatoes, and native fries." },
+              fr: { name: "Lomo Saltado au Wok", desc: "Émincé de bœuf sauté au wok avec oignons rouges et frites andines." },
+              pt: { name: "Lomo Saltado ao Wok", desc: "Tiras de filé mignon salteadas com cebola roxa e batatas nativas." }
+            }
+          }
+        ];
+      }
+
+      document.getElementById('topTitle').innerText = CONFIG.nombre;
+      document.getElementById('topSlogan').innerText = CONFIG.eslogan;
+      document.getElementById('topIcon').innerText = CONFIG.logo || "🍽️";
+
+      renderCategoryChips();
+      renderFeed();
+      setupObserver();
+      detectarMesaDesdeURL();
+      verificarEstadoComandaEnVivo();
+
+      // Sondeo en vivo cada 3 segundos para detectar mesas ocupadas por otros celulares
+      setInterval(async () => {
+        await verificarEstadoComandaEnVivo();
+        await renderizarCuadriculaMesas();
+      }, 3000);
+    }
+
+    function formatPrice(pen) {
+      if (currentCurrency === "USD") return `$ ${(pen / CONFIG.exchangeRateUSD).toFixed(2)}`;
+      return `S/ ${pen.toFixed(2)}`;
+    }
+    function formatSecondaryPrice(pen) {
+      if (currentCurrency === "PEN") return `≈ $ ${(pen / CONFIG.exchangeRateUSD).toFixed(2)}`;
+      return `≈ S/ ${pen.toFixed(2)}`;
+    }
+
+    function changeLanguage(l) { currentLang = l; renderCategoryChips(); renderFeed(); actualizarVistaPopup(); }
+    function changeCurrency(c) { currentCurrency = c; renderFeed(); actualizarVistaPopup(); }
+
+    function renderCategoryChips() {
+      const cats = [
+        { key: "all", label: "Todos" },
+        { key: "top", label: "🔥 Especialidades" },
+        { key: "mains", label: "Platos Fuertes" },
+        { key: "drinks", label: "Bebidas & Cocteles" }
+      ];
+      document.getElementById('categoryChips').innerHTML = cats.map(c => `
+        <div class="chip ${c.key === currentCategory ? 'active' : ''}" onclick="selectCat('${c.key}')">${c.label}</div>
+      `).join('');
+    }
+
+    function selectCat(k) { currentCategory = k; renderCategoryChips(); renderFeed(); document.getElementById('feedContainer').scrollTo({ top: 0, behavior: 'smooth' }); }
+
+    function renderFeed() {
+      const feed = document.getElementById('feedContainer');
+      feed.innerHTML = '';
+      const filtrados = currentCategory === 'all' ? catalogo : catalogo.filter(d => d.category === currentCategory);
+
+      filtrados.forEach(item => {
+        const info = item.i18n?.[currentLang] || item.i18n?.['es'] || { name: item.nombre, desc: item.descripcion };
+        const slide = document.createElement('div');
+        slide.className = 'video-slide';
+        slide.innerHTML = `
+          <video class="video-player" src="${item.videoUrl}" poster="${item.posterUrl}" loop playsinline preload="metadata" ${isGlobalMuted ? 'muted' : ''} onclick="toggleVideo(this)"></video>
+          <div class="slide-overlay"></div>
+          <div class="side-actions">
+            <button class="action-btn" onclick="this.classList.toggle('liked')"><div class="action-icon"><i class="fa-solid fa-heart"></i></div><span class="action-label">${item.likes || 100}</span></button>
+            <button class="action-btn" onclick="addToOrder('${item.id}')"><div class="action-icon" style="background:#c2410c;"><i class="fa-solid fa-plus"></i></div><span class="action-label">+1</span></button>
+          </div>
+          <div class="dish-info">
+            ${item.tag ? `<span class="badge-tag">${item.tag}</span>` : ''}
+            <h2 class="dish-title">${info.name}</h2>
+            <p class="dish-desc">${info.desc}</p>
+            <div class="dish-price-row">
+              <span class="price-now">${formatPrice(item.precioPEN || item.precio || 0)}</span>
+              <span class="price-alt">${formatSecondaryPrice(item.precioPEN || item.precio || 0)}</span>
+            </div>
+            <button class="btn-quick-add" onclick="addToOrder('${item.id}')"><i class="fa-solid fa-plus"></i> Pedir Plato</button>
+          </div>
+        `;
+        feed.appendChild(slide);
+      });
+      if (videoObserver) setupObserver();
+    }
+
+    function setupObserver() {
+      if (videoObserver) videoObserver.disconnect();
+      videoObserver = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          const v = entry.target.querySelector('video');
+          if (!v) return;
+          if (entry.isIntersecting) { v.muted = isGlobalMuted; v.play().catch(()=>{}); }
+          else { v.pause(); v.currentTime = 0; }
+        });
+      }, { root: document.getElementById('feedContainer'), threshold: 0.65 });
+      document.querySelectorAll('.video-slide').forEach(s => videoObserver.observe(s));
+    }
+
+    function toggleVideo(v) { if (v.paused) v.play(); else v.pause(); }
+    function toggleGlobalAudio() {
+      isGlobalMuted = !isGlobalMuted;
+      document.getElementById('audioIcon').className = isGlobalMuted ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-high';
+      document.querySelectorAll('video').forEach(v => v.muted = isGlobalMuted);
+    }
+
+    function addToOrder(id) {
+      pedido[id] = (pedido[id] || 0) + 1;
+      actualizarVistaPopup();
+    }
+    function changeQty(id, delta) {
+      if (!pedido[id]) return;
+      pedido[id] += delta;
+      if (pedido[id] <= 0) delete pedido[id];
+      actualizarVistaPopup();
+    }
+
+    function actualizarVistaPopup() {
+      const list = document.getElementById('orderItemsList');
+      list.innerHTML = '';
+      let totalU = 0, totalMonto = 0;
+
+      Object.keys(pedido).forEach(id => {
+        const d = catalogo.find(item => item.id === id);
+        if (!d) return;
+        const cant = pedido[id];
+        const sub = cant * (d.precioPEN || d.precio || 0);
+        totalU += cant;
+        totalMonto += sub;
+        const info = d.i18n?.[currentLang] || d.i18n?.['es'];
+
+        list.innerHTML += `
+          <div class="order-item-row">
+            <div>
+              <strong style="font-size:13px;">${info.name}</strong>
+              <div style="font-size:11px; color:#aaa;">${formatPrice(d.precioPEN)} x ${cant} = <b>${formatPrice(sub)}</b></div>
+            </div>
+            <div style="display:flex; gap:6px; align-items:center;">
+              <button style="width:24px; height:24px; border-radius:4px; background:#443027; color:#fff; border:none;" onclick="changeQty('${id}', -1)">-</button>
+              <span style="font-weight:bold; font-size:13px; min-width:16px; text-align:center;">${cant}</span>
+              <button style="width:24px; height:24px; border-radius:4px; background:#443027; color:#fff; border:none;" onclick="changeQty('${id}', 1)">+</button>
+            </div>
+          </div>
+        `;
+      });
+
+      if (totalU === 0) list.innerHTML = '<p style="text-align:center; color:#888; font-size:13px; padding:16px;">Sin platos añadidos aún.</p>';
+
+      ultimoTotalPagarPEN = totalMonto;
+      document.getElementById('ordersBadgeCount').innerText = totalU;
+      document.getElementById('orderTotalPrice').innerText = formatPrice(totalMonto);
+      document.getElementById('orderSecondaryPrice').innerText = formatSecondaryPrice(totalMonto);
+      if (metodoPago === 'Efectivo') calcularVueltoEfectivo();
+    }
+
+    function openOrdersPopup() { 
+      renderizarCuadriculaMesas();
+      document.getElementById('ordersPopupModal').classList.add('active'); 
+    }
+    function closeOrdersPopup() { document.getElementById('ordersPopupModal').classList.remove('active'); }
+
+    function elegirPago(metodo, btn) {
+      metodoPago = metodo;
+      document.querySelectorAll('.btn-pay-option').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('cajaEfectivoDesplegable').style.display = metodo === 'Efectivo' ? 'block' : 'none';
+      if (metodo === 'Efectivo') calcularVueltoEfectivo();
+    }
+
+    function setMontoEfectivoRapido(m) {
+      const inp = document.getElementById('montoEfectivoIngresado');
+      inp.value = m === 'exacto' ? (ultimoTotalPagarPEN > 0 ? ultimoTotalPagarPEN : '') : m;
+      calcularVueltoEfectivo();
+    }
+
+    function calcularVueltoEfectivo() {
+      const pagaCon = parseFloat(document.getElementById('montoEfectivoIngresado').value);
+      const box = document.getElementById('cajaRespuestaVuelto');
+      const txt = document.getElementById('textoDetalleVuelto');
+      const montoTxt = document.getElementById('montoCalculadoVuelto');
+
+      if (isNaN(pagaCon) || pagaCon <= 0) {
+        box.className = "vuelto-badge-box";
+        txt.innerText = "Ingresa monto en efectivo para vuelto";
+        montoTxt.innerText = "";
+        return;
+      }
+      const v = pagaCon - ultimoTotalPagarPEN;
+      if (v < 0) {
+        box.className = "vuelto-badge-box alerta";
+        txt.innerText = `⚠️ Falta dinero (Faltan S/ ${Math.abs(v).toFixed(2)})`;
+        montoTxt.innerText = "";
+      } else {
+        box.className = "vuelto-badge-box";
+        txt.innerText = "💵 Vuelto a entregar:";
+        montoTxt.innerText = `S/ ${v.toFixed(2)}`;
+      }
+    }
+
+    // TRANSMISIÓN DE COMANDA CON VERIFICACIÓN EN RED
+    async function enviarComandaDirectaAlPanel() {
+      const itemIds = Object.keys(pedido);
+      if (itemIds.length === 0) return alert("Por favor añade al menos un plato a la comanda.");
+
+      // Verificar en la red antes de enviar que la mesa no haya sido tomada por otro comensal
+      const mesasOcupadas = await obtenerMesasOcupadasEnRed();
+      if (mesasOcupadas.includes(mesaSeleccionada)) {
+        alert(`⛔ La ${mesaSeleccionada} ya se encuentra ocupada con otra orden en curso. Por favor selecciona otra mesa disponible.`);
+        await renderizarCuadriculaMesas();
         return;
       }
 
-      if (!tokenDesbloqueado) {
-        const clave = prompt("🔐 ACCESO CREADOR:\n\nIngresa la contraseña para desplegar el token:");
-        if (clave === PASSWORD_MAESTRA_TOKEN) {
-          tokenDesbloqueado = true;
-          box.style.display = 'block';
-          badge.innerHTML = '🔓 Desbloqueado';
-        } else if (clave !== null) {
-          alert("⛔ Contraseña incorrecta. Acceso denegado.");
-        }
-      } else {
-        box.style.display = 'block';
-        badge.innerHTML = '🔓 Desbloqueado';
-      }
+      const cliente = document.getElementById('clientNameInput').value.trim() || "Comensal";
+      const notas = document.getElementById('notesInput').value.trim();
+
+      const btn = document.getElementById('btnEnviarComanda');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Transmitiendo comanda a cocina...';
+
+      let detalleTexto = "";
+      const platosComanda = [];
+
+      itemIds.forEach(id => {
+        const dish = catalogo.find(d => d.id === id);
+        const cant = pedido[id];
+        const nom = (dish.i18n?.[currentLang] || dish.i18n?.['es']).name;
+        detalleTexto += `${cant}x ${nom}, `;
+        platosComanda.push({ id, nombre: nom, cantidad: cant, precio: dish.precioPEN });
+      });
+
+      const nuevaComanda = {
+        id: "CMD-" + Date.now(),
+        fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        cliente: `${mesaSeleccionada} (${cliente})`,
+        mesa: mesaSeleccionada,
+        productos: detalleTexto.replace(/, $/, ""),
+        items: platosComanda,
+        totalPEN: ultimoTotalPagarPEN,
+        pago: metodoPago,
+        notas: notas,
+        estado: "por_confirmar"
+      };
+
+      // Guardar localmente
+      let comandasActivas = JSON.parse(localStorage.getItem("inkabistro_comandas_activas")) || [];
+      comandasActivas.unshift(nuevaComanda);
+      localStorage.setItem("inkabistro_comandas_activas", JSON.stringify(comandasActivas));
+
+      // Guardar mi propio ID para seguimiento KDS
+      comandaActivaId = nuevaComanda.id;
+      localStorage.setItem("inkabistro_mi_comanda_id", comandaActivaId);
+
+      setTimeout(() => {
+        for (let k in pedido) delete pedido[k];
+        actualizarVistaPopup();
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-bell-concierge"></i> Enviar Comanda al Panel / Cocina';
+        closeOrdersPopup();
+        verificarEstadoComandaEnVivo();
+        renderizarCuadriculaMesas();
+      }, 700);
     }
 
-    function obtenerTokenSecreto() { return localStorage.getItem(STORAGE_KEY_SECRETA) || ""; }
-    function guardarTokenManual() {
-      const t = document.getElementById('ghTokenInput').value.trim();
-      localStorage.setItem(STORAGE_KEY_SECRETA, t);
-      alert("✔ Token guardado.");
-      cargarDesdeGitHub();
-    }
-    function borrarTokenManual() {
-      if (confirm("¿Deseas eliminar el token guardado?")) {
-        localStorage.removeItem(STORAGE_KEY_SECRETA);
-        document.getElementById('ghTokenInput').value = '';
-        alert("Token eliminado.");
-      }
-    }
+    // RASTREO KDS EN VIVO EN EL CELULAR
+    async function verificarEstadoComandaEnVivo() {
+      if (!comandaActivaId) return;
 
-    // ==============================================================
-    // KDS: RECTIFICACIÓN Y ACCIÓN DE COMANDAS EN VIVO
-    // ==============================================================
-    async function cargarComandasEnVivo() {
-      const grid = document.getElementById('liveOrdersGrid');
       let comandas = [];
-
       try {
-        const res = await fetch(`comandas.json?_t=${Date.now()}`);
+        const res = await fetch(`comandas.json?_nocache=${Date.now()}`);
         if (res.ok) comandas = await res.json();
       } catch (e) {}
 
       if (!Array.isArray(comandas) || comandas.length === 0) {
-        comandas = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
+        comandas = JSON.parse(localStorage.getItem("inkabistro_comandas_activas")) || [];
       }
 
-      // Conteo de pedidos activos
-      const pedidosActivos = comandas.filter(c => c.estado !== 'liberado' && c.estado !== 'rechazado');
-      document.getElementById('badgeTotalComandas').innerText = pedidosActivos.length;
+      const miComanda = comandas.find(c => c.id === comandaActivaId);
+      const card = document.getElementById('kdsTrackingCard');
+      const badge = document.getElementById('kdsBadge');
+      const msg = document.getElementById('kdsMsg');
+      const mesaTxt = document.getElementById('kdsMesaTxt');
+      const totalTxt = document.getElementById('kdsTotalTxt');
 
-      if (comandas.length > totalComandasPrevias && totalComandasPrevias !== 0) {
-        reproducirAlertaSonora();
-      }
-      totalComandasPrevias = comandas.length;
-
-      actualizarMonitorDeMesas(comandas);
-
-      if (comandas.length === 0) {
-        grid.innerHTML = '<p style="color:#aaa; font-size:14px; padding:20px 0;">No hay comandas registradas en este momento.</p>';
+      if (!miComanda) {
+        card.style.display = 'none';
         return;
       }
 
-      grid.innerHTML = comandas.map((c, i) => {
-        const estado = (c.estado || 'por_confirmar').toLowerCase();
+      mesaTxt.innerText = miComanda.mesa || "Mesa";
+      totalTxt.innerText = `S/ ${(miComanda.totalPEN || 0).toFixed(2)}`;
+      card.className = "kds-tracking-card " + miComanda.estado;
 
-        return `
-          <div class="order-card ${estado}">
-            <div class="order-card-header">
-              <div>
-                <strong style="font-size:16px; color:#fff;">${c.cliente || c.mesa || 'Mesa'}</strong>
-                <div style="font-size:11px; color:#aaa; margin-top:2px;">${c.id || 'CMD-00'} • ${c.fecha || ''}</div>
-              </div>
-              <span class="order-status-badge status-${estado}">
-                ${estado === 'por_confirmar' ? '⚠️ Por Confirmar' : (estado === 'cocina' ? '🍳 En Cocina' : (estado === 'servido' ? '✅ En Mesa (Servido)' : (estado === 'liberado' ? '🔓 Desocupada' : '❌ Rechazada')))}
-              </span>
-            </div>
-
-            <!-- Platos -->
-            <div class="order-items-box">
-              ${c.productos || 'Sin detalle de platos'}
-            </div>
-
-            <!-- Notas -->
-            ${c.notas ? `<div class="order-notes-tag">📝 Nota: ${c.notas}</div>` : ''}
-
-            <!-- Barra inferior -->
-            <div class="order-bottom-bar">
-              <span>Pago: <b>${c.pago || 'Efectivo'}</b></span>
-              <span style="font-size:16px; font-weight:900; color:#86efac;">S/ ${(c.totalPEN || c.total || 0).toFixed(2)}</span>
-            </div>
-
-            <!-- BOTONES DE ACCIÓN PARA CADA ESTADO -->
-            <div class="order-actions-container">
-              ${estado === 'por_confirmar' ? `
-                <button type="button" class="btn-action-confirm" onclick="cambiarEstadoComanda(${i}, 'cocina')">
-                  <i class="fa-solid fa-check"></i> ✔ Aceptar y Pasar a Cocina
-                </button>
-                <button type="button" class="btn btn-del" style="padding:8px 12px; font-size:11px;" onclick="rechazarComanda(${i})">
-                  <i class="fa-solid fa-ban"></i> Rechazar
-                </button>
-              ` : ''}
-
-              ${estado === 'cocina' ? `
-                <button type="button" class="btn-action-kitchen" onclick="cambiarEstadoComanda(${i}, 'servido')">
-                  <i class="fa-solid fa-utensils"></i> 🍽️ Marcar como Servido
-                </button>
-              ` : ''}
-
-              ${estado === 'servido' ? `
-                <button type="button" class="btn-action-liberar" onclick="liberarMesa(${i})">
-                  <i class="fa-solid fa-door-open"></i> 🔓 Cobrar y Desocupar Mesa
-                </button>
-              ` : ''}
-
-              ${estado === 'liberado' ? `
-                <div style="font-size:12px; color:#86efac; font-weight:bold; display:flex; align-items:center; gap:6px; flex:1;">
-                  <i class="fa-solid fa-circle-check"></i> Mesa Cobrada & Desocupada
-                </div>
-              ` : ''}
-
-              <button type="button" class="btn btn-del" style="padding:8px 12px; font-size:13px;" title="Eliminar comanda" onclick="eliminarComanda(${i})">
-                <i class="fa-solid fa-trash"></i>
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    // MONITOR DE MESAS
-    function actualizarMonitorDeMesas(comandas) {
-      const grid = document.getElementById('tablesMonitorGrid');
-      // Las mesas ocupadas son aquellas en por_confirmar, cocina o servido
-      const mesasOcupadas = comandas
-        .filter(c => c.estado === 'por_confirmar' || c.estado === 'cocina' || c.estado === 'servido')
-        .map(c => (c.mesa || '').trim());
-
-      grid.innerHTML = todasLasMesas.map(m => {
-        const estaOcupada = mesasOcupadas.includes(m);
-        return `
-          <div class="table-pill ${estaOcupada ? 'ocupada' : 'libre'}" onclick="desocuparMesaDirecta('${m}', ${estaOcupada})">
-            ${m.replace('Mesa ', 'M-')} ${estaOcupada ? '🔒' : '✔'}
-          </div>
-        `;
-      }).join('');
-    }
-
-    function desocuparMesaDirecta(nombreMesa, estaOcupada) {
-      if (!estaOcupada) return;
-      if (confirm(`¿Deseas desocupar y liberar la ${nombreMesa} para nuevos clientes?`)) {
-        let comandas = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
-        comandas.forEach(c => {
-          if (c.mesa === nombreMesa && (c.estado === 'por_confirmar' || c.estado === 'cocina' || c.estado === 'servido')) {
-            c.estado = 'liberado';
-          }
-        });
-        guardarYNotificarComandas(comandas);
+      if (miComanda.estado === 'por_confirmar') {
+        badge.className = "kds-status-badge badge-por_confirmar";
+        badge.innerHTML = "🟡 1. Por Confirmar";
+        msg.innerText = "Tu pedido fue enviado. El mozo o caja lo está verificando en el panel...";
+      } else if (miComanda.estado === 'cocina') {
+        badge.className = "kds-status-badge badge-cocina";
+        badge.innerHTML = "🔵 2. En Cocina";
+        msg.innerText = "¡Pedido confirmado! El chef está preparando tus platos en este momento 🍳";
+      } else if (miComanda.estado === 'servido') {
+        badge.className = "kds-status-badge badge-servido";
+        badge.innerHTML = "🟢 3. Servido en Mesa";
+        msg.innerText = "¡Buen provecho! Tu pedido ya está servido en tu mesa 🍽️";
+      } else if (miComanda.estado === 'rechazado' || miComanda.estado === 'liberado') {
+        badge.className = "kds-status-badge badge-rechazado";
+        badge.innerHTML = "🔴 4. Finalizado";
+        msg.innerText = miComanda.estado === 'rechazado' ? "Tu pedido ha sido cancelado por el restaurante." : "Mesa desocupada. ¡Gracias por tu visita!";
       }
     }
 
-    function cambiarEstadoComanda(idx, nuevoEstado) {
-      let comandas = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
-      if (!comandas[idx]) return;
-
-      comandas[idx].estado = nuevoEstado;
-      guardarYNotificarComandas(comandas);
-
-      // Actualizar registro contable
-      let ventas = JSON.parse(localStorage.getItem(STORAGE_KEY_VENTAS)) || [];
-      const vIdx = ventas.findIndex(v => v.id === comandas[idx].id);
-      if (vIdx !== -1) {
-        ventas[vIdx].estado = nuevoEstado;
-        localStorage.setItem(STORAGE_KEY_VENTAS, JSON.stringify(ventas));
-      }
+    function cerrarSeguimiento() {
+      localStorage.removeItem("inkabistro_mi_comanda_id");
+      comandaActivaId = null;
+      document.getElementById('kdsTrackingCard').style.display = 'none';
+      renderizarCuadriculaMesas();
     }
 
-    function liberarMesa(idx) {
-      if (confirm("¿Confirmar que la mesa ha pagado y ha quedado desocupada para nuevos clientes?")) {
-        cambiarEstadoComanda(idx, 'liberado');
-      }
-    }
-
-    function rechazarComanda(idx) {
-      if (confirm("¿Deseas rechazar o cancelar esta orden? La mesa quedará liberada inmediatamente.")) {
-        cambiarEstadoComanda(idx, 'rechazado');
-      }
-    }
-
-    function eliminarComanda(idx) {
-      if (confirm("¿Deseas eliminar permanentemente esta comanda del panel?")) {
-        let comandas = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
-        comandas.splice(idx, 1);
-        guardarYNotificarComandas(comandas);
-      }
-    }
-
-    function guardarYNotificarComandas(comandas) {
-      localStorage.setItem(STORAGE_KEY_COMANDAS, JSON.stringify(comandas));
-      if (syncChannel) {
-        syncChannel.postMessage({ tipo: "ACTUALIZAR_MESAS" });
-      }
-      cargarComandasEnVivo();
-      // Opcional: auto-sincronizar comandas en GitHub en background
-      sincronizarComandasEnGitHub(comandas);
-    }
-
-    async function sincronizarComandasEnGitHub(comandas) {
-      const token = obtenerTokenSecreto();
-      if (!token) return;
-
-      let sha = "";
-      try {
-        const check = await fetch(`https://api.github.com/repos/${USUARIO}/${REPOSITORIO}/contents/${ARCHIVO_COMANDAS}?ref=main&_t=${Date.now()}`, {
-          headers: { "Authorization": `token ${token}`, "Accept": "application/vnd.github.v3+json" }
-        });
-        if (check.ok) sha = (await check.json()).sha;
-      } catch (e) {}
-
-      const payload = {
-        message: "Actualización de comandas activas y mesas",
-        content: btoa(unescape(encodeURIComponent(JSON.stringify(comandas, null, 2)))),
-        branch: "main"
-      };
-      if (sha) payload.sha = sha;
-
-      try {
-        await fetch(`https://api.github.com/repos/${USUARIO}/${REPOSITORIO}/contents/${ARCHIVO_COMANDAS}`, {
-          method: "PUT",
-          headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-      } catch (e) {}
-    }
-
-    function reproducirAlertaSonora() {
-      try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.type = "sine";
-        osc.frequency.value = 880;
-        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.25);
-      } catch (e) {}
-    }
-
-    // CATÁLOGO VISUAL
-    function renderizarVisualDishes() {
-      const grid = document.getElementById('dishesVisualGrid');
-      grid.innerHTML = catalogo.map((dish, idx) => {
-        const es = dish.i18n?.es || { name: dish.nombre, desc: dish.descripcion };
-        const disp = dish.disponible !== false;
-        return `
-          <div class="dish-card-visual ${disp ? '' : 'agotado'}">
-            <div class="dish-media">
-              <img src="${dish.posterUrl || 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500'}" alt="${es.name}">
-            </div>
-            <div style="padding:14px; display:flex; flex-direction:column; gap:6px;">
-              <strong style="font-size:16px;">${es.name}</strong>
-              <span style="font-size:12px; color:#aaa;">${es.desc}</span>
-              <div style="font-size:18px; font-weight:900; color:#fde047; margin-top:4px;">S/ ${(dish.precioPEN || dish.precio || 0).toFixed(2)}</div>
-              
-              <div style="display:flex; justify-content:space-between; align-items:center; background:#18100c; padding:6px 10px; border-radius:6px; margin-top:8px;">
-                <span style="font-size:11px; font-weight:bold; color:${disp ? '#86efac' : '#fca5a5'};">${disp ? '🟢 Disponible' : '🔴 Agotado'}</span>
-                <button class="switch-btn ${disp ? 'btn-to-off' : 'btn-to-on'}" onclick="toggleStock(${idx})">${disp ? 'Agotar' : 'Activar'}</button>
-              </div>
-
-              <div style="display:flex; justify-content:flex-end; gap:6px; margin-top:10px;">
-                <button class="btn btn-save" style="padding:5px 10px; font-size:12px;" onclick="abrirModalPlato('${dish.id}')"><i class="fa-solid fa-pen"></i></button>
-                <button class="btn btn-del" style="padding:5px 10px; font-size:12px;" onclick="eliminarPlato(${idx})"><i class="fa-solid fa-trash"></i></button>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function toggleStock(idx) {
-      catalogo[idx].disponible = (catalogo[idx].disponible === false) ? true : false;
-      renderizarVisualDishes();
-    }
-
-    function abrirModalPlato(id = null) {
-      currentEditingId = id;
-      modalLang = "es";
-      if (id) {
-        const dish = catalogo.find(d => d.id === id);
-        document.getElementById('inputDishPrice').value = dish.precioPEN || dish.precio || 0;
-        document.getElementById('inputDishCategory').value = dish.category || 'top';
-        document.getElementById('inputDishVideo').value = dish.videoUrl || '';
-        document.getElementById('inputDishPoster').value = dish.posterUrl || '';
-        modalTempI18n = JSON.parse(JSON.stringify(dish.i18n || {}));
-      } else {
-        document.getElementById('inputDishPrice').value = '35.00';
-        document.getElementById('inputDishCategory').value = 'mains';
-        document.getElementById('inputDishVideo').value = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
-        document.getElementById('inputDishPoster').value = 'https://images.unsplash.com/photo-1544025162-d76694265947?w=800';
-        modalTempI18n = { es: { name: "", desc: "" }, en: { name: "", desc: "" }, fr: { name: "", desc: "" }, pt: { name: "", desc: "" } };
-      }
-      cargarCamposModal();
-      document.getElementById('dishModal').classList.add('active');
-    }
-    function cerrarModalPlato() { document.getElementById('dishModal').classList.remove('active'); }
-
-    function switchLangTab(l) {
-      modalTempI18n[modalLang] = { name: document.getElementById('inputDishName').value.trim(), desc: document.getElementById('inputDishDesc').value.trim() };
-      modalLang = l;
-      document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-      event.target.classList.add('active');
-      cargarCamposModal();
-    }
-    function cargarCamposModal() {
-      const d = modalTempI18n[modalLang] || { name: "", desc: "" };
-      document.getElementById('inputDishName').value = d.name || "";
-      document.getElementById('inputDishDesc').value = d.desc || "";
-      document.getElementById('lblDishName').innerText = `Nombre (${modalLang.toUpperCase()}):`;
-      document.getElementById('lblDishDesc').innerText = `Descripción (${modalLang.toUpperCase()}):`;
-    }
-
-    function guardarPlatoDesdeModal() {
-      modalTempI18n[modalLang] = { name: document.getElementById('inputDishName').value.trim(), desc: document.getElementById('inputDishDesc').value.trim() };
-      const price = parseFloat(document.getElementById('inputDishPrice').value);
-      if (isNaN(price)) return alert("Precio inválido.");
-
-      const item = {
-        id: currentEditingId || "dish-" + Date.now(),
-        category: document.getElementById('inputDishCategory').value,
-        precioPEN: price,
-        precio: price,
-        videoUrl: document.getElementById('inputDishVideo').value.trim(),
-        posterUrl: document.getElementById('inputDishPoster').value.trim(),
-        i18n: modalTempI18n,
-        disponible: true
-      };
-
-      if (currentEditingId) {
-        const i = catalogo.findIndex(d => d.id === currentEditingId);
-        catalogo[i] = item;
-      } else catalogo.push(item);
-
-      cerrarModalPlato();
-      renderizarVisualDishes();
-    }
-
-    function eliminarPlato(i) {
-      if (confirm("¿Eliminar plato?")) { catalogo.splice(i, 1); renderizarVisualDishes(); }
-    }
-
-    function renderizarReporte() {
-      const ventas = JSON.parse(localStorage.getItem(STORAGE_KEY_VENTAS)) || [];
-      const tbody = document.getElementById('tablaVentasBody');
-      let total = 0;
-      tbody.innerHTML = ventas.map(v => {
-        total += (v.totalPEN || 0);
-        return `<tr><td>${v.fecha}</td><td><b>${v.cliente}</b></td><td>${v.productos}</td><td>S/ ${(v.totalPEN||0).toFixed(2)}</td><td>${v.pago}</td></tr>`;
-      }).join('');
-      document.getElementById('repPrintTotales').innerText = `Total: S/ ${total.toFixed(2)}`;
-    }
-
-    function actualizarQRVisual() {
-      const m = document.getElementById('qrMesaNumero').value.trim() || "Mesa 01";
-      const u = document.getElementById('qrUrlBase').value.trim() || "https://phyxcius.github.io/restaurante/";
-      const link = `${u}?mesa=${encodeURIComponent(m)}`;
-      document.getElementById('lblQRMesa').innerText = m;
-      document.getElementById('imgQRGenerado').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(link)}`;
-    }
-
-    // CARGA DE DATOS DESDE GITHUB
-    async function cargarDesdeGitHub() {
-      const token = obtenerTokenSecreto();
-      try {
-        const res = await fetch(`https://api.github.com/repos/${USUARIO}/${REPOSITORIO}/contents/${ARCHIVO}?ref=main&_t=${Date.now()}`, {
-          headers: token ? { "Authorization": `token ${token}` } : {}
-        });
-        if (res.ok) {
-          const d = await res.json();
-          const datos = JSON.parse(decodeURIComponent(escape(atob(d.content))));
-          catalogo = datos.productos || datos.catalogo || catalogo;
-          if (datos.config) configRestaurante = Object.assign(configRestaurante, datos.config);
-        }
-      } catch (e) { console.warn("Error GitHub:", e); }
-      renderizarVisualDishes();
-    }
-
-    // PUBLICAR EN GITHUB
-    async function sincronizarConGitHub() {
-      const token = obtenerTokenSecreto();
-      if (!token) return alert("Configura tu token en el acordeón de la izquierda.");
-
-      const btn = document.getElementById('btnPublicarSidebar');
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
-
-      let sha = "";
-      try {
-        const check = await fetch(`https://api.github.com/repos/${USUARIO}/${REPOSITORIO}/contents/${ARCHIVO}?ref=main&_t=${Date.now()}`, {
-          headers: { "Authorization": `token ${token}`, "Accept": "application/vnd.github.v3+json" }
-        });
-        if (check.ok) sha = (await check.json()).sha;
-      } catch (e) {}
-
-      const payload = {
-        message: "Actualización de carta y configuración",
-        content: btoa(unescape(encodeURIComponent(JSON.stringify({ restaurante: configRestaurante.nombre, config: configRestaurante, productos: catalogo }, null, 2)))),
-        branch: "main"
-      };
-      if (sha) payload.sha = sha;
-
-      try {
-        const res = await fetch(`https://api.github.com/repos/${USUARIO}/${REPOSITORIO}/contents/${ARCHIVO}`, {
-          method: "PUT",
-          headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-        if (res.ok) alert("✔ ¡Guardado con éxito en el repositorio restaurante!");
-        else alert("Error al guardar en GitHub.");
-      } catch (e) { alert("Error: " + e.message); }
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Publicar en GitHub';
-    }
-
-    window.onload = () => {
-      if (sessionStorage.getItem(STORAGE_KEY_AUTH) === "true") mostrarPanelAdmin();
-    };
+    window.addEventListener('DOMContentLoaded', cargarDatos);
   </script>
 </body>
 </html>
