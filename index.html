@@ -57,12 +57,13 @@
 
     .header-controls { display: flex; align-items: center; gap: 5px; }
     .select-pill { background: var(--glass-panel); border: 1px solid var(--glass-border); color: #fff; padding: 4px 6px; border-radius: 14px; font-size: 10.5px; font-weight: 700; outline: none; }
+    .select-pill option { background: #221510; }
     .icon-pill-btn { width: 30px; height: 30px; border-radius: 50%; background: var(--glass-panel); border: 1px solid var(--glass-border); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; }
 
     /* TARJETA KDS EN VIVO */
     .kds-tracking-card {
       display: none; width: calc(100% - 10px); margin: 0 auto;
-      padding: 9px 12px; border-radius: 12px; backdrop-filter: blur(12px);
+      padding: 10px 12px; border-radius: 14px; backdrop-filter: blur(12px);
       border: 1.5px solid transparent; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
       animation: fadeInDown 0.3s ease-out;
     }
@@ -71,14 +72,23 @@
     .kds-tracking-card.por_confirmar { display: block; background: rgba(45, 30, 24, 0.95); border-color: #f59e0b; }
     .kds-tracking-card.cocina { display: block; background: rgba(20, 32, 45, 0.95); border-color: #38bdf8; }
     .kds-tracking-card.servido { display: block; background: rgba(18, 38, 26, 0.95); border-color: #4ade80; }
+    .kds-tracking-card.yendo_caja { display: block; background: rgba(56, 18, 48, 0.96); border-color: #ec4899; box-shadow: 0 0 16px rgba(236, 72, 153, 0.4); }
 
     .kds-tracking-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
     .kds-status-badge { font-size: 10.5px; font-weight: 900; text-transform: uppercase; padding: 2px 7px; border-radius: 5px; }
     .badge-por_confirmar { background: #f59e0b; color: #000; }
     .badge-cocina { background: #0284c7; color: #fff; }
     .badge-servido { background: #16a34a; color: #fff; }
-    .kds-msg-text { font-size: 11.5px; color: #eee; line-height: 1.25; }
-    .kds-details-row { font-size: 10.5px; color: #bbb; display: flex; justify-content: space-between; margin-top: 4px; }
+    .badge-yendo_caja { background: #ec4899; color: #fff; }
+    
+    .kds-msg-text { font-size: 11.5px; color: #eee; line-height: 1.35; margin-top: 3px; }
+    .kds-details-row { font-size: 11px; color: #bbb; display: flex; justify-content: space-between; margin-top: 6px; border-top: 1px dashed rgba(255,255,255,0.12); padding-top: 5px; }
+
+    /* RECORDATORIO DE PAGO EN CAJA */
+    .recordatorio-pago-box {
+      display: none; background: rgba(0,0,0,0.4); border: 1px dashed #f472b6;
+      border-radius: 8px; padding: 7px 10px; margin-top: 6px; font-size: 11.5px;
+    }
 
     .btn-pedir-cuenta {
       background: linear-gradient(135deg, #15803d, #22c55e); color: #fff; border: none;
@@ -99,6 +109,7 @@
 
     /* FILTROS */
     .category-chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+    .category-chips::-webkit-scrollbar { display: none; }
     .chip { background: rgba(43, 31, 26, 0.7); border: 1px solid rgba(251, 191, 36, 0.25); color: var(--text-muted); padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer; }
     .chip.active { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; }
 
@@ -150,9 +161,7 @@
     }
     .chat-badge { position: absolute; top: -3px; right: -3px; background-color: #ef4444; color: #fff; font-size: 11px; font-weight: 800; min-width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
-    /* ==============================================================
-       POPUP DE COMANDA COMPLETO (RESTAURADO CON TODAS LAS OPCIONES)
-       ============================================================== */
+    /* POPUP MEXICAN DELIGHT */
     .popup-modal { position: fixed; inset: 0; background: rgba(18, 12, 10, 0.88); backdrop-filter: blur(6px); z-index: 100000; display: none; align-items: flex-end; justify-content: center; }
     .popup-modal.active { display: flex; }
     .popup-sheet {
@@ -335,7 +344,7 @@
       </div>
     </div>
 
-    <!-- TARJETA KDS EN VIVO -->
+    <!-- TARJETA KDS EN VIVO (CON ESTADO VOY EN CAMINO A CAJA) -->
     <div class="kds-tracking-card" id="kdsTrackingCard">
       <div class="kds-tracking-header">
         <span class="kds-status-badge" id="kdsBadge">🟡 Por Confirmar</span>
@@ -343,6 +352,12 @@
       </div>
       <p class="kds-msg-text" id="kdsMsg">Esperando que el mozo o caja acepte tu comanda...</p>
       
+      <!-- RECORDATORIO DE MONTO Y TIPO DE PAGO -->
+      <div class="recordatorio-pago-box" id="boxRecordatorioPago">
+        <div style="color:#fde047; font-weight:900;" id="recPagoTotalTxt">Total a Pagar: S/ 0.00</div>
+        <div style="color:#cbd5e1; font-size:11px;" id="recPagoMetodoTxt">Método seleccionado: Efectivo</div>
+      </div>
+
       <button type="button" class="btn-pedir-cuenta" id="btnPedirCuentaCliente" onclick="solicitarCuentaEnCaja()">
         <i class="fa-solid fa-bell"></i> <span id="lblPedirCuentaTxt">💵 Pedir Cuenta y Pagar en Caja</span>
       </button>
@@ -454,7 +469,7 @@
       </div>
 
       <button class="btn-submit-order" id="btnEnviarComanda" onclick="enviarComandaDirectaAlPanel()">
-        <i class="fa-solid fa-bell-concierge"></i> <span id="lblBtnEnviar">Enviar Comanda a Cocina</span>
+        <i class="fa-solid fa-bell-concierge"></i> <span id="lblBtnEnviar">Enviar Comanda al Panel / Cocina</span>
       </button>
       <div id="orderStatusMsg" style="text-align:center; font-size:12px; margin-top:6px; color:var(--modal-green-dark); font-weight:900;"></div>
     </div>
@@ -533,9 +548,13 @@
         placeholderNombre: "Nombre de quien pide (opcional)",
         placeholderNotas: "Notas para cocina (término de carne, alergias, etc.)",
         totalComanda: "Total comanda:",
-        btnEnviar: "Enviar Comanda a Cocina",
+        btnEnviar: "Enviar Comanda al Panel / Cocina",
         btnEnviarAdd: "Añadir a mi Comanda en Curso",
-        pedirCuenta: "💵 Pedir Cuenta y Pagar en Caja"
+        pedirCuenta: "💵 Pedir Cuenta y Pagar en Caja",
+        voyCaminoCaja: "🚶‍♂️ VOY EN CAMINO A CAJA",
+        msgCaminoCaja: "Acércate a caja para cancelar tu cuenta. Te esperamos para entregarte tu comprobante.",
+        totalPagarTxt: "Total a Pagar:",
+        metodoSelTxt: "Método seleccionado:"
       },
       en: {
         pedidosBurbuja: "🔥 Order",
@@ -554,7 +573,11 @@
         totalComanda: "Total amount:",
         btnEnviar: "Send Order to Kitchen",
         btnEnviarAdd: "Add to Active Table Order",
-        pedirCuenta: "💵 Request Bill & Pay at Cashier"
+        pedirCuenta: "💵 Request Bill & Pay at Cashier",
+        voyCaminoCaja: "🚶‍♂️ ON MY WAY TO CASHIER",
+        msgCaminoCaja: "Please walk up to the cashier to pay. We are waiting to hand you your receipt.",
+        totalPagarTxt: "Total Amount Due:",
+        metodoSelTxt: "Selected Payment:"
       },
       fr: {
         pedidosBurbuja: "🔥 Commande",
@@ -573,7 +596,11 @@
         totalComanda: "Total commande :",
         btnEnviar: "Envoyer la commande en cuisine",
         btnEnviarAdd: "Ajouter à la commande en cours",
-        pedirCuenta: "💵 Demander l'addition en caisse"
+        pedirCuenta: "💵 Demander l'addition en caisse",
+        voyCaminoCaja: "🚶‍♂️ EN ROUTE VERS LA CAISSE",
+        msgCaminoCaja: "Veuillez vous diriger vers la caisse pour régler l'addition. Nous vous remettrons votre reçu.",
+        totalPagarTxt: "Total à payer :",
+        metodoSelTxt: "Mode de paiement :"
       },
       pt: {
         pedidosBurbuja: "🔥 Pedidos",
@@ -592,7 +619,11 @@
         totalComanda: "Total do pedido:",
         btnEnviar: "Enviar Pedido para a Cozinha",
         btnEnviarAdd: "Adicionar ao Pedido em Andamento",
-        pedirCuenta: "💵 Pedir a Conta e Pagar no Caixa"
+        pedirCuenta: "💵 Pedir a Conta e Pagar no Caixa",
+        voyCaminoCaja: "🚶‍♂️ A CAMINHO DO CAIXA",
+        msgCaminoCaja: "Dirija-se ao caixa para efetuar o pagamento. Aguardamos você para entregar seu comprovante.",
+        totalPagarTxt: "Total a pagar:",
+        metodoSelTxt: "Forma de pagamento:"
       }
     };
 
@@ -1052,7 +1083,8 @@
         pago: metodoPago,
         notas: notas || "Sin notas",
         estado: "por_confirmar",
-        mozoPregunta: false
+        mozoPregunta: false,
+        clientePidiendoCuenta: false
       };
 
       try {
@@ -1061,7 +1093,9 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(nuevaComanda)
         });
-      } catch (e) {}
+      } catch (e) {
+        console.error("Error al enviar comanda:", e);
+      }
 
       comandaActivaId = nuevaComanda.id;
       localStorage.setItem("inkabistro_mi_comanda_id", comandaActivaId);
@@ -1082,15 +1116,18 @@
       }, 400);
     }
 
+    // PEDIR CUENTA Y CAMBIO A ESTADO: VOY EN CAMINO A CAJA
     async function solicitarCuentaEnCaja() {
       if (!comandaActivaId) return;
+
       await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ clientePidiendoCuenta: true })
       });
+
       reproducirSonidoCampanaExito();
-      alert("✔ Se ha avisado a caja y recepción. Acércate a pagar tu cuenta.");
+      await verificarEstadoComandaEnVivo();
     }
 
     async function verificarEstadoComandaEnVivo() {
@@ -1114,25 +1151,46 @@
       }
 
       const card = document.getElementById('kdsTrackingCard');
-      card.className = "kds-tracking-card " + comanda.estado;
+      const badge = document.getElementById('kdsBadge');
+      const msg = document.getElementById('kdsMsg');
+      const boxRec = document.getElementById('boxRecordatorioPago');
+      const btnPedir = document.getElementById('btnPedirCuentaCliente');
+      const dic = DICCIONARIO[currentLang] || DICCIONARIO.es;
+
       document.getElementById('kdsMesaTxt').innerText = comanda.mesa || "Mesa";
       document.getElementById('kdsTotalTxt').innerText = `S/ ${(comanda.totalPEN || 0).toFixed(2)}`;
 
-      const badge = document.getElementById('kdsBadge');
-      const msg = document.getElementById('kdsMsg');
+      // LÓGICA DE ESTADO: "VOY EN CAMINO A CAJA"
+      if (comanda.clientePidiendoCuenta === true) {
+        card.className = "kds-tracking-card yendo_caja";
+        badge.className = "kds-status-badge badge-yendo_caja";
+        badge.innerText = dic.voyCaminoCaja;
+        msg.innerText = dic.msgCaminoCaja;
 
-      if (comanda.estado === 'por_confirmar') {
-        badge.className = "kds-status-badge badge-por_confirmar";
-        badge.innerText = "🟡 Por Confirmar";
-        msg.innerText = "Esperando que caja o mozo confirme tu comanda...";
-      } else if (comanda.estado === 'cocina') {
-        badge.className = "kds-status-badge badge-cocina";
-        badge.innerText = "🔵 En Cocina";
-        msg.innerText = "¡Tu orden fue aceptada! El chef la está preparando en este momento 🍳";
-      } else if (comanda.estado === 'servido') {
-        badge.className = "kds-status-badge badge-servido";
-        badge.innerText = "🟢 Servido en Mesa";
-        msg.innerText = "¡Buen provecho! Tu pedido ya está en tu mesa.";
+        // Mostrar recordatorio de monto y método seleccionado
+        boxRec.style.display = "block";
+        document.getElementById('recPagoTotalTxt').innerText = `${dic.totalPagarTxt} S/ ${(comanda.totalPEN || 0).toFixed(2)}`;
+        document.getElementById('recPagoMetodoTxt').innerText = `${dic.metodoSelTxt} ${comanda.pago || 'Efectivo'}`;
+
+        btnPedir.style.display = "none";
+      } else {
+        boxRec.style.display = "none";
+        btnPedir.style.display = "block";
+        card.className = "kds-tracking-card " + comanda.estado;
+
+        if (comanda.estado === 'por_confirmar') {
+          badge.className = "kds-status-badge badge-por_confirmar";
+          badge.innerText = "🟡 Por Confirmar";
+          msg.innerText = "Esperando que caja o mozo confirme tu comanda...";
+        } else if (comanda.estado === 'cocina') {
+          badge.className = "kds-status-badge badge-cocina";
+          badge.innerText = "🔵 En Cocina";
+          msg.innerText = "¡Tu orden fue aceptada! El chef la está preparando en este momento 🍳";
+        } else if (comanda.estado === 'servido') {
+          badge.className = "kds-status-badge badge-servido";
+          badge.innerText = "🟢 Servido en Mesa";
+          msg.innerText = "¡Buen provecho! Tu pedido ya está en tu mesa.";
+        }
       }
 
       document.getElementById('mozoPromptBanner').style.display = (comanda.mozoPregunta === true) ? 'block' : 'none';
