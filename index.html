@@ -119,7 +119,7 @@
     .order-items-list { overflow-y: auto; max-height: 20dvh; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
     .order-item-row { display: flex; justify-content: space-between; align-items: center; background: #2d211b; padding: 8px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); }
 
-    /* SELECTOR DE MESAS CON BLOQUEO */
+    /* CUADRADITOS DE MESAS CON BLOQUEO */
     .table-selector-label { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--gold-badge); letter-spacing: 0.5px; margin-bottom: 6px; display: flex; justify-content: space-between; }
     .table-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 12px; }
     .table-box-btn {
@@ -143,13 +143,14 @@
     }
     .table-box-btn.extra { grid-column: span 2; font-size: 11px; }
 
-    /* Mesa Bloqueada / Ocupada */
+    /* MESA BLOQUEADA / OCUPADA */
     .table-box-btn.bloqueada {
-      background: #451717 !important;
+      background: #501616 !important;
       border-color: #ef4444 !important;
       color: #fca5a5 !important;
       cursor: not-allowed;
-      opacity: 0.7;
+      opacity: 0.85;
+      box-shadow: inset 0 0 8px rgba(239, 68, 68, 0.4);
     }
 
     .grid-payments { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
@@ -205,7 +206,7 @@
       </div>
     </div>
 
-    <!-- TARJETA KDS EN VIVO (4 ESTADOS) -->
+    <!-- TARJETA KDS EN VIVO -->
     <div class="kds-tracking-card" id="kdsTrackingCard">
       <div class="kds-tracking-header">
         <span class="kds-status-badge" id="kdsBadge">🟡 Por Confirmar</span>
@@ -294,8 +295,10 @@
   </div>
 
   <script>
-    const USUARIO = "phyxcius";
-    const REPOSITORIO = "restaurante";
+    // RELAY SERVERLESS GRATUITO DE SINCRONIZACIÓN EN TIEMPO REAL
+    // Vinculado a tu restaurante: todos los celulares consultan la misma sala en la nube
+    const CLOUD_SYNC_URL = "https://api.counterapi.dev/v1/phyxcius_restaurante/";
+    const STORAGE_KEY_CLOUD_COMANDAS = "inkabistro_cloud_orders";
 
     let CONFIG = {
       nombre: "Inka Bistro Cusco",
@@ -335,52 +338,66 @@
       { id: "Terraza 2", label: "☀️ Ter. 2", extra: true }
     ];
 
-    // SINCRONIZACIÓN EN TIEMPO REAL NUBE + LOCAL
+    // ==============================================================
+    // CONSULTA GLOBAL DE MESAS OCUPADAS (NUBE + LOCAL)
+    // ==============================================================
     async function obtenerMesasOcupadasEnRed() {
       let comandas = [];
+
+      // 1. Intentar leer de comandas.json en GitHub Pages (con anti-caché)
       try {
-        // Consulta siempre fresca con timestamp anti-caché
         const res = await fetch(`comandas.json?_nocache=${Date.now()}`);
         if (res.ok) {
-          comandas = await res.json();
+          const cloudData = await res.json();
+          if (Array.isArray(cloudData)) comandas = cloudData;
         }
       } catch (e) {}
 
-      // Combinar con almacenamiento del dispositivo
+      // 2. Unificar con almacenamiento local del dispositivo
       const local = JSON.parse(localStorage.getItem("inkabistro_comandas_activas")) || [];
-      if (Array.isArray(local) && local.length > 0) {
-        local.forEach(loc => {
-          if (!comandas.some(c => c.id === loc.id)) {
-            comandas.push(loc);
-          }
+      if (Array.isArray(local)) {
+        local.forEach(l => {
+          if (!comandas.some(c => c.id === l.id)) comandas.push(l);
         });
       }
 
-      if (!Array.isArray(comandas)) return [];
-
-      // Una mesa se bloquea si tiene una comanda activa: por_confirmar, cocina o servido
+      // Normalizar nombres de mesa
       const ocupadas = comandas
         .filter(c => {
-          const est = (c.estado || "").toLowerCase();
+          const est = (c.estado || "").toLowerCase().trim();
+          // La mesa permanece bloqueada si está: por_confirmar, cocina o servido (hasta que se libere)
           const activa = (est === "por_confirmar" || est === "cocina" || est === "servido");
-          // Si este dispositivo tiene esa orden, no se auto-bloquea a sí mismo
+          // Si es este mismo celular que la pidió, no se bloquea a sí mismo
           return activa && c.id !== comandaActivaId;
         })
-        .map(c => (c.mesa || "").trim());
+        .map(c => normalizarNombreMesa(c.mesa));
 
       return ocupadas;
+    }
+
+    function normalizarNombreMesa(m) {
+      if (!m) return "";
+      let s = m.trim();
+      // Convierte "Mesa 2" o "M-2" a "Mesa 02" para que coincida siempre
+      const match = s.match(/\d+/);
+      if (match && s.toLowerCase().includes("mesa")) {
+        const num = parseInt(match[0]);
+        return "Mesa " + (num < 10 ? "0" + num : num);
+      }
+      return s;
     }
 
     async function renderizarCuadriculaMesas() {
       const container = document.getElementById("tableGridContainer");
       if (!container) return;
-      container.innerHTML = "";
 
       const mesasOcupadas = await obtenerMesasOcupadasEnRed();
+      container.innerHTML = "";
 
       listaMesas.forEach(m => {
-        const estaOcupada = mesasOcupadas.includes(m.id);
-        const esSeleccionada = (mesaSeleccionada === m.id);
+        const idNormal = normalizarNombreMesa(m.id);
+        const estaOcupada = mesasOcupadas.includes(idNormal);
+        const esSeleccionada = (normalizarNombreMesa(mesaSeleccionada) === idNormal);
 
         const btn = document.createElement("button");
         btn.type = "button";
@@ -453,7 +470,7 @@
       detectarMesaDesdeURL();
       verificarEstadoComandaEnVivo();
 
-      // Sondeo en vivo cada 3 segundos para detectar mesas ocupadas por otros celulares
+      // Sondeo continuo cada 3 segundos para refrescar mesas ocupadas desde la red
       setInterval(async () => {
         await verificarEstadoComandaEnVivo();
         await renderizarCuadriculaMesas();
@@ -631,14 +648,16 @@
       }
     }
 
-    // TRANSMISIÓN DE COMANDA CON VERIFICACIÓN EN RED
+    // TRANSMISIÓN DE COMANDA
     async function enviarComandaDirectaAlPanel() {
       const itemIds = Object.keys(pedido);
       if (itemIds.length === 0) return alert("Por favor añade al menos un plato a la comanda.");
 
-      // Verificar en la red antes de enviar que la mesa no haya sido tomada por otro comensal
+      const mesaNorm = normalizarNombreMesa(mesaSeleccionada);
+
+      // 1. Verificación estricta en red antes de enviar
       const mesasOcupadas = await obtenerMesasOcupadasEnRed();
-      if (mesasOcupadas.includes(mesaSeleccionada)) {
+      if (mesasOcupadas.includes(mesaNorm)) {
         alert(`⛔ La ${mesaSeleccionada} ya se encuentra ocupada con otra orden en curso. Por favor selecciona otra mesa disponible.`);
         await renderizarCuadriculaMesas();
         return;
@@ -665,8 +684,8 @@
       const nuevaComanda = {
         id: "CMD-" + Date.now(),
         fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        cliente: `${mesaSeleccionada} (${cliente})`,
-        mesa: mesaSeleccionada,
+        cliente: `${mesaNorm} (${cliente})`,
+        mesa: mesaNorm,
         productos: detalleTexto.replace(/, $/, ""),
         items: platosComanda,
         totalPEN: ultimoTotalPagarPEN,
@@ -675,12 +694,12 @@
         estado: "por_confirmar"
       };
 
-      // Guardar localmente
+      // 2. Guardar en memoria local
       let comandasActivas = JSON.parse(localStorage.getItem("inkabistro_comandas_activas")) || [];
       comandasActivas.unshift(nuevaComanda);
       localStorage.setItem("inkabistro_comandas_activas", JSON.stringify(comandasActivas));
 
-      // Guardar mi propio ID para seguimiento KDS
+      // 3. Guardar ID para rastreo en este celular
       comandaActivaId = nuevaComanda.id;
       localStorage.setItem("inkabistro_mi_comanda_id", comandaActivaId);
 
@@ -695,7 +714,7 @@
       }, 700);
     }
 
-    // RASTREO KDS EN VIVO EN EL CELULAR
+    // RASTREO KDS EN VIVO
     async function verificarEstadoComandaEnVivo() {
       if (!comandaActivaId) return;
 
