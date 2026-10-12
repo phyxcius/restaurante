@@ -55,7 +55,7 @@
     .select-pill option { background: #221510; }
     .icon-pill-btn { width: 30px; height: 30px; border-radius: 50%; background: var(--glass-panel); border: 1px solid var(--glass-border); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; }
 
-    /* TARJETA DE SEGUIMIENTO EN VIVO (4 ESTADOS) */
+    /* TARJETA KDS EN VIVO */
     .kds-tracking-card {
       display: none; width: calc(100% - 10px); margin: 0 auto;
       padding: 9px 12px; border-radius: 12px; backdrop-filter: blur(12px);
@@ -119,7 +119,7 @@
     .order-items-list { overflow-y: auto; max-height: 20dvh; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
     .order-item-row { display: flex; justify-content: space-between; align-items: center; background: #2d211b; padding: 8px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); }
 
-    /* CUADRADITOS DE MESAS CON BLOQUEO */
+    /* SELECTOR DE MESAS CON BLOQUEO */
     .table-selector-label { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--gold-badge); letter-spacing: 0.5px; margin-bottom: 6px; display: flex; justify-content: space-between; }
     .table-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 12px; }
     .table-box-btn {
@@ -143,13 +143,13 @@
     }
     .table-box-btn.extra { grid-column: span 2; font-size: 11px; }
 
-    /* Mesa Bloqueada en Atención */
+    /* Mesa Bloqueada / Ocupada */
     .table-box-btn.bloqueada {
-      background: #3f1818 !important;
-      border-color: #dc2626 !important;
+      background: #451717 !important;
+      border-color: #ef4444 !important;
       color: #fca5a5 !important;
-      opacity: 0.65;
       cursor: not-allowed;
+      opacity: 0.7;
     }
 
     .grid-payments { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
@@ -317,16 +317,6 @@
     let mesaSeleccionada = "Mesa 01";
     let comandaActivaId = localStorage.getItem("inkabistro_mi_comanda_id") || null;
 
-    // CANAL DE SINCRONIZACIÓN EN VIVO (BroadcastChannel para sincronizar entre pestañas normales e incógnitas)
-    const syncChannel = ("BroadcastChannel" in window) ? new BroadcastChannel("inkabistro_sync_mesas") : null;
-    if (syncChannel) {
-      syncChannel.onmessage = (ev) => {
-        if (ev.data && ev.data.tipo === "ACTUALIZAR_MESAS") {
-          sincronizarMesasDesdeServidor();
-        }
-      };
-    }
-
     const listaMesas = [
       { id: "Mesa 01", label: "1" },
       { id: "Mesa 02", label: "2" },
@@ -345,32 +335,40 @@
       { id: "Terraza 2", label: "☀️ Ter. 2", extra: true }
     ];
 
-    // Obtener mesas bloqueadas globales (consulta comandas.json o localStorage como fallback)
-    async function obtenerMesasOcupadasGlobales() {
+    // SINCRONIZACIÓN EN TIEMPO REAL NUBE + LOCAL
+    async function obtenerMesasOcupadasEnRed() {
       let comandas = [];
       try {
-        const res = await fetch(`comandas.json?_t=${Date.now()}`);
+        // Consulta siempre fresca con timestamp anti-caché
+        const res = await fetch(`comandas.json?_nocache=${Date.now()}`);
         if (res.ok) {
           comandas = await res.json();
         }
-      } catch (e) {
-        // Fallback local
-        comandas = JSON.parse(localStorage.getItem("inkabistro_comandas_activas")) || [];
+      } catch (e) {}
+
+      // Combinar con almacenamiento del dispositivo
+      const local = JSON.parse(localStorage.getItem("inkabistro_comandas_activas")) || [];
+      if (Array.isArray(local) && local.length > 0) {
+        local.forEach(loc => {
+          if (!comandas.some(c => c.id === loc.id)) {
+            comandas.push(loc);
+          }
+        });
       }
 
-      if (!Array.isArray(comandas)) comandas = [];
+      if (!Array.isArray(comandas)) return [];
 
-      // Una mesa se bloquea si tiene una orden activa: por_confirmar, cocina o servido (hasta que se libere)
-      const mesasBloqueadas = comandas
+      // Una mesa se bloquea si tiene una comanda activa: por_confirmar, cocina o servido
+      const ocupadas = comandas
         .filter(c => {
           const est = (c.estado || "").toLowerCase();
-          const esActivo = (est === "por_confirmar" || est === "cocina" || est === "servido");
-          // Si es el mismo dispositivo que pidió, no se auto-bloquea a sí mismo
-          return esActivo && c.id !== comandaActivaId;
+          const activa = (est === "por_confirmar" || est === "cocina" || est === "servido");
+          // Si este dispositivo tiene esa orden, no se auto-bloquea a sí mismo
+          return activa && c.id !== comandaActivaId;
         })
         .map(c => (c.mesa || "").trim());
 
-      return mesasBloqueadas;
+      return ocupadas;
     }
 
     async function renderizarCuadriculaMesas() {
@@ -378,7 +376,7 @@
       if (!container) return;
       container.innerHTML = "";
 
-      const mesasOcupadas = await obtenerMesasOcupadasGlobales();
+      const mesasOcupadas = await obtenerMesasOcupadasEnRed();
 
       listaMesas.forEach(m => {
         const estaOcupada = mesasOcupadas.includes(m.id);
@@ -391,7 +389,7 @@
         if (estaOcupada) {
           btn.innerHTML = `${m.label} <span style="font-size:9px;">🔒</span>`;
           btn.title = `La ${m.id} está siendo atendida en este momento.`;
-          btn.onclick = () => alert(`⚠️ La ${m.id} ya tiene una comanda en curso y está siendo atendida. Por favor selecciona otra mesa disponible.`);
+          btn.onclick = () => alert(`⚠️ La ${m.id} ya tiene un pedido en curso y está siendo atendida. Por favor selecciona otra mesa disponible.`);
         } else {
           btn.innerText = m.label;
           btn.onclick = () => selectTableRow(m.id, btn);
@@ -454,12 +452,12 @@
       setupObserver();
       detectarMesaDesdeURL();
       verificarEstadoComandaEnVivo();
-      setInterval(sincronizarMesasDesdeServidor, 4000); // Consulta en red periódica
-    }
 
-    function sincronizarMesasDesdeServidor() {
-      verificarEstadoComandaEnVivo();
-      renderizarCuadriculaMesas();
+      // Sondeo en vivo cada 3 segundos para detectar mesas ocupadas por otros celulares
+      setInterval(async () => {
+        await verificarEstadoComandaEnVivo();
+        await renderizarCuadriculaMesas();
+      }, 3000);
     }
 
     function formatPrice(pen) {
@@ -633,16 +631,16 @@
       }
     }
 
-    // TRANSMISIÓN DE COMANDA
+    // TRANSMISIÓN DE COMANDA CON VERIFICACIÓN EN RED
     async function enviarComandaDirectaAlPanel() {
       const itemIds = Object.keys(pedido);
       if (itemIds.length === 0) return alert("Por favor añade al menos un plato a la comanda.");
 
-      // Verificar que la mesa no esté bloqueada antes de enviar
-      const mesasOcupadas = await obtenerMesasOcupadasGlobales();
+      // Verificar en la red antes de enviar que la mesa no haya sido tomada por otro comensal
+      const mesasOcupadas = await obtenerMesasOcupadasEnRed();
       if (mesasOcupadas.includes(mesaSeleccionada)) {
-        alert(`⛔ La ${mesaSeleccionada} ya se encuentra ocupada con una orden en atención. Por favor selecciona otra mesa disponible.`);
-        renderizarCuadriculaMesas();
+        alert(`⛔ La ${mesaSeleccionada} ya se encuentra ocupada con otra orden en curso. Por favor selecciona otra mesa disponible.`);
+        await renderizarCuadriculaMesas();
         return;
       }
 
@@ -682,14 +680,9 @@
       comandasActivas.unshift(nuevaComanda);
       localStorage.setItem("inkabistro_comandas_activas", JSON.stringify(comandasActivas));
 
-      // Guardar ID propio para seguimiento
+      // Guardar mi propio ID para seguimiento KDS
       comandaActivaId = nuevaComanda.id;
       localStorage.setItem("inkabistro_mi_comanda_id", comandaActivaId);
-
-      // Notificar a otras pestañas e incógnito por BroadcastChannel
-      if (syncChannel) {
-        syncChannel.postMessage({ tipo: "ACTUALIZAR_MESAS", mesa: mesaSeleccionada });
-      }
 
       setTimeout(() => {
         for (let k in pedido) delete pedido[k];
@@ -702,13 +695,13 @@
       }, 700);
     }
 
-    // RASTREO EN VIVO EN EL CELULAR
+    // RASTREO KDS EN VIVO EN EL CELULAR
     async function verificarEstadoComandaEnVivo() {
       if (!comandaActivaId) return;
 
       let comandas = [];
       try {
-        const res = await fetch(`comandas.json?_t=${Date.now()}`);
+        const res = await fetch(`comandas.json?_nocache=${Date.now()}`);
         if (res.ok) comandas = await res.json();
       } catch (e) {}
 
@@ -744,10 +737,10 @@
         badge.className = "kds-status-badge badge-servido";
         badge.innerHTML = "🟢 3. Servido en Mesa";
         msg.innerText = "¡Buen provecho! Tu pedido ya está servido en tu mesa 🍽️";
-      } else if (miComanda.estado === 'rechazado') {
+      } else if (miComanda.estado === 'rechazado' || miComanda.estado === 'liberado') {
         badge.className = "kds-status-badge badge-rechazado";
-        badge.innerHTML = "🔴 4. Rechazado / Cancelado";
-        msg.innerText = "Tu pedido ha sido cancelado. Por favor consulta con el personal de sala.";
+        badge.innerHTML = "🔴 4. Finalizado";
+        msg.innerText = miComanda.estado === 'rechazado' ? "Tu pedido ha sido cancelado por el restaurante." : "Mesa desocupada. ¡Gracias por tu visita!";
       }
     }
 
