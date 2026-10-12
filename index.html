@@ -116,7 +116,18 @@
     .popup-sheet { background: #241a15; width: 100%; max-width: 480px; max-height: 90dvh; border-radius: 24px 24px 0 0; padding: 18px 18px 24px; display: flex; flex-direction: column; border-top: 1.5px solid var(--glass-border); overflow-y: auto; }
 
     .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 10px; }
-    .order-items-list { overflow-y: auto; max-height: 20dvh; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+    
+    /* CORRECCIÓN VISUAL: ALTURA MÍNIMA FIJA PARA EVITAR QUE EL PLATO SE OCULTE */
+    .order-items-list {
+      min-height: 55px;
+      max-height: 25dvh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-shrink: 0;
+    }
     .order-item-row { display: flex; justify-content: space-between; align-items: center; background: #2d211b; padding: 8px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); }
 
     /* CUADRADITOS DE MESAS CON BLOQUEO */
@@ -143,7 +154,7 @@
     }
     .table-box-btn.extra { grid-column: span 2; font-size: 11px; }
 
-    /* MESA BLOQUEADA / OCUPADA */
+    /* Mesa Bloqueada / Ocupada */
     .table-box-btn.bloqueada {
       background: #501616 !important;
       border-color: #ef4444 !important;
@@ -295,11 +306,6 @@
   </div>
 
   <script>
-    // RELAY SERVERLESS GRATUITO DE SINCRONIZACIÓN EN TIEMPO REAL
-    // Vinculado a tu restaurante: todos los celulares consultan la misma sala en la nube
-    const CLOUD_SYNC_URL = "https://api.counterapi.dev/v1/phyxcius_restaurante/";
-    const STORAGE_KEY_CLOUD_COMANDAS = "inkabistro_cloud_orders";
-
     let CONFIG = {
       nombre: "Inka Bistro Cusco",
       eslogan: "Cusco • Gourmet",
@@ -338,22 +344,25 @@
       { id: "Terraza 2", label: "☀️ Ter. 2", extra: true }
     ];
 
-    // ==============================================================
-    // CONSULTA GLOBAL DE MESAS OCUPADAS (NUBE + LOCAL)
-    // ==============================================================
+    // CORRECCIÓN ANTI-CACHÉ ESTRICTA: LEE comandas.json SIN PASAR POR CACHÉ
     async function obtenerMesasOcupadasEnRed() {
       let comandas = [];
 
-      // 1. Intentar leer de comandas.json en GitHub Pages (con anti-caché)
       try {
-        const res = await fetch(`comandas.json?_nocache=${Date.now()}`);
+        const res = await fetch(`comandas.json?nocache=${Date.now()}`, {
+          cache: 'no-store',
+          headers: {
+            'Pragma': 'no-cache',
+            'Cache-Control': 'no-cache, no-store, must-revalidate'
+          }
+        });
         if (res.ok) {
           const cloudData = await res.json();
           if (Array.isArray(cloudData)) comandas = cloudData;
         }
       } catch (e) {}
 
-      // 2. Unificar con almacenamiento local del dispositivo
+      // Mezclar con el almacenamiento local del dispositivo
       const local = JSON.parse(localStorage.getItem("inkabistro_comandas_activas")) || [];
       if (Array.isArray(local)) {
         local.forEach(l => {
@@ -361,13 +370,11 @@
         });
       }
 
-      // Normalizar nombres de mesa
+      // Filtrar mesas con pedidos activos
       const ocupadas = comandas
         .filter(c => {
           const est = (c.estado || "").toLowerCase().trim();
-          // La mesa permanece bloqueada si está: por_confirmar, cocina o servido (hasta que se libere)
           const activa = (est === "por_confirmar" || est === "cocina" || est === "servido");
-          // Si es este mismo celular que la pidió, no se bloquea a sí mismo
           return activa && c.id !== comandaActivaId;
         })
         .map(c => normalizarNombreMesa(c.mesa));
@@ -378,7 +385,6 @@
     function normalizarNombreMesa(m) {
       if (!m) return "";
       let s = m.trim();
-      // Convierte "Mesa 2" o "M-2" a "Mesa 02" para que coincida siempre
       const match = s.match(/\d+/);
       if (match && s.toLowerCase().includes("mesa")) {
         const num = parseInt(match[0]);
@@ -435,7 +441,7 @@
 
     async function cargarDatos() {
       try {
-        const res = await fetch(`productos.json?_t=${Date.now()}`);
+        const res = await fetch(`productos.json?v=${Date.now()}`, { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
           catalogo = data.productos || data.catalogo || [];
@@ -470,7 +476,7 @@
       detectarMesaDesdeURL();
       verificarEstadoComandaEnVivo();
 
-      // Sondeo continuo cada 3 segundos para refrescar mesas ocupadas desde la red
+      // Refresco constante cada 3 segundos
       setInterval(async () => {
         await verificarEstadoComandaEnVivo();
         await renderizarCuadriculaMesas();
@@ -566,6 +572,7 @@
       actualizarVistaPopup();
     }
 
+    // CORRECCIÓN VISUAL: RENDERIZA SIEMPRE EL CONTENEDOR DE PLATOS CON ALTURA GARANTIZADA
     function actualizarVistaPopup() {
       const list = document.getElementById('orderItemsList');
       list.innerHTML = '';
@@ -583,19 +590,21 @@
         list.innerHTML += `
           <div class="order-item-row">
             <div>
-              <strong style="font-size:13px;">${info.name}</strong>
-              <div style="font-size:11px; color:#aaa;">${formatPrice(d.precioPEN)} x ${cant} = <b>${formatPrice(sub)}</b></div>
+              <strong style="font-size:13.5px; color:#fff;">${info.name}</strong>
+              <div style="font-size:11px; color:#aaa; margin-top:2px;">${formatPrice(d.precioPEN)} x ${cant} = <b style="color:#fde047;">${formatPrice(sub)}</b></div>
             </div>
             <div style="display:flex; gap:6px; align-items:center;">
-              <button style="width:24px; height:24px; border-radius:4px; background:#443027; color:#fff; border:none;" onclick="changeQty('${id}', -1)">-</button>
-              <span style="font-weight:bold; font-size:13px; min-width:16px; text-align:center;">${cant}</span>
-              <button style="width:24px; height:24px; border-radius:4px; background:#443027; color:#fff; border:none;" onclick="changeQty('${id}', 1)">+</button>
+              <button style="width:26px; height:26px; border-radius:5px; background:#443027; color:#fff; border:none; cursor:pointer;" onclick="changeQty('${id}', -1)">-</button>
+              <span style="font-weight:bold; font-size:13px; min-width:18px; text-align:center;">${cant}</span>
+              <button style="width:26px; height:26px; border-radius:5px; background:#443027; color:#fff; border:none; cursor:pointer;" onclick="changeQty('${id}', 1)">+</button>
             </div>
           </div>
         `;
       });
 
-      if (totalU === 0) list.innerHTML = '<p style="text-align:center; color:#888; font-size:13px; padding:16px;">Sin platos añadidos aún.</p>';
+      if (totalU === 0) {
+        list.innerHTML = '<p style="text-align:center; color:#888; font-size:13px; padding:12px 0;">No has seleccionado ningún plato aún.</p>';
+      }
 
       ultimoTotalPagarPEN = totalMonto;
       document.getElementById('ordersBadgeCount').innerText = totalU;
@@ -655,7 +664,7 @@
 
       const mesaNorm = normalizarNombreMesa(mesaSeleccionada);
 
-      // 1. Verificación estricta en red antes de enviar
+      // Verificación en tiempo real sin caché antes de enviar
       const mesasOcupadas = await obtenerMesasOcupadasEnRed();
       if (mesasOcupadas.includes(mesaNorm)) {
         alert(`⛔ La ${mesaSeleccionada} ya se encuentra ocupada con otra orden en curso. Por favor selecciona otra mesa disponible.`);
@@ -694,12 +703,12 @@
         estado: "por_confirmar"
       };
 
-      // 2. Guardar en memoria local
+      // Guardar localmente
       let comandasActivas = JSON.parse(localStorage.getItem("inkabistro_comandas_activas")) || [];
       comandasActivas.unshift(nuevaComanda);
       localStorage.setItem("inkabistro_comandas_activas", JSON.stringify(comandasActivas));
 
-      // 3. Guardar ID para rastreo en este celular
+      // Guardar ID propio
       comandaActivaId = nuevaComanda.id;
       localStorage.setItem("inkabistro_mi_comanda_id", comandaActivaId);
 
@@ -720,7 +729,7 @@
 
       let comandas = [];
       try {
-        const res = await fetch(`comandas.json?_nocache=${Date.now()}`);
+        const res = await fetch(`comandas.json?_nocache=${Date.now()}`, { cache: 'no-store' });
         if (res.ok) comandas = await res.json();
       } catch (e) {}
 
