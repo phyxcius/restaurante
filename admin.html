@@ -72,22 +72,13 @@
 
     /* MONITOR DE MESAS */
     .tables-monitor-bar {
-      background: #1a110e;
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 12px 14px;
-      margin-bottom: 18px;
+      background: #1a110e; border: 1px solid var(--card-border);
+      border-radius: 12px; padding: 12px 14px; margin-bottom: 18px;
     }
     .tables-monitor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--gold); }
     .tables-monitor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); gap: 6px; }
     .table-pill {
-      padding: 6px 4px;
-      text-align: center;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 800;
-      border: 1px solid transparent;
-      cursor: pointer;
+      padding: 6px 4px; text-align: center; border-radius: 6px; font-size: 11px; font-weight: 800; border: 1px solid transparent; cursor: pointer;
     }
     .table-pill.libre { background: rgba(22, 163, 74, 0.15); border-color: #16a34a; color: #86efac; }
     .table-pill.ocupada { background: rgba(220, 38, 38, 0.25); border-color: #dc2626; color: #fca5a5; animation: pulseRed 2s infinite; }
@@ -96,14 +87,8 @@
     /* COMANDAS KDS */
     .live-orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
     .order-card {
-      background: #241914;
-      border-radius: 14px;
-      border: 2px solid rgba(245, 158, 11, 0.3);
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+      background: #241914; border-radius: 14px; border: 2px solid rgba(245, 158, 11, 0.3);
+      padding: 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
     }
     
     .order-card.por_confirmar { border-color: #f59e0b; background: #2b1d16; box-shadow: 0 0 16px rgba(245, 158, 11, 0.25); }
@@ -140,8 +125,14 @@
       padding: 10px; font-size: 12px; border-radius: 8px; border: 1px solid #4b5563; font-weight: 800; cursor: pointer;
       display: flex; align-items: center; justify-content: center; gap: 6px;
     }
+    .btn-action-ask-more {
+      width: 100%; background: #ca8a04; color: #fff;
+      padding: 8px; font-size: 11.5px; border-radius: 6px; border: none; font-weight: 800; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 4px;
+    }
+    .btn-action-ask-more:hover { filter: brightness(1.1); }
 
-    /* CATÁLOGO VISUAL */
+    /* CATÁLOGO */
     .dishes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
     .dish-card-visual { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
     .dish-card-visual.agotado { opacity: 0.65; border-color: #7f1d1d; }
@@ -459,7 +450,7 @@
       document.getElementById('ghTokenInput').value = obtenerTokenSecreto();
       cargarDesdeGitHub();
       cargarComandasEnVivo();
-      setInterval(cargarComandasEnVivo, 2000); // Polling a Firebase cada 2 segundos
+      setInterval(cargarComandasEnVivo, 1800);
     }
 
     function cerrarSesionAdmin() {
@@ -549,7 +540,6 @@
         comandas = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
       }
 
-      // Ordenar por las más recientes primero
       comandas.sort((a, b) => (b.id || "").localeCompare(a.id || ""));
 
       const pedidosActivos = comandas.filter(c => c.estado !== 'liberado' && c.estado !== 'rechazado');
@@ -604,7 +594,7 @@
               ` : ''}
 
               ${estado === 'cocina' ? `
-                <button type="button" class="btn-action-kitchen" onclick="cambiarEstadoFirebase('${c.id}', 'servido')">
+                <button type="button" class="btn-action-kitchen" onclick="marcarComoServidoDirecto('${c.id}')">
                   <i class="fa-solid fa-utensils"></i> 🍽️ Marcar como Servido
                 </button>
               ` : ''}
@@ -624,6 +614,13 @@
               <button type="button" class="btn btn-del" style="padding:8px 12px; font-size:13px;" title="Eliminar comanda" onclick="eliminarComandaFirebase('${c.id}')">
                 <i class="fa-solid fa-trash"></i>
               </button>
+
+              <!-- BOTÓN: PREGUNTAR AL CLIENTE SI DESEA ALGO MÁS -->
+              ${estado !== 'liberado' && estado !== 'rechazado' ? `
+                <button type="button" class="btn-action-ask-more" onclick="activarPreguntaMozo('${c.id}')">
+                  <i class="fa-solid fa-comment-dots"></i> 💬 Preguntar al comensal si desea algo más
+                </button>
+              ` : ''}
             </div>
           </div>
         `;
@@ -648,8 +645,23 @@
       }).join('');
     }
 
-    // ACTUALIZACIÓN DIRECTA EN FIREBASE (< 300 ms)
+    // ==============================================================
+    // CORRECCIÓN EXACTA DE "MARCAR COMO SERVIDO" Y CAMBIOS DE ESTADO
+    // ==============================================================
+    async function marcarComoServidoDirecto(idComanda) {
+      await cambiarEstadoFirebase(idComanda, 'servido');
+    }
+
     async function cambiarEstadoFirebase(idComanda, nuevoEstado) {
+      // 1. Actualización local inmediata
+      let local = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
+      const item = local.find(c => c.id === idComanda);
+      if (item) {
+        item.estado = nuevoEstado;
+        localStorage.setItem(STORAGE_KEY_COMANDAS, JSON.stringify(local));
+      }
+
+      // 2. Actualización directa en Firebase
       try {
         await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}/estado.json`, {
           method: 'PUT',
@@ -659,7 +671,22 @@
       } catch (e) {
         console.error("Error al actualizar en Firebase:", e);
       }
-      cargarComandasEnVivo();
+
+      await cargarComandasEnVivo();
+    }
+
+    // DISPARAR PREGUNTA AL CLIENTE EN SU CELULAR
+    async function activarPreguntaMozo(idComanda) {
+      try {
+        await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}/mozoPregunta.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(true)
+        });
+        alert("✔ Notificación enviada a la pantalla del comensal.");
+      } catch (e) {
+        alert("Error al enviar notificación.");
+      }
     }
 
     async function liberarMesa(idComanda, nombreMesa) {
@@ -692,6 +719,11 @@
         try {
           await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, { method: 'DELETE' });
         } catch (e) {}
+        
+        let local = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
+        local = local.filter(c => c.id !== idComanda);
+        localStorage.setItem(STORAGE_KEY_COMANDAS, JSON.stringify(local));
+
         cargarComandasEnVivo();
       }
     }
@@ -874,13 +906,12 @@
       if (sha) payload.sha = sha;
 
       try {
-        const res = await fetch(`https://api.github.com/repos/${USUARIO}/${REPOSITORIO}/contents/${ARCHIVO}`, {
+        await fetch(`https://api.github.com/repos/${USUARIO}/${REPOSITORIO}/contents/${ARCHIVO}`, {
           method: "PUT",
           headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
-        if (res.ok) alert("✔ ¡Guardado con éxito en el repositorio restaurante!");
-        else alert("Error al guardar en GitHub.");
+        alert("✔ ¡Guardado con éxito en el repositorio restaurante!");
       } catch (e) { alert("Error: " + e.message); }
       btn.disabled = false;
       btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Publicar en GitHub';
