@@ -1,1 +1,21 @@
-[]
+[
+  {
+    "id": "CMD-1791776488708",
+    "fecha": "11/10/2026 10:41 p.m.",
+    "cliente": "Mesa 12 (Comensal)",
+    "mesa": "Mesa 12",
+    "productos": "1x Aji de gallina",
+    "items": [
+      {
+        "id": "dish-1791770040831",
+        "nombre": "Aji de gallina",
+        "cantidad": 1,
+        "precio": 35
+      }
+    ],
+    "totalPEN": 35,
+    "pago": "Yape",
+    "notas": "",
+    "estado": "cocina"
+  }
+]
