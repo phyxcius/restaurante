@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel de Control & Cocina</title>
+  <title>Panel de Control & Cobros | Inka Bistro Cusco</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
@@ -25,7 +25,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
     body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
 
-    /* BARRA SUPERIOR MÓVIL PERSISTENTE */
+    /* BARRA SUPERIOR MÓVIL */
     .top-admin-bar {
       display: none;
       background: #190f0c;
@@ -61,6 +61,15 @@
       transition: grid-template-columns 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
     }
+    .admin-layout.sidebar-collapsed {
+      grid-template-columns: 0px 1fr;
+    }
+    .admin-layout.sidebar-collapsed .sidebar {
+      transform: translateX(-100%);
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+    }
 
     /* SIDEBAR */
     .sidebar {
@@ -79,16 +88,6 @@
       width: 290px;
     }
 
-    .admin-layout.sidebar-collapsed {
-      grid-template-columns: 0px 1fr;
-    }
-    .admin-layout.sidebar-collapsed .sidebar {
-      transform: translateX(-100%);
-      opacity: 0;
-      pointer-events: none;
-      visibility: hidden;
-    }
-
     .brand-box {
       display: flex;
       align-items: center;
@@ -97,51 +96,26 @@
       padding-bottom: 12px;
       border-bottom: 1px solid rgba(255,255,255,0.08);
     }
-    .brand-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      overflow: hidden;
-    }
+    .brand-left { display: flex; align-items: center; gap: 10px; overflow: hidden; }
     .brand-avatar {
-      width: 42px;
-      height: 42px;
-      border-radius: 10px;
+      width: 42px; height: 42px; border-radius: 10px;
       background: linear-gradient(135deg, var(--accent), var(--primary));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      color: #fff;
-      overflow: hidden;
-      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; color: #fff; overflow: hidden; flex-shrink: 0;
     }
     .brand-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
     .btn-toggle-menu {
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
-      background: rgba(245, 158, 11, 0.15);
-      border: 1px solid rgba(245, 158, 11, 0.35);
-      color: var(--gold);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 15px;
-      cursor: pointer;
-      flex-shrink: 0;
+      width: 36px; height: 36px; border-radius: 8px;
+      background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35);
+      color: var(--gold); display: flex; align-items: center; justify-content: center;
+      font-size: 15px; cursor: pointer; flex-shrink: 0;
     }
 
     .chuspa-badge-sidebar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(254, 252, 232, 0.08);
-      border: 1px solid rgba(234, 179, 8, 0.35);
-      padding: 6px 10px;
-      border-radius: 20px;
-      text-decoration: none;
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(254, 252, 232, 0.08); border: 1px solid rgba(234, 179, 8, 0.35);
+      padding: 6px 10px; border-radius: 20px; text-decoration: none;
     }
     .chuspa-img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1px solid #ca8a04; background: #fff; }
 
@@ -159,13 +133,7 @@
     .badge-live-orders { background: #ef4444; color: #fff; font-size: 10px; padding: 2px 7px; border-radius: 12px; margin-left: auto; }
 
     /* VISTA PRINCIPAL */
-    .main-view {
-      padding: 24px 28px;
-      overflow-y: auto;
-      max-height: 100vh;
-      width: 100%;
-      transition: padding 0.3s ease;
-    }
+    .main-view { padding: 24px 28px; overflow-y: auto; max-height: 100vh; width: 100%; transition: padding 0.3s ease; }
     .view-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px; border-bottom: 1.5px solid rgba(255,255,255,0.08); padding-bottom: 14px; }
     .view-header h1 { font-size: 22px; font-weight: 900; color: var(--gold); }
 
@@ -180,15 +148,10 @@
     .btn-print { background: var(--blue); color: #fff; }
 
     /* MONITOR DE MESAS */
-    .tables-monitor-bar {
-      background: #1a110e; border: 1px solid var(--card-border);
-      border-radius: 12px; padding: 12px 14px; margin-bottom: 18px;
-    }
+    .tables-monitor-bar { background: #1a110e; border: 1px solid var(--card-border); border-radius: 12px; padding: 12px 14px; margin-bottom: 18px; }
     .tables-monitor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--gold); }
     .tables-monitor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); gap: 6px; }
-    .table-pill {
-      padding: 6px 4px; text-align: center; border-radius: 6px; font-size: 11px; font-weight: 800; border: 1px solid transparent; cursor: pointer;
-    }
+    .table-pill { padding: 6px 4px; text-align: center; border-radius: 6px; font-size: 11px; font-weight: 800; border: 1px solid transparent; cursor: pointer; }
     .table-pill.libre { background: rgba(22, 163, 74, 0.15); border-color: #16a34a; color: #86efac; }
     .table-pill.ocupada { background: rgba(220, 38, 38, 0.25); border-color: #dc2626; color: #fca5a5; }
 
@@ -217,13 +180,56 @@
     .order-actions-container { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
     .btn-action-confirm { flex: 1; background: linear-gradient(135deg, #16a34a, #22c55e); color: #fff; padding: 9px; font-size: 12px; border-radius: 8px; border: none; font-weight: 800; cursor: pointer; }
     .btn-action-kitchen { flex: 1; background: linear-gradient(135deg, #0284c7, #38bdf8); color: #fff; padding: 9px; font-size: 12px; border-radius: 8px; border: none; font-weight: 800; cursor: pointer; }
-    .btn-action-liberar { flex: 1; background: #374151; color: #facc15; padding: 9px; font-size: 12px; border-radius: 8px; border: 1px solid #4b5563; font-weight: 800; cursor: pointer; }
+    .btn-action-cobrar { flex: 1; background: linear-gradient(135deg, #15803d, #22c55e); color: #fff; padding: 9px; font-size: 12px; border-radius: 8px; border: none; font-weight: 900; cursor: pointer; box-shadow: 0 2px 10px rgba(34,197,94,0.4); }
     .btn-action-ask-more { width: 100%; background: #ca8a04; color: #fff; padding: 7px; font-size: 11.5px; border-radius: 6px; border: none; font-weight: 800; cursor: pointer; }
+
+    /* MÓDULO DE COBRO / TPV MODAL */
+    .modal-cobro-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px);
+      z-index: 500; display: none; align-items: center; justify-content: center; padding: 14px;
+    }
+    .modal-cobro-overlay.active { display: flex; }
+    .modal-cobro-box {
+      background: #241712; border: 2px solid var(--accent); border-radius: 18px;
+      max-width: 440px; width: 100%; padding: 22px; display: flex; flex-direction: column; gap: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    }
+    .grid-cobro-metodos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 8px 0; }
+    .btn-metodo-cobro {
+      background: #332018; border: 1px solid rgba(255,255,255,0.15); color: #ddd;
+      padding: 10px 4px; border-radius: 8px; font-size: 11.5px; font-weight: 800; cursor: pointer; text-align: center;
+    }
+    .btn-metodo-cobro.active {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-color: #fde047; color: #fff;
+    }
+    .caja-vuelto-tpv {
+      background: #180e0a; border: 1.5px dashed var(--accent); border-radius: 12px; padding: 12px; margin-top: 4px;
+    }
+    .quick-cash-row { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+    .btn-quick-monto {
+      background: #3a251b; border: 1px solid rgba(245,158,11,0.3); color: #fde047;
+      padding: 5px 9px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer;
+    }
+    .badge-vuelto-resultado {
+      margin-top: 10px; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 900;
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(22, 163, 74, 0.2); color: #86efac; border: 1px solid #16a34a;
+    }
+    .badge-vuelto-resultado.falta {
+      background: rgba(220, 38, 38, 0.2); color: #fca5a5; border-color: #dc2626;
+    }
 
     /* FILTROS CONTABLES */
     .filter-grid-contable {
       display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;
       background: #18100c; padding: 12px; border-radius: 10px; margin-bottom: 14px;
+    }
+    .resumen-totales-contable {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin: 12px 0;
+    }
+    .card-total-metodo {
+      background: #1a100b; border: 1px solid rgba(255,255,255,0.08); padding: 10px; border-radius: 8px; text-align: center;
     }
     .custom-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
     .custom-table th, .custom-table td { border: 1px solid rgba(255,255,255,0.1); padding: 9px 10px; }
@@ -238,15 +244,9 @@
     .switch-btn.btn-to-off { background: #451a1a; color: #fca5a5; border: 1px solid #dc2626; }
     .switch-btn.btn-to-on { background: #14532d; color: #86efac; border: 1px solid #16a34a; }
 
-    .sidebar-backdrop {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.7);
-      z-index: 180;
-    }
+    .sidebar-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 180; }
 
-    /* MÓVILES */
+    /* RESPONSIVE */
     @media (max-width: 860px) {
       .top-admin-bar { display: flex; }
       .admin-layout { display: block; }
@@ -254,15 +254,9 @@
         position: fixed; top: 0; left: 0; width: 290px;
         transform: translateX(-100%); visibility: hidden;
       }
-      .admin-layout.sidebar-open .sidebar {
-        transform: translateX(0); visibility: visible;
-      }
-      .admin-layout.sidebar-open .sidebar-backdrop {
-        display: block;
-      }
-      .main-view {
-        padding: 16px 14px; max-height: none;
-      }
+      .admin-layout.sidebar-open .sidebar { transform: translateX(0); visibility: visible; }
+      .admin-layout.sidebar-open .sidebar-backdrop { display: block; }
+      .main-view { padding: 16px 14px; max-height: none; }
     }
 
     /* FORMATO IMPRESIÓN */
@@ -320,8 +314,7 @@
               <span id="headerBusinessSlogan" style="font-size:10.5px; color:#aaa; display:block; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; max-width:145px;">Cusco • Gourmet</span>
             </div>
           </div>
-
-          <button type="button" class="btn-toggle-menu" onclick="cerrarMenuLateral()" title="Ocultar menú lateral">
+          <button type="button" class="btn-toggle-menu" onclick="cerrarMenuLateral()" title="Ocultar menú">
             <i class="fa-solid fa-chevron-left" id="iconToggleMenu"></i>
           </button>
         </div>
@@ -350,7 +343,7 @@
           </div>
         </div>
 
-        <!-- MENÚ -->
+        <!-- MENÚ DE NAVEGACIÓN -->
         <nav class="nav-menu">
           <button class="nav-item active" id="btnNavComandas" onclick="seleccionarOpcionNav('comandas')">
             <i class="fa-solid fa-bell-concierge"></i> Comandas en Vivo
@@ -369,7 +362,7 @@
             <i class="fa-solid fa-qrcode"></i> Códigos QR Mesas
           </button>
           <button class="nav-item" id="btnNavReportes" onclick="seleccionarOpcionNav('reportes')">
-            <i class="fa-solid fa-chart-line"></i> Reporte Contable
+            <i class="fa-solid fa-chart-line"></i> Reporte Contable & Caja
           </button>
           <button class="nav-item" id="btnNavResenas" onclick="seleccionarOpcionNav('resenas')">
             <i class="fa-solid fa-star"></i> Reseñas de Clientes
@@ -394,7 +387,7 @@
           <div class="view-header">
             <div>
               <h1>🛎️ Pantalla KDS: Aceptar y Preparar Comandas</h1>
-              <p>Sincronización en tiempo real vía Firebase para todas las mesas.</p>
+              <p>Control de comandas y cobro directo por mesa en tiempo real.</p>
             </div>
             <button class="btn btn-add" onclick="cargarComandasEnVivo()"><i class="fa-solid fa-rotate"></i> Actualizar Ahora</button>
           </div>
@@ -456,14 +449,13 @@
           </div>
         </section>
 
-        <!-- VISTA 5: QR MESAS (CON NOMBRE Y CONTACTO ACTUALIZADO) -->
+        <!-- VISTA 5: QR MESAS -->
         <section id="viewMesas" style="display:none;">
           <div class="view-header"><h1>🏷️ Códigos QR por Mesa</h1></div>
           <div class="card">
             <label>Mesa:</label><input type="text" id="qrMesaNumero" value="Mesa 01" oninput="actualizarQRVisual()">
             <label>URL Menú:</label><input type="text" id="qrUrlBase" value="https://phyxcius.github.io/restaurante/" oninput="actualizarQRVisual()">
             
-            <!-- TARJETA VISUAL QR -->
             <div id="areaImpresionQR" style="text-align:center; padding:16px; background:#fff; border-radius:14px; max-width:260px; margin:14px auto; box-shadow:0 4px 15px rgba(0,0,0,0.3);">
               <h3 id="qrPrintBusinessName" style="color:#000; font-size:16px; font-weight:900; text-transform:uppercase; margin-bottom:2px;">INKA BISTRO</h3>
               <p id="qrPrintBusinessPhone" style="color:#555; font-size:11px; margin-bottom:8px; font-weight:bold;">Pedidos: 51969773064</p>
@@ -476,12 +468,36 @@
           </div>
         </section>
 
-        <!-- VISTA 6: REPORTE CONTABLE -->
+        <!-- VISTA 6: REPORTE CONTABLE Y CAJA -->
         <section id="viewReportes" style="display:none;">
           <div class="view-header">
-            <h1>📊 Reporte Contable de Ventas</h1>
+            <div>
+              <h1>📊 Reporte Contable & Arqueo de Caja</h1>
+              <p>Control financiero consolidado por métodos de pago y fechas.</p>
+            </div>
             <button class="btn btn-print no-print" onclick="window.print()"><i class="fa-solid fa-print"></i> Imprimir Reporte</button>
           </div>
+
+          <!-- RESUMEN EN TARJETAS POR MÉTODO DE PAGO -->
+          <div class="resumen-totales-contable">
+            <div class="card-total-metodo" style="border-color:#22c55e;">
+              <div style="font-size:11px; color:#86efac; font-weight:bold;">💵 EFECTIVO</div>
+              <div id="sumEfectivo" style="font-size:18px; font-weight:900; color:#fff; margin-top:3px;">S/ 0.00</div>
+            </div>
+            <div class="card-total-metodo" style="border-color:#a855f7;">
+              <div style="font-size:11px; color:#d8b4fe; font-weight:bold;">🟣 YAPE</div>
+              <div id="sumYape" style="font-size:18px; font-weight:900; color:#fff; margin-top:3px;">S/ 0.00</div>
+            </div>
+            <div class="card-total-metodo" style="border-color:#38bdf8;">
+              <div style="font-size:11px; color:#bae6fd; font-weight:bold;">🔵 PLIN</div>
+              <div id="sumPlin" style="font-size:18px; font-weight:900; color:#fff; margin-top:3px;">S/ 0.00</div>
+            </div>
+            <div class="card-total-metodo" style="border-color:#f59e0b;">
+              <div style="font-size:11px; color:#fde047; font-weight:bold;">💳 TARJETA POS</div>
+              <div id="sumTarjeta" style="font-size:18px; font-weight:900; color:#fff; margin-top:3px;">S/ 0.00</div>
+            </div>
+          </div>
+
           <div class="card">
             <div class="filter-grid-contable">
               <div>
@@ -509,6 +525,16 @@
                 </select>
               </div>
               <div>
+                <label>Filtrar por Método:</label>
+                <select id="filtroMetodo" onchange="aplicarFiltrosContables()">
+                  <option value="">Todos los Métodos</option>
+                  <option value="Efectivo">Efectivo</option>
+                  <option value="Yape">Yape</option>
+                  <option value="Plin">Plin</option>
+                  <option value="Tarjeta">Tarjeta POS</option>
+                </select>
+              </div>
+              <div>
                 <label>Filtrar por Plato / Producto:</label>
                 <input type="text" id="filtroPlato" placeholder="Ej: Lomo Saltado" oninput="aplicarFiltrosContables()">
               </div>
@@ -516,11 +542,11 @@
 
             <table class="custom-table" id="tablaContableReport">
               <thead>
-                <tr><th>Fecha</th><th>Mesa / Cliente</th><th>Platos Consumidos</th><th>Total (S/)</th><th>Pago</th></tr>
+                <tr><th>Fecha</th><th>Mesa / Cliente</th><th>Platos Consumidos</th><th>Total (S/)</th><th>Método de Cobro</th></tr>
               </thead>
               <tbody id="tablaVentasBody"></tbody>
             </table>
-            <div style="margin-top:14px; text-align:right; font-size:16px; font-weight:bold; color:var(--gold);" id="repPrintTotales">Total: S/ 0.00</div>
+            <div style="margin-top:14px; text-align:right; font-size:18px; font-weight:900; color:var(--gold);" id="repPrintTotales">Total Recaudado: S/ 0.00</div>
           </div>
         </section>
 
@@ -531,6 +557,57 @@
         </section>
 
       </main>
+    </div>
+  </div>
+
+  <!-- ==============================================================
+       MODAL DE COBRO DE MESAS (TPV / CAJA)
+       ============================================================== -->
+  <div class="modal-cobro-overlay" id="modalCobroTPV">
+    <div class="modal-cobro-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px;">
+        <div>
+          <h3 style="color:var(--gold); font-size:17px; font-weight:900;" id="tpvMesaTitulo">Cobrar Mesa</h3>
+          <span style="font-size:11px; color:#aaa;" id="tpvClienteSub">Cliente</span>
+        </div>
+        <button type="button" style="background:none; border:none; color:#aaa; font-size:22px; cursor:pointer;" onclick="cerrarModalCobro()">&times;</button>
+      </div>
+
+      <div style="background:#180e0a; padding:10px 14px; border-radius:10px; display:flex; justify-content:space-between; align-items:baseline;">
+        <span style="font-weight:bold; font-size:13px;">Total a Cobrar:</span>
+        <span style="font-size:24px; font-weight:900; color:#86efac;" id="tpvTotalPagar">S/ 0.00</span>
+      </div>
+
+      <label style="margin-top:4px;">Selecciona el Método de Pago:</label>
+      <div class="grid-cobro-metodos">
+        <button type="button" class="btn-metodo-cobro active" id="btnTPVEfectivo" onclick="seleccionarMetodoCobro('Efectivo', this)">💵 Efectivo</button>
+        <button type="button" class="btn-metodo-cobro" onclick="seleccionarMetodoCobro('Yape', this)">🟣 Yape</button>
+        <button type="button" class="btn-metodo-cobro" onclick="seleccionarMetodoCobro('Plin', this)">🔵 Plin</button>
+        <button type="button" class="btn-metodo-cobro" onclick="seleccionarMetodoCobro('Tarjeta POS', this)">💳 Tarjeta</button>
+      </div>
+
+      <!-- CAJA EFECTIVO Y VUELTO -->
+      <div class="caja-vuelto-tpv" id="tpvCajaEfectivoDrawer">
+        <label style="margin-top:0; color:#fde047;">💵 Monto que entrega el cliente (Efectivo):</label>
+        <input type="number" id="tpvMontoRecibido" class="cash-input" style="font-size:18px; font-weight:900; color:#fde047; background:#110907; border:1px solid var(--accent);" placeholder="0.00" oninput="calcularVueltoTPV()">
+        <div class="quick-cash-row">
+          <button type="button" class="btn-quick-monto" onclick="setTPVMontoRapido('exacto')">Pago Exacto</button>
+          <button type="button" class="btn-quick-monto" onclick="setTPVMontoRapido(50)">S/ 50</button>
+          <button type="button" class="btn-quick-monto" onclick="setTPVMontoRapido(100)">S/ 100</button>
+          <button type="button" class="btn-quick-monto" onclick="setTPVMontoRapido(200)">S/ 200</button>
+        </div>
+        <div class="badge-vuelto-resultado" id="tpvBadgeVuelto">
+          <span id="tpvVueltoTxt">Ingresa monto para calcular vuelto</span>
+          <span id="tpvVueltoMonto" style="font-size:16px;"></span>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <button type="button" class="btn btn-del" style="flex:1;" onclick="cerrarModalCobro()">Cancelar</button>
+        <button type="button" class="btn btn-save" style="flex:2; font-size:14px; background:linear-gradient(135deg, #15803d, #22c55e);" onclick="procesarCobroYDesocuparMesa()">
+          <i class="fa-solid fa-check-double"></i> Confirmar Cobro & Desocupar
+        </button>
+      </div>
     </div>
   </div>
 
@@ -577,24 +654,21 @@
       "Mesa 11", "Mesa 12", "Barra", "Terraza 1", "Terraza 2"
     ];
 
-    let currentEditingId = null;
-    let modalLang = "es";
-    let modalTempI18n = {};
     let totalComandasPrevias = 0;
     let todasLasVentas = [];
+    let comandaSeleccionadaCobro = null;
+    let metodoCobroActual = "Efectivo";
 
     function abrirMenuLateral() {
       const wrapper = document.getElementById('adminLayoutWrapper');
       wrapper.classList.remove('sidebar-collapsed');
       wrapper.classList.add('sidebar-open');
     }
-
     function cerrarMenuLateral() {
       const wrapper = document.getElementById('adminLayoutWrapper');
       wrapper.classList.add('sidebar-collapsed');
       wrapper.classList.remove('sidebar-open');
     }
-
     function seleccionarOpcionNav(sec) {
       mostrarSeccion(sec);
       if (window.innerWidth <= 860) cerrarMenuLateral();
@@ -748,7 +822,6 @@
       }
     }
 
-    // ACTUALIZAR QR CON EL NOMBRE Y TELÉFONO MODIFICADOS
     function actualizarQRVisual() {
       const m = document.getElementById('qrMesaNumero').value.trim() || "Mesa 01";
       const u = document.getElementById('qrUrlBase').value.trim() || "https://phyxcius.github.io/restaurante/";
@@ -757,7 +830,6 @@
       const nombreNegocio = (configRestaurante.nombre || "INKA BISTRO").toUpperCase();
       const telefonoNegocio = configRestaurante.whatsapp || configRestaurante.yapePhone || "51969773064";
 
-      // Actualizar en la tarjeta visual del panel
       document.getElementById('qrPrintBusinessName').innerText = nombreNegocio;
       document.getElementById('qrPrintBusinessPhone').innerText = `Pedidos WhatsApp: +${telefonoNegocio}`;
       document.getElementById('lblQRMesa').innerText = m;
@@ -806,7 +878,9 @@
       ventana.document.close();
     }
 
-    // KDS Y COMANDAS
+    // ==============================================================
+    // KDS: COMANDAS EN VIVO Y CONTROL
+    // ==============================================================
     async function cargarComandasEnVivo() {
       const grid = document.getElementById('liveOrdersGrid');
       let comandas = [];
@@ -845,7 +919,7 @@
                 <div style="font-size:11px; color:#aaa; margin-top:2px;">${c.id || 'CMD-00'} • ${c.fecha || ''}</div>
               </div>
               <span class="order-status-badge status-${estado}">
-                ${estado === 'por_confirmar' ? '⚠️ Por Confirmar' : (estado === 'cocina' ? '🍳 En Cocina' : (estado === 'servido' ? '✅ En Mesa (Servido)' : (estado === 'liberado' ? '🔓 Desocupada' : '❌ Rechazada')))}
+                ${estado === 'por_confirmar' ? '⚠️ Por Confirmar' : (estado === 'cocina' ? '🍳 En Cocina' : (estado === 'servido' ? '✅ En Mesa (Servido)' : (estado === 'liberado' ? '🔓 Cobrada / Libre' : '❌ Rechazada')))}
               </span>
             </div>
 
@@ -873,9 +947,10 @@
                 </button>
               ` : ''}
 
-              ${estado === 'servido' ? `
-                <button type="button" class="btn-action-liberar" onclick="liberarMesa('${c.id}', '${c.mesa}')">
-                  <i class="fa-solid fa-door-open"></i> 🔓 Cobrar y Desocupar Mesa
+              <!-- BOTÓN DE COBRO DE MESA EN CAJA -->
+              ${estado !== 'liberado' && estado !== 'rechazado' ? `
+                <button type="button" class="btn-action-cobrar" onclick="abrirModalCobro('${c.id}')">
+                  <i class="fa-solid fa-cash-register"></i> 💳 Cobrar Mesa
                 </button>
               ` : ''}
 
@@ -933,9 +1008,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ estado: nuevoEstado })
         });
-      } catch (e) {
-        console.error("Error Firebase:", e);
-      }
+      } catch (e) {}
 
       await cargarComandasEnVivo();
     }
@@ -953,10 +1026,154 @@
       }
     }
 
-    async function liberarMesa(idComanda, nombreMesa) {
-      if (confirm(`¿Confirmar cobro y desocupar la ${nombreMesa || 'mesa'}? Quedará libre para nuevos clientes.`)) {
-        await cambiarEstadoFirebase(idComanda, 'liberado');
+    // ==============================================================
+    // MÓDULO DE COBRO EN CAJA / TPV Y VUELTO
+    // ==============================================================
+    async function abrirModalCobro(idComanda) {
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`);
+        if (res.ok) comandaSeleccionadaCobro = await res.json();
+      } catch (e) {}
+
+      if (!comandaSeleccionadaCobro) {
+        const local = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
+        comandaSeleccionadaCobro = local.find(c => c.id === idComanda);
       }
+
+      if (!comandaSeleccionadaCobro) return alert("No se encontró la comanda.");
+
+      document.getElementById('tpvMesaTitulo').innerText = `Cobrar ${comandaSeleccionadaCobro.mesa || 'Mesa'}`;
+      document.getElementById('tpvClienteSub').innerText = `${comandaSeleccionadaCobro.cliente || 'Comensal'} • ID: ${comandaSeleccionadaCobro.id}`;
+      
+      const total = parseFloat(comandaSeleccionadaCobro.totalPEN || comandaSeleccionadaCobro.total || 0);
+      document.getElementById('tpvTotalPagar').innerText = `S/ ${total.toFixed(2)}`;
+
+      // Método sugerido o efectivo por defecto
+      seleccionarMetodoCobro(comandaSeleccionadaCobro.pago || 'Efectivo', document.getElementById('btnTPVEfectivo'));
+      document.getElementById('tpvMontoRecibido').value = '';
+      calcularVueltoTPV();
+
+      document.getElementById('modalCobroTPV').classList.add('active');
+    }
+
+    function cerrarModalCobro() {
+      document.getElementById('modalCobroTPV').classList.remove('active');
+      comandaSeleccionadaCobro = null;
+    }
+
+    function seleccionarMetodoCobro(metodo, btn) {
+      metodoCobroActual = metodo;
+      document.querySelectorAll('.btn-metodo-cobro').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+
+      const drawer = document.getElementById('tpvCajaEfectivoDrawer');
+      if (metodo === 'Efectivo') {
+        drawer.style.display = 'block';
+        calcularVueltoTPV();
+      } else {
+        drawer.style.display = 'none';
+      }
+    }
+
+    function setTPVMontoRapido(m) {
+      if (!comandaSeleccionadaCobro) return;
+      const total = parseFloat(comandaSeleccionadaCobro.totalPEN || comandaSeleccionadaCobro.total || 0);
+      const inp = document.getElementById('tpvMontoRecibido');
+      inp.value = (m === 'exacto') ? total : m;
+      calcularVueltoTPV();
+    }
+
+    function calcularVueltoTPV() {
+      if (!comandaSeleccionadaCobro) return;
+      const total = parseFloat(comandaSeleccionadaCobro.totalPEN || comandaSeleccionadaCobro.total || 0);
+      const recibido = parseFloat(document.getElementById('tpvMontoRecibido').value);
+      
+      const badge = document.getElementById('tpvBadgeVuelto');
+      const txt = document.getElementById('tpvVueltoTxt');
+      const monto = document.getElementById('tpvVueltoMonto');
+
+      if (isNaN(recibido) || recibido <= 0) {
+        badge.className = "badge-vuelto-resultado";
+        txt.innerText = "Ingresa monto en efectivo para calcular vuelto";
+        monto.innerText = "";
+        return;
+      }
+
+      const vuelto = recibido - total;
+      if (vuelto < 0) {
+        badge.className = "badge-vuelto-resultado falta";
+        txt.innerText = `⚠️ Falta dinero (Faltan S/ ${Math.abs(vuelto).toFixed(2)})`;
+        monto.innerText = "";
+      } else {
+        badge.className = "badge-vuelto-resultado";
+        txt.innerText = "💵 Vuelto a entregar:";
+        monto.innerText = `S/ ${vuelto.toFixed(2)}`;
+      }
+    }
+
+    async function procesarCobroYDesocuparMesa() {
+      if (!comandaSeleccionadaCobro) return;
+
+      const total = parseFloat(comandaSeleccionadaCobro.totalPEN || comandaSeleccionadaCobro.total || 0);
+      let montoRecibido = total;
+      let vueltoEntregado = 0;
+
+      if (metodoCobroActual === 'Efectivo') {
+        const valRecibido = parseFloat(document.getElementById('tpvMontoRecibido').value);
+        if (isNaN(valRecibido) || valRecibido < total) {
+          return alert(`⚠️ El monto ingresado en efectivo es menor al total a pagar (S/ ${total.toFixed(2)}).`);
+        }
+        montoRecibido = valRecibido;
+        vueltoEntregado = montoRecibido - total;
+      }
+
+      // Registro de venta completada para reportes contables
+      const ventaRegistrada = {
+        id: comandaSeleccionadaCobro.id,
+        fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        cliente: comandaSeleccionadaCobro.cliente || comandaSeleccionadaCobro.mesa,
+        mesa: comandaSeleccionadaCobro.mesa,
+        productos: comandaSeleccionadaCobro.productos,
+        totalPEN: total,
+        pago: metodoCobroActual,
+        montoRecibido: montoRecibido,
+        vuelto: vueltoEntregado,
+        estado: "cobrado"
+      };
+
+      // 1. Guardar en registro contable de Firebase
+      try {
+        await fetch(`${FIREBASE_DB_URL}ventas/${ventaRegistrada.id}.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(ventaRegistrada)
+        });
+
+        // 2. Marcar comanda como liberada en Firebase para desbloquear la mesa
+        await fetch(`${FIREBASE_DB_URL}comandas/${comandaSeleccionadaCobro.id}.json`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            estado: 'liberado',
+            pago: metodoCobroActual,
+            cobradoEnCaja: true
+          })
+        });
+      } catch (e) {}
+
+      // 3. Guardar en respaldo local
+      let ventasLocales = JSON.parse(localStorage.getItem(STORAGE_KEY_VENTAS)) || [];
+      ventasLocales.unshift(ventaRegistrada);
+      localStorage.setItem(STORAGE_KEY_VENTAS, JSON.stringify(ventasLocales));
+
+      let localComandas = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
+      const item = localComandas.find(c => c.id === comandaSeleccionadaCobro.id);
+      if (item) item.estado = 'liberado';
+      localStorage.setItem(STORAGE_KEY_COMANDAS, JSON.stringify(localComandas));
+
+      alert(`✔ Cobro de S/ ${total.toFixed(2)} registrado con éxito (${metodoCobroActual}).\nLa ${comandaSeleccionadaCobro.mesa} ha quedado desocupada y libre.`);
+      cerrarModalCobro();
+      cargarComandasEnVivo();
     }
 
     async function desocuparMesaDirecta(nombreMesa, estaOcupada) {
@@ -981,11 +1198,16 @@
         try {
           await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, { method: 'DELETE' });
         } catch (e) {}
+        
+        let local = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
+        local = local.filter(c => c.id !== idComanda);
+        localStorage.setItem(STORAGE_KEY_COMANDAS, JSON.stringify(local));
+
         cargarComandasEnVivo();
       }
     }
 
-    // IMPRESIÓN DE TICKET DE COCINA
+    // IMPRESIÓN DE TICKET
     async function imprimirTicketCocina(idComanda) {
       let comanda = null;
       try {
@@ -1006,15 +1228,20 @@
       document.getElementById('ticketImpresionArea').style.display = 'none';
     }
 
-    // CONTABILIDAD
+    // ==============================================================
+    // CONTABILIDAD CON DESGLOSE POR MÉTODOS DE PAGO
+    // ==============================================================
     async function renderizarReporte() {
       try {
-        const res = await fetch(`${FIREBASE_DB_URL}comandas.json`);
+        // Cargar ventas oficiales de Firebase
+        const res = await fetch(`${FIREBASE_DB_URL}ventas.json`);
         if (res.ok) {
           const data = await res.json();
           todasLasVentas = data ? Object.values(data) : [];
         }
-      } catch (e) {
+      } catch (e) {}
+
+      if (todasLasVentas.length === 0) {
         todasLasVentas = JSON.parse(localStorage.getItem(STORAGE_KEY_VENTAS)) || [];
       }
 
@@ -1025,11 +1252,14 @@
       const fechaFiltro = document.getElementById('filtroFecha').value;
       const mesFiltro = document.getElementById('filtroMes').value;
       const anoFiltro = document.getElementById('filtroAno').value;
+      const metodoFiltro = document.getElementById('filtroMetodo').value;
       const platoFiltro = document.getElementById('filtroPlato').value.toLowerCase().trim();
 
       const tbody = document.getElementById('tablaVentasBody');
       tbody.innerHTML = '';
+      
       let totalPEN = 0;
+      let sumEf = 0, sumYp = 0, sumPl = 0, sumTj = 0;
 
       const ventasFiltradas = todasLasVentas.filter(v => {
         let coincide = true;
@@ -1041,6 +1271,7 @@
         }
         if (mesFiltro && !v.fecha.includes(mesFiltro)) coincide = false;
         if (anoFiltro && !v.fecha.includes(anoFiltro)) coincide = false;
+        if (metodoFiltro && !(v.pago || '').toLowerCase().includes(metodoFiltro.toLowerCase())) coincide = false;
         if (platoFiltro && !(v.productos || '').toLowerCase().includes(platoFiltro)) coincide = false;
 
         return coincide;
@@ -1049,21 +1280,32 @@
       ventasFiltradas.forEach(v => {
         const val = parseFloat(v.totalPEN || v.total || 0);
         totalPEN += val;
+
+        const pago = (v.pago || '').toLowerCase();
+        if (pago.includes('efectivo')) sumEf += val;
+        else if (pago.includes('yape')) sumYp += val;
+        else if (pago.includes('plin')) sumPl += val;
+        else if (pago.includes('tarjeta') || pago.includes('pos')) sumTj += val;
+
         tbody.innerHTML += `
           <tr>
             <td>${v.fecha}</td>
             <td><b>${v.cliente || v.mesa}</b></td>
             <td>${v.productos}</td>
             <td><b>S/ ${val.toFixed(2)}</b></td>
-            <td>${v.pago || 'Efectivo'}</td>
+            <td><span style="background:rgba(255,255,255,0.08); padding:3px 7px; border-radius:5px; font-weight:bold;">${v.pago || 'Efectivo'}</span></td>
           </tr>
         `;
       });
 
       if (ventasFiltradas.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#aaa;">No se encontraron ventas con los filtros aplicados.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#aaa;">No se encontraron registros con los filtros aplicados.</td></tr>';
       }
 
+      document.getElementById('sumEfectivo').innerText = `S/ ${sumEf.toFixed(2)}`;
+      document.getElementById('sumYape').innerText = `S/ ${sumYp.toFixed(2)}`;
+      document.getElementById('sumPlin').innerText = `S/ ${sumPl.toFixed(2)}`;
+      document.getElementById('sumTarjeta').innerText = `S/ ${sumTj.toFixed(2)}`;
       document.getElementById('repPrintTotales').innerText = `Total Recaudado: S/ ${totalPEN.toFixed(2)}`;
     }
 
