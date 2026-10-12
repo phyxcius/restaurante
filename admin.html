@@ -27,31 +27,19 @@
 
     /* PANTALLA LOGIN Y APERTURA DE CAJA */
     #pantallaLogin {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 16px;
-      background: radial-gradient(circle at center, #241611 0%, #0d0806 100%);
+      display: flex; justify-content: center; align-items: center; min-height: 100vh;
+      padding: 16px; background: radial-gradient(circle at center, #241611 0%, #0d0806 100%);
     }
     .card-login {
-      background: var(--card-bg);
-      border: 1.5px solid var(--accent);
-      border-radius: 18px;
-      max-width: 430px;
-      width: 100%;
-      padding: 26px 22px;
-      box-shadow: 0 10px 35px rgba(0,0,0,0.8);
+      background: var(--card-bg); border: 1.5px solid var(--accent); border-radius: 18px;
+      max-width: 430px; width: 100%; padding: 26px 22px; box-shadow: 0 10px 35px rgba(0,0,0,0.8);
     }
     .card-login h3 { color: var(--gold); text-align: center; margin-bottom: 4px; font-size: 20px; font-weight: 900; }
     .card-login p.sub { font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 16px; }
 
     .caja-chica-box {
-      background: #180e0a;
-      border: 1.5px dashed var(--accent);
-      border-radius: 10px;
-      padding: 12px;
-      margin-top: 10px;
+      background: #180e0a; border: 1.5px dashed var(--accent); border-radius: 10px;
+      padding: 12px; margin-top: 10px;
     }
 
     /* BARRA SUPERIOR */
@@ -214,7 +202,7 @@
 </head>
 <body>
 
-  <!-- PANTALLA LOGIN COMPLETA: ACCESO DE TODOS Y APERTURA DE CAJA CHICA -->
+  <!-- PANTALLA LOGIN COMPLETA -->
   <div id="pantallaLogin">
     <div class="card-login">
       <div style="text-align:center; font-size:38px; margin-bottom:6px;">🍽️</div>
@@ -231,12 +219,11 @@
         </select>
 
         <label>Nombre Identificador de Quien Opera:</label>
-        <input type="text" id="loginUsuarioNombre" placeholder="Ej. Edwin Oblitas / Carlos" required>
+        <input type="text" id="loginUsuarioNombre" value="Administrador" required>
 
         <label>Contraseña:</label>
         <input type="password" id="loginPassword" placeholder="••••••••" required>
 
-        <!-- APERTURA DE CAJA CHICA DISPONIBLE PARA TODOS LOS USUARIOS -->
         <div class="caja-chica-box">
           <div style="font-size:12px; font-weight:900; color:var(--gold); margin-bottom:6px;">
             <i class="fa-solid fa-cash-register"></i> APERTURA DE CAJA CHICA
@@ -251,7 +238,7 @@
           </select>
 
           <label>Monto Inicial de Efectivo en Caja (S/):</label>
-          <input type="number" step="0.5" id="loginCajaChica" placeholder="100.00" value="100.00" required>
+          <input type="number" step="0.5" id="loginCajaChica" value="100.00" required>
         </div>
 
         <button type="submit" class="btn btn-save" style="margin-top:16px; width:100%;">
@@ -288,7 +275,6 @@
           </button>
         </div>
 
-        <!-- DATOS DEL USUARIO Y APERTURA DE CAJA -->
         <div class="user-session-badge">
           <div>
             <b id="lblSesionUsuario">Admin</b>
@@ -470,7 +456,7 @@
           </div>
         </section>
 
-        <!-- 7. REPORTES SUNAT CON FILTRO POR USUARIO -->
+        <!-- 7. REPORTES SUNAT -->
         <section id="viewReportes" style="display:none;">
           <div class="view-header">
             <div>
@@ -614,8 +600,7 @@
       logo: "🍽️",
       whatsapp: "51969773064",
       yapePhone: "+51 987 654 321",
-      estadoReservas: "habilitadas",
-      urlWebRedireccion: "https://www.lachuspaanuncios.com/"
+      estadoReservas: "habilitadas"
     };
 
     const todasLasMesas = [
@@ -667,7 +652,7 @@
       else nombreInput.value = 'Mozo Sala';
     }
 
-    // LOGIN Y APERTURA DE CAJA CHICA PARA TODOS
+    // LOGIN Y APERTURA DE CAJA CHICA
     function verificarLoginSistema(e) {
       e.preventDefault();
       const rol = document.getElementById('loginUsuarioSelector').value;
@@ -805,7 +790,7 @@
       cargarIdentidadFirebase();
     }
 
-    // CATÁLOGO DE PLATOS REPARADO (RENDERIZADO INMEDIATO)
+    // CATÁLOGO DE PLATOS
     async function cargarPlatosFirebase() {
       try {
         const res = await fetch(`${FIREBASE_DB_URL}catalogo_platos.json`);
@@ -911,20 +896,30 @@
       renderizarVisualDishes();
     }
 
-    // COMANDAS EN VIVO
+    // ==============================================================
+    // COMANDAS EN VIVO REPARADAS (BLINDAJE DE DATOS CONTRA NULOS)
+    // ==============================================================
     async function cargarComandasEnVivo() {
       const grid = document.getElementById('liveOrdersGrid');
+      if (!grid) return;
+
       let comandas = [];
 
       try {
         const resFB = await fetch(`${FIREBASE_DB_URL}comandas.json?_t=${Date.now()}`);
         if (resFB.ok) {
           const dataFB = await resFB.json();
-          if (dataFB) comandas = Object.values(dataFB);
+          if (dataFB) {
+            // Filtrar estrictamente solo objetos válidos con ID
+            comandas = Object.values(dataFB).filter(c => c && typeof c === 'object' && c.id);
+          }
         }
-      } catch (e) {}
+      } catch (e) {
+        console.error("Error al traer comandas:", e);
+      }
 
-      comandas.sort((a, b) => (b.id || "").localeCompare(a.id || ""));
+      // Ordenar por ID de forma segura
+      comandas.sort((a, b) => String(b.id || "").localeCompare(String(a.id || "")));
       const pedidosActivos = comandas.filter(c => c.estado !== 'liberado');
 
       if (pedidosActivos.length > totalComandasPrevias && totalComandasPrevias !== 0) {
@@ -938,7 +933,7 @@
       actualizarMonitorDeMesas(comandas);
 
       if (comandas.length === 0) {
-        grid.innerHTML = '<p style="color:#aaa; font-size:14px; padding:20px 0;">No hay comandas registradas.</p>';
+        grid.innerHTML = '<p style="color:#aaa; font-size:14px; padding:20px 0;">No hay comandas registradas en este momento.</p>';
         return;
       }
 
@@ -986,11 +981,11 @@
                 </button>
               ` : ''}
 
-              <button type="button" class="btn-action-cobrar" onclick="liberarMesaDirecta('${c.id}', '${c.mesa}', ${c.totalPEN || 0}, '${c.productos || ''}')">
+              <button type="button" class="btn-action-cobrar" onclick="liberarMesaDirecta('${c.id}')">
                 <i class="fa-solid fa-cash-register"></i> Cobrar y Desocupar
               </button>
 
-              <button type="button" class="btn btn-print" style="padding:8px 10px; font-size:11.5px;" onclick="window.print()">
+              <button type="button" class="btn btn-print" style="padding:8px 10px; font-size:11.5px;" onclick="imprimirTicketCocina('${c.id}')">
                 <i class="fa-solid fa-print"></i> Ticket
               </button>
 
@@ -1007,14 +1002,16 @@
 
     function actualizarMonitorDeMesas(comandas) {
       const grid = document.getElementById('tablesMonitorGrid');
+      if (!grid) return;
+
       const mesasOcupadas = comandas
-        .filter(c => c.estado === 'por_confirmar' || c.estado === 'cocina' || c.estado === 'servido')
-        .map(c => normalizarNombreMesa(c.mesa));
+        .filter(c => c && (c.estado === 'por_confirmar' || c.estado === 'cocina' || c.estado === 'servido'))
+        .map(c => normalizarNombreMesa(c.mesa || ''));
 
       grid.innerHTML = todasLasMesas.map(m => {
         const estaOcupada = mesasOcupadas.includes(normalizarNombreMesa(m));
         return `
-          <div class="table-pill ${estaOcupada ? 'ocupada' : 'libre'}">
+          <div class="table-pill ${estaOcupada ? 'ocupada' : 'libre'}" onclick="desocuparMesaDirectaManual('${m}', ${estaOcupada})">
             ${m.replace('Mesa ', 'M-')} ${estaOcupada ? '🔒' : '✔'}
           </div>
         `;
@@ -1039,25 +1036,33 @@
       alert("✔ Notificación enviada al cliente.");
     }
 
-    async function liberarMesaDirecta(idComanda, mesa, totalMonto, productos) {
+    // COBRO SEGURO POR ID DIRECTO
+    async function liberarMesaDirecta(idComanda) {
+      let comanda = null;
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`);
+        if (res.ok) comanda = await res.json();
+      } catch (e) {}
+
+      if (!comanda) return alert("No se encontró la comanda.");
+
       const operador = sessionStorage.getItem("nombre_operador") || "Cajero";
       const turno = sessionStorage.getItem("turno_rest") || "General";
-      const total = parseFloat(totalMonto) || 0;
+      const total = parseFloat(comanda.totalPEN || comanda.total || 0);
       const base = total / 1.18;
       const igv = total - base;
 
-      if (confirm(`¿Confirmar cobro de S/ ${total.toFixed(2)} por ${operador} y desocupar la ${mesa}?`)) {
-        // Registrar venta
+      if (confirm(`¿Confirmar cobro de S/ ${total.toFixed(2)} por ${operador} y desocupar la ${comanda.mesa}?`)) {
         const venta = {
           id: idComanda,
           fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }),
-          mesa: mesa,
-          cliente: mesa,
-          productos: productos,
+          mesa: comanda.mesa,
+          cliente: comanda.cliente || comanda.mesa,
+          productos: comanda.productos || "",
           baseImponible: base,
           igv: igv,
           totalPEN: total,
-          pago: "Efectivo",
+          pago: comanda.pago || "Efectivo",
           cajero: `${operador} (${turno})`
         };
 
@@ -1078,15 +1083,63 @@
       }
     }
 
+    async function desocuparMesaDirectaManual(nombreMesa, estaOcupada) {
+      if (!estaOcupada) return;
+      if (confirm(`¿Liberar manualmente la ${nombreMesa}?`)) {
+        try {
+          const res = await fetch(`${FIREBASE_DB_URL}comandas.json`);
+          if (res.ok) {
+            const data = await res.json();
+            for (let key in data) {
+              if (data[key] && normalizarNombreMesa(data[key].mesa) === normalizarNombreMesa(nombreMesa)) {
+                await cambiarEstadoFirebase(data[key].id, 'liberado');
+              }
+            }
+          }
+        } catch (e) {}
+      }
+    }
+
+    // IMPRESIÓN TICKET
+    async function imprimirTicketCocina(idComanda) {
+      let comanda = null;
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`);
+        if (res.ok) comanda = await res.json();
+      } catch (e) {}
+
+      if (!comanda) return alert("Error al cargar comanda.");
+
+      const ventana = window.open('', '_blank');
+      ventana.document.write(`
+        <!DOCTYPE html><html><head><title>Ticket Cocina</title>
+        <style>body{font-family:monospace;padding:15px;width:75mm;text-align:center;}h2{margin:4px 0;}hr{border:1px dashed #000;}</style>
+        </head><body>
+          <h3>${configRestaurante.nombre.toUpperCase()}</h3>
+          <p>*** COMANDA COCINA ***</p>
+          <p>${comanda.fecha}</p>
+          <hr><h2>${comanda.mesa}</h2><hr>
+          <div style="text-align:left;font-size:14px;font-weight:bold;margin:10px 0;">
+            ${(comanda.productos || '').split(', ').map(p => `<div>• ${p}</div>`).join('')}
+          </div>
+          ${comanda.notas ? `<p style="text-align:left;"><b>NOTAS:</b> ${comanda.notas}</p>` : ''}
+          <script>window.onload=function(){window.print();window.close();}<\/script>
+        </body></html>
+      `);
+      ventana.document.close();
+    }
+
     // RESERVAS
     async function cargarReservasFirebase() {
       const grid = document.getElementById('reservasCardsGrid');
+      if (!grid) return;
+
       let reservas = [];
       try {
         const res = await fetch(`${FIREBASE_DB_URL}reservas.json?_t=${Date.now()}`);
         if (res.ok) {
           const d = await res.json();
-          if (d) reservas = Object.values(d);
+          if (d) reservas = Object.values(d).filter(r => r && typeof r === 'object');
         }
       } catch (e) {}
 
@@ -1117,10 +1170,10 @@
     // REPORTES SUNAT CON FILTRO POR USUARIO
     async function renderizarReporte() {
       try {
-        const res = await fetch(`${FIREBASE_DB_URL}ventas.json`);
+        const res = await fetch(`${FIREBASE_DB_URL}ventas.json?_t=${Date.now()}`);
         if (res.ok) {
           const d = await res.json();
-          todasLasVentas = d ? Object.values(d) : [];
+          todasLasVentas = d ? Object.values(d).filter(v => v && typeof v === 'object') : [];
         }
       } catch (e) {}
       aplicarFiltrosContables();
@@ -1132,7 +1185,9 @@
       const mesFiltro = document.getElementById('filtroMes').value;
 
       const tbody = document.getElementById('tablaVentasBody');
+      if (!tbody) return;
       tbody.innerHTML = '';
+      
       let totalPEN = 0, totalBase = 0, totalIgv = 0;
 
       const filtradas = todasLasVentas.filter(v => {
@@ -1150,6 +1205,7 @@
         const t = parseFloat(v.totalPEN || 0);
         const b = parseFloat(v.baseImponible || (t / 1.18));
         const i = parseFloat(v.igv || (t - b));
+
         totalPEN += t; totalBase += b; totalIgv += i;
 
         tbody.innerHTML += `
@@ -1166,8 +1222,10 @@
         `;
       });
 
-      document.getElementById('repPrintBase').innerText = `S/ ${totalBase.toFixed(2)}`;
-      document.getElementById('repPrintIgv').innerText = `S/ ${totalIgv.toFixed(2)}`;
+      if (filtradas.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#888;">No hay registros con los filtros seleccionados.</td></tr>';
+      }
+
       document.getElementById('repPrintTotales').innerText = `Total: S/ ${totalPEN.toFixed(2)}`;
     }
 
@@ -1180,7 +1238,6 @@
     }
 
     window.onload = () => {
-      // Forzar que siempre muestre el login al entrar por primera vez en la pestaña
       if (sessionStorage.getItem("auth_rest") === "true") {
         mostrarPanelAdmin();
       } else {
