@@ -16,7 +16,7 @@
       --text-muted: #d6cbbf;
       --gold-badge: #fbbf24;
 
-      /* PALETA DE LA TARJETA (MEXICAN DELIGHT) */
+      /* PALETA MEXICAN DELIGHT */
       --modal-bg: #eab308;
       --modal-green: #4d7c0f;
       --modal-green-dark: #365314;
@@ -69,9 +69,9 @@
     }
     @keyframes fadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-    .kds-tracking-card.por_confirmar { display: block; background: rgba(45, 30, 24, 0.95); border-color: #f59e0b; box-shadow: 0 0 16px rgba(245, 158, 11, 0.35); }
-    .kds-tracking-card.cocina { display: block; background: rgba(20, 32, 45, 0.95); border-color: #38bdf8; box-shadow: 0 0 16px rgba(56, 189, 248, 0.35); }
-    .kds-tracking-card.servido { display: block; background: rgba(18, 38, 26, 0.95); border-color: #4ade80; box-shadow: 0 0 16px rgba(74, 222, 128, 0.35); }
+    .kds-tracking-card.por_confirmar { display: block; background: rgba(45, 30, 24, 0.95); border-color: #f59e0b; }
+    .kds-tracking-card.cocina { display: block; background: rgba(20, 32, 45, 0.95); border-color: #38bdf8; }
+    .kds-tracking-card.servido { display: block; background: rgba(18, 38, 26, 0.95); border-color: #4ade80; }
 
     .kds-tracking-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
     .kds-status-badge { font-size: 10.5px; font-weight: 900; text-transform: uppercase; padding: 2px 7px; border-radius: 5px; }
@@ -128,7 +128,7 @@
 
     .btn-quick-add { background: linear-gradient(135deg, var(--primary), var(--accent)); border: 1px solid rgba(251, 191, 36, 0.4); color: #fff; padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
 
-    /* BOTÓN FLOTANTE */
+    /* BOTÓN FLOTANTE PEDIDOS */
     .chat-bubble-container {
       position: fixed; bottom: 20px; right: 18px; display: flex; align-items: center; gap: 8px;
       z-index: 99999; cursor: pointer; pointer-events: auto;
@@ -195,7 +195,6 @@
       font-size: 11px; font-weight: 800; text-align: left; cursor: pointer; display: flex; justify-content: space-between;
     }
 
-    /* SELECTOR DE MESAS Y ESTILO BLOQUEADO */
     .table-selector-label {
       font-size: 11px; font-weight: 900; text-transform: uppercase; color: var(--modal-dark);
       letter-spacing: 0.5px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;
@@ -211,7 +210,6 @@
     .table-box-btn.bloqueada { background: #dc2626 !important; border-color: #991b1b !important; color: #fff !important; cursor: not-allowed; }
     .table-box-btn.deshabilitada-qr { opacity: 0.35 !important; cursor: not-allowed !important; filter: grayscale(1); }
 
-    /* CAJA TIPO DE PAGO: EFECTIVO, YAPE, PLIN, TARJETA POS */
     .grid-payments { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
     .btn-pay-option {
       background: var(--modal-card-bg); border: 1.5px solid rgba(28, 25, 23, 0.2);
@@ -223,7 +221,6 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.25);
     }
 
-    /* CAJA CUÁNTO EN EFECTIVO PAGARÁS & VUELTO */
     .cash-box-drawer {
       background: var(--modal-card-bg); border: 2px dashed var(--modal-green);
       border-radius: 12px; padding: 10px 12px; margin-bottom: 10px;
@@ -246,15 +243,12 @@
     }
     .vuelto-badge-box.alerta { background: rgba(220, 38, 38, 0.18); color: #991b1b; border-color: #dc2626; }
 
-    /* INPUTS: NOMBRE Y NOTAS PARA COCINA */
     .custom-input {
       width: 100%; background: #fff; border: 1.5px solid rgba(28, 25, 23, 0.22);
       border-radius: 10px; color: var(--modal-dark); padding: 9px 12px; font-size: 12.5px;
       outline: none; margin-bottom: 8px; font-weight: 600;
     }
-    .custom-input::placeholder { color: #78716c; font-weight: normal; }
 
-    /* TOTAL Y BOTÓN DE ENVÍO */
     .order-total-bar {
       display: flex; justify-content: space-between; align-items: baseline;
       margin: 8px 0; border-top: 2px dashed rgba(28,25,23,0.25); padding-top: 8px;
@@ -323,9 +317,11 @@
       </a>
 
       <div class="header-controls">
-        <select class="select-pill" id="langSelector" onchange="changeLanguage(this.value)">
+        <select class="select-pill" id="langSelector" onchange="cambiarIdiomaGlobal(this.value)">
           <option value="es" selected>🇪🇸 ES</option>
           <option value="en">🇬🇧 EN</option>
+          <option value="fr">🇫🇷 FR</option>
+          <option value="pt">🇧🇷 PT</option>
         </select>
         <button class="icon-pill-btn" onclick="toggleGlobalAudio()"><i class="fa-solid fa-volume-xmark" id="audioIcon"></i></button>
       </div>
@@ -465,13 +461,23 @@
         id: "dish-saltado", category: "mains", tag: "Plato Fuerte", precioPEN: 35.00, disponible: true,
         posterUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?w=500",
         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-        i18n: { es: { name: "Saltado", desc: "Papas fritas con carne picada y arroz" }, en: { name: "Saltado", desc: "Beef strips with fries and rice" } }
+        i18n: {
+          es: { name: "Saltado", desc: "Papas fritas con carne picada y arroz" },
+          en: { name: "Stir-Fried Beef", desc: "Sautéed beef strips with fries and rice" },
+          fr: { name: "Sauté de Bœuf", desc: "Émincé de bœuf sauté avec frites et riz" },
+          pt: { name: "Carne Salteada", desc: "Tiras de carne salteadas com batatas e arroz" }
+        }
       },
       {
         id: "dish-aji", category: "mains", tag: "Plato Fuerte", precioPEN: 35.00, disponible: true,
         posterUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?w=500",
         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-        i18n: { es: { name: "Aji de gallina", desc: "Gallina al hilo servida con crema de ají y arroz" }, en: { name: "Aji de gallina", desc: "Creamy shredded chicken with rice" } }
+        i18n: {
+          es: { name: "Ají de Gallina", desc: "Gallina al hilo servida con crema de ají y arroz" },
+          en: { name: "Creamy Chicken Stew", desc: "Shredded chicken in mild yellow pepper cream" },
+          fr: { name: "Poulet au Piment Doux", desc: "Effiloché de poulet crémeux au piment doux" },
+          pt: { name: "Frango com Creme de Pimenta", desc: "Frango desfiado em creme de pimenta amarela" }
+        }
       }
     ];
 
@@ -497,9 +503,42 @@
       { id: "Terraza 2", label: "☀️ Ter. 2", extra: true }
     ];
 
+    // ==============================================================
+    // SISTEMA DE SONIDOS NATIVO (DESBLOQUEO AUTOMÁTICO EN EL 1ER TOQUE)
+    // ==============================================================
+    let audioCtx = null;
+    function asegurarAudioCtx() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+    window.addEventListener('click', asegurarAudioCtx, { once: true });
+    window.addEventListener('touchstart', asegurarAudioCtx, { once: true });
+
+    function reproducirSonidoCampanaExito() {
+      try {
+        asegurarAudioCtx();
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+        osc.frequency.exponentialRampToValueAtTime(783.99, audioCtx.currentTime + 0.15); // G5
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(audioCtx.currentTime);
+        osc.stop(audioCtx.currentTime + 0.38);
+      } catch (e) {}
+    }
+
     function normalizarNombreMesa(m) {
       if (!m) return "";
-      let s = m.trim();
+      let s = String(m).trim();
       const match = s.match(/\d+/);
       if (match && s.toLowerCase().includes("mesa")) {
         const num = parseInt(match[0]);
@@ -508,7 +547,6 @@
       return s;
     }
 
-    // DETECCIÓN Y PERSISTENCIA DE MESA POR URL O POR PEDIDO EXISTENTE
     function detectarMesaDesdeURL() {
       const params = new URLSearchParams(window.location.search);
       const mesaUrl = params.get('mesa');
@@ -521,7 +559,6 @@
         mesaFijadaPorQR = true;
       }
 
-      // Si ya tiene una comanda activa previa, la mesa queda automáticamente fijada a ella
       if (comandaActivaId) {
         mesaFijadaPorQR = true;
       }
@@ -540,31 +577,34 @@
       }
     }
 
+    // CONSULTA PURA DE MESAS OCUPADAS (SOLO COMANDAS REALES ACTIVAS)
     async function obtenerMesasOcupadasEnRed() {
       let comandas = [];
       try {
         const resFB = await fetch(`${FIREBASE_DB_URL}comandas.json?_t=${Date.now()}`);
         if (resFB.ok) {
           const dataFB = await resFB.json();
-          if (dataFB) comandas = Object.values(dataFB);
+          if (dataFB) {
+            comandas = Object.values(dataFB).filter(c => c && typeof c === 'object' && c.id);
+          }
         }
-      } catch (e) {
-        const local = JSON.parse(localStorage.getItem("inkabistro_comandas_activas")) || [];
-        if (Array.isArray(local)) comandas = local;
-      }
+      } catch (e) {}
 
+      // Solo bloquear mesas de pedidos activos (sin contar liberadas ni la propia orden activa)
       const ocupadas = comandas
         .filter(c => {
           const est = (c.estado || "").toLowerCase().trim();
           const activa = (est === "por_confirmar" || est === "cocina" || est === "servido");
-          return activa && c.id !== comandaActivaId;
+          const esMiPedido = (comandaActivaId && c.id === comandaActivaId);
+          // Ignorar bloqueos antiguos que no sean comandas vigentes
+          const esValida = Boolean(c.mesa && c.mesa.trim());
+          return activa && !esMiPedido && esValida;
         })
         .map(c => normalizarNombreMesa(c.mesa));
 
       return ocupadas;
     }
 
-    // RENDERIZA Y BLOQUEA TODAS LAS DEMÁS MESAS PARA QUE EL CLIENTE NO PUEDA CAMBIARLAS
     async function renderizarCuadriculaMesas() {
       const container = document.getElementById("tableGridContainer");
       if (!container) return;
@@ -596,7 +636,7 @@
         } else if (mesaFijadaPorQR && !esMiMesa) {
           btn.innerHTML = `${m.label} 🔒`;
           btn.title = `Bloqueada. Tu sesión está asignada únicamente a tu ${mesaSeleccionada}.`;
-          btn.onclick = () => alert(`🔒 Has escaneado el QR de la ${mesaSeleccionada}. Todos tus pedidos adicionales se agregan a esta mesa.`);
+          btn.onclick = () => alert(`🔒 Tu sesión está fija en la ${mesaSeleccionada}. Todos tus pedidos adicionales se agregan a esta mesa.`);
         } else {
           btn.innerText = m.label;
           btn.onclick = () => selectTableRow(m.id, btn);
@@ -617,14 +657,34 @@
       document.getElementById('selectedTableBadge').innerText = numMesa;
     }
 
+    // CAMBIO DE IDIOMA COMPLETO Y DINÁMICO
+    function cambiarIdiomaGlobal(nuevoLang) {
+      currentLang = nuevoLang;
+      renderFeed();
+      renderCategoryChips();
+      renderQuickCatalogPopup();
+      actualizarVistaPopup();
+    }
+
+    function getDishInfo(dish) {
+      if (!dish) return { name: "", desc: "" };
+      if (dish.i18n && dish.i18n[currentLang] && dish.i18n[currentLang].name) {
+        return dish.i18n[currentLang];
+      }
+      if (dish.i18n && dish.i18n['es'] && dish.i18n['es'].name) {
+        return dish.i18n['es'];
+      }
+      return { name: dish.nombre || "Plato", desc: dish.descripcion || "" };
+    }
+
     function renderQuickCatalogPopup() {
       const box = document.getElementById('quickAddCatalogGrid');
       if (!box) return;
       box.innerHTML = catalogo.map(d => {
-        const nom = (d.i18n?.[currentLang] || d.i18n?.['es'] || d).name || d.nombre;
+        const info = getDishInfo(d);
         return `
           <button type="button" class="btn-quick-item" onclick="addToOrder('${d.id}')">
-            <span>${nom}</span>
+            <span>${info.name}</span>
             <b style="color:var(--modal-green);">S/ ${(d.precioPEN || d.precio || 0).toFixed(2)}</b>
           </button>
         `;
@@ -674,7 +734,14 @@
     }
 
     function renderCategoryChips() {
-      const cats = [{ key: "all", label: "Todos" }, { key: "mains", label: "Platos Fuertes" }, { key: "top", label: "🔥 Especialidades" }];
+      const labels = {
+        es: { all: "Todos", mains: "Platos Fuertes", top: "🔥 Especialidades" },
+        en: { all: "All", mains: "Main Courses", top: "🔥 Specialties" },
+        fr: { all: "Tous", mains: "Plats Principaux", top: "🔥 Spécialités" },
+        pt: { all: "Todos", mains: "Pratos Principais", top: "🔥 Especialidades" }
+      };
+      const t = labels[currentLang] || labels.es;
+      const cats = [{ key: "all", label: t.all }, { key: "mains", label: t.mains }, { key: "top", label: t.top }];
       document.getElementById('categoryChips').innerHTML = cats.map(c => `
         <div class="chip ${c.key === 'all' ? 'active' : ''}">${c.label}</div>
       `).join('');
@@ -683,15 +750,15 @@
     function renderFeed() {
       const feed = document.getElementById('feedContainer');
       feed.innerHTML = catalogo.map(item => {
-        const es = item.i18n?.[currentLang] || item.i18n?.['es'] || { name: item.nombre, desc: item.descripcion };
+        const info = getDishInfo(item);
         return `
           <div class="video-slide">
             <video class="video-player" src="${item.videoUrl}" poster="${item.posterUrl}" loop playsinline muted></video>
             <div class="slide-overlay"></div>
             <div class="dish-info">
               ${item.tag ? `<span class="badge-tag">${item.tag}</span>` : ''}
-              <h2 class="dish-title">${es.name}</h2>
-              <p class="dish-desc">${es.desc}</p>
+              <h2 class="dish-title">${info.name}</h2>
+              <p class="dish-desc">${info.desc}</p>
               <div class="dish-price-row">
                 <span class="price-now">${formatPrice(item.precioPEN || item.precio || 0)}</span>
                 <span class="price-alt">${formatSecondaryPrice(item.precioPEN || item.precio || 0)}</span>
@@ -737,7 +804,7 @@
         const cant = pedido[id];
         const sub = cant * (d.precioPEN || d.precio || 0);
         totalU += cant; totalMonto += sub;
-        const info = d.i18n?.[currentLang] || d.i18n?.['es'] || { name: d.nombre };
+        const info = getDishInfo(d);
 
         list.innerHTML += `
           <div class="order-item-row">
@@ -823,14 +890,13 @@
       openOrdersPopup();
     }
 
-    // TRANSMISIÓN CENTRALIZADA EN SU PROPIA COMANDA
+    // TRANSMISIÓN CENTRALIZADA EN SU PROPIA COMANDA CON SONIDO
     async function enviarComandaDirectaAlPanel() {
       const itemIds = Object.keys(pedido);
       if (itemIds.length === 0) return alert("Por favor añade al menos un plato a la comanda.");
 
       const mesaNorm = normalizarNombreMesa(mesaSeleccionada);
 
-      // Si no tenía comanda previa, verificar ocupación antes de abrirla
       if (!comandaActivaId) {
         const mesasOcupadas = await obtenerMesasOcupadasEnRed();
         if (mesasOcupadas.includes(mesaNorm)) {
@@ -853,12 +919,11 @@
       itemIds.forEach(id => {
         const dish = catalogo.find(d => d.id === id);
         const cant = pedido[id];
-        const nom = (dish.i18n?.[currentLang] || dish.i18n?.['es'] || dish).name || dish.nombre;
-        detalleTexto += `${cant}x ${nom}, `;
-        platosComanda.push({ id, nombre: nom, cantidad: cant, precio: dish.precioPEN || dish.precio });
+        const info = getDishInfo(dish);
+        detalleTexto += `${cant}x ${info.name}, `;
+        platosComanda.push({ id, nombre: info.name, cantidad: cant, precio: dish.precioPEN || dish.precio });
       });
 
-      // Si el cliente ya tenía una orden activa en esta mesa, se centralizan los platos nuevos en la misma comanda
       if (comandaActivaId) {
         try {
           const res = await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`);
@@ -885,6 +950,7 @@
               btn.disabled = false;
               btn.innerHTML = '<i class="fa-solid fa-bell-concierge"></i> Enviar Comanda al Panel / Cocina';
               closeOrdersPopup();
+              reproducirSonidoCampanaExito();
               verificarEstadoComandaEnVivo();
               return;
             }
@@ -892,7 +958,6 @@
         } catch (e) {}
       }
 
-      // Nueva comanda en mesa
       const nuevaComanda = {
         id: "CMD-" + Date.now(),
         fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }),
@@ -918,7 +983,6 @@
       comandaActivaId = nuevaComanda.id;
       localStorage.setItem("inkabistro_mi_comanda_id", comandaActivaId);
 
-      // Una vez generada la primera comanda, bloquea todas las demás mesas para siempre en esta sesión
       mesaFijadaPorQR = true;
       sessionStorage.setItem("inkabistro_mesa_qr", mesaNorm);
       actualizarBadgeMesaHeader();
@@ -929,6 +993,7 @@
         btn.disabled = false;
         btn.innerHTML = '<i class="fa-solid fa-bell-concierge"></i> Enviar Comanda al Panel / Cocina';
         closeOrdersPopup();
+        reproducirSonidoCampanaExito();
         verificarEstadoComandaEnVivo();
         renderizarCuadriculaMesas();
       }, 400);
@@ -941,6 +1006,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ clientePidiendoCuenta: true })
       });
+      reproducirSonidoCampanaExito();
       alert("✔ Se ha avisado a caja y recepción. Acércate a pagar tu cuenta.");
     }
 
@@ -1038,7 +1104,6 @@
 
     function toggleGlobalAudio() {
       isGlobalMuted = !isGlobalMuted;
-      document.getElementById('audioIcon').className = isGlobalMuted ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-high';
       document.querySelectorAll('video').forEach(v => v.muted = isGlobalMuted);
     }
 
