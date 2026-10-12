@@ -25,7 +25,6 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
     body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
 
-    /* PANTALLA LOGIN Y APERTURA DE CAJA */
     #pantallaLogin {
       display: flex; justify-content: center; align-items: center; min-height: 100vh;
       padding: 16px; background: radial-gradient(circle at center, #241611 0%, #0d0806 100%);
@@ -42,7 +41,6 @@
       padding: 12px; margin-top: 10px;
     }
 
-    /* BARRA SUPERIOR */
     .top-admin-bar {
       display: none; background: #190f0c; border-bottom: 1.5px solid var(--card-border);
       padding: 10px 14px; align-items: center; justify-content: space-between;
@@ -163,11 +161,6 @@
       display: flex; flex-direction: column; gap: 8px;
     }
     .reserva-badge-tipo { background: var(--primary); color: #fff; font-size: 10px; font-weight: 900; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; }
-    .mesa-checkbox-group { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
-    .mesa-check-label {
-      background: #2b1c16; border: 1px solid rgba(255,255,255,0.15); padding: 4px 8px; border-radius: 6px;
-      font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px;
-    }
 
     /* CATÁLOGO VISUAL */
     .dishes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
@@ -345,12 +338,18 @@
               <h1>🛎️ Pantalla KDS: Aceptar y Preparar Comandas</h1>
               <p>Revisa y gestiona las órdenes entrantes con alertas sonoras.</p>
             </div>
-            <button class="btn btn-add" onclick="cargarComandasEnVivo()"><i class="fa-solid fa-rotate"></i> Actualizar</button>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-del" style="font-size:11px;" onclick="limpiarMesasFantasma()">
+                <i class="fa-solid fa-broom"></i> Desbloquear Todas las Mesas
+              </button>
+              <button class="btn btn-add" onclick="cargarComandasEnVivo()"><i class="fa-solid fa-rotate"></i> Actualizar</button>
+            </div>
           </div>
 
           <div class="tables-monitor-bar">
             <div class="tables-monitor-header">
               <span>📍 Monitor de Mesas (Rojo = Ocupada | Verde = Libre):</span>
+              <span style="font-size:11px; color:#aaa;">Toca una mesa en rojo para liberarla</span>
             </div>
             <div class="tables-monitor-grid" id="tablesMonitorGrid"></div>
           </div>
@@ -362,8 +361,8 @@
         <section id="viewReservas" style="display:none;">
           <div class="view-header">
             <div>
-              <h1>📅 Módulo de Reservas & Bloqueo de Mesas por Grupos</h1>
-              <p>Asigna y bloquea múltiples mesas para cenas navideñas, grupos y eventos.</p>
+              <h1>📅 Módulo de Reservas & Bloqueo de Mesas</h1>
+              <p>Control de reservas registradas.</p>
             </div>
             <button class="btn btn-add" onclick="cargarReservasFirebase()"><i class="fa-solid fa-rotate"></i> Actualizar</button>
           </div>
@@ -614,10 +613,18 @@
     let platoEditandoId = null;
     let totalComandasPrevias = 0;
 
-    // SONIDO ESTILO UBER / INDRIVER
+    // SONIDO UBER CON DESBLOQUEO NATIVO
+    let audioCtx = null;
+    function asegurarAudioCtx() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+    window.addEventListener('click', asegurarAudioCtx, { once: true });
+
     function reproducirSonidoUberInDriver() {
       try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        asegurarAudioCtx();
+        if (!audioCtx) return;
         const osc1 = audioCtx.createOscillator();
         const gain1 = audioCtx.createGain();
         osc1.type = "sine";
@@ -652,7 +659,6 @@
       else nombreInput.value = 'Mozo Sala';
     }
 
-    // LOGIN Y APERTURA DE CAJA CHICA
     function verificarLoginSistema(e) {
       e.preventDefault();
       const rol = document.getElementById('loginUsuarioSelector').value;
@@ -694,9 +700,9 @@
       await cargarIdentidadFirebase();
       await cargarPlatosFirebase();
       renderizarVisualDishes();
-      cargarComandasEnVivo();
+      await cargarComandasEnVivo();
       cargarReservasFirebase();
-      setInterval(cargarComandasEnVivo, 1800);
+      setInterval(cargarComandasEnVivo, 2000);
     }
 
     function cerrarTurnoCaja() {
@@ -748,7 +754,7 @@
 
     function normalizarNombreMesa(m) {
       if (!m) return "";
-      let s = m.trim();
+      let s = String(m).trim();
       const match = s.match(/\d+/);
       if (match && s.toLowerCase().includes("mesa")) {
         const num = parseInt(match[0]); return "Mesa " + (num < 10 ? "0" + num : num);
@@ -790,7 +796,6 @@
       cargarIdentidadFirebase();
     }
 
-    // CATÁLOGO DE PLATOS
     async function cargarPlatosFirebase() {
       try {
         const res = await fetch(`${FIREBASE_DB_URL}catalogo_platos.json`);
@@ -897,7 +902,7 @@
     }
 
     // ==============================================================
-    // COMANDAS EN VIVO REPARADAS (BLINDAJE DE DATOS CONTRA NULOS)
+    // COMANDAS EN VIVO REPARADAS (BLINDAJE TOTAL CONTRA NULOS)
     // ==============================================================
     async function cargarComandasEnVivo() {
       const grid = document.getElementById('liveOrdersGrid');
@@ -1036,7 +1041,6 @@
       alert("✔ Notificación enviada al cliente.");
     }
 
-    // COBRO SEGURO POR ID DIRECTO
     async function liberarMesaDirecta(idComanda) {
       let comanda = null;
       try {
@@ -1097,6 +1101,29 @@
             }
           }
         } catch (e) {}
+      }
+    }
+
+    // BOTÓN DE LIMPIEZA TOTAL PARA ELIMINAR BLOQUEOS RESIDUALES O FANTASMAS
+    async function limpiarMesasFantasma() {
+      if (confirm("¿Deseas desbloquear y desocupar TODAS las mesas del sistema ahora mismo?")) {
+        try {
+          const res = await fetch(`${FIREBASE_DB_URL}comandas.json`);
+          if (res.ok) {
+            const data = await res.json();
+            for (let key in data) {
+              if (data[key] && data[key].estado !== 'liberado') {
+                await fetch(`${FIREBASE_DB_URL}comandas/${key}.json`, {
+                  method: 'PATCH',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ estado: 'liberado' })
+                });
+              }
+            }
+          }
+        } catch (e) {}
+        alert("✔ Todas las mesas han sido desocupadas y quedan libres.");
+        cargarComandasEnVivo();
       }
     }
 
@@ -1226,6 +1253,8 @@
         tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#888;">No hay registros con los filtros seleccionados.</td></tr>';
       }
 
+      document.getElementById('repPrintBase').innerText = `S/ ${totalBase.toFixed(2)}`;
+      document.getElementById('repPrintIgv').innerText = `S/ ${totalIgv.toFixed(2)}`;
       document.getElementById('repPrintTotales').innerText = `Total: S/ ${totalPEN.toFixed(2)}`;
     }
 
