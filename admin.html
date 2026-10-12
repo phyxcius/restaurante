@@ -25,6 +25,36 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
     body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
 
+    /* PANTALLA LOGIN Y APERTURA DE CAJA */
+    #pantallaLogin {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 16px;
+      background: radial-gradient(circle at center, #241611 0%, #0d0806 100%);
+    }
+    .card-login {
+      background: var(--card-bg);
+      border: 1.5px solid var(--accent);
+      border-radius: 18px;
+      max-width: 430px;
+      width: 100%;
+      padding: 26px 22px;
+      box-shadow: 0 10px 35px rgba(0,0,0,0.8);
+    }
+    .card-login h3 { color: var(--gold); text-align: center; margin-bottom: 4px; font-size: 20px; font-weight: 900; }
+    .card-login p.sub { font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 16px; }
+
+    .caja-chica-box {
+      background: #180e0a;
+      border: 1.5px dashed var(--accent);
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+
+    /* BARRA SUPERIOR */
     .top-admin-bar {
       display: none; background: #190f0c; border-bottom: 1.5px solid var(--card-border);
       padding: 10px 14px; align-items: center; justify-content: space-between;
@@ -60,12 +90,25 @@
     }
     .brand-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
+    .user-session-badge {
+      background: rgba(245, 158, 11, 0.12); border: 1px solid var(--card-border);
+      border-radius: 8px; padding: 7px 10px; font-size: 11.5px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+
     .btn-toggle-menu {
       width: 36px; height: 36px; border-radius: 8px;
       background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35);
       color: var(--gold); display: flex; align-items: center; justify-content: center;
       font-size: 15px; cursor: pointer; flex-shrink: 0;
     }
+
+    .chuspa-badge-sidebar {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(254, 252, 232, 0.08); border: 1px solid rgba(234, 179, 8, 0.35);
+      padding: 6px 10px; border-radius: 20px; text-decoration: none;
+    }
+    .chuspa-img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1px solid #ca8a04; background: #fff; }
 
     .nav-menu { display: flex; flex-direction: column; gap: 6px; flex: 1; }
     .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 10px; border: 1px solid transparent; background: transparent; color: var(--text-muted); font-size: 13px; font-weight: 700; cursor: pointer; text-align: left; }
@@ -80,7 +123,7 @@
 
     .card { background: var(--card-bg); padding: 18px 20px; border-radius: 14px; border: 1px solid var(--card-border); margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.25); }
     label { font-size: 11px; font-weight: 800; color: var(--gold); display: block; margin-top: 8px; text-transform: uppercase; }
-    input, textarea, select { width: 100%; padding: 9px 12px; margin-top: 4px; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; font-size: 13.5px; background: var(--input-bg); color: #fff; }
+    input, textarea, select { width: 100%; padding: 9px 12px; margin-top: 4px; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; font-size: 13.5px; background: var(--input-bg); color: #fff; outline: none; }
 
     .btn { padding: 9px 14px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 7px; font-size: 13px; }
     .btn-save { background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; }
@@ -125,7 +168,7 @@
     .btn-action-kitchen { flex: 1; background: linear-gradient(135deg, #0284c7, #38bdf8); color: #fff; padding: 9px; font-size: 12px; border-radius: 8px; border: none; font-weight: 800; cursor: pointer; }
     .btn-action-cobrar { flex: 1; background: linear-gradient(135deg, #15803d, #22c55e); color: #fff; padding: 9px; font-size: 12px; border-radius: 8px; border: none; font-weight: 900; cursor: pointer; }
 
-    /* MÓDULO RESERVAS EN ADMIN */
+    /* RESERVAS */
     .reservas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
     .reserva-card {
       background: #1e1410; border: 1.5px solid var(--accent); border-radius: 12px; padding: 14px;
@@ -138,10 +181,7 @@
       font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px;
     }
 
-    .custom-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; }
-    .custom-table th, .custom-table td { border: 1px solid rgba(255,255,255,0.1); padding: 8px 10px; }
-    .custom-table th { background: #2f221c; color: var(--gold); }
-
+    /* CATÁLOGO VISUAL */
     .dishes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
     .dish-card-visual { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
     .dish-media { height: 150px; background: #000; overflow: hidden; }
@@ -149,6 +189,16 @@
     .switch-btn { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; border: none; cursor: pointer; }
     .switch-btn.btn-to-off { background: #451a1a; color: #fca5a5; border: 1px solid #dc2626; }
     .switch-btn.btn-to-on { background: #14532d; color: #86efac; border: 1px solid #16a34a; }
+
+    /* TABLA REPORTES */
+    .filter-grid-contable { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; background: #18100c; padding: 12px; border-radius: 10px; margin-bottom: 14px; }
+    .custom-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; }
+    .custom-table th, .custom-table td { border: 1px solid rgba(255,255,255,0.1); padding: 8px 10px; }
+    .custom-table th { background: #2f221c; color: var(--gold); }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 550; display: none; align-items: center; justify-content: center; padding: 20px; }
+    .modal-overlay.active { display: flex; }
+    .modal-box { background: var(--card-bg); border: 1.5px solid var(--card-border); border-radius: 16px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 22px; display: flex; flex-direction: column; gap: 12px; }
 
     .sidebar-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 180; }
 
@@ -164,21 +214,49 @@
 </head>
 <body>
 
-  <!-- PANTALLA LOGIN -->
-  <div id="pantallaLogin" style="display:flex; justify-content:center; align-items:center; min-height:85vh; padding:16px;">
-    <div class="card" style="max-width:400px; width:100%; padding:26px;">
+  <!-- PANTALLA LOGIN COMPLETA: ACCESO DE TODOS Y APERTURA DE CAJA CHICA -->
+  <div id="pantallaLogin">
+    <div class="card-login">
       <div style="text-align:center; font-size:38px; margin-bottom:6px;">🍽️</div>
-      <h3 style="color:var(--gold); text-align:center; margin-bottom:4px;" id="loginTitlePreview">La Cusqueñita</h3>
-      <p style="font-size:12px; color:var(--text-muted); text-align:center; margin-bottom:16px;">Acceso al Panel Administrativo</p>
+      <h3 id="loginTitlePreview">La Cusqueñita</h3>
+      <p class="sub">Inicio de Sesión & Apertura de Turno</p>
       
       <form onsubmit="verificarLoginSistema(event)">
-        <label>Usuario:</label>
-        <input type="text" id="loginUsuario" value="admin" required autofocus>
+        <label>Usuario / Cajero:</label>
+        <select id="loginUsuarioSelector" onchange="actualizarUsuarioInput(this.value)">
+          <option value="admin">Administrador (Gerencia / Propietario)</option>
+          <option value="cajero1">Cajero 1</option>
+          <option value="cajero2">Cajero 2</option>
+          <option value="mozo">Mozo / Sala</option>
+        </select>
+
+        <label>Nombre Identificador de Quien Opera:</label>
+        <input type="text" id="loginUsuarioNombre" placeholder="Ej. Edwin Oblitas / Carlos" required>
 
         <label>Contraseña:</label>
         <input type="password" id="loginPassword" placeholder="••••••••" required>
 
-        <button type="submit" class="btn btn-save" style="margin-top:16px; width:100%;">Iniciar Sesión</button>
+        <!-- APERTURA DE CAJA CHICA DISPONIBLE PARA TODOS LOS USUARIOS -->
+        <div class="caja-chica-box">
+          <div style="font-size:12px; font-weight:900; color:var(--gold); margin-bottom:6px;">
+            <i class="fa-solid fa-cash-register"></i> APERTURA DE CAJA CHICA
+          </div>
+          
+          <label style="margin-top:0;">Turno de Trabajo:</label>
+          <select id="loginTurno">
+            <option value="Mañana (07:00 - 15:00)">Turno Mañana (07:00 - 15:00)</option>
+            <option value="Tarde (15:00 - 23:00)">Turno Tarde (15:00 - 23:00)</option>
+            <option value="Noche (23:00 - 07:00)">Turno Noche (23:00 - 07:00)</option>
+            <option value="Madrugada / Especial">Turno Madrugada / Especial</option>
+          </select>
+
+          <label>Monto Inicial de Efectivo en Caja (S/):</label>
+          <input type="number" step="0.5" id="loginCajaChica" placeholder="100.00" value="100.00" required>
+        </div>
+
+        <button type="submit" class="btn btn-save" style="margin-top:16px; width:100%;">
+          <i class="fa-solid fa-right-to-bracket"></i> Abrir Caja & Entrar al Sistema
+        </button>
       </form>
     </div>
   </div>
@@ -210,6 +288,24 @@
           </button>
         </div>
 
+        <!-- DATOS DEL USUARIO Y APERTURA DE CAJA -->
+        <div class="user-session-badge">
+          <div>
+            <b id="lblSesionUsuario">Admin</b>
+            <span style="font-size:9.5px; color:#aaa; display:block;" id="lblSesionTurno">Turno Mañana</span>
+            <span style="font-size:9.5px; color:#86efac; display:block;" id="lblSesionCajaChica">Caja: S/ 100.00</span>
+          </div>
+          <button type="button" class="btn btn-del" style="padding:4px 7px; font-size:10px;" onclick="cerrarTurnoCaja()">Cerrar Caja</button>
+        </div>
+
+        <a href="https://www.lachuspaanuncios.com/" target="_blank" rel="noopener noreferrer" class="chuspa-badge-sidebar">
+          <img src="CHUSPITA-circulo.png" alt="La Chuspa" class="chuspa-img" onerror="this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png'">
+          <div style="display:flex; flex-direction:column; line-height:1.15;">
+            <span style="font-size:11px; font-weight:900; color:#fde047;">La Chuspa Tech</span>
+            <span style="font-size:8.5px; font-weight:700; color:#fed7aa;">by La Chuspa</span>
+          </div>
+        </a>
+
         <nav class="nav-menu">
           <button class="nav-item active" id="btnNavComandas" onclick="seleccionarOpcionNav('comandas')">
             <i class="fa-solid fa-bell-concierge"></i> Comandas en Vivo
@@ -225,19 +321,19 @@
             <i class="fa-solid fa-utensils"></i> Catálogo de Platos
           </button>
           
-          <button class="nav-item" id="btnNavIdentidad" onclick="seleccionarOpcionNav('identidad')">
+          <button class="nav-item rol-admin-only" id="btnNavIdentidad" onclick="seleccionarOpcionNav('identidad')">
             <i class="fa-solid fa-store"></i> Identidad & SUNAT
           </button>
           
-          <button class="nav-item" id="btnNavConfig" onclick="seleccionarOpcionNav('config')">
+          <button class="nav-item rol-admin-only" id="btnNavConfig" onclick="seleccionarOpcionNav('config')">
             <i class="fa-solid fa-credit-card"></i> Pagos & Contacto
           </button>
           
-          <button class="nav-item" id="btnNavMesas" onclick="seleccionarOpcionNav('mesas')">
+          <button class="nav-item rol-admin-only" id="btnNavMesas" onclick="seleccionarOpcionNav('mesas')">
             <i class="fa-solid fa-qrcode"></i> Códigos QR Mesas
           </button>
           
-          <button class="nav-item" id="btnNavReportes" onclick="seleccionarOpcionNav('reportes')">
+          <button class="nav-item rol-admin-only" id="btnNavReportes" onclick="seleccionarOpcionNav('reportes')">
             <i class="fa-solid fa-chart-line"></i> Reporte Contable & SUNAT
           </button>
           
@@ -268,7 +364,7 @@
 
           <div class="tables-monitor-bar">
             <div class="tables-monitor-header">
-              <span>📍 Monitor de Mesas (Rojo = Ocupada/Reservada | Verde = Libre):</span>
+              <span>📍 Monitor de Mesas (Rojo = Ocupada | Verde = Libre):</span>
             </div>
             <div class="tables-monitor-grid" id="tablesMonitorGrid"></div>
           </div>
@@ -276,7 +372,7 @@
           <div class="live-orders-grid" id="liveOrdersGrid"></div>
         </section>
 
-        <!-- 2. GESTIÓN DE RESERVAS Y BLOQUEO DE GRUPOS / CENA NAVIDEÑA -->
+        <!-- 2. GESTIÓN DE RESERVAS -->
         <section id="viewReservas" style="display:none;">
           <div class="view-header">
             <div>
@@ -286,25 +382,16 @@
             <button class="btn btn-add" onclick="cargarReservasFirebase()"><i class="fa-solid fa-rotate"></i> Actualizar</button>
           </div>
 
-          <!-- INTERRUPTOR DE RESERVAS O REDIRECCIÓN WEB -->
           <div class="card" style="border:1.5px solid var(--accent); background:#1e1410;">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
               <div>
-                <strong style="color:var(--gold); font-size:14px;"><i class="fa-solid fa-sliders"></i> Estado del Sistema de Reservas Online</strong>
-                <p style="font-size:11.5px; color:#aaa; margin-top:2px;">
-                  Si las bloqueas, los comensales serán redirigidos a la página web oficial del restaurante.
-                </p>
+                <strong style="color:var(--gold); font-size:14px;"><i class="fa-solid fa-sliders"></i> Estado de Reservas Online</strong>
+                <p style="font-size:11.5px; color:#aaa; margin-top:2px;">Si las bloqueas, los clientes irán a la web del restaurante.</p>
               </div>
-              <div style="display:flex; align-items:center; gap:8px;">
-                <select id="cfgEstadoReservas" style="width:auto; padding:7px 12px; font-weight:bold;" onchange="guardarEstadoReservas(this.value)">
-                  <option value="habilitadas">🟢 Habilitadas (Aceptar reservas)</option>
-                  <option value="bloqueadas">🔴 Bloqueadas (Redirigir a Web)</option>
-                </select>
-              </div>
-            </div>
-            <div style="margin-top:10px;">
-              <label>URL de la Página Web para Redirección:</label>
-              <input type="url" id="cfgUrlRedireccionWeb" value="https://www.lachuspaanuncios.com/" onchange="guardarUrlWeb(this.value)">
+              <select id="cfgEstadoReservas" style="width:auto; padding:7px 12px; font-weight:bold;" onchange="guardarEstadoReservas(this.value)">
+                <option value="habilitadas">🟢 Habilitadas (Aceptar reservas)</option>
+                <option value="bloqueadas">🔴 Bloqueadas (Redirigir a Web)</option>
+              </select>
             </div>
           </div>
 
@@ -316,7 +403,7 @@
           <div class="view-header">
             <div>
               <h1>🍽️ Catálogo Visual de la Carta</h1>
-              <p>Edita platos, recetas, precios e imágenes en tiempo real.</p>
+              <p>Edita platos, precios y recetas en tiempo real.</p>
             </div>
             <button class="btn btn-add" onclick="abrirModalPlato()"><i class="fa-solid fa-plus"></i> Nuevo Plato</button>
           </div>
@@ -352,13 +439,6 @@
               </div>
             </div>
 
-            <label>Subir Logo (PNG / JPG):</label>
-            <input type="file" id="cfgLogoFileInput" accept="image/*" onchange="convertirLogoABase64(event)">
-            <div style="margin-top:6px; display:flex; align-items:center; gap:8px;">
-              <span style="font-size:11px; color:#aaa;">Logo actual:</span>
-              <div id="previewCurrentLogo" class="brand-avatar" style="width:36px; height:36px;">🍽️</div>
-            </div>
-
             <button class="btn btn-save" style="margin-top:16px; width:100%;" onclick="guardarIdentidadFirebase()">Guardar Configuración</button>
           </div>
         </section>
@@ -390,7 +470,7 @@
           </div>
         </section>
 
-        <!-- 7. REPORTES SUNAT CON FILTRO POR USUARIOS -->
+        <!-- 7. REPORTES SUNAT CON FILTRO POR USUARIO -->
         <section id="viewReportes" style="display:none;">
           <div class="view-header">
             <div>
@@ -414,7 +494,7 @@
                 <select id="filtroUsuarioCajero" onchange="aplicarFiltrosContables()">
                   <option value="">Todos los Usuarios</option>
                   <option value="admin">Administrador</option>
-                  <option value="cajero">Cajero</option>
+                  <option value="cajero">Cajeros</option>
                 </select>
               </div>
               <div>
@@ -465,6 +545,48 @@
     </div>
   </div>
 
+  <!-- MODAL DE EDICIÓN DE PLATOS -->
+  <div class="modal-overlay" id="dishModal">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 id="modalDishTitle" style="color:var(--gold);">Editar Plato de la Carta</h3>
+        <button style="background:none; border:none; color:#ccc; font-size:22px; cursor:pointer;" onclick="cerrarModalPlato()">&times;</button>
+      </div>
+
+      <label>Nombre del Plato:</label>
+      <input type="text" id="inputDishName" placeholder="Ej: Lomo Saltado">
+
+      <label>Descripción / Receta:</label>
+      <textarea id="inputDishDesc" rows="2" placeholder="Ingredientes y preparación..."></textarea>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div>
+          <label>Precio (PEN):</label>
+          <input type="number" step="0.5" id="inputDishPrice">
+        </div>
+        <div>
+          <label>Categoría:</label>
+          <select id="inputDishCategory">
+            <option value="top">🔥 Especialidades</option>
+            <option value="mains">Platos Fuertes</option>
+            <option value="drinks">Bebidas & Cocteles</option>
+          </select>
+        </div>
+      </div>
+
+      <label>URL de Imagen / Poster:</label>
+      <input type="text" id="inputDishPoster" placeholder="https://images.unsplash.com/...">
+
+      <label>URL de Video MP4:</label>
+      <input type="text" id="inputDishVideo" placeholder="https://...mp4">
+
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;">
+        <button class="btn btn-del" onclick="cerrarModalPlato()">Cancelar</button>
+        <button class="btn btn-save" onclick="guardarPlatoDesdeModal()">Guardar en la Carta</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const FIREBASE_DB_URL = "https://restaurante1-695f7-default-rtdb.firebaseio.com/";
 
@@ -504,22 +626,18 @@
 
     const coloresComandas = ["#38241b", "#1a2c38", "#1c3321", "#362138", "#382f1b"];
     let todasLasVentas = [];
-    let todasLasReservas = [];
+    let platoEditandoId = null;
     let totalComandasPrevias = 0;
 
-    // ==============================================================
-    // SINTETIZADOR DE SONIDOS ESTILO INDRIVER / UBER
-    // ==============================================================
+    // SONIDO ESTILO UBER / INDRIVER
     function reproducirSonidoUberInDriver() {
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        
-        // Tono 1 (Agudo de llamada de atención)
         const osc1 = audioCtx.createOscillator();
         const gain1 = audioCtx.createGain();
         osc1.type = "sine";
-        osc1.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
-        osc1.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15); // A5
+        osc1.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+        osc1.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
         gain1.gain.setValueAtTime(0.3, audioCtx.currentTime);
         gain1.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
         osc1.connect(gain1);
@@ -527,24 +645,89 @@
         osc1.start(audioCtx.currentTime);
         osc1.stop(audioCtx.currentTime + 0.22);
 
-        // Tono 2 (Confirmación armónica estilo InDriver)
         const osc2 = audioCtx.createOscillator();
         const gain2 = audioCtx.createGain();
         osc2.type = "triangle";
-        osc2.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.12); // C6
+        osc2.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.12);
         gain2.gain.setValueAtTime(0.35, audioCtx.currentTime + 0.12);
         gain2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.45);
         osc2.connect(gain2);
         gain2.connect(audioCtx.destination);
         osc2.start(audioCtx.currentTime + 0.12);
         osc2.stop(audioCtx.currentTime + 0.48);
-      } catch (e) {
-        console.warn("Audio no disponible:", e);
+      } catch (e) {}
+    }
+    function probarSonidoUber() { reproducirSonidoUberInDriver(); }
+
+    function actualizarUsuarioInput(rolVal) {
+      const nombreInput = document.getElementById('loginUsuarioNombre');
+      if (rolVal === 'admin') nombreInput.value = 'Administrador';
+      else if (rolVal === 'cajero1') nombreInput.value = 'Cajero 1';
+      else if (rolVal === 'cajero2') nombreInput.value = 'Cajero 2';
+      else nombreInput.value = 'Mozo Sala';
+    }
+
+    // LOGIN Y APERTURA DE CAJA CHICA PARA TODOS
+    function verificarLoginSistema(e) {
+      e.preventDefault();
+      const rol = document.getElementById('loginUsuarioSelector').value;
+      const nombreOperador = document.getElementById('loginUsuarioNombre').value.trim();
+      const p = document.getElementById('loginPassword').value.trim();
+      const turno = document.getElementById('loginTurno').value;
+      const montoCaja = parseFloat(document.getElementById('loginCajaChica').value) || 0;
+
+      if ((rol === 'admin' && p === 'regocijo123') || p === 'caja123' || p === 'regocijo123') {
+        sessionStorage.setItem("auth_rest", "true");
+        sessionStorage.setItem("rol_rest", rol);
+        sessionStorage.setItem("nombre_operador", nombreOperador);
+        sessionStorage.setItem("turno_rest", turno);
+        sessionStorage.setItem("caja_chica_monto", montoCaja.toFixed(2));
+        mostrarPanelAdmin();
+      } else {
+        alert("Contraseña incorrecta.");
       }
     }
 
-    function probarSonidoUber() {
-      reproducirSonidoUberInDriver();
+    async function mostrarPanelAdmin() {
+      document.getElementById('pantallaLogin').style.display = 'none';
+      document.getElementById('panelAdminPrincipal').style.display = 'block';
+
+      const rol = sessionStorage.getItem("rol_rest") || 'admin';
+      const operador = sessionStorage.getItem("nombre_operador") || 'Usuario';
+      const turno = sessionStorage.getItem("turno_rest") || 'Turno Mañana';
+      const caja = sessionStorage.getItem("caja_chica_monto") || '0.00';
+
+      document.getElementById('lblSesionUsuario').innerText = `${operador} (${rol === 'admin' ? 'Admin' : 'Cajero'})`;
+      document.getElementById('lblSesionTurno').innerText = turno;
+      document.getElementById('lblSesionCajaChica').innerText = `Caja Inicial: S/ ${caja}`;
+
+      const esAdmin = (rol === 'admin');
+      document.querySelectorAll('.rol-admin-only').forEach(el => {
+        el.style.display = esAdmin ? 'flex' : 'none';
+      });
+
+      await cargarIdentidadFirebase();
+      await cargarPlatosFirebase();
+      renderizarVisualDishes();
+      cargarComandasEnVivo();
+      cargarReservasFirebase();
+      setInterval(cargarComandasEnVivo, 1800);
+    }
+
+    function cerrarTurnoCaja() {
+      const operador = sessionStorage.getItem("nombre_operador") || 'Usuario';
+      const turno = sessionStorage.getItem("turno_rest") || 'General';
+      const caja = sessionStorage.getItem("caja_chica_monto") || '0.00';
+      if (confirm(`¿Deseas cerrar el turno de ${operador} (${turno}) con caja inicial de S/ ${caja} e imprimir la liquidación?`)) {
+        window.print();
+        sessionStorage.clear();
+        window.location.reload();
+      }
+    }
+
+    function cerrarSesionAdmin() {
+      sessionStorage.clear();
+      window.location.reload();
     }
 
     function abrirMenuLateral() {
@@ -558,36 +741,6 @@
     function seleccionarOpcionNav(sec) {
       mostrarSeccion(sec);
       if (window.innerWidth <= 860) cerrarMenuLateral();
-    }
-
-    function verificarLoginSistema(e) {
-      e.preventDefault();
-      const u = document.getElementById('loginUsuario').value.trim();
-      const p = document.getElementById('loginPassword').value.trim();
-
-      if ((u === 'admin' && p === 'regocijo123') || p === 'caja123') {
-        sessionStorage.setItem("auth_rest", "true");
-        sessionStorage.setItem("rol_rest", u === 'admin' ? "admin" : "cajero");
-        mostrarPanelAdmin();
-      } else alert("Credenciales incorrectas.");
-    }
-
-    async function mostrarPanelAdmin() {
-      document.getElementById('pantallaLogin').style.display = 'none';
-      document.getElementById('panelAdminPrincipal').style.display = 'block';
-
-      await cargarIdentidadFirebase();
-      await cargarPlatosFirebase();
-      renderizarVisualDishes();
-      cargarComandasEnVivo();
-      cargarReservasFirebase();
-      setInterval(cargarComandasEnVivo, 1800);
-      setInterval(cargarReservasFirebase, 4000);
-    }
-
-    function cerrarSesionAdmin() {
-      sessionStorage.clear();
-      window.location.reload();
     }
 
     function mostrarSeccion(s) {
@@ -618,7 +771,6 @@
       return s;
     }
 
-    // IDENTIDAD
     async function cargarIdentidadFirebase() {
       try {
         const res = await fetch(`${FIREBASE_DB_URL}config/identidad.json`);
@@ -633,11 +785,7 @@
       document.getElementById('cfgRuc').value = configRestaurante.ruc || "20601234567";
       document.getElementById('cfgDireccion').value = configRestaurante.direccion || "";
       document.getElementById('cfgIgvTasa').value = configRestaurante.igv || 18;
-      document.getElementById('cfgEstadoReservas').value = configRestaurante.estadoReservas || "habilitadas";
-      document.getElementById('cfgUrlRedireccionWeb').value = configRestaurante.urlWebRedireccion || "https://www.lachuspaanuncios.com/";
-
       document.getElementById('headerBusinessName').innerText = configRestaurante.nombre;
-      document.getElementById('repLocalRazonSocial').innerText = configRestaurante.nombre;
       actualizarQRVisual();
     }
 
@@ -657,158 +805,25 @@
       cargarIdentidadFirebase();
     }
 
-    async function guardarEstadoReservas(val) {
-      configRestaurante.estadoReservas = val;
-      await fetch(`${FIREBASE_DB_URL}config/identidad/estadoReservas.json`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(val)
-      });
-      alert(`✔ Reservas online ${val === 'habilitadas' ? 'HABILITADAS' : 'BLOQUEADAS (Redirigiendo a Web)'}.`);
-    }
-
-    async function guardarUrlWeb(val) {
-      configRestaurante.urlWebRedireccion = val;
-      await fetch(`${FIREBASE_DB_URL}config/identidad/urlWebRedireccion.json`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(val)
-      });
-    }
-
-    // ==============================================================
-    // GESTIÓN DE RESERVAS Y BLOQUEO DE MESAS POR GRUPO / CENA NAVIDEÑA
-    // ==============================================================
-    async function cargarReservasFirebase() {
-      const grid = document.getElementById('reservasCardsGrid');
-      let reservas = [];
-
-      try {
-        const res = await fetch(`${FIREBASE_DB_URL}reservas.json?_t=${Date.now()}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data) reservas = Object.values(data);
-        }
-      } catch (e) {}
-
-      document.getElementById('badgeTotalReservas').innerText = reservas.filter(r => r.estado !== 'finalizada').length;
-
-      if (reservas.length === 0) {
-        grid.innerHTML = '<p style="color:#aaa; font-size:13px;">No hay solicitudes de reserva registradas.</p>';
-        return;
-      }
-
-      // Ordenar por fecha reciente
-      reservas.sort((a, b) => (b.id || "").localeCompare(a.id || ""));
-
-      grid.innerHTML = reservas.map(r => {
-        const mesasSugeridas = Math.ceil(parseInt(r.personas || 2) / 4); // Aprox 4 personas por mesa
-
-        return `
-          <div class="reserva-card">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span class="reserva-badge-tipo">${r.tipo || 'Cena Navideña'}</span>
-              <span style="font-size:11px; color:#aaa;">${r.fechaCreacion || ''}</span>
-            </div>
-
-            <h3 style="color:#fff; font-size:15px; margin-top:2px;">${r.cliente || 'Titular'}</h3>
-            <div style="font-size:12px; color:#fde047;">
-              <i class="fa-solid fa-calendar"></i> ${r.fechaReserva} • <i class="fa-solid fa-clock"></i> ${r.horaReserva} • 👥 ${r.personas} Personas
-            </div>
-            <div style="font-size:11px; color:#aaa;">
-              📞 Teléfono: <a href="https://wa.me/${r.telefono}" target="_blank" style="color:#86efac; font-weight:bold;">${r.telefono}</a><br>
-              📝 Notas: ${r.notas || 'Ninguna'}
-            </div>
-
-            <!-- BLOQUEADOR DE MESAS PARA EL GRUPO -->
-            <div style="background:#130b08; padding:8px; border-radius:8px; margin-top:6px; border:1px solid rgba(255,255,255,0.1);">
-              <span style="font-size:11px; font-weight:bold; color:var(--gold);">
-                Bloquear mesas para este grupo (Sugeridas: ${mesasSugeridas} mesas):
-              </span>
-              <div class="mesa-checkbox-group" id="groupMesas_${r.id}">
-                ${todasLasMesas.map(m => `
-                  <label class="mesa-check-label">
-                    <input type="checkbox" value="${m}" ${(r.mesasAsignadas \vert{}\vert{} []).includes(m) ? 'checked' : ''}>${m.replace('Mesa ', 'M-')}
-                  </label>
-                `).join('')}
-              </div>
-              <button type="button" class="btn btn-save" style="width:100%; padding:6px; font-size:11px; margin-top:4px;" onclick="bloquearMesasParaReserva('${r.id}')">
-                <i class="fa-solid fa-lock"></i> Bloquear Mesas Asignadas en el Sistema
-              </button>
-            </div>
-
-            <div style="display:flex; gap:6px; margin-top:4px;">
-              <a href="https://wa.me/${r.telefono}?text=¡Hola ${encodeURIComponent(r.cliente)}! Confirmamos su reserva para ${r.personas} personas en La Cusqueñita." target="_blank" class="btn btn-add" style="flex:1; padding:6px; font-size:11px; text-decoration:none;">
-                <i class="fa-brands fa-whatsapp"></i> Confirmar Abono
-              </a>
-              <button type="button" class="btn btn-del" style="padding:6px 10px; font-size:11px;" onclick="eliminarReservaFirebase('${r.id}')">
-                <i class="fa-solid fa-trash"></i>
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    async function bloquearMesasParaReserva(idReserva) {
-      const container = document.getElementById(`groupMesas_${idReserva}`);
-      const checks = container.querySelectorAll('input[type="checkbox"]:checked');
-      const seleccionadas = Array.from(checks).map(c => c.value);
-
-      if (seleccionadas.length === 0) return alert("Selecciona al menos una mesa para bloquear.");
-
-      // 1. Guardar en la reserva
-      await fetch(`${FIREBASE_DB_URL}reservas/${idReserva}.json`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mesasAsignadas: seleccionadas, estado: "mesas_bloqueadas" })
-      });
-
-      // 2. Crear bloqueo en comandas de Firebase para que el monitor y celulares las vean ocupadas
-      for (let mesa of seleccionadas) {
-        const comandaBloqueo = {
-          id: `RESV-${mesa.replace(/\s+/g, '')}`,
-          cliente: `RESERVADO: Grupo ${idReserva.slice(-4)}`,
-          mesa: mesa,
-          productos: "MESA BLOQUEADA POR RESERVA ESPECIAL",
-          totalPEN: 0,
-          estado: "por_confirmar",
-          pago: "Reserva Prepago"
-        };
-        await fetch(`${FIREBASE_DB_URL}comandas/${comandaBloqueo.id}.json`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(comandaBloqueo)
-        });
-      }
-
-      alert(`✔ ${seleccionadas.length} mesa(s) bloqueadas para la reserva en todo el sistema.`);
-      cargarComandasEnVivo();
-      cargarReservasFirebase();
-    }
-
-    async function eliminarReservaFirebase(id) {
-      if (confirm("¿Eliminar solicitud de reserva?")) {
-        await fetch(`${FIREBASE_DB_URL}reservas/${id}.json`, { method: 'DELETE' });
-        cargarReservasFirebase();
-      }
-    }
-
-    // CATÁLOGO DE PLATOS
+    // CATÁLOGO DE PLATOS REPARADO (RENDERIZADO INMEDIATO)
     async function cargarPlatosFirebase() {
       try {
         const res = await fetch(`${FIREBASE_DB_URL}catalogo_platos.json`);
         if (res.ok) {
           const d = await res.json();
-          if (d) catalogo = Object.values(d);
+          if (d && Object.keys(d).length > 0) {
+            catalogo = Object.values(d);
+          }
         }
       } catch (e) {}
     }
 
     function renderizarVisualDishes() {
       const grid = document.getElementById('dishesVisualGrid');
+      if (!grid) return;
+
       grid.innerHTML = catalogo.map((dish, idx) => {
-        const es = dish.i18n?.es || { name: dish.nombre, desc: dish.descripcion };
+        const es = dish.i18n?.es || { name: dish.nombre || "Plato", desc: dish.descripcion || "" };
         const disp = dish.disponible !== false;
 
         return `
@@ -825,6 +840,10 @@
                 <span style="font-size:11px; font-weight:bold; color:${disp ? '#86efac' : '#fca5a5'};">${disp ? '🟢 Disponible' : '🔴 Agotado'}</span>
                 <button class="switch-btn ${disp ? 'btn-to-off' : 'btn-to-on'}" onclick="toggleStock(${idx})">${disp ? 'Agotar' : 'Activar'}</button>
               </div>
+
+              <button type="button" class="btn btn-save" style="margin-top:8px; padding:6px; font-size:11.5px;" onclick="abrirModalPlato('${dish.id}')">
+                <i class="fa-solid fa-pen-to-square"></i> Editar Plato
+              </button>
             </div>
           </div>
         `;
@@ -836,7 +855,63 @@
       renderizarVisualDishes();
     }
 
-    // COMANDAS EN VIVO CON SONIDO UBER
+    function abrirModalPlato(id = null) {
+      platoEditandoId = id;
+      if (id) {
+        const dish = catalogo.find(d => d.id === id);
+        const es = dish.i18n?.es || { name: dish.nombre, desc: dish.descripcion };
+        document.getElementById('inputDishName').value = es.name || '';
+        document.getElementById('inputDishDesc').value = es.desc || '';
+        document.getElementById('inputDishPrice').value = dish.precioPEN || dish.precio || 0;
+        document.getElementById('inputDishCategory').value = dish.category || 'mains';
+        document.getElementById('inputDishPoster').value = dish.posterUrl || '';
+        document.getElementById('inputDishVideo').value = dish.videoUrl || '';
+      } else {
+        document.getElementById('inputDishName').value = '';
+        document.getElementById('inputDishDesc').value = '';
+        document.getElementById('inputDishPrice').value = '35.00';
+        document.getElementById('inputDishPoster').value = 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500';
+        document.getElementById('inputDishVideo').value = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
+      }
+      document.getElementById('dishModal').classList.add('active');
+    }
+    function cerrarModalPlato() { document.getElementById('dishModal').classList.remove('active'); }
+
+    async function guardarPlatoDesdeModal() {
+      const nombre = document.getElementById('inputDishName').value.trim();
+      const desc = document.getElementById('inputDishDesc').value.trim();
+      const precio = parseFloat(document.getElementById('inputDishPrice').value) || 0;
+      if (!nombre) return alert("Nombre requerido.");
+
+      const item = {
+        id: platoEditandoId || ("dish-" + Date.now()),
+        category: document.getElementById('inputDishCategory').value,
+        precioPEN: precio,
+        precio: precio,
+        videoUrl: document.getElementById('inputDishVideo').value.trim(),
+        posterUrl: document.getElementById('inputDishPoster').value.trim(),
+        disponible: true,
+        i18n: { es: { name: nombre, desc: desc } }
+      };
+
+      if (platoEditandoId) {
+        const idx = catalogo.findIndex(d => d.id === platoEditandoId);
+        catalogo[idx] = item;
+      } else {
+        catalogo.push(item);
+      }
+
+      await fetch(`${FIREBASE_DB_URL}catalogo_platos/${item.id}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(item)
+      });
+
+      cerrarModalPlato();
+      renderizarVisualDishes();
+    }
+
+    // COMANDAS EN VIVO
     async function cargarComandasEnVivo() {
       const grid = document.getElementById('liveOrdersGrid');
       let comandas = [];
@@ -852,7 +927,6 @@
       comandas.sort((a, b) => (b.id || "").localeCompare(a.id || ""));
       const pedidosActivos = comandas.filter(c => c.estado !== 'liberado');
 
-      // Si entra una nueva comanda, disparar sonido InDriver/Uber
       if (pedidosActivos.length > totalComandasPrevias && totalComandasPrevias !== 0) {
         reproducirSonidoUberInDriver();
       }
@@ -912,13 +986,19 @@
                 </button>
               ` : ''}
 
-              <button type="button" class="btn-action-cobrar" onclick="liberarMesaDirecta('${c.id}', '${c.mesa}')">
-                <i class="fa-solid fa-door-open"></i> Cobrar y Desocupar
+              <button type="button" class="btn-action-cobrar" onclick="liberarMesaDirecta('${c.id}', '${c.mesa}', ${c.totalPEN || 0}, '${c.productos || ''}')">
+                <i class="fa-solid fa-cash-register"></i> Cobrar y Desocupar
               </button>
 
-              <button type="button" class="btn btn-print" style="padding:8px 10px; font-size:11.5px;" onclick="imprimirTicketCocina('${c.id}')">
+              <button type="button" class="btn btn-print" style="padding:8px 10px; font-size:11.5px;" onclick="window.print()">
                 <i class="fa-solid fa-print"></i> Ticket
               </button>
+
+              ${estado !== 'liberado' ? `
+                <button type="button" class="btn-action-kitchen" style="background:#ca8a04;" onclick="activarPreguntaMozo('${c.id}')">
+                  <i class="fa-solid fa-comment-dots"></i> ¿Desea algo más?
+                </button>
+              ` : ''}
             </div>
           </div>
         `;
@@ -941,7 +1021,6 @@
       }).join('');
     }
 
-    // ACCIÓN DIRECTA EN FIREBASE
     async function cambiarEstadoFirebase(idComanda, nuevoEstado) {
       await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, {
         method: 'PATCH',
@@ -951,32 +1030,163 @@
       await cargarComandasEnVivo();
     }
 
-    async function liberarMesaDirecta(idComanda, mesa) {
-      if (confirm(`¿Confirmar cobro y desocupar la ${mesa}?`)) {
+    async function activarPreguntaMozo(idComanda) {
+      await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mozoPregunta: true })
+      });
+      alert("✔ Notificación enviada al cliente.");
+    }
+
+    async function liberarMesaDirecta(idComanda, mesa, totalMonto, productos) {
+      const operador = sessionStorage.getItem("nombre_operador") || "Cajero";
+      const turno = sessionStorage.getItem("turno_rest") || "General";
+      const total = parseFloat(totalMonto) || 0;
+      const base = total / 1.18;
+      const igv = total - base;
+
+      if (confirm(`¿Confirmar cobro de S/ ${total.toFixed(2)} por ${operador} y desocupar la ${mesa}?`)) {
+        // Registrar venta
+        const venta = {
+          id: idComanda,
+          fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }),
+          mesa: mesa,
+          cliente: mesa,
+          productos: productos,
+          baseImponible: base,
+          igv: igv,
+          totalPEN: total,
+          pago: "Efectivo",
+          cajero: `${operador} (${turno})`
+        };
+
+        await fetch(`${FIREBASE_DB_URL}ventas/${idComanda}.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(venta)
+        });
+
         await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ estado: 'liberado', agradecimientoFinal: true })
         });
+
+        alert("✔ Cobro registrado y mesa liberada.");
         cargarComandasEnVivo();
       }
     }
 
-    async function imprimirTicketCocina(idComanda) {
-      window.print();
+    // RESERVAS
+    async function cargarReservasFirebase() {
+      const grid = document.getElementById('reservasCardsGrid');
+      let reservas = [];
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}reservas.json?_t=${Date.now()}`);
+        if (res.ok) {
+          const d = await res.json();
+          if (d) reservas = Object.values(d);
+        }
+      } catch (e) {}
+
+      document.getElementById('badgeTotalReservas').innerText = reservas.length;
+      if (reservas.length === 0) {
+        grid.innerHTML = '<p style="color:#aaa; font-size:13px;">No hay reservas registradas.</p>';
+        return;
+      }
+
+      grid.innerHTML = reservas.map(r => `
+        <div class="reserva-card">
+          <div style="display:flex; justify-content:space-between;">
+            <span class="reserva-badge-tipo">${r.tipo || 'Cena Navideña'}</span>
+            <span style="font-size:11px; color:#aaa;">${r.fechaCreacion || ''}</span>
+          </div>
+          <h3 style="color:#fff; font-size:15px;">${r.cliente || 'Titular'}</h3>
+          <div style="font-size:12px; color:#fde047;">
+            📅 ${r.fechaReserva} • ⏰ ${r.horaReserva} • 👥 ${r.personas} Personas
+          </div>
+          <div style="font-size:11px; color:#aaa;">📞 ${r.telefono} | Notas: ${r.notas || 'Ninguna'}</div>
+          <a href="https://wa.me/${r.telefono}" target="_blank" class="btn btn-add" style="text-decoration:none; padding:6px; font-size:11px;">
+            <i class="fa-brands fa-whatsapp"></i> Confirmar con Cliente
+          </a>
+        </div>
+      `).join('');
+    }
+
+    // REPORTES SUNAT CON FILTRO POR USUARIO
+    async function renderizarReporte() {
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}ventas.json`);
+        if (res.ok) {
+          const d = await res.json();
+          todasLasVentas = d ? Object.values(d) : [];
+        }
+      } catch (e) {}
+      aplicarFiltrosContables();
+    }
+
+    function aplicarFiltrosContables() {
+      const userFiltro = document.getElementById('filtroUsuarioCajero').value.toLowerCase();
+      const fechaFiltro = document.getElementById('filtroFecha').value;
+      const mesFiltro = document.getElementById('filtroMes').value;
+
+      const tbody = document.getElementById('tablaVentasBody');
+      tbody.innerHTML = '';
+      let totalPEN = 0, totalBase = 0, totalIgv = 0;
+
+      const filtradas = todasLasVentas.filter(v => {
+        let ok = true;
+        if (userFiltro && !(v.cajero || '').toLowerCase().includes(userFiltro)) ok = false;
+        if (fechaFiltro) {
+          const [y, m, d] = fechaFiltro.split('-');
+          if (!v.fecha.includes(`${d}/${m}/${y}`)) ok = false;
+        }
+        if (mesFiltro && !v.fecha.includes(mesFiltro)) ok = false;
+        return ok;
+      });
+
+      filtradas.forEach(v => {
+        const t = parseFloat(v.totalPEN || 0);
+        const b = parseFloat(v.baseImponible || (t / 1.18));
+        const i = parseFloat(v.igv || (t - b));
+        totalPEN += t; totalBase += b; totalIgv += i;
+
+        tbody.innerHTML += `
+          <tr>
+            <td>${v.fecha}</td>
+            <td><b>${v.cliente || v.mesa}</b></td>
+            <td><span style="background:#221510; padding:2px 6px; border-radius:4px; font-size:11px;">${v.cajero || 'Admin'}</span></td>
+            <td>${v.productos}</td>
+            <td>${v.pago || 'Efectivo'}</td>
+            <td>S/ ${b.toFixed(2)}</td>
+            <td>S/ ${i.toFixed(2)}</td>
+            <td><b>S/ ${t.toFixed(2)}</b></td>
+          </tr>
+        `;
+      });
+
+      document.getElementById('repPrintBase').innerText = `S/ ${totalBase.toFixed(2)}`;
+      document.getElementById('repPrintIgv').innerText = `S/ ${totalIgv.toFixed(2)}`;
+      document.getElementById('repPrintTotales').innerText = `Total: S/ ${totalPEN.toFixed(2)}`;
     }
 
     function actualizarQRVisual() {
       const m = document.getElementById('qrMesaNumero').value.trim() || "Mesa 01";
       const u = document.getElementById('qrUrlBase').value.trim() || "https://phyxcius.github.io/restaurante/";
-      const link = `${u}?mesa=${encodeURIComponent(m)}`;
       document.getElementById('qrPrintBusinessName').innerText = configRestaurante.nombre.toUpperCase();
       document.getElementById('lblQRMesa').innerText = m;
-      document.getElementById('imgQRGenerado').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(link)}`;
+      document.getElementById('imgQRGenerado').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(u + '?mesa=' + m)}`;
     }
 
     window.onload = () => {
-      if (sessionStorage.getItem("auth_rest") === "true") mostrarPanelAdmin();
+      // Forzar que siempre muestre el login al entrar por primera vez en la pestaña
+      if (sessionStorage.getItem("auth_rest") === "true") {
+        mostrarPanelAdmin();
+      } else {
+        document.getElementById('pantallaLogin').style.display = 'flex';
+        document.getElementById('panelAdminPrincipal').style.display = 'none';
+      }
     };
   </script>
 </body>
