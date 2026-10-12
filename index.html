@@ -15,6 +15,14 @@
       --text-main: #fffdfa;
       --text-muted: #d6cbbf;
       --gold-badge: #fbbf24;
+
+      /* PALETA DE LA TARJETA (MEXICAN DELIGHT) */
+      --modal-bg: #eab308;          /* Fondo mostaza cálido */
+      --modal-bg-soft: #fde047;     /* Mostaza claro */
+      --modal-green: #4d7c0f;       /* Verde oliva hojas */
+      --modal-green-dark: #365314;
+      --modal-dark: #1c1917;        /* Negro carbón */
+      --modal-card-bg: #fef08a;     /* Tono crema mostaza para tarjetas */
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; font-family: system-ui, -apple-system, sans-serif; }
@@ -78,6 +86,27 @@
     .kds-msg-text { font-size: 11.5px; color: #eee; line-height: 1.25; }
     .kds-details-row { font-size: 10.5px; color: #bbb; display: flex; justify-content: space-between; margin-top: 4px; }
 
+    /* BANNER DE CONSULTA DEL MOZO: ¿DESEAS ALGO MÁS? */
+    .mozo-prompt-banner {
+      display: none;
+      background: linear-gradient(135deg, #fef08a, #fde047);
+      color: #1c1917;
+      border: 2px solid #ca8a04;
+      border-radius: 10px;
+      padding: 9px 12px;
+      margin-top: 6px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+      animation: pulseAlert 1.5s infinite alternate;
+    }
+    @keyframes pulseAlert {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.02); box-shadow: 0 0 18px rgba(234, 179, 8, 0.8); }
+    }
+    .mozo-prompt-banner p { font-size: 12px; font-weight: 900; margin-bottom: 6px; }
+    .mozo-btn-row { display: flex; gap: 6px; }
+    .btn-mozo-si { flex: 1; background: #4d7c0f; color: #fff; border: none; padding: 6px; border-radius: 6px; font-weight: 900; font-size: 11px; cursor: pointer; }
+    .btn-mozo-no { background: #78350f; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 800; font-size: 11px; cursor: pointer; }
+
     /* FILTROS */
     .category-chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
     .category-chips::-webkit-scrollbar { display: none; }
@@ -110,14 +139,35 @@
     .chat-bubble-btn { position: relative; width: 56px; height: 56px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 50%; box-shadow: 0 6px 20px rgba(194, 65, 12, 0.5); display: flex; align-items: center; justify-content: center; border: 2px solid #facc15; }
     .chat-badge { position: absolute; top: -3px; right: -3px; background-color: #ef4444; color: #fff; border: 2px solid #fff; font-size: 11px; font-weight: 800; min-width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
-    /* POPUP DE COMANDA */
-    .popup-modal { position: fixed; inset: 0; background: rgba(18, 12, 10, 0.85); backdrop-filter: blur(6px); z-index: 2000; display: none; align-items: flex-end; justify-content: center; }
+    /* ==============================================================
+       POPUP DE COMANDA: NUEVO DISEÑO (PALETA MEXICAN DELIGHT)
+       ============================================================== */
+    .popup-modal { position: fixed; inset: 0; background: rgba(18, 12, 10, 0.88); backdrop-filter: blur(6px); z-index: 2000; display: none; align-items: flex-end; justify-content: center; }
     .popup-modal.active { display: flex; }
-    .popup-sheet { background: #241a15; width: 100%; max-width: 480px; max-height: 90dvh; border-radius: 24px 24px 0 0; padding: 18px 18px 24px; display: flex; flex-direction: column; border-top: 1.5px solid var(--glass-border); overflow-y: auto; }
+    .popup-sheet {
+      background: var(--modal-bg);
+      background-image: radial-gradient(circle at 10% 10%, rgba(254, 240, 138, 0.3) 0%, transparent 60%);
+      color: var(--modal-dark);
+      width: 100%;
+      max-width: 480px;
+      max-height: 90dvh;
+      border-radius: 26px 26px 0 0;
+      padding: 20px 18px 24px;
+      display: flex;
+      flex-direction: column;
+      border-top: 3px solid var(--modal-green);
+      box-shadow: 0 -10px 30px rgba(0,0,0,0.6);
+      overflow-y: auto;
+    }
 
-    .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 10px; }
+    .sheet-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 12px; border-bottom: 2px solid rgba(28, 25, 23, 0.15); padding-bottom: 10px;
+    }
+    .sheet-header h3 { font-size: 17px; font-weight: 900; color: var(--modal-dark); text-transform: uppercase; letter-spacing: 0.5px; }
+    .sheet-header button { background: none; border: none; color: var(--modal-dark); font-size: 24px; font-weight: bold; cursor: pointer; }
     
-    /* ALTURA MÍNIMA FIJA PARA EVITAR QUE EL NOMBRE DEL PLATO DESAPAREZCA */
+    /* LISTA DE PLATOS DEL POPUP */
     .order-items-list {
       min-height: 58px;
       max-height: 25dvh;
@@ -128,56 +178,104 @@
       margin-bottom: 12px;
       flex-shrink: 0;
     }
-    .order-item-row { display: flex; justify-content: space-between; align-items: center; background: #2d211b; padding: 8px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); }
+    .order-item-row {
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--modal-card-bg);
+      padding: 9px 12px; border-radius: 12px;
+      border: 1.5px solid rgba(28, 25, 23, 0.12);
+      color: var(--modal-dark);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+    .order-item-row strong { font-size: 14px; font-weight: 900; color: #1c1917; }
+    .order-item-row span { font-size: 11px; color: #57534e; }
+    .btn-qty-ctrl {
+      width: 26px; height: 26px; border-radius: 6px;
+      background: var(--modal-green); color: #fff;
+      border: none; font-weight: 900; cursor: pointer;
+    }
 
-    /* CUADRADITOS DE MESAS CON BLOQUEO */
-    .table-selector-label { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--gold-badge); letter-spacing: 0.5px; margin-bottom: 6px; display: flex; justify-content: space-between; }
+    /* SELECTOR DE MESAS */
+    .table-selector-label {
+      font-size: 11px; font-weight: 900; text-transform: uppercase;
+      color: var(--modal-dark); letter-spacing: 0.5px; margin-bottom: 6px;
+      display: flex; justify-content: space-between;
+    }
     .table-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 12px; }
     .table-box-btn {
-      background: #2e201b;
-      border: 1px solid rgba(245, 158, 11, 0.25);
-      color: #fff;
-      font-weight: 800;
-      font-size: 12px;
-      padding: 9px 4px;
-      border-radius: 8px;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.15s ease;
-      position: relative;
+      background: var(--modal-card-bg);
+      border: 1.5px solid rgba(28, 25, 23, 0.2);
+      color: var(--modal-dark);
+      font-weight: 900; font-size: 12px; padding: 9px 4px; border-radius: 8px;
+      cursor: pointer; text-align: center; transition: all 0.15s ease;
     }
     .table-box-btn.selected {
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      border-color: #facc15;
+      background: var(--modal-green);
+      border-color: var(--modal-green-dark);
       color: #fff;
-      box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+      box-shadow: 0 0 10px rgba(77, 124, 15, 0.5);
     }
     .table-box-btn.extra { grid-column: span 2; font-size: 11px; }
-
-    /* MESA BLOQUEADA / OCUPADA */
     .table-box-btn.bloqueada {
-      background: #501616 !important;
-      border-color: #ef4444 !important;
-      color: #fca5a5 !important;
+      background: #dc2626 !important;
+      border-color: #991b1b !important;
+      color: #fff !important;
       cursor: not-allowed;
       opacity: 0.85;
-      box-shadow: inset 0 0 8px rgba(239, 68, 68, 0.4);
     }
 
+    /* PAGOS */
     .grid-payments { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
-    .btn-pay-option { background: #2d211b; border: 1px solid rgba(255, 255, 255, 0.12); color: var(--text-muted); padding: 8px 4px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; text-align: center; }
-    .btn-pay-option.active { background: linear-gradient(135deg, var(--primary), var(--accent)); border-color: var(--accent); color: #fff; }
+    .btn-pay-option {
+      background: var(--modal-card-bg);
+      border: 1.5px solid rgba(28, 25, 23, 0.18);
+      color: var(--modal-dark);
+      padding: 8px 4px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; text-align: center;
+    }
+    .btn-pay-option.active {
+      background: var(--modal-dark);
+      border-color: var(--modal-dark);
+      color: #fde047;
+    }
 
-    .cash-box-drawer { background: #2b1f1a; border: 1.5px dashed rgba(245, 158, 11, 0.4); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; }
-    .cash-input { width: 100%; padding: 8px 12px; font-size: 15px; font-weight: 800; border: 1px solid var(--accent); border-radius: 8px; color: #fff; background: #1c1411; margin-top: 4px; }
+    /* CAJA EFECTIVO */
+    .cash-box-drawer {
+      background: var(--modal-card-bg);
+      border: 2px dashed var(--modal-green);
+      border-radius: 12px; padding: 10px 12px; margin-bottom: 12px;
+    }
+    .cash-input {
+      width: 100%; padding: 8px 12px; font-size: 15px; font-weight: 900;
+      border: 2px solid var(--modal-green); border-radius: 8px;
+      color: var(--modal-dark); background: #fff; margin-top: 4px;
+    }
     .cash-quick-btns { display: flex; gap: 6px; margin-top: 7px; flex-wrap: wrap; }
-    .btn-quick-cash { background: #3a2a23; border: 1px solid rgba(245, 158, 11, 0.3); color: #fde047; font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 6px; cursor: pointer; }
+    .btn-quick-cash {
+      background: var(--modal-green); border: none; color: #fff;
+      font-size: 11px; font-weight: 800; padding: 5px 9px; border-radius: 6px; cursor: pointer;
+    }
 
-    .vuelto-badge-box { margin-top: 8px; padding: 8px 10px; border-radius: 8px; font-size: 12px; font-weight: 800; display: flex; justify-content: space-between; align-items: center; background: rgba(21, 128, 61, 0.25); color: #86efac; border: 1px solid #15803d; }
-    .vuelto-badge-box.alerta { background: rgba(220, 38, 38, 0.25); color: #fca5a5; border-color: #dc2626; }
+    .vuelto-badge-box {
+      margin-top: 8px; padding: 8px 10px; border-radius: 8px; font-size: 12px; font-weight: 900;
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(77, 124, 15, 0.18); color: var(--modal-green-dark); border: 1.5px solid var(--modal-green);
+    }
+    .vuelto-badge-box.alerta { background: rgba(220, 38, 38, 0.18); color: #991b1b; border-color: #dc2626; }
 
-    .custom-input { width: 100%; background: #2e221c; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; color: #fff; padding: 9px 12px; font-size: 13px; outline: none; margin-bottom: 8px; }
-    .btn-submit-order { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; border: none; padding: 14px; border-radius: 24px; font-size: 15px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .custom-input {
+      width: 100%; background: #fff; border: 1.5px solid rgba(28, 25, 23, 0.22);
+      border-radius: 10px; color: var(--modal-dark); padding: 9px 12px; font-size: 13px; outline: none; margin-bottom: 8px; font-weight: 600;
+    }
+
+    /* BOTÓN PRINCIPAL DE ORDEN */
+    .btn-submit-order {
+      background: var(--modal-green);
+      color: #fff; border: none; padding: 14px; border-radius: 24px;
+      font-size: 15px; font-weight: 900; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      box-shadow: 0 6px 18px rgba(77, 124, 15, 0.4);
+      transition: filter 0.2s;
+    }
+    .btn-submit-order:hover { filter: brightness(1.1); }
   </style>
 </head>
 <body>
@@ -224,6 +322,16 @@
         <button style="background:none; border:none; color:#aaa; font-size:12px; cursor:pointer;" onclick="cerrarSeguimiento()">✕</button>
       </div>
       <p class="kds-msg-text" id="kdsMsg">Esperando que el mozo o caja acepte tu comanda...</p>
+      
+      <!-- CONSULTA DINÁMICA DEL MOZO -->
+      <div class="mozo-prompt-banner" id="mozoPromptBanner">
+        <p><i class="fa-solid fa-bell-concierge"></i> El mozo pregunta: ¿Deseas ordenar algo más para tu mesa?</p>
+        <div class="mozo-btn-row">
+          <button type="button" class="btn-mozo-si" onclick="responderMozo(true)"><i class="fa-solid fa-plus"></i> Sí, agregar platos</button>
+          <button type="button" class="btn-mozo-no" onclick="responderMozo(false)">No, gracias</button>
+        </div>
+      </div>
+
       <div class="kds-details-row">
         <span id="kdsMesaTxt">Mesa 01</span>
         <span id="kdsTotalTxt">S/ 0.00</span>
@@ -245,20 +353,21 @@
     </div>
   </div>
 
-  <!-- POPUP COMANDA -->
+  <!-- POPUP COMANDA (DISEÑO MEXICAN DELIGHT) -->
   <div class="popup-modal" id="ordersPopupModal" onclick="closeOrdersPopup(event)">
     <div class="popup-sheet" onclick="event.stopPropagation()">
       <div class="sheet-header">
-        <h3 style="color:#fef3c7;"><i class="fa-solid fa-receipt" style="color:#f59e0b;"></i> Confirmar Comanda</h3>
-        <button style="background:none; border:none; color:#ccc; font-size:22px; cursor:pointer;" onclick="closeOrdersPopup()">&times;</button>
+        <h3><i class="fa-solid fa-receipt" style="color:var(--modal-green);"></i> Confirmar Comanda</h3>
+        <button type="button" onclick="closeOrdersPopup()">&times;</button>
       </div>
 
+      <!-- LISTA DE PLATOS -->
       <div class="order-items-list" id="orderItemsList"></div>
 
       <!-- SELECTOR DE MESAS -->
       <div class="table-selector-label">
-        <span>📍 Selecciona tu Mesa:</span>
-        <span id="selectedTableBadge" style="color:#fde047;">Mesa 01</span>
+        <span>📍 Mesa Seleccionada:</span>
+        <span id="selectedTableBadge" style="color:var(--modal-green-dark); font-size:12px;">Mesa 01</span>
       </div>
       <div class="table-grid" id="tableGridContainer"></div>
 
@@ -271,7 +380,7 @@
       </div>
 
       <div class="cash-box-drawer" id="cajaEfectivoDesplegable">
-        <div style="font-size: 11.5px; font-weight: 800; color: #fde047;">💵 ¿Con cuánto en efectivo pagarás?</div>
+        <div style="font-size: 11.5px; font-weight: 900; color: var(--modal-dark);">💵 ¿Con cuánto en efectivo pagarás?</div>
         <input type="number" id="montoEfectivoIngresado" class="cash-input" placeholder="Ej. 100" min="0" step="5" oninput="calcularVueltoEfectivo()"/>
         <div class="cash-quick-btns">
           <button type="button" class="btn-quick-cash" onclick="setMontoEfectivoRapido('exacto')">Pagar Exacto</button>
@@ -290,25 +399,23 @@
       <input type="text" id="notesInput" class="custom-input" placeholder="Notas para cocina (término de carne, alergias, etc.)" />
 
       <!-- TOTAL Y ENVÍO -->
-      <div style="display:flex; justify-content:space-between; align-items:baseline; margin: 10px 0; border-top:1px dashed rgba(255,255,255,0.15); padding-top:8px;">
-        <span style="font-weight:800;">Total comanda:</span>
+      <div style="display:flex; justify-content:space-between; align-items:baseline; margin: 10px 0; border-top:2px dashed rgba(28,25,23,0.25); padding-top:8px;">
+        <span style="font-weight:900; color:var(--modal-dark);">Total comanda:</span>
         <div>
-          <span style="font-size:20px; font-weight:900; color:#fde047;" id="orderTotalPrice">S/ 0.00</span>
-          <div style="font-size:11px; color:#aaa; text-align:right;" id="orderSecondaryPrice">≈ $ 0.00</div>
+          <span style="font-size:21px; font-weight:900; color:var(--modal-dark);" id="orderTotalPrice">S/ 0.00</span>
+          <div style="font-size:11px; color:#57534e; text-align:right; font-weight:bold;" id="orderSecondaryPrice">≈ $ 0.00</div>
         </div>
       </div>
 
       <button class="btn-submit-order" id="btnEnviarComanda" onclick="enviarComandaDirectaAlPanel()">
-        <i class="fa-solid fa-bell-concierge"></i> <span>Enviar Comanda al Panel / Cocina</span>
+        <i class="fa-solid fa-bell-concierge"></i> <span id="lblBtnEnviar">Enviar Comanda a Cocina</span>
       </button>
-      <div id="orderStatusMsg" style="text-align:center; font-size:12px; margin-top:6px; color:#86efac;"></div>
+      <div id="orderStatusMsg" style="text-align:center; font-size:12px; margin-top:6px; color:var(--modal-green-dark); font-weight:900;"></div>
     </div>
   </div>
 
   <script>
-    // ==============================================================
-    // CONFIGURACIÓN DE FIREBASE RTDB (TU URL CONECTADA)
-    // ==============================================================
+    // URL OFICIAL DE TU BASE DE DATOS FIREBASE
     const FIREBASE_DB_URL = "https://restaurante1-695f7-default-rtdb.firebaseio.com/";
 
     let CONFIG = {
@@ -360,28 +467,19 @@
       return s;
     }
 
-    // ==============================================================
-    // CONSULTA INSTANTÁNEA EN FIREBASE REALTIME DATABASE
-    // ==============================================================
     async function obtenerMesasOcupadasEnRed() {
       let comandas = [];
-
-      // Consulta directa a Firebase (tiempo de respuesta < 200 ms)
       try {
         const resFB = await fetch(`${FIREBASE_DB_URL}comandas.json`);
         if (resFB.ok) {
           const dataFB = await resFB.json();
-          if (dataFB) {
-            comandas = Object.values(dataFB);
-          }
+          if (dataFB) comandas = Object.values(dataFB);
         }
       } catch (e) {
-        // Fallback local
         const local = JSON.parse(localStorage.getItem("inkabistro_comandas_activas")) || [];
         if (Array.isArray(local)) comandas = local;
       }
 
-      // Filtrar mesas con pedidos activos
       const ocupadas = comandas
         .filter(c => {
           const est = (c.estado || "").toLowerCase().trim();
@@ -476,7 +574,6 @@
       detectarMesaDesdeURL();
       verificarEstadoComandaEnVivo();
 
-      // Refresco en tiempo real cada 1.5 segundos
       setInterval(async () => {
         await verificarEstadoComandaEnVivo();
         await renderizarCuadriculaMesas();
@@ -572,7 +669,6 @@
       actualizarVistaPopup();
     }
 
-    // LISTADO VISIBLE Y GARANTIZADO DE PLATOS
     function actualizarVistaPopup() {
       const list = document.getElementById('orderItemsList');
       list.innerHTML = '';
@@ -590,20 +686,20 @@
         list.innerHTML += `
           <div class="order-item-row">
             <div>
-              <strong style="font-size:13.5px; color:#fff;">${info.name}</strong>
-              <div style="font-size:11px; color:#aaa; margin-top:2px;">${formatPrice(d.precioPEN)} x ${cant} = <b style="color:#fde047;">${formatPrice(sub)}</b></div>
+              <strong>${info.name}</strong>
+              <div><span>${formatPrice(d.precioPEN)} x ${cant} = </span><b style="color:var(--modal-green-dark);">${formatPrice(sub)}</b></div>
             </div>
             <div style="display:flex; gap:6px; align-items:center;">
-              <button style="width:26px; height:26px; border-radius:5px; background:#443027; color:#fff; border:none; cursor:pointer;" onclick="changeQty('${id}', -1)">-</button>
-              <span style="font-weight:bold; font-size:13px; min-width:18px; text-align:center;">${cant}</span>
-              <button style="width:26px; height:26px; border-radius:5px; background:#443027; color:#fff; border:none;" onclick="changeQty('${id}', 1)">+</button>
+              <button type="button" class="btn-qty-ctrl" onclick="changeQty('${id}', -1)">-</button>
+              <span style="font-weight:900; font-size:13px; min-width:18px; text-align:center;">${cant}</span>
+              <button type="button" class="btn-qty-ctrl" onclick="changeQty('${id}', 1)">+</button>
             </div>
           </div>
         `;
       });
 
       if (totalU === 0) {
-        list.innerHTML = '<p style="text-align:center; color:#888; font-size:13px; padding:12px 0;">No has seleccionado ningún plato aún.</p>';
+        list.innerHTML = '<p style="text-align:center; color:#57534e; font-size:13px; padding:12px 0; font-weight:bold;">No has seleccionado ningún plato aún.</p>';
       }
 
       ultimoTotalPagarPEN = totalMonto;
@@ -657,19 +753,21 @@
       }
     }
 
-    // TRANSMISIÓN INSTANTÁNEA A FIREBASE
+    // TRANSMISIÓN INSTANTÁNEA / AGREGAR A LA COMANDA EN CURSO
     async function enviarComandaDirectaAlPanel() {
       const itemIds = Object.keys(pedido);
       if (itemIds.length === 0) return alert("Por favor añade al menos un plato a la comanda.");
 
       const mesaNorm = normalizarNombreMesa(mesaSeleccionada);
 
-      // Verificación en Firebase antes de enviar
-      const mesasOcupadas = await obtenerMesasOcupadasEnRed();
-      if (mesasOcupadas.includes(mesaNorm)) {
-        alert(`⛔ La ${mesaSeleccionada} ya se encuentra ocupada con otra orden en curso. Por favor selecciona otra mesa disponible.`);
-        await renderizarCuadriculaMesas();
-        return;
+      // Verificación de ocupación en red si es una comanda totalmente nueva
+      if (!comandaActivaId) {
+        const mesasOcupadas = await obtenerMesasOcupadasEnRed();
+        if (mesasOcupadas.includes(mesaNorm)) {
+          alert(`⛔ La ${mesaSeleccionada} ya se encuentra ocupada con otra orden en curso. Por favor selecciona otra mesa disponible.`);
+          await renderizarCuadriculaMesas();
+          return;
+        }
       }
 
       const cliente = document.getElementById('clientNameInput').value.trim() || "Comensal";
@@ -690,6 +788,40 @@
         platosComanda.push({ id, nombre: nom, cantidad: cant, precio: dish.precioPEN });
       });
 
+      // Si el cliente ya tenía una orden activa y aceptó agregar platos más tarde
+      if (comandaActivaId) {
+        try {
+          const res = await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`);
+          if (res.ok) {
+            const dataVieja = await res.json();
+            if (dataVieja && dataVieja.estado !== 'liberado') {
+              const productosUnificados = dataVieja.productos + ", " + detalleTexto.replace(/, $/, "");
+              const nuevoTotal = (dataVieja.totalPEN || 0) + ultimoTotalPagarPEN;
+              
+              await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  productos: productosUnificados,
+                  totalPEN: nuevoTotal,
+                  mozoPregunta: false,
+                  notas: notas ? (dataVieja.notas + " | " + notas) : dataVieja.notas
+                })
+              });
+
+              for (let k in pedido) delete pedido[k];
+              actualizarVistaPopup();
+              btn.disabled = false;
+              btn.innerHTML = '<i class="fa-solid fa-bell-concierge"></i> Enviar Comanda a Cocina';
+              closeOrdersPopup();
+              verificarEstadoComandaEnVivo();
+              return;
+            }
+          }
+        } catch (e) {}
+      }
+
+      // Orden nueva estándar
       const nuevaComanda = {
         id: "CMD-" + Date.now(),
         fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -700,26 +832,22 @@
         totalPEN: ultimoTotalPagarPEN,
         pago: metodoPago,
         notas: notas,
-        estado: "por_confirmar"
+        estado: "por_confirmar",
+        mozoPregunta: false
       };
 
-      // Guardar directamente en Firebase
       try {
         await fetch(`${FIREBASE_DB_URL}comandas/${nuevaComanda.id}.json`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(nuevaComanda)
         });
-      } catch (e) {
-        console.warn("Error enviando comanda a Firebase:", e);
-      }
+      } catch (e) {}
 
-      // Guardar localmente
       let comandasActivas = JSON.parse(localStorage.getItem("inkabistro_comandas_activas")) || [];
       comandasActivas.unshift(nuevaComanda);
       localStorage.setItem("inkabistro_comandas_activas", JSON.stringify(comandasActivas));
 
-      // Guardar ID propio para seguimiento
       comandaActivaId = nuevaComanda.id;
       localStorage.setItem("inkabistro_mi_comanda_id", comandaActivaId);
 
@@ -727,14 +855,14 @@
         for (let k in pedido) delete pedido[k];
         actualizarVistaPopup();
         btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-bell-concierge"></i> Enviar Comanda al Panel / Cocina';
+        btn.innerHTML = '<i class="fa-solid fa-bell-concierge"></i> Enviar Comanda a Cocina';
         closeOrdersPopup();
         verificarEstadoComandaEnVivo();
         renderizarCuadriculaMesas();
       }, 400);
     }
 
-    // RASTREO KDS EN VIVO
+    // RASTREO KDS Y RESPUESTA AL MOZO
     async function verificarEstadoComandaEnVivo() {
       if (!comandaActivaId) return;
 
@@ -755,6 +883,7 @@
       const msg = document.getElementById('kdsMsg');
       const mesaTxt = document.getElementById('kdsMesaTxt');
       const totalTxt = document.getElementById('kdsTotalTxt');
+      const mozoBanner = document.getElementById('mozoPromptBanner');
 
       if (!miComanda) {
         card.style.display = 'none';
@@ -764,6 +893,13 @@
       mesaTxt.innerText = miComanda.mesa || "Mesa";
       totalTxt.innerText = `S/ ${(miComanda.totalPEN || 0).toFixed(2)}`;
       card.className = "kds-tracking-card " + miComanda.estado;
+
+      // Mostrar pregunta del mozo si la activó desde el panel
+      if (miComanda.mozoPregunta === true && miComanda.estado !== 'liberado') {
+        mozoBanner.style.display = 'block';
+      } else {
+        mozoBanner.style.display = 'none';
+      }
 
       if (miComanda.estado === 'por_confirmar') {
         badge.className = "kds-status-badge badge-por_confirmar";
@@ -781,6 +917,24 @@
         badge.className = "kds-status-badge badge-rechazado";
         badge.innerHTML = "🔴 4. Finalizado";
         msg.innerText = miComanda.estado === 'rechazado' ? "Tu pedido ha sido cancelado por el restaurante." : "Mesa desocupada. ¡Gracias por tu visita!";
+      }
+    }
+
+    async function responderMozo(deseaMas) {
+      document.getElementById('mozoPromptBanner').style.display = 'none';
+
+      // Apagar la pregunta en Firebase
+      try {
+        await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}/mozoPregunta.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(false)
+        });
+      } catch (e) {}
+
+      if (deseaMas) {
+        document.getElementById('lblBtnEnviar').innerText = "Añadir a mi Comanda en Curso";
+        openOrdersPopup();
       }
     }
 
