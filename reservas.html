@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reservas Prepago | La Cusqueñita</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { background: #18110e; color: #fff; font-family: system-ui, sans-serif; padding: 20px; display: flex; justify-content: center; }
+    .card-reserva { background: #261a15; border: 1.5px solid #f59e0b; border-radius: 16px; max-width: 440px; width: 100%; padding: 24px; }
+    h2 { color: #fde047; text-align: center; margin-bottom: 6px; }
+    p { font-size: 13px; color: #aaa; text-align: center; margin-bottom: 16px; }
+    label { font-size: 12px; font-weight: bold; color: #fde047; display: block; margin-top: 10px; }
+    input, select { width: 100%; padding: 9px; margin-top: 4px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: #160e0b; color: #fff; }
+    .btn-reservar { background: linear-gradient(135deg, #c2410c, #f59e0b); color: #fff; border: none; padding: 12px; border-radius: 20px; font-size: 14px; font-weight: bold; width: 100%; margin-top: 16px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="card-reserva">
+    <h2>🍽️ Reservas Prepago</h2>
+    <p>La Cusqueñita • Eventos, Parejas o Grupos Familiares</p>
+    <form onsubmit="enviarReservaWhatsApp(event)">
+      <label>Tipo de Reserva:</label>
+      <select id="resTipo">
+        <option value="Parejas (Cena Romántica)">Parejas (Cena Romántica)</option>
+        <option value="Grupo Familiar">Grupo Familiar (4 - 8 personas)</option>
+        <option value="Evento Corporativo">Evento Corporativo / Empresa</option>
+        <option value="Celebración de Cumpleaños">Celebración de Cumpleaños</option>
+      </select>
+
+      <label>Nombre del Titular:</label>
+      <input type="text" id="resNombre" placeholder="Tu nombre completo" required>
+
+      <label>Fecha de la Reserva:</label>
+      <input type="date" id="resFecha" required>
+
+      <label>Hora de Asistencia:</label>
+      <input type="time" id="resHora" required>
+
+      <label>Número de Personas:</label>
+      <input type="number" id="resPersonas" min="1" value="2" required>
+
+      <button type="submit" class="btn-reservar"><i class="fa-brands fa-whatsapp"></i> Enviar Solicitud a WhatsApp</button>
+    </form>
+  </div>
+
+  <script>
+    function enviarReservaWhatsApp(e) {
+      e.preventDefault();
+      const tipo = document.getElementById('resTipo').value;
+      const nom = document.getElementById('resNombre').value.trim();
+      const fec = document.getElementById('resFecha').value;
+      const hor = document.getElementById('resHora').value;
+      const per = document.getElementById('resPersonas').value;
+
+      const mensaje = `¡Hola La Cusqueñita! Deseo solicitar una reserva prepago:%0A%0A• Tipo: ${tipo}%0A• Nombre: ${nom}%0A• Fecha: ${fec}%0A• Hora: ${hor}%0A• Personas: ${per}%0A%0A¿Podrían confirmarme disponibilidad y cuentas para el depósito de reserva? Muchas gracias.`;
+      window.location.href = `https://wa.me/51969773064?text=${mensaje}`;
+    }
+  </script>
+</body>
+</html>
