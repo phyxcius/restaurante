@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Inka Bistro Cusco | Menú Digital & La Chuspa Tech</title>
+  <title>Inka Bistro Cusco | Menú Digital & Estado de Comanda</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
     :root {
@@ -23,76 +23,99 @@
     .app-container { width: 100%; max-width: 480px; height: 100dvh; margin: 0 auto; position: relative; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
     .app-container::-webkit-scrollbar { display: none; }
 
-    /* CABECERA CON LOGO LA CHUSPA TECH */
+    /* CABECERA SUPERIOR */
     .top-header {
       position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; z-index: 120;
-      padding: 10px 12px 6px; background: linear-gradient(180deg, rgba(24, 17, 14, 0.98) 0%, rgba(24, 17, 14, 0.75) 80%, transparent 100%);
+      padding: 10px 14px 6px; background: linear-gradient(180deg, rgba(24, 17, 14, 0.98) 0%, rgba(24, 17, 14, 0.7) 75%, transparent 100%);
       display: flex; flex-direction: column; gap: 8px;
     }
-    .top-bar-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-
+    .top-bar-row { display: flex; align-items: center; justify-content: space-between; }
+    
     .brand-section { display: flex; align-items: center; gap: 8px; }
-    .brand-icon { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, var(--accent), var(--primary)); display: flex; align-items: center; justify-content: center; font-size: 17px; color: #fff; flex-shrink: 0; }
+    .brand-icon { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, var(--accent), var(--primary)); display: flex; align-items: center; justify-content: center; font-size: 17px; color: #fff; }
     .brand-text h1 { font-size: 14px; font-weight: 900; line-height: 1.1; text-transform: uppercase; }
     .brand-text span { font-size: 9.5px; text-transform: uppercase; color: var(--accent); font-weight: 700; }
 
-    /* BADGE LA CHUSPA TECH */
-    .chuspa-badge {
+    /* INSIGNIA LA CHUSPA TECH */
+    .chuspa-nav-badge {
       display: flex;
       align-items: center;
       gap: 6px;
-      background: #fefce8;
-      border: 1.5px solid #eab308;
-      padding: 3px 8px 3px 4px;
+      background: rgba(254, 252, 232, 0.12);
+      border: 1px solid rgba(234, 179, 8, 0.45);
+      padding: 3px 8px 3px 5px;
       border-radius: 20px;
       text-decoration: none;
-      box-shadow: 0 2px 6px rgba(234, 179, 8, 0.25);
-      transition: transform 0.2s ease;
-      flex-shrink: 0;
+      backdrop-filter: blur(8px);
+      transition: transform 0.2s;
     }
-    .chuspa-badge:active { transform: scale(0.95); }
-    .chuspa-img {
-      width: 24px;
-      height: 24px;
+    .chuspa-nav-badge:active { transform: scale(0.96); }
+    .chuspa-nav-img {
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
       object-fit: cover;
       background: #fff;
       border: 1px solid #ca8a04;
     }
-    .chuspa-text-box { display: flex; flex-direction: column; line-height: 1; }
-    .chuspa-text-title { font-size: 10px; font-weight: 900; color: #7c2d12; }
-    .chuspa-text-sub { font-size: 7.5px; font-weight: 800; color: #b45309; }
+    .chuspa-nav-info { display: flex; flex-direction: column; line-height: 1.1; }
+    .chuspa-nav-title { font-size: 10px; font-weight: 900; color: #fde047; }
+    .chuspa-nav-sub { font-size: 7.5px; font-weight: 700; color: #fed7aa; }
 
     .header-controls { display: flex; align-items: center; gap: 5px; }
     .select-pill { background: var(--glass-panel); border: 1px solid var(--glass-border); color: #fff; padding: 4px 6px; border-radius: 14px; font-size: 10.5px; font-weight: 700; outline: none; }
     .select-pill option { background: #221510; }
     .icon-pill-btn { width: 30px; height: 30px; border-radius: 50%; background: var(--glass-panel); border: 1px solid var(--glass-border); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; }
 
-    /* TARJETA VISUAL DE SEGUIMIENTO KDS */
+    /* TARJETA KDS EN VIVO */
     .kds-tracking-card {
       display: none;
-      width: calc(100% - 16px);
-      max-width: 450px;
+      width: calc(100% - 10px);
       margin: 0 auto;
-      padding: 10px 14px;
+      padding: 9px 12px;
       border-radius: 12px;
       backdrop-filter: blur(12px);
       border: 1.5px solid transparent;
       box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      animation: fadeInDown 0.3s ease-out;
     }
-    .kds-tracking-card.por_confirmar { display: block; background: rgba(45, 30, 24, 0.95); border-color: #f59e0b; box-shadow: 0 0 16px rgba(245, 158, 11, 0.35); }
-    .kds-tracking-card.cocina { display: block; background: rgba(20, 32, 45, 0.95); border-color: #38bdf8; box-shadow: 0 0 16px rgba(56, 189, 248, 0.35); }
-    .kds-tracking-card.servido { display: block; background: rgba(18, 38, 26, 0.95); border-color: #4ade80; box-shadow: 0 0 16px rgba(74, 222, 128, 0.35); }
-    .kds-tracking-card.rechazado { display: block; background: rgba(45, 20, 20, 0.95); border-color: #ef4444; box-shadow: 0 0 16px rgba(239, 68, 68, 0.35); }
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .kds-tracking-card.por_confirmar {
+      display: block;
+      background: rgba(45, 30, 24, 0.95);
+      border-color: #f59e0b;
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.35);
+    }
+    .kds-tracking-card.cocina {
+      display: block;
+      background: rgba(20, 32, 45, 0.95);
+      border-color: #38bdf8;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.35);
+    }
+    .kds-tracking-card.servido {
+      display: block;
+      background: rgba(18, 38, 26, 0.95);
+      border-color: #4ade80;
+      box-shadow: 0 0 16px rgba(74, 222, 128, 0.35);
+    }
+    .kds-tracking-card.rechazado {
+      display: block;
+      background: rgba(45, 20, 20, 0.95);
+      border-color: #ef4444;
+      box-shadow: 0 0 16px rgba(239, 68, 68, 0.35);
+    }
 
-    .kds-status-badge { font-size: 11px; font-weight: 900; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; }
+    .kds-tracking-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
+    .kds-status-badge { font-size: 10.5px; font-weight: 900; text-transform: uppercase; padding: 2px 7px; border-radius: 5px; }
     .badge-por_confirmar { background: #f59e0b; color: #000; }
     .badge-cocina { background: #0284c7; color: #fff; }
     .badge-servido { background: #16a34a; color: #fff; }
     .badge-rechazado { background: #dc2626; color: #fff; }
-
-    .kds-msg-text { font-size: 12px; color: #eee; line-height: 1.3; margin-top: 4px; }
-    .kds-details-row { font-size: 11px; color: #bbb; display: flex; justify-content: space-between; margin-top: 4px; }
+    .kds-msg-text { font-size: 11.5px; color: #eee; line-height: 1.25; }
+    .kds-details-row { font-size: 10.5px; color: #bbb; display: flex; justify-content: space-between; margin-top: 4px; }
 
     /* FILTROS */
     .category-chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
@@ -135,7 +158,7 @@
     .order-items-list { overflow-y: auto; max-height: 20dvh; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
     .order-item-row { display: flex; justify-content: space-between; align-items: center; background: #2d211b; padding: 8px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); }
 
-    /* CUADRADITOS DE MESA Y BLOQUEO DE MESAS OCUPADAS */
+    /* SELECTOR DE MESAS CON BLOQUEO */
     .table-selector-label { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--gold-badge); letter-spacing: 0.5px; margin-bottom: 6px; display: flex; justify-content: space-between; }
     .table-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 12px; }
     .table-box-btn {
@@ -149,6 +172,7 @@
       cursor: pointer;
       text-align: center;
       transition: all 0.15s ease;
+      position: relative;
     }
     .table-box-btn.selected {
       background: linear-gradient(135deg, var(--primary), var(--accent));
@@ -158,14 +182,13 @@
     }
     .table-box-btn.extra { grid-column: span 2; font-size: 11px; }
 
-    /* ESTILO CUANDO LA MESA ESTÁ BLOQUEADA / OCUPADA */
-    .table-box-btn.ocupada {
-      background: #3f1919 !important;
+    /* Estilo para mesas ocupadas */
+    .table-box-btn.bloqueada {
+      background: #3f1818 !important;
       border-color: #dc2626 !important;
       color: #fca5a5 !important;
-      cursor: not-allowed !important;
       opacity: 0.65;
-      position: relative;
+      cursor: not-allowed;
     }
 
     .grid-payments { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
@@ -186,7 +209,7 @@
 </head>
 <body>
 
-  <!-- CABECERA PRINCIPAL CON LA CHUSPA TECH -->
+  <!-- CABECERA -->
   <div class="top-header">
     <div class="top-bar-row">
       <div class="brand-section">
@@ -197,5 +220,540 @@
         </div>
       </div>
 
-      <!-- BOTÓN LA CHUSPA TECH CON LOGO Y REDIRECCIÓN -->
-      <a href="https://www.lachuspaanuncios.com/" target="_blank" rel="noopener noreferrer" class="
+      <!-- LOGO LA CHUSPA TECH (REDIRECCIONA A WWW.LACHUSPAANUNCIOS.COM) -->
+      <a href="https://www.lachuspaanuncios.com/" target="_blank" rel="noopener noreferrer" class="chuspa-nav-badge" title="Visitar La Chuspa Anuncios">
+        <img src="CHUSPITA-circulo.png" alt="La Chuspa" class="chuspa-nav-img" onerror="this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png'">
+        <div class="chuspa-nav-info">
+          <span class="chuspa-nav-title">La Chuspa Tech</span>
+          <span class="chuspa-nav-sub">by La Chuspa</span>
+        </div>
+      </a>
+
+      <div class="header-controls">
+        <select class="select-pill" id="langSelector" onchange="changeLanguage(this.value)">
+          <option value="es" selected>🇪🇸 ES</option>
+          <option value="en">🇬🇧 EN</option>
+          <option value="fr">🇫🇷 FR</option>
+          <option value="pt">🇧🇷 PT</option>
+        </select>
+        <select class="select-pill" id="currencySelector" onchange="changeCurrency(this.value)">
+          <option value="PEN" selected>S/ (PEN)</option>
+          <option value="USD">$ (USD)</option>
+        </select>
+        <button class="icon-pill-btn" onclick="toggleGlobalAudio()"><i class="fa-solid fa-volume-xmark" id="audioIcon"></i></button>
+      </div>
+    </div>
+
+    <!-- TARJETA VISUAL DE SEGUIMIENTO KDS -->
+    <div class="kds-tracking-card" id="kdsTrackingCard">
+      <div class="kds-tracking-header">
+        <span class="kds-status-badge" id="kdsBadge">🟡 Por Confirmar</span>
+        <button style="background:none; border:none; color:#aaa; font-size:12px; cursor:pointer;" onclick="cerrarSeguimiento()">✕</button>
+      </div>
+      <p class="kds-msg-text" id="kdsMsg">Esperando que el mozo o caja acepte tu comanda...</p>
+      <div class="kds-details-row">
+        <span id="kdsMesaTxt">Mesa 01</span>
+        <span id="kdsTotalTxt">S/ 0.00</span>
+      </div>
+    </div>
+
+    <div class="category-chips" id="categoryChips"></div>
+  </div>
+
+  <!-- FEED TIKTOK -->
+  <div class="app-container" id="feedContainer"></div>
+
+  <!-- BOTÓN FLOTANTE PEDIDOS -->
+  <div class="chat-bubble-container" onclick="openOrdersPopup()">
+    <div class="chat-bubble-label"><span>🔥 Pedidos</span></div>
+    <div class="chat-bubble-btn">
+      <i class="fa-solid fa-bell-concierge" style="color:#fff; font-size:22px;"></i>
+      <div class="chat-badge" id="ordersBadgeCount">0</div>
+    </div>
+  </div>
+
+  <!-- POPUP COMANDA -->
+  <div class="popup-modal" id="ordersPopupModal" onclick="closeOrdersPopup(event)">
+    <div class="popup-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-header">
+        <h3 style="color:#fef3c7;"><i class="fa-solid fa-receipt" style="color:#f59e0b;"></i> Confirmar Comanda</h3>
+        <button style="background:none; border:none; color:#ccc; font-size:22px; cursor:pointer;" onclick="closeOrdersPopup()">&times;</button>
+      </div>
+
+      <div class="order-items-list" id="orderItemsList"></div>
+
+      <!-- SELECTOR DE MESAS CON BLOQUEO ACTIVO -->
+      <div class="table-selector-label">
+        <span>📍 Selecciona tu Mesa:</span>
+        <span id="selectedTableBadge" style="color:#fde047;">Mesa 01</span>
+      </div>
+      <div class="table-grid" id="tableGridContainer">
+        <!-- Renderizado dinámicamente con validación de mesas ocupadas -->
+      </div>
+
+      <!-- PAGO Y VUELTO -->
+      <div class="grid-payments">
+        <button type="button" class="btn-pay-option active" id="btnPayEfectivo" onclick="elegirPago('Efectivo', this)">💵 Efectivo</button>
+        <button type="button" class="btn-pay-option" onclick="elegirPago('Yape', this)">🟣 Yape</button>
+        <button type="button" class="btn-pay-option" onclick="elegirPago('Plin', this)">🔵 Plin</button>
+        <button type="button" class="btn-pay-option" onclick="elegirPago('Tarjeta POS', this)">💳 POS</button>
+      </div>
+
+      <div class="cash-box-drawer" id="cajaEfectivoDesplegable">
+        <div style="font-size: 11.5px; font-weight: 800; color: #fde047;">💵 ¿Con cuánto en efectivo pagarás?</div>
+        <input type="number" id="montoEfectivoIngresado" class="cash-input" placeholder="Ej. 100" min="0" step="5" oninput="calcularVueltoEfectivo()"/>
+        <div class="cash-quick-btns">
+          <button type="button" class="btn-quick-cash" onclick="setMontoEfectivoRapido('exacto')">Pagar Exacto</button>
+          <button type="button" class="btn-quick-cash" onclick="setMontoEfectivoRapido(50)">S/ 50</button>
+          <button type="button" class="btn-quick-cash" onclick="setMontoEfectivoRapido(100)">S/ 100</button>
+          <button type="button" class="btn-quick-cash" onclick="setMontoEfectivoRapido(200)">S/ 200</button>
+        </div>
+        <div class="vuelto-badge-box" id="cajaRespuestaVuelto">
+          <span id="textoDetalleVuelto">Calculando vuelto...</span>
+          <span id="montoCalculadoVuelto" style="font-size: 14px;"></span>
+        </div>
+      </div>
+
+      <!-- NOTAS -->
+      <input type="text" id="clientNameInput" class="custom-input" placeholder="Nombre de quien pide (opcional)" />
+      <input type="text" id="notesInput" class="custom-input" placeholder="Notas para cocina (término de carne, alergias, etc.)" />
+
+      <!-- TOTAL Y ENVÍO -->
+      <div style="display:flex; justify-content:space-between; align-items:baseline; margin: 10px 0; border-top:1px dashed rgba(255,255,255,0.15); padding-top:8px;">
+        <span style="font-weight:800;">Total comanda:</span>
+        <div>
+          <span style="font-size:20px; font-weight:900; color:#fde047;" id="orderTotalPrice">S/ 0.00</span>
+          <div style="font-size:11px; color:#aaa; text-align:right;" id="orderSecondaryPrice">≈ $ 0.00</div>
+        </div>
+      </div>
+
+      <button class="btn-submit-order" id="btnEnviarComanda" onclick="enviarComandaDirectaAlPanel()">
+        <i class="fa-solid fa-bell-concierge"></i> <span>Enviar Comanda al Panel / Cocina</span>
+      </button>
+      <div id="orderStatusMsg" style="text-align:center; font-size:12px; margin-top:6px; color:#86efac;"></div>
+    </div>
+  </div>
+
+  <script>
+    let CONFIG = {
+      nombre: "Inka Bistro Cusco",
+      eslogan: "Cusco • Gourmet",
+      logo: "🍽️",
+      whatsapp: "51969773064",
+      exchangeRateUSD: 3.75
+    };
+
+    let catalogo = [];
+    const pedido = {};
+    let currentLang = "es";
+    let currentCurrency = "PEN";
+    let currentCategory = "all";
+    let isGlobalMuted = true;
+    let metodoPago = "Efectivo";
+    let videoObserver = null;
+    let ultimoTotalPagarPEN = 0;
+    let mesaSeleccionada = "Mesa 01";
+    let comandaActivaId = localStorage.getItem("inkabistro_mi_comanda_id") || null;
+
+    // LISTADO DE MESAS DEL RESTAURANTE
+    const listaMesas = [
+      { id: "Mesa 01", label: "1" },
+      { id: "Mesa 02", label: "2" },
+      { id: "Mesa 03", label: "3" },
+      { id: "Mesa 04", label: "4" },
+      { id: "Mesa 05", label: "5" },
+      { id: "Mesa 06", label: "6" },
+      { id: "Mesa 07", label: "7" },
+      { id: "Mesa 08", label: "8" },
+      { id: "Mesa 09", label: "9" },
+      { id: "Mesa 10", label: "10" },
+      { id: "Mesa 11", label: "11" },
+      { id: "Mesa 12", label: "12" },
+      { id: "Barra", label: "🍸 Barra", extra: true },
+      { id: "Terraza 1", label: "☀️ Ter. 1", extra: true },
+      { id: "Terraza 2", label: "☀️ Ter. 2", extra: true }
+    ];
+
+    // ==============================================================
+    // BLOQUEO DE MESAS EN ATENCIÓN
+    // ==============================================================
+    function renderizarCuadriculaMesas() {
+      const container = document.getElementById("tableGridContainer");
+      container.innerHTML = "";
+
+      // Consultar comandas activas
+      const comandas = JSON.parse(localStorage.getItem("inkabistro_comandas_activas")) || [];
+
+      // Identificar mesas ocupadas (estado por_confirmar o cocina)
+      const mesasOcupadas = comandas
+        .filter(c => (c.estado === "por_confirmar" || c.estado === "cocina") && c.id !== comandaActivaId)
+        .map(c => (c.mesa || "").trim());
+
+      listaMesas.forEach(m => {
+        const estaOcupada = mesasOcupadas.includes(m.id);
+        const esSeleccionada = (mesaSeleccionada === m.id);
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = `table-box-btn ${m.extra ? 'extra' : ''} ${esSeleccionada ? 'selected' : ''} ${estaOcupada ? 'bloqueada' : ''}`;
+        
+        if (estaOcupada) {
+          btn.innerHTML = `${m.label} <span style="font-size:9px;">🔒</span>`;
+          btn.title = `La ${m.id} está siendo atendida en este momento.`;
+          btn.onclick = () => alert(`⚠️ La ${m.id} ya tiene un pedido en curso y está siendo atendida. Por favor selecciona otra mesa disponible.`);
+        } else {
+          btn.innerText = m.label;
+          btn.onclick = () => selectTableRow(m.id, btn);
+        }
+
+        container.appendChild(btn);
+      });
+    }
+
+    function selectTableRow(numMesa, boton) {
+      mesaSeleccionada = numMesa;
+      document.querySelectorAll('.table-box-btn').forEach(b => b.classList.remove('selected'));
+      boton.classList.add('selected');
+      document.getElementById('selectedTableBadge').innerText = numMesa;
+    }
+
+    function detectarMesaDesdeURL() {
+      const params = new URLSearchParams(window.location.search);
+      const mesa = params.get('mesa');
+      if (mesa) {
+        mesaSeleccionada = decodeURIComponent(mesa);
+        document.getElementById('selectedTableBadge').innerText = mesaSeleccionada;
+      }
+      renderizarCuadriculaMesas();
+    }
+
+    async function cargarDatos() {
+      try {
+        const res = await fetch(`productos.json?_t=${Date.now()}`);
+        if (res.ok) {
+          const data = await res.json();
+          catalogo = data.productos || data.catalogo || [];
+          if (data.config) CONFIG = Object.assign(CONFIG, data.config);
+          if (data.restaurante) CONFIG.nombre = data.restaurante;
+        }
+      } catch (e) { console.warn("Catálogo local", e); }
+
+      if (catalogo.length === 0) {
+        catalogo = [
+          {
+            id: "dish-1", category: "top", tag: "Plato Bandera", precioPEN: 46.00, disponible: true, likes: 542,
+            videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+            posterUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?w=800",
+            i18n: {
+              es: { name: "Lomo Saltado al Wok Gourmet", desc: "Trozos jugosos de lomo fino salteados a fuego vivo con cebolla morada, tomate y papas nativas." },
+              en: { name: "Wok-Seared Lomo Saltado", desc: "Tender beef tenderloin strips sautéed with red onions, tomatoes, and native fries." },
+              fr: { name: "Lomo Saltado au Wok", desc: "Émincé de bœuf sauté au wok avec oignons rouges et frites andines." },
+              pt: { name: "Lomo Saltado ao Wok", desc: "Tiras de filé mignon salteadas com cebola roxa e batatas nativas." }
+            }
+          }
+        ];
+      }
+
+      document.getElementById('topTitle').innerText = CONFIG.nombre;
+      document.getElementById('topSlogan').innerText = CONFIG.eslogan;
+      document.getElementById('topIcon').innerText = CONFIG.logo || "🍽️";
+
+      renderCategoryChips();
+      renderFeed();
+      setupObserver();
+      detectarMesaDesdeURL();
+      verificarEstadoComandaEnVivo();
+      setInterval(() => {
+        verificarEstadoComandaEnVivo();
+        renderizarCuadriculaMesas();
+      }, 3000);
+    }
+
+    function formatPrice(pen) {
+      if (currentCurrency === "USD") return `$ ${(pen / CONFIG.exchangeRateUSD).toFixed(2)}`;
+      return `S/ ${pen.toFixed(2)}`;
+    }
+    function formatSecondaryPrice(pen) {
+      if (currentCurrency === "PEN") return `≈ $ ${(pen / CONFIG.exchangeRateUSD).toFixed(2)}`;
+      return `≈ S/ ${pen.toFixed(2)}`;
+    }
+
+    function changeLanguage(l) { currentLang = l; renderCategoryChips(); renderFeed(); actualizarVistaPopup(); }
+    function changeCurrency(c) { currentCurrency = c; renderFeed(); actualizarVistaPopup(); }
+
+    function renderCategoryChips() {
+      const cats = [
+        { key: "all", label: "Todos" },
+        { key: "top", label: "🔥 Especialidades" },
+        { key: "mains", label: "Platos Fuertes" },
+        { key: "drinks", label: "Bebidas & Cocteles" }
+      ];
+      document.getElementById('categoryChips').innerHTML = cats.map(c => `
+        <div class="chip ${c.key === currentCategory ? 'active' : ''}" onclick="selectCat('${c.key}')">${c.label}</div>
+      `).join('');
+    }
+
+    function selectCat(k) { currentCategory = k; renderCategoryChips(); renderFeed(); document.getElementById('feedContainer').scrollTo({ top: 0, behavior: 'smooth' }); }
+
+    function renderFeed() {
+      const feed = document.getElementById('feedContainer');
+      feed.innerHTML = '';
+      const filtrados = currentCategory === 'all' ? catalogo : catalogo.filter(d => d.category === currentCategory);
+
+      filtrados.forEach(item => {
+        const info = item.i18n?.[currentLang] || item.i18n?.['es'] || { name: item.nombre, desc: item.descripcion };
+        const slide = document.createElement('div');
+        slide.className = 'video-slide';
+        slide.innerHTML = `
+          <video class="video-player" src="${item.videoUrl}" poster="${item.posterUrl}" loop playsinline preload="metadata" ${isGlobalMuted ? 'muted' : ''} onclick="toggleVideo(this)"></video>
+          <div class="slide-overlay"></div>
+          <div class="side-actions">
+            <button class="action-btn" onclick="this.classList.toggle('liked')"><div class="action-icon"><i class="fa-solid fa-heart"></i></div><span class="action-label">${item.likes || 100}</span></button>
+            <button class="action-btn" onclick="addToOrder('${item.id}')"><div class="action-icon" style="background:#c2410c;"><i class="fa-solid fa-plus"></i></div><span class="action-label">+1</span></button>
+          </div>
+          <div class="dish-info">
+            ${item.tag ? `<span class="badge-tag">${item.tag}</span>` : ''}
+            <h2 class="dish-title">${info.name}</h2>
+            <p class="dish-desc">${info.desc}</p>
+            <div class="dish-price-row">
+              <span class="price-now">${formatPrice(item.precioPEN || item.precio || 0)}</span>
+              <span class="price-alt">${formatSecondaryPrice(item.precioPEN || item.precio || 0)}</span>
+            </div>
+            <button class="btn-quick-add" onclick="addToOrder('${item.id}')"><i class="fa-solid fa-plus"></i> Pedir Plato</button>
+          </div>
+        `;
+        feed.appendChild(slide);
+      });
+      if (videoObserver) setupObserver();
+    }
+
+    function setupObserver() {
+      if (videoObserver) videoObserver.disconnect();
+      videoObserver = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          const v = entry.target.querySelector('video');
+          if (!v) return;
+          if (entry.isIntersecting) { v.muted = isGlobalMuted; v.play().catch(()=>{}); }
+          else { v.pause(); v.currentTime = 0; }
+        });
+      }, { root: document.getElementById('feedContainer'), threshold: 0.65 });
+      document.querySelectorAll('.video-slide').forEach(s => videoObserver.observe(s));
+    }
+
+    function toggleVideo(v) { if (v.paused) v.play(); else v.pause(); }
+    function toggleGlobalAudio() {
+      isGlobalMuted = !isGlobalMuted;
+      document.getElementById('audioIcon').className = isGlobalMuted ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-high';
+      document.querySelectorAll('video').forEach(v => v.muted = isGlobalMuted);
+    }
+
+    function addToOrder(id) {
+      pedido[id] = (pedido[id] || 0) + 1;
+      actualizarVistaPopup();
+    }
+    function changeQty(id, delta) {
+      if (!pedido[id]) return;
+      pedido[id] += delta;
+      if (pedido[id] <= 0) delete pedido[id];
+      actualizarVistaPopup();
+    }
+
+    function actualizarVistaPopup() {
+      const list = document.getElementById('orderItemsList');
+      list.innerHTML = '';
+      let totalU = 0, totalMonto = 0;
+
+      Object.keys(pedido).forEach(id => {
+        const d = catalogo.find(item => item.id === id);
+        if (!d) return;
+        const cant = pedido[id];
+        const sub = cant * (d.precioPEN || d.precio || 0);
+        totalU += cant;
+        totalMonto += sub;
+        const info = d.i18n?.[currentLang] || d.i18n?.['es'];
+
+        list.innerHTML += `
+          <div class="order-item-row">
+            <div>
+              <strong style="font-size:13px;">${info.name}</strong>
+              <div style="font-size:11px; color:#aaa;">${formatPrice(d.precioPEN)} x ${cant} = <b>${formatPrice(sub)}</b></div>
+            </div>
+            <div style="display:flex; gap:6px; align-items:center;">
+              <button style="width:24px; height:24px; border-radius:4px; background:#443027; color:#fff; border:none;" onclick="changeQty('${id}', -1)">-</button>
+              <span style="font-weight:bold; font-size:13px; min-width:16px; text-align:center;">${cant}</span>
+              <button style="width:24px; height:24px; border-radius:4px; background:#443027; color:#fff; border:none;" onclick="changeQty('${id}', 1)">+</button>
+            </div>
+          </div>
+        `;
+      });
+
+      if (totalU === 0) list.innerHTML = '<p style="text-align:center; color:#888; font-size:13px; padding:16px;">Sin platos añadidos aún.</p>';
+
+      ultimoTotalPagarPEN = totalMonto;
+      document.getElementById('ordersBadgeCount').innerText = totalU;
+      document.getElementById('orderTotalPrice').innerText = formatPrice(totalMonto);
+      document.getElementById('orderSecondaryPrice').innerText = formatSecondaryPrice(totalMonto);
+      if (metodoPago === 'Efectivo') calcularVueltoEfectivo();
+    }
+
+    function openOrdersPopup() { 
+      renderizarCuadriculaMesas();
+      document.getElementById('ordersPopupModal').classList.add('active'); 
+    }
+    function closeOrdersPopup() { document.getElementById('ordersPopupModal').classList.remove('active'); }
+
+    function elegirPago(metodo, btn) {
+      metodoPago = metodo;
+      document.querySelectorAll('.btn-pay-option').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('cajaEfectivoDesplegable').style.display = metodo === 'Efectivo' ? 'block' : 'none';
+      if (metodo === 'Efectivo') calcularVueltoEfectivo();
+    }
+
+    function setMontoEfectivoRapido(m) {
+      const inp = document.getElementById('montoEfectivoIngresado');
+      inp.value = m === 'exacto' ? (ultimoTotalPagarPEN > 0 ? ultimoTotalPagarPEN : '') : m;
+      calcularVueltoEfectivo();
+    }
+
+    function calcularVueltoEfectivo() {
+      const pagaCon = parseFloat(document.getElementById('montoEfectivoIngresado').value);
+      const box = document.getElementById('cajaRespuestaVuelto');
+      const txt = document.getElementById('textoDetalleVuelto');
+      const montoTxt = document.getElementById('montoCalculadoVuelto');
+
+      if (isNaN(pagaCon) || pagaCon <= 0) {
+        box.className = "vuelto-badge-box";
+        txt.innerText = "Ingresa monto en efectivo para vuelto";
+        montoTxt.innerText = "";
+        return;
+      }
+      const v = pagaCon - ultimoTotalPagarPEN;
+      if (v < 0) {
+        box.className = "vuelto-badge-box alerta";
+        txt.innerText = `⚠️ Falta dinero (Faltan S/ ${Math.abs(v).toFixed(2)})`;
+        montoTxt.innerText = "";
+      } else {
+        box.className = "vuelto-badge-box";
+        txt.innerText = "💵 Vuelto a entregar:";
+        montoTxt.innerText = `S/ ${v.toFixed(2)}`;
+      }
+    }
+
+    // TRANSMISIÓN DE COMANDA
+    async function enviarComandaDirectaAlPanel() {
+      const itemIds = Object.keys(pedido);
+      if (itemIds.length === 0) return alert("Por favor añade al menos un plato a la comanda.");
+
+      // Verificar si la mesa fue ocupada justo antes de enviar
+      const comandas = JSON.parse(localStorage.getItem("inkabistro_comandas_activas")) || [];
+      const mesaYaOcupada = comandas.some(c => (c.estado === "por_confirmar" || c.estado === "cocina") && c.mesa === mesaSeleccionada && c.id !== comandaActivaId);
+
+      if (mesaYaOcupada) {
+        alert(`⛔ La ${mesaSeleccionada} acaba de ser ocupada con otra orden en curso. Por favor selecciona otra mesa.`);
+        renderizarCuadriculaMesas();
+        return;
+      }
+
+      const cliente = document.getElementById('clientNameInput').value.trim() || "Comensal";
+      const notas = document.getElementById('notesInput').value.trim();
+
+      const btn = document.getElementById('btnEnviarComanda');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Transmitiendo comanda a cocina...';
+
+      let detalleTexto = "";
+      const platosComanda = [];
+
+      itemIds.forEach(id => {
+        const dish = catalogo.find(d => d.id === id);
+        const cant = pedido[id];
+        const nom = (dish.i18n?.[currentLang] || dish.i18n?.['es']).name;
+        detalleTexto += `${cant}x ${nom}, `;
+        platosComanda.push({ id, nombre: nom, cantidad: cant, precio: dish.precioPEN });
+      });
+
+      const nuevaComanda = {
+        id: "CMD-" + Date.now(),
+        fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        cliente: `${mesaSeleccionada} (${cliente})`,
+        mesa: mesaSeleccionada,
+        productos: detalleTexto.replace(/, $/, ""),
+        items: platosComanda,
+        totalPEN: ultimoTotalPagarPEN,
+        pago: metodoPago,
+        notas: notas,
+        estado: "por_confirmar"
+      };
+
+      // Guardar en almacenamiento compartido
+      let comandasActivas = JSON.parse(localStorage.getItem("inkabistro_comandas_activas")) || [];
+      comandasActivas.unshift(nuevaComanda);
+      localStorage.setItem("inkabistro_comandas_activas", JSON.stringify(comandasActivas));
+
+      comandaActivaId = nuevaComanda.id;
+      localStorage.setItem("inkabistro_mi_comanda_id", comandaActivaId);
+
+      setTimeout(() => {
+        for (let k in pedido) delete pedido[k];
+        actualizarVistaPopup();
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-bell-concierge"></i> Enviar Comanda al Panel / Cocina';
+        closeOrdersPopup();
+        verificarEstadoComandaEnVivo();
+        renderizarCuadriculaMesas();
+      }, 700);
+    }
+
+    // RASTREO EN VIVO EN EL CELULAR
+    function verificarEstadoComandaEnVivo() {
+      if (!comandaActivaId) return;
+
+      const comandas = JSON.parse(localStorage.getItem("inkabistro_comandas_activas")) || [];
+      const miComanda = comandas.find(c => c.id === comandaActivaId);
+
+      const card = document.getElementById('kdsTrackingCard');
+      const badge = document.getElementById('kdsBadge');
+      const msg = document.getElementById('kdsMsg');
+      const mesaTxt = document.getElementById('kdsMesaTxt');
+      const totalTxt = document.getElementById('kdsTotalTxt');
+
+      if (!miComanda) {
+        card.style.display = 'none';
+        return;
+      }
+
+      mesaTxt.innerText = miComanda.mesa || "Mesa";
+      totalTxt.innerText = `S/ ${(miComanda.totalPEN || 0).toFixed(2)}`;
+      card.className = "kds-tracking-card " + miComanda.estado;
+
+      if (miComanda.estado === 'por_confirmar') {
+        badge.className = "kds-status-badge badge-por_confirmar";
+        badge.innerHTML = "🟡 1. Por Confirmar";
+        msg.innerText = "Tu pedido fue enviado. El mozo o caja lo está verificando en el panel...";
+      } else if (miComanda.estado === 'cocina') {
+        badge.className = "kds-status-badge badge-cocina";
+        badge.innerHTML = "🔵 2. En Cocina";
+        msg.innerText = "¡Pedido confirmado! El chef está preparando tus platos en este momento 🍳";
+      } else if (miComanda.estado === 'servido') {
+        badge.className = "kds-status-badge badge-servido";
+        badge.innerHTML = "🟢 3. Servido / En Mesa";
+        msg.innerText = "¡Buen provecho! Tu pedido ya está servido en tu mesa 🍽️";
+      } else if (miComanda.estado === 'rechazado') {
+        badge.className = "kds-status-badge badge-rechazado";
+        badge.innerHTML = "🔴 4. Rechazado / Cancelado";
+        msg.innerText = "Tu pedido ha sido cancelado. Por favor consulta con el personal de sala.";
+      }
+    }
+
+    function cerrarSeguimiento() {
+      localStorage.removeItem("inkabistro_mi_comanda_id");
+      comandaActivaId = null;
+      document.getElementById('kdsTrackingCard').style.display = 'none';
+      renderizarCuadriculaMesas();
+    }
+
+    window.addEventListener('DOMContentLoaded', cargarDatos);
+  </script>
+</body>
+</html>
