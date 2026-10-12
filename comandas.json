@@ -1,0 +1,21 @@
+[
+  {
+    "id": "CMD-1791773843334",
+    "fecha": "11/10/2026 09:57 p.m.",
+    "cliente": "Mesa 02 (Carmen)",
+    "mesa": "Mesa 02",
+    "productos": "1x Saltado",
+    "items": [
+      {
+        "id": "dish-1791769983964",
+        "nombre": "Saltado",
+        "cantidad": 1,
+        "precio": 35
+      }
+    ],
+    "totalPEN": 35,
+    "pago": "Efectivo",
+    "notas": "",
+    "estado": "cocina"
+  }
+]
