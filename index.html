@@ -16,7 +16,7 @@
       --text-muted: #d6cbbf;
       --gold-badge: #fbbf24;
 
-      /* PALETA DE LA TARJETA (MEXICAN DELIGHT) */
+      /* PALETA MEXICAN DELIGHT */
       --modal-bg: #eab308;
       --modal-green: #4d7c0f;
       --modal-green-dark: #365314;
@@ -53,6 +53,7 @@
     }
     .chuspa-nav-badge:active { transform: scale(0.96); }
     .chuspa-nav-img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; background: #fff; border: 1px solid #ca8a04; }
+    .chuspa-nav-info { display: flex; flex-direction: column; line-height: 1.1; }
     .chuspa-nav-title { font-size: 10px; font-weight: 900; color: #fde047; }
     .chuspa-nav-sub { font-size: 7.5px; font-weight: 700; color: #fed7aa; }
 
@@ -127,7 +128,7 @@
 
     .btn-quick-add { background: linear-gradient(135deg, var(--primary), var(--accent)); border: 1px solid rgba(251, 191, 36, 0.4); color: #fff; padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
 
-    /* BOTÓN FLOTANTE CORREGIDO CON PRIORIDAD DE EVENTOS Y Z-INDEX MÁXIMO */
+    /* BOTÓN FLOTANTE PEDIDOS */
     .chat-bubble-container {
       position: fixed;
       bottom: 20px;
@@ -149,7 +150,6 @@
       box-shadow: 0 4px 16px rgba(0,0,0,0.4);
       border: 2px solid var(--accent);
       cursor: pointer;
-      pointer-events: auto;
     }
     .chat-bubble-btn {
       position: relative;
@@ -163,11 +163,10 @@
       justify-content: center;
       border: 2px solid #facc15;
       cursor: pointer;
-      pointer-events: auto;
     }
     .chat-badge { position: absolute; top: -3px; right: -3px; background-color: #ef4444; color: #fff; border: 2px solid #fff; font-size: 11px; font-weight: 800; min-width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
-    /* POPUP DE COMANDA (MEXICAN DELIGHT) */
+    /* POPUP DE COMANDA */
     .popup-modal { position: fixed; inset: 0; background: rgba(18, 12, 10, 0.88); backdrop-filter: blur(6px); z-index: 100000; display: none; align-items: flex-end; justify-content: center; }
     .popup-modal.active { display: flex; }
     .popup-sheet {
@@ -216,6 +215,7 @@
       font-size: 11px; font-weight: 800; text-align: left; cursor: pointer; display: flex; justify-content: space-between;
     }
 
+    /* SELECTOR DE MESAS Y ESTILO BLOQUEADO */
     .table-selector-label {
       font-size: 11px; font-weight: 900; text-transform: uppercase; color: var(--modal-dark);
       letter-spacing: 0.5px; margin-bottom: 6px; display: flex; justify-content: space-between;
@@ -229,6 +229,7 @@
     .table-box-btn.selected { background: var(--modal-green); border-color: var(--modal-green-dark); color: #fff; }
     .table-box-btn.extra { grid-column: span 2; font-size: 11px; }
     .table-box-btn.bloqueada { background: #dc2626 !important; border-color: #991b1b !important; color: #fff !important; cursor: not-allowed; }
+    .table-box-btn.deshabilitada-qr { opacity: 0.35 !important; cursor: not-allowed !important; filter: grayscale(1); }
 
     .grid-payments { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
     .btn-pay-option {
@@ -312,7 +313,7 @@
         </div>
       </div>
 
-      <!-- FORMULARIO DE RESEÑAS PARA CLIENTE SERVIDO -->
+      <!-- FORMULARIO DE RESEÑAS -->
       <div class="review-box-client" id="clientReviewBox">
         <span style="font-size:11px; color:#fde047; font-weight:800;">⭐ ¡Califica tu experiencia gastronómica!</span>
         <div class="stars-row" id="starsRow">
@@ -334,7 +335,7 @@
   <!-- FEED TIKTOK -->
   <div class="app-container" id="feedContainer"></div>
 
-  <!-- BOTÓN FLOTANTE PEDIDOS CON EVENTOS DIRECTOS Y PRIORIDAD -->
+  <!-- BOTÓN FLOTANTE PEDIDOS -->
   <div class="chat-bubble-container" onclick="openOrdersPopup()">
     <div class="chat-bubble-label" onclick="openOrdersPopup()"><span>🔥 Pedidos</span></div>
     <div class="chat-bubble-btn" onclick="openOrdersPopup()">
@@ -343,7 +344,7 @@
     </div>
   </div>
 
-  <!-- POPUP COMANDA (DISEÑO MEXICAN DELIGHT) -->
+  <!-- POPUP COMANDA -->
   <div class="popup-modal" id="ordersPopupModal" onclick="closeOrdersPopup(event)">
     <div class="popup-sheet" onclick="event.stopPropagation()">
       <div class="sheet-header">
@@ -354,16 +355,16 @@
       <!-- LISTA DE PLATOS -->
       <div class="order-items-list" id="orderItemsList"></div>
 
-      <!-- SELECTOR COMPACTO DE LA CARTA PARA AGREGAR MÁS PLATOS -->
+      <!-- SELECTOR COMPACTO DE LA CARTA -->
       <div class="quick-add-catalog">
-        <div style="font-size:11px; font-weight:900; color:var(--modal-dark);"><i class="fa-solid fa-plus"></i> Toca un plato para añadirlo a la lista:</div>
+        <div style="font-size:11px; font-weight:900; color:var(--modal-dark);"><i class="fa-solid fa-plus"></i> Toca un plato para añadirlo a la comanda:</div>
         <div class="quick-add-grid" id="quickAddCatalogGrid"></div>
       </div>
 
-      <!-- SELECTOR DE MESAS -->
+      <!-- SELECTOR DE MESAS (CON BLOQUEO DE TODAS LAS DEMÁS SI ESCANEÓ QR) -->
       <div class="table-selector-label">
-        <span>📍 Mesa Seleccionada:</span>
-        <span id="selectedTableBadge" style="color:var(--modal-green-dark); font-size:12px;">Mesa 01</span>
+        <span id="lblMesaHeaderInfo">📍 Mesa Asignada:</span>
+        <span id="selectedTableBadge" style="color:var(--modal-green-dark); font-size:12px; font-weight:900;">Mesa 01</span>
       </div>
       <div class="table-grid" id="tableGridContainer"></div>
 
@@ -430,7 +431,10 @@
     let metodoPago = "Efectivo";
     let videoObserver = null;
     let ultimoTotalPagarPEN = 0;
-    let mesaSeleccionada = "Mesa 01";
+
+    // DETECCIÓN Y PERSISTENCIA DE MESA FIJA POR QR
+    let mesaFijadaPorQR = false;
+    let mesaSeleccionada = sessionStorage.getItem("inkabistro_mesa_qr") || "Mesa 01";
     let comandaActivaId = localStorage.getItem("inkabistro_mi_comanda_id") || null;
     let ratingSeleccionado = 5;
 
@@ -453,6 +457,29 @@
         return "Mesa " + (num < 10 ? "0" + num : num);
       }
       return s;
+    }
+
+    // DETECTA SI EL CLIENTE INGRESÓ MEDIANTE EL QR DE SU MESA
+    function detectarMesaDesdeURL() {
+      const params = new URLSearchParams(window.location.search);
+      const mesaUrl = params.get('mesa');
+      if (mesaUrl) {
+        mesaSeleccionada = normalizarNombreMesa(decodeURIComponent(mesaUrl));
+        mesaFijadaPorQR = true;
+        sessionStorage.setItem("inkabistro_mesa_qr", mesaSeleccionada);
+      } else if (sessionStorage.getItem("inkabistro_mesa_qr")) {
+        mesaSeleccionada = sessionStorage.getItem("inkabistro_mesa_qr");
+        mesaFijadaPorQR = true;
+      }
+
+      const badge = document.getElementById('selectedTableBadge');
+      if (badge) {
+        badge.innerText = mesaFijadaPorQR ? `${mesaSeleccionada} (QR)` : mesaSeleccionada;
+      }
+      const lblHeader = document.getElementById('lblMesaHeaderInfo');
+      if (lblHeader && mesaFijadaPorQR) {
+        lblHeader.innerText = "📍 Mesa Asignada (Bloqueada por QR):";
+      }
     }
 
     async function obtenerMesasOcupadasEnRed() {
@@ -479,6 +506,7 @@
       return ocupadas;
     }
 
+    // RENDERIZA CUADRÍCULA Y BLOQUEA LAS DEMÁS MESAS SI SE ESCANEÓ QR
     async function renderizarCuadriculaMesas() {
       const container = document.getElementById("tableGridContainer");
       if (!container) return;
@@ -486,19 +514,32 @@
       const mesasOcupadas = await obtenerMesasOcupadasEnRed();
       container.innerHTML = "";
 
+      const mesaActualNorm = normalizarNombreMesa(mesaSeleccionada);
+
       listaMesas.forEach(m => {
         const idNormal = normalizarNombreMesa(m.id);
         const estaOcupada = mesasOcupadas.includes(idNormal);
-        const esSeleccionada = (normalizarNombreMesa(mesaSeleccionada) === idNormal);
+        const esMiMesa = (mesaActualNorm === idNormal);
 
         const btn = document.createElement("button");
         btn.type = "button";
-        btn.className = `table-box-btn ${m.extra ? 'extra' : ''} ${esSeleccionada ? 'selected' : ''} ${estaOcupada ? 'bloqueada' : ''}`;
+
+        // Si el cliente escaneó QR, bloquea todas las demás mesas para que no pueda cambiarlas
+        let claseQR = "";
+        if (mesaFijadaPorQR && !esMiMesa) {
+          claseQR = "deshabilitada-qr";
+        }
+
+        btn.className = `table-box-btn ${m.extra ? 'extra' : ''} ${esMiMesa ? 'selected' : ''} ${estaOcupada ? 'bloqueada' : ''} ${claseQR}`;
         
         if (estaOcupada) {
           btn.innerHTML = `${m.label} <span style="font-size:9px;">🔒</span>`;
           btn.title = `La ${m.id} está siendo atendida en este momento.`;
-          btn.onclick = () => alert(`⚠️ La ${m.id} ya tiene un pedido en curso y está siendo atendida.`);
+          btn.onclick = () => alert(`⚠️ La ${m.id} ya tiene un pedido en curso.`);
+        } else if (mesaFijadaPorQR && !esMiMesa) {
+          btn.innerHTML = `${m.label} 🔒`;
+          btn.title = `Mesa bloqueada. Tu pedido está asignado únicamente a tu ${mesaSeleccionada}.`;
+          btn.onclick = () => alert(`🔒 Has escaneado el QR de la ${mesaSeleccionada}. Todos tus pedidos se asignan a esta mesa.`);
         } else {
           btn.innerText = m.label;
           btn.onclick = () => selectTableRow(m.id, btn);
@@ -509,6 +550,10 @@
     }
 
     function selectTableRow(numMesa, boton) {
+      if (mesaFijadaPorQR) {
+        alert(`🔒 Tu mesa está fijada por código QR en: ${mesaSeleccionada}`);
+        return;
+      }
       mesaSeleccionada = numMesa;
       document.querySelectorAll('.table-box-btn').forEach(b => b.classList.remove('selected'));
       boton.classList.add('selected');
@@ -530,7 +575,9 @@
     }
 
     async function cargarDatos() {
-      // 1. Cargar Identidad desde Firebase
+      detectarMesaDesdeURL();
+
+      // Cargar Identidad desde Firebase
       try {
         const resConf = await fetch(`${FIREBASE_DB_URL}config/identidad.json`);
         if (resConf.ok) {
@@ -539,7 +586,7 @@
         }
       } catch (e) {}
 
-      // 2. Cargar Catálogo
+      // Cargar Platos
       try {
         const res = await fetch(`productos.json?v=${Date.now()}`, { cache: 'no-store' });
         if (res.ok) {
@@ -576,7 +623,6 @@
       renderCategoryChips();
       renderFeed();
       setupObserver();
-      detectarMesaDesdeURL();
       renderQuickCatalogPopup();
       verificarEstadoComandaEnVivo();
 
@@ -722,20 +768,13 @@
       if (metodoPago === 'Efectivo') calcularVueltoEfectivo();
     }
 
-    // FUNCIÓN DE APERTURA SEGURA Y BLINDADA CONTRA ERRORES
     function openOrdersPopup() { 
       const modal = document.getElementById('ordersPopupModal');
       if (!modal) return;
 
       actualizarVistaPopup();
-
-      try {
-        renderizarCuadriculaMesas();
-      } catch (e) {}
-
-      try {
-        renderQuickCatalogPopup();
-      } catch (e) {}
+      try { renderizarCuadriculaMesas(); } catch (e) {}
+      try { renderQuickCatalogPopup(); } catch (e) {}
 
       modal.classList.add('active'); 
     }
@@ -792,12 +831,14 @@
       }
     }
 
+    // TRANSMISIÓN INSTANTÁNEA: GUARDA Y ACUMULA EN LA MESA FIJA
     async function enviarComandaDirectaAlPanel() {
       const itemIds = Object.keys(pedido);
       if (itemIds.length === 0) return alert("Por favor añade al menos un plato a la comanda.");
 
       const mesaNorm = normalizarNombreMesa(mesaSeleccionada);
 
+      // Si no tenía comanda previa, verificar ocupación antes de abrirla
       if (!comandaActivaId) {
         const mesasOcupadas = await obtenerMesasOcupadasEnRed();
         if (mesasOcupadas.includes(mesaNorm)) {
@@ -825,6 +866,7 @@
         platosComanda.push({ id, nombre: nom, cantidad: cant, precio: dish.precioPEN });
       });
 
+      // Si el cliente ya tenía una orden activa en esta mesa, acumular platos
       if (comandaActivaId) {
         try {
           const res = await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`);
@@ -857,6 +899,7 @@
         } catch (e) {}
       }
 
+      // Nueva comanda en mesa
       const nuevaComanda = {
         id: "CMD-" + Date.now(),
         fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -1011,17 +1054,6 @@
       localStorage.removeItem("inkabistro_mi_comanda_id");
       comandaActivaId = null;
       document.getElementById('kdsTrackingCard').style.display = 'none';
-      renderizarCuadriculaMesas();
-    }
-
-    function detectarMesaDesdeURL() {
-      const params = new URLSearchParams(window.location.search);
-      const mesa = params.get('mesa');
-      if (mesa) {
-        mesaSeleccionada = decodeURIComponent(mesa);
-        const badge = document.getElementById('selectedTableBadge');
-        if (badge) badge.innerText = mesaSeleccionada;
-      }
       renderizarCuadriculaMesas();
     }
 
