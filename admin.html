@@ -32,17 +32,13 @@
     .brand-box { display: flex; align-items: center; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); }
     .brand-avatar { width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(135deg, var(--accent), var(--primary)); display: flex; align-items: center; justify-content: center; font-size: 22px; color: #fff; }
 
-    /* BADGE LA CHUSPA TECH */
+    /* ENLACE LA CHUSPA TECH */
     .chuspa-badge-sidebar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      display: flex; align-items: center; gap: 8px;
       background: rgba(254, 252, 232, 0.08);
       border: 1px solid rgba(234, 179, 8, 0.35);
-      padding: 6px 10px;
-      border-radius: 20px;
-      text-decoration: none;
-      transition: transform 0.2s;
+      padding: 6px 10px; border-radius: 20px;
+      text-decoration: none; transition: transform 0.2s;
     }
     .chuspa-badge-sidebar:hover { transform: scale(1.02); background: rgba(254, 252, 232, 0.15); }
     .chuspa-img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1px solid #ca8a04; background: #fff; }
@@ -84,7 +80,7 @@
       margin-bottom: 18px;
     }
     .tables-monitor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--gold); }
-    .tables-monitor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 6px; }
+    .tables-monitor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); gap: 6px; }
     .table-pill {
       padding: 6px 4px;
       text-align: center;
@@ -92,14 +88,13 @@
       font-size: 11px;
       font-weight: 800;
       border: 1px solid transparent;
+      cursor: pointer;
     }
     .table-pill.libre { background: rgba(22, 163, 74, 0.15); border-color: #16a34a; color: #86efac; }
     .table-pill.ocupada { background: rgba(220, 38, 38, 0.25); border-color: #dc2626; color: #fca5a5; animation: pulseRed 2s infinite; }
     @keyframes pulseRed { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
 
-    /* ==============================================================
-       TARJETAS KDS EN VIVO
-       ============================================================== */
+    /* COMANDAS EN VIVO */
     .live-orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
     .order-card {
       background: #241914;
@@ -112,26 +107,10 @@
       box-shadow: 0 4px 15px rgba(0,0,0,0.4);
     }
     
-    .order-card.por_confirmar {
-      border-color: #f59e0b;
-      background: #2b1d16;
-      box-shadow: 0 0 16px rgba(245, 158, 11, 0.25);
-    }
-    .order-card.cocina {
-      border-color: #0284c7;
-      background: #172330;
-      box-shadow: 0 0 16px rgba(2, 132, 199, 0.25);
-    }
-    .order-card.servido {
-      border-color: #16a34a;
-      background: #15271c;
-      opacity: 0.85;
-    }
-    .order-card.rechazado {
-      border-color: #dc2626;
-      background: #2c1616;
-      opacity: 0.7;
-    }
+    .order-card.por_confirmar { border-color: #f59e0b; background: #2b1d16; box-shadow: 0 0 16px rgba(245, 158, 11, 0.25); }
+    .order-card.cocina { border-color: #0284c7; background: #172330; box-shadow: 0 0 16px rgba(2, 132, 199, 0.25); }
+    .order-card.servido { border-color: #16a34a; background: #15271c; }
+    .order-card.rechazado { border-color: #dc2626; background: #2c1616; opacity: 0.7; }
 
     .order-card-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px dashed rgba(255,255,255,0.12); padding-bottom: 8px; }
     .order-status-badge { font-size: 11px; font-weight: 900; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; letter-spacing: 0.5px; }
@@ -140,45 +119,27 @@
     .status-servido { background: #16a34a; color: #fff; }
     .status-rechazado { background: #dc2626; color: #fff; }
 
-    @keyframes pulseOrder {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
+    @keyframes pulseOrder { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
 
     .order-items-box { font-size: 14px; font-weight: 800; color: #fde047; line-height: 1.4; padding: 4px 0; }
     .order-notes-tag { font-size: 12px; color: #fca5a5; background: rgba(0,0,0,0.3); padding: 5px 8px; border-radius: 6px; border-left: 3px solid #f87171; }
     .order-bottom-bar { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 8px; font-size: 12.5px; }
     
-    .order-actions-container { display: flex; gap: 8px; margin-top: 6px; }
+    .order-actions-container { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
     .btn-action-confirm {
-      flex: 1;
-      background: linear-gradient(135deg, #16a34a, #22c55e);
-      color: #fff;
-      padding: 10px;
-      font-size: 12px;
-      border-radius: 8px;
-      border: none;
-      font-weight: 800;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
+      flex: 1; background: linear-gradient(135deg, #16a34a, #22c55e); color: #fff;
+      padding: 10px; font-size: 12px; border-radius: 8px; border: none; font-weight: 800; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
     }
     .btn-action-kitchen {
-      flex: 1;
-      background: linear-gradient(135deg, #0284c7, #38bdf8);
-      color: #fff;
-      padding: 10px;
-      font-size: 12px;
-      border-radius: 8px;
-      border: none;
-      font-weight: 800;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
+      flex: 1; background: linear-gradient(135deg, #0284c7, #38bdf8); color: #fff;
+      padding: 10px; font-size: 12px; border-radius: 8px; border: none; font-weight: 800; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn-action-liberar {
+      flex: 1; background: #374151; color: #facc15;
+      padding: 10px; font-size: 12px; border-radius: 8px; border: 1px solid #4b5563; font-weight: 800; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
     }
 
     /* CATÁLOGO VISUAL */
@@ -320,8 +281,8 @@
         <!-- Monitor de Mesas Libres y Ocupadas -->
         <div class="tables-monitor-bar">
           <div class="tables-monitor-header">
-            <span>📍 Estado de Mesas en Sala:</span>
-            <span style="font-size:11px; color:#aaa;">Rojo = Pedido en curso | Verde = Libre</span>
+            <span>📍 Monitor de Mesas (Rojo = Ocupada | Verde = Libre):</span>
+            <span style="font-size:11px; color:#aaa;">Toca una mesa ocupada para liberarla</span>
           </div>
           <div class="tables-monitor-grid" id="tablesMonitorGrid"></div>
         </div>
@@ -451,6 +412,7 @@
     const USUARIO = "phyxcius";
     const REPOSITORIO = "restaurante";
     const ARCHIVO = "productos.json";
+    const ARCHIVO_COMANDAS = "comandas.json";
 
     const PASSWORD_MAESTRA_TOKEN = "42423549";
     let tokenDesbloqueado = false;
@@ -459,6 +421,9 @@
     const STORAGE_KEY_AUTH = "inkabistro_admin_sesion_activa";
     const STORAGE_KEY_COMANDAS = "inkabistro_comandas_activas";
     const STORAGE_KEY_VENTAS = "inkabistro_ventas_registro";
+
+    // BroadcastChannel para sincronizar con index.html al instante
+    const syncChannel = ("BroadcastChannel" in window) ? new BroadcastChannel("inkabistro_sync_mesas") : null;
 
     let catalogo = [];
     let configRestaurante = {
@@ -496,7 +461,7 @@
       document.getElementById('ghTokenInput').value = obtenerTokenSecreto();
       cargarDesdeGitHub();
       cargarComandasEnVivo();
-      setInterval(cargarComandasEnVivo, 5000); // Consulta en vivo cada 5 segundos
+      setInterval(cargarComandasEnVivo, 4000);
     }
 
     function cerrarSesionAdmin() {
@@ -561,21 +526,28 @@
     // ==============================================================
     // KDS: RECTIFICACIÓN Y ACCIÓN DE COMANDAS EN VIVO
     // ==============================================================
-    function cargarComandasEnVivo() {
+    async function cargarComandasEnVivo() {
       const grid = document.getElementById('liveOrdersGrid');
-      let comandas = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
+      let comandas = [];
+
+      try {
+        const res = await fetch(`comandas.json?_t=${Date.now()}`);
+        if (res.ok) comandas = await res.json();
+      } catch (e) {}
+
+      if (!Array.isArray(comandas) || comandas.length === 0) {
+        comandas = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
+      }
 
       // Conteo de pedidos activos
-      const pedidosActivos = comandas.filter(c => c.estado !== 'servido' && c.estado !== 'rechazado');
+      const pedidosActivos = comandas.filter(c => c.estado !== 'liberado' && c.estado !== 'rechazado');
       document.getElementById('badgeTotalComandas').innerText = pedidosActivos.length;
 
-      // Sonido si entra nueva comanda
       if (comandas.length > totalComandasPrevias && totalComandasPrevias !== 0) {
         reproducirAlertaSonora();
       }
       totalComandasPrevias = comandas.length;
 
-      // Actualizar Monitor de Mesas
       actualizarMonitorDeMesas(comandas);
 
       if (comandas.length === 0) {
@@ -594,7 +566,7 @@
                 <div style="font-size:11px; color:#aaa; margin-top:2px;">${c.id || 'CMD-00'} • ${c.fecha || ''}</div>
               </div>
               <span class="order-status-badge status-${estado}">
-                ${estado === 'por_confirmar' ? '⚠️ Por Confirmar' : (estado === 'cocina' ? '🍳 En Cocina' : (estado === 'servido' ? '✅ Servido' : '❌ Rechazado'))}
+                ${estado === 'por_confirmar' ? '⚠️ Por Confirmar' : (estado === 'cocina' ? '🍳 En Cocina' : (estado === 'servido' ? '✅ En Mesa (Servido)' : (estado === 'liberado' ? '🔓 Desocupada' : '❌ Rechazada')))}
               </span>
             </div>
 
@@ -603,16 +575,16 @@
               ${c.productos || 'Sin detalle de platos'}
             </div>
 
-            <!-- Notas de cocina si existen -->
+            <!-- Notas -->
             ${c.notas ? `<div class="order-notes-tag">📝 Nota: ${c.notas}</div>` : ''}
 
-            <!-- Barra inferior con pago y monto -->
+            <!-- Barra inferior -->
             <div class="order-bottom-bar">
               <span>Pago: <b>${c.pago || 'Efectivo'}</b></span>
               <span style="font-size:16px; font-weight:900; color:#86efac;">S/ ${(c.totalPEN || c.total || 0).toFixed(2)}</span>
             </div>
 
-            <!-- BOTONES DE ACCIÓN PARA ACEPTAR Y PREPARAR -->
+            <!-- BOTONES DE ACCIÓN PARA CADA ESTADO -->
             <div class="order-actions-container">
               ${estado === 'por_confirmar' ? `
                 <button type="button" class="btn-action-confirm" onclick="cambiarEstadoComanda(${i}, 'cocina')">
@@ -630,12 +602,17 @@
               ` : ''}
 
               ${estado === 'servido' ? `
+                <button type="button" class="btn-action-liberar" onclick="liberarMesa(${i})">
+                  <i class="fa-solid fa-door-open"></i> 🔓 Cobrar y Desocupar Mesa
+                </button>
+              ` : ''}
+
+              ${estado === 'liberado' ? `
                 <div style="font-size:12px; color:#86efac; font-weight:bold; display:flex; align-items:center; gap:6px; flex:1;">
-                  <i class="fa-solid fa-circle-check"></i> Mesa Atendida & Libre
+                  <i class="fa-solid fa-circle-check"></i> Mesa Cobrada & Desocupada
                 </div>
               ` : ''}
 
-              <!-- Botón eliminar permanentemente -->
               <button type="button" class="btn btn-del" style="padding:8px 12px; font-size:13px;" title="Eliminar comanda" onclick="eliminarComanda(${i})">
                 <i class="fa-solid fa-trash"></i>
               </button>
@@ -648,18 +625,32 @@
     // MONITOR DE MESAS
     function actualizarMonitorDeMesas(comandas) {
       const grid = document.getElementById('tablesMonitorGrid');
+      // Las mesas ocupadas son aquellas en por_confirmar, cocina o servido
       const mesasOcupadas = comandas
-        .filter(c => c.estado === 'por_confirmar' || c.estado === 'cocina')
+        .filter(c => c.estado === 'por_confirmar' || c.estado === 'cocina' || c.estado === 'servido')
         .map(c => (c.mesa || '').trim());
 
       grid.innerHTML = todasLasMesas.map(m => {
         const estaOcupada = mesasOcupadas.includes(m);
         return `
-          <div class="table-pill ${estaOcupada ? 'ocupada' : 'libre'}">
+          <div class="table-pill ${estaOcupada ? 'ocupada' : 'libre'}" onclick="desocuparMesaDirecta('${m}', ${estaOcupada})">
             ${m.replace('Mesa ', 'M-')} ${estaOcupada ? '🔒' : '✔'}
           </div>
         `;
       }).join('');
+    }
+
+    function desocuparMesaDirecta(nombreMesa, estaOcupada) {
+      if (!estaOcupada) return;
+      if (confirm(`¿Deseas desocupar y liberar la ${nombreMesa} para nuevos clientes?`)) {
+        let comandas = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
+        comandas.forEach(c => {
+          if (c.mesa === nombreMesa && (c.estado === 'por_confirmar' || c.estado === 'cocina' || c.estado === 'servido')) {
+            c.estado = 'liberado';
+          }
+        });
+        guardarYNotificarComandas(comandas);
+      }
     }
 
     function cambiarEstadoComanda(idx, nuevoEstado) {
@@ -667,25 +658,26 @@
       if (!comandas[idx]) return;
 
       comandas[idx].estado = nuevoEstado;
-      localStorage.setItem(STORAGE_KEY_COMANDAS, JSON.stringify(comandas));
+      guardarYNotificarComandas(comandas);
 
-      // Actualizar en el registro contable
+      // Actualizar registro contable
       let ventas = JSON.parse(localStorage.getItem(STORAGE_KEY_VENTAS)) || [];
       const vIdx = ventas.findIndex(v => v.id === comandas[idx].id);
       if (vIdx !== -1) {
         ventas[vIdx].estado = nuevoEstado;
         localStorage.setItem(STORAGE_KEY_VENTAS, JSON.stringify(ventas));
       }
+    }
 
-      cargarComandasEnVivo();
+    function liberarMesa(idx) {
+      if (confirm("¿Confirmar que la mesa ha pagado y ha quedado desocupada para nuevos clientes?")) {
+        cambiarEstadoComanda(idx, 'liberado');
+      }
     }
 
     function rechazarComanda(idx) {
-      if (confirm("¿Deseas rechazar o cancelar esta orden? La mesa quedará liberada.")) {
-        let comandas = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
-        comandas[idx].estado = "rechazado";
-        localStorage.setItem(STORAGE_KEY_COMANDAS, JSON.stringify(comandas));
-        cargarComandasEnVivo();
+      if (confirm("¿Deseas rechazar o cancelar esta orden? La mesa quedará liberada inmediatamente.")) {
+        cambiarEstadoComanda(idx, 'rechazado');
       }
     }
 
@@ -693,9 +685,46 @@
       if (confirm("¿Deseas eliminar permanentemente esta comanda del panel?")) {
         let comandas = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
         comandas.splice(idx, 1);
-        localStorage.setItem(STORAGE_KEY_COMANDAS, JSON.stringify(comandas));
-        cargarComandasEnVivo();
+        guardarYNotificarComandas(comandas);
       }
+    }
+
+    function guardarYNotificarComandas(comandas) {
+      localStorage.setItem(STORAGE_KEY_COMANDAS, JSON.stringify(comandas));
+      if (syncChannel) {
+        syncChannel.postMessage({ tipo: "ACTUALIZAR_MESAS" });
+      }
+      cargarComandasEnVivo();
+      // Opcional: auto-sincronizar comandas en GitHub en background
+      sincronizarComandasEnGitHub(comandas);
+    }
+
+    async function sincronizarComandasEnGitHub(comandas) {
+      const token = obtenerTokenSecreto();
+      if (!token) return;
+
+      let sha = "";
+      try {
+        const check = await fetch(`https://api.github.com/repos/${USUARIO}/${REPOSITORIO}/contents/${ARCHIVO_COMANDAS}?ref=main&_t=${Date.now()}`, {
+          headers: { "Authorization": `token ${token}`, "Accept": "application/vnd.github.v3+json" }
+        });
+        if (check.ok) sha = (await check.json()).sha;
+      } catch (e) {}
+
+      const payload = {
+        message: "Actualización de comandas activas y mesas",
+        content: btoa(unescape(encodeURIComponent(JSON.stringify(comandas, null, 2)))),
+        branch: "main"
+      };
+      if (sha) payload.sha = sha;
+
+      try {
+        await fetch(`https://api.github.com/repos/${USUARIO}/${REPOSITORIO}/contents/${ARCHIVO_COMANDAS}`, {
+          method: "PUT",
+          headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+      } catch (e) {}
     }
 
     function reproducirAlertaSonora() {
@@ -834,7 +863,7 @@
       document.getElementById('imgQRGenerado').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(link)}`;
     }
 
-    // GITHUB
+    // CARGA DE DATOS DESDE GITHUB
     async function cargarDesdeGitHub() {
       const token = obtenerTokenSecreto();
       try {
@@ -851,6 +880,7 @@
       renderizarVisualDishes();
     }
 
+    // PUBLICAR EN GITHUB
     async function sincronizarConGitHub() {
       const token = obtenerTokenSecreto();
       if (!token) return alert("Configura tu token en el acordeón de la izquierda.");
