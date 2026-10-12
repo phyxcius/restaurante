@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel de Control & Sistema TPV | Inka Bistro Cusco</title>
+  <title>Panel de Control & TPV | La Cusqueñita</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
@@ -22,33 +22,13 @@
       --blue: #2563eb;
     }
 
-    /* TEMA CLARO OPCIONAL */
-    body.theme-light {
-      --bg-dark: #f8fafc;
-      --sidebar-bg: #ffffff;
-      --card-bg: #ffffff;
-      --card-border: #cbd5e1;
-      --input-bg: #f1f5f9;
-      --text-main: #0f172a;
-      --text-muted: #64748b;
-      --gold: #b45309;
-    }
-
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
     body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
 
-    /* BARRA SUPERIOR */
     .top-admin-bar {
-      display: none;
-      background: #190f0c;
-      border-bottom: 1.5px solid var(--card-border);
-      padding: 10px 14px;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 150;
-      width: 100%;
+      display: none; background: #190f0c; border-bottom: 1.5px solid var(--card-border);
+      padding: 10px 14px; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 150; width: 100%;
     }
     .btn-open-sidebar {
       background: linear-gradient(135deg, var(--primary), var(--accent));
@@ -58,24 +38,16 @@
     }
 
     .admin-layout {
-      display: grid;
-      grid-template-columns: 290px 1fr;
-      min-height: 100vh;
-      width: 100%;
-      transition: grid-template-columns 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
+      display: grid; grid-template-columns: 290px 1fr; min-height: 100vh; width: 100%;
+      transition: grid-template-columns 0.3s ease; position: relative;
     }
     .admin-layout.sidebar-collapsed { grid-template-columns: 0px 1fr; }
     .admin-layout.sidebar-collapsed .sidebar { transform: translateX(-100%); opacity: 0; pointer-events: none; visibility: hidden; }
 
     .sidebar {
-      background: var(--sidebar-bg);
-      border-right: 1.5px solid var(--card-border);
-      padding: 18px 14px;
-      display: flex; flex-direction: column; gap: 12px;
-      position: sticky; top: 0; height: 100vh; overflow-y: auto;
-      transition: transform 0.3s ease, opacity 0.25s ease;
-      z-index: 200; width: 290px;
+      background: var(--sidebar-bg); border-right: 1.5px solid var(--card-border);
+      padding: 18px 14px; display: flex; flex-direction: column; gap: 12px;
+      position: sticky; top: 0; height: 100vh; overflow-y: auto; z-index: 200; width: 290px;
     }
 
     .brand-box { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); }
@@ -89,8 +61,7 @@
     .brand-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
     .user-session-badge {
-      background: rgba(245, 158, 11, 0.12);
-      border: 1px solid var(--card-border);
+      background: rgba(245, 158, 11, 0.12); border: 1px solid var(--card-border);
       border-radius: 8px; padding: 6px 10px; font-size: 11.5px;
       display: flex; justify-content: space-between; align-items: center;
     }
@@ -108,11 +79,6 @@
       padding: 6px 10px; border-radius: 20px; text-decoration: none;
     }
     .chuspa-img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1px solid #ca8a04; background: #fff; }
-
-    .token-box { background: #251a15; border: 1.5px dashed var(--accent); border-radius: 10px; overflow: hidden; }
-    .token-trigger { width: 100%; background: none; border: none; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 800; color: var(--gold); font-size: 12px; }
-    .token-content { display: none; padding: 12px; background: #18100c; border-top: 1px solid rgba(255,255,255,0.08); }
-    .token-content input { width: 100%; padding: 7px; background: #110907; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #fff; font-size: 12px; margin-top: 4px; outline: none; }
 
     .nav-menu { display: flex; flex-direction: column; gap: 6px; flex: 1; }
     .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 10px; border: 1px solid transparent; background: transparent; color: var(--text-muted); font-size: 13px; font-weight: 700; cursor: pointer; text-align: left; }
@@ -135,7 +101,7 @@
     .btn-del { background: #451a1a; color: #fca5a5; border: 1px solid #dc2626; }
     .btn-print { background: var(--blue); color: #fff; }
 
-    /* MONITOR DE MESAS */
+    /* MONITOR MESAS */
     .tables-monitor-bar { background: #1a110e; border: 1px solid var(--card-border); border-radius: 12px; padding: 12px 14px; margin-bottom: 18px; }
     .tables-monitor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--gold); }
     .tables-monitor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); gap: 6px; }
@@ -143,43 +109,37 @@
     .table-pill.libre { background: rgba(22, 163, 74, 0.15); border-color: #16a34a; color: #86efac; }
     .table-pill.ocupada { background: rgba(220, 38, 38, 0.25); border-color: #dc2626; color: #fca5a5; }
 
-    /* COMANDAS KDS */
+    /* COMANDAS */
     .live-orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
     .order-card {
       border-radius: 14px; border: 2px solid transparent;
       padding: 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
       position: relative; transition: all 0.3s ease;
     }
-
-    /* EFECTO HALO LUMINOSO CUANDO EL CLIENTE VIENE A PAGAR */
     .order-card.cliente-pagando {
-      border-color: #f59e0b !important;
-      box-shadow: 0 0 25px #ec4899, 0 0 10px #3b82f6, inset 0 0 15px rgba(236,72,153,0.3) !important;
+      border-color: #ec4899 !important;
+      box-shadow: 0 0 25px #ec4899, 0 0 10px #3b82f6 !important;
       animation: rainbowSpin 3s linear infinite alternate;
     }
-    @keyframes rainbowSpin {
-      0% { filter: hue-rotate(0deg); }
-      100% { filter: hue-rotate(360deg); }
-    }
+    @keyframes rainbowSpin { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
 
     .order-card-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px dashed rgba(255,255,255,0.12); padding-bottom: 8px; }
     .order-status-badge { font-size: 11px; font-weight: 900; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; }
     .status-por_confirmar { background: #f59e0b; color: #000; }
     .status-cocina { background: #0284c7; color: #fff; }
     .status-servido { background: #16a34a; color: #fff; }
-    .status-liberado { background: #374151; color: #86efac; }
 
     .order-items-box { font-size: 14px; font-weight: 800; color: #fde047; line-height: 1.4; padding: 4px 0; }
     .order-notes-tag { font-size: 12px; color: #fca5a5; background: rgba(0,0,0,0.3); padding: 5px 8px; border-radius: 6px; border-left: 3px solid #f87171; }
     .order-bottom-bar { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 8px; font-size: 12.5px; }
-    
+
     .order-actions-container { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
     .btn-action-confirm { flex: 1; background: linear-gradient(135deg, #16a34a, #22c55e); color: #fff; padding: 9px; font-size: 12px; border-radius: 8px; border: none; font-weight: 800; cursor: pointer; }
     .btn-action-kitchen { flex: 1; background: linear-gradient(135deg, #0284c7, #38bdf8); color: #fff; padding: 9px; font-size: 12px; border-radius: 8px; border: none; font-weight: 800; cursor: pointer; }
-    .btn-action-cobrar { flex: 1; background: linear-gradient(135deg, #15803d, #22c55e); color: #fff; padding: 9px; font-size: 12px; border-radius: 8px; border: none; font-weight: 900; cursor: pointer; box-shadow: 0 2px 10px rgba(34,197,94,0.4); }
+    .btn-action-cobrar { flex: 1; background: linear-gradient(135deg, #15803d, #22c55e); color: #fff; padding: 9px; font-size: 12px; border-radius: 8px; border: none; font-weight: 900; cursor: pointer; }
     .btn-action-ask-more { width: 100%; background: #ca8a04; color: #fff; padding: 7px; font-size: 11.5px; border-radius: 6px; border: none; font-weight: 800; cursor: pointer; }
 
-    /* MODAL DE COBRO */
+    /* MODAL COBRO */
     .modal-cobro-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); z-index: 500; display: none; align-items: center; justify-content: center; padding: 14px; }
     .modal-cobro-overlay.active { display: flex; }
     .modal-cobro-box { background: #241712; border: 2px solid var(--accent); border-radius: 18px; max-width: 460px; width: 100%; padding: 22px; display: flex; flex-direction: column; gap: 12px; }
@@ -192,46 +152,39 @@
     .badge-vuelto-resultado { margin-top: 10px; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 900; display: flex; justify-content: space-between; align-items: center; background: rgba(22, 163, 74, 0.2); color: #86efac; border: 1px solid #16a34a; }
     .badge-vuelto-resultado.falta { background: rgba(220, 38, 38, 0.2); color: #fca5a5; border-color: #dc2626; }
 
-    /* MODAL DE EDICIÓN DE PLATOS */
+    /* MODAL PLATO */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 550; display: none; align-items: center; justify-content: center; padding: 20px; }
     .modal-overlay.active { display: flex; }
     .modal-box { background: var(--card-bg); border: 1.5px solid var(--card-border); border-radius: 16px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 22px; display: flex; flex-direction: column; gap: 12px; }
 
-    /* CONTABILIDAD Y SUNAT */
-    .filter-grid-contable { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; background: #18100c; padding: 12px; border-radius: 10px; margin-bottom: 14px; }
-    .resumen-totales-contable { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin: 12px 0; }
-    .card-total-metodo { background: #1a100b; border: 1px solid rgba(255,255,255,0.08); padding: 10px; border-radius: 8px; text-align: center; }
-    .custom-table { width: 100%; border-collapse: collapse; font-size: 12.5px; text-align: left; }
+    /* TABLA REPORTES */
+    .filter-grid-contable { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; background: #18100c; padding: 12px; border-radius: 10px; margin-bottom: 14px; }
+    .custom-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; }
     .custom-table th, .custom-table td { border: 1px solid rgba(255,255,255,0.1); padding: 8px 10px; }
     .custom-table th { background: #2f221c; color: var(--gold); }
 
     .dishes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
     .dish-card-visual { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
-    .dish-media { height: 150px; background: #000; overflow: hidden; position: relative; }
+    .dish-media { height: 150px; background: #000; overflow: hidden; }
     .dish-media img { width: 100%; height: 100%; object-fit: cover; }
-    .switch-btn { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; border: none; cursor: pointer; }
-    .switch-btn.btn-to-off { background: #451a1a; color: #fca5a5; border: 1px solid #dc2626; }
-    .switch-btn.btn-to-on { background: #14532d; color: #86efac; border: 1px solid #16a34a; }
 
     .sidebar-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 180; }
 
-    /* RESPONSIVE */
     @media (max-width: 860px) {
       .top-admin-bar { display: flex; }
       .admin-layout { display: block; }
       .sidebar { position: fixed; top: 0; left: 0; width: 290px; transform: translateX(-100%); visibility: hidden; }
       .admin-layout.sidebar-open .sidebar { transform: translateX(0); visibility: visible; }
       .admin-layout.sidebar-open .sidebar-backdrop { display: block; }
-      .main-view { padding: 16px 14px; max-height: none; }
+      .main-view { padding: 16px 14px; }
     }
 
-    /* REGLAS ESTRICTAS DE IMPRESIÓN (SUNAT Y COCINA) */
     @media print {
       body { background: #fff !important; color: #000 !important; }
       .no-print, .top-admin-bar, .sidebar, .sidebar-backdrop, .nav-menu, .btn, .filter-grid-contable { display: none !important; }
       #ticketImpresionArea, #ticketImpresionArea * { visibility: visible; }
       #areaImpresionReporte, #areaImpresionReporte * { visibility: visible; }
-      #areaImpresionReporte { width: 100% !important; margin: 0 !important; padding: 0 !important; border: none !important; }
+      #areaImpresionReporte { width: 100% !important; border: none !important; }
       .custom-table th, .custom-table td { color: #000 !important; border: 1px solid #333 !important; }
       .custom-table th { background: #eee !important; }
     }
@@ -239,37 +192,35 @@
 </head>
 <body>
 
-  <!-- PANTALLA LOGIN CON TURNOS Y CAJA CHICA -->
+  <!-- LOGIN -->
   <div id="pantallaLogin" style="display:flex; justify-content:center; align-items:center; min-height:85vh; padding:16px;">
     <div class="card" style="max-width:400px; width:100%; padding:26px;">
       <div style="text-align:center; font-size:38px; margin-bottom:6px;">🍽️</div>
-      <h3 style="color:var(--gold); text-align:center; margin-bottom:4px;" id="loginTitlePreview">Inka Bistro Cusco</h3>
+      <h3 style="color:var(--gold); text-align:center; margin-bottom:4px;" id="loginTitlePreview">La Cusqueñita</h3>
       <p style="font-size:12px; color:var(--text-muted); text-align:center; margin-bottom:16px;">Control de Caja & Operaciones</p>
       
       <form onsubmit="verificarLoginSistema(event)">
-        <label>Rol de Usuario:</label>
+        <label>Rol:</label>
         <select id="loginRol" onchange="alternarCamposLogin()">
-          <option value="admin">Administrador / Propietario (Acceso Total)</option>
-          <option value="cajero">Cajero / Mozo (Solo Operaciones de Caja)</option>
+          <option value="admin">Administrador (Acceso Total)</option>
+          <option value="cajero">Cajero / Mozo (Solo Operaciones)</option>
         </select>
 
         <label>Usuario:</label>
-        <input type="text" id="loginUsuario" placeholder="admin" required autofocus>
+        <input type="text" id="loginUsuario" value="admin" required autofocus>
 
         <label>Contraseña:</label>
         <input type="password" id="loginPassword" placeholder="••••••••" required>
 
         <div id="cajaChicaLoginGroup" style="display:none; background:#180e0a; padding:10px; border-radius:8px; margin-top:10px; border:1px dashed var(--accent);">
-          <label style="margin-top:0;">Turno de Trabajo:</label>
+          <label style="margin-top:0;">Turno:</label>
           <select id="loginTurno">
-            <option value="Mañana (07:00 - 15:00)">Mañana (07:00 - 15:00)</option>
-            <option value="Tarde (15:00 - 23:00)">Tarde (15:00 - 23:00)</option>
-            <option value="Noche (23:00 - 07:00)">Noche (23:00 - 07:00)</option>
-            <option value="Madrugada">Madrugada</option>
+            <option value="Mañana (07:00 - 15:00)">Mañana</option>
+            <option value="Tarde (15:00 - 23:00)">Tarde</option>
+            <option value="Noche (23:00 - 07:00)">Noche</option>
           </select>
-
-          <label>Monto Inicial de Caja Chica (S/):</label>
-          <input type="number" step="0.5" id="loginCajaChica" placeholder="Ej. 150.00" value="100.00">
+          <label>Caja Chica Inicial (S/):</label>
+          <input type="number" step="0.5" id="loginCajaChica" value="100.00">
         </div>
 
         <button type="submit" class="btn btn-save" style="margin-top:16px; width:100%;">Iniciar Sesión</button>
@@ -277,14 +228,13 @@
     </div>
   </div>
 
-  <!-- DASHBOARD PRINCIPAL -->
+  <!-- DASHBOARD -->
   <div id="panelAdminPrincipal" style="display: none;">
-
     <header class="top-admin-bar no-print">
       <button type="button" class="btn-open-sidebar" onclick="abrirMenuLateral()">
         <i class="fa-solid fa-bars"></i> <span>Menú</span>
       </button>
-      <div style="font-weight:900; font-size:14px; color:var(--gold);" id="topBarTitle">Inka Bistro</div>
+      <div style="font-weight:900; font-size:14px; color:var(--gold);" id="topBarTitle">La Cusqueñita</div>
       <div id="badgeTopOrders" style="background:#ef4444; color:#fff; font-size:11px; padding:2px 8px; border-radius:12px; font-weight:bold;">0</div>
     </header>
 
@@ -296,11 +246,11 @@
           <div class="brand-left">
             <div class="brand-avatar" id="headerAvatar">🍽️</div>
             <div>
-              <h2 id="headerBusinessName" style="font-size:15px; color:var(--gold); white-space:nowrap; text-overflow:ellipsis; overflow:hidden; max-width:145px;">Inka Bistro</h2>
-              <span id="headerBusinessSlogan" style="font-size:10.5px; color:#aaa; display:block; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; max-width:145px;">Cusco • Gourmet</span>
+              <h2 id="headerBusinessName" style="font-size:15px; color:var(--gold); white-space:nowrap; text-overflow:ellipsis; overflow:hidden; max-width:145px;">La Cusqueñita</h2>
+              <span id="headerBusinessSlogan" style="font-size:10.5px; color:#aaa; display:block;">Cusco • Gourmet</span>
             </div>
           </div>
-          <button type="button" class="btn-toggle-menu" onclick="cerrarMenuLateral()" title="Ocultar menú">
+          <button type="button" class="btn-toggle-menu" onclick="cerrarMenuLateral()">
             <i class="fa-solid fa-chevron-left"></i>
           </button>
         </div>
@@ -313,7 +263,7 @@
           <button type="button" class="btn btn-del" style="padding:4px 7px; font-size:10px;" onclick="cerrarTurnoCaja()">Cerrar Caja</button>
         </div>
 
-        <a href="https://www.lachuspaanuncios.com/" target="_blank" rel="noopener noreferrer" class="chuspa-badge-sidebar" title="Visitar La Chuspa Anuncios">
+        <a href="https://www.lachuspaanuncios.com/" target="_blank" rel="noopener noreferrer" class="chuspa-badge-sidebar">
           <img src="CHUSPITA-circulo.png" alt="La Chuspa" class="chuspa-img" onerror="this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png'">
           <div style="display:flex; flex-direction:column; line-height:1.15;">
             <span style="font-size:11px; font-weight:900; color:#fde047;">La Chuspa Tech</span>
@@ -321,7 +271,6 @@
           </div>
         </a>
 
-        <!-- MENÚ DE NAVEGACIÓN RESTRINGIDO POR ROLES -->
         <nav class="nav-menu">
           <button class="nav-item active" id="btnNavComandas" onclick="seleccionarOpcionNav('comandas')">
             <i class="fa-solid fa-bell-concierge"></i> Comandas en Vivo
@@ -333,7 +282,7 @@
           </button>
           
           <button class="nav-item rol-admin-only" id="btnNavIdentidad" onclick="seleccionarOpcionNav('identidad')">
-            <i class="fa-solid fa-store"></i> Identidad & Tributación
+            <i class="fa-solid fa-store"></i> Identidad & SUNAT
           </button>
           
           <button class="nav-item rol-admin-only" id="btnNavConfig" onclick="seleccionarOpcionNav('config')">
@@ -354,32 +303,28 @@
         </nav>
 
         <div style="margin-top:auto; display:flex; flex-direction:column; gap:8px;">
-          <button class="btn btn-save rol-admin-only" id="btnPublicarSidebar" style="width:100%;" onclick="sincronizarConGitHub()">
-            <i class="fa-solid fa-cloud-arrow-up"></i> Publicar en GitHub
-          </button>
           <button class="btn btn-del" style="width:100%;" onclick="cerrarSesionAdmin()">
             <i class="fa-solid fa-right-from-bracket"></i> Salir del Sistema
           </button>
         </div>
       </aside>
 
-      <!-- PANEL PRINCIPAL -->
+      <!-- VISTAS -->
       <main class="main-view" id="mainArea">
 
-        <!-- VISTA 1: COMANDAS EN VIVO Y KDS -->
+        <!-- 1. COMANDAS KDS -->
         <section id="viewComandas">
           <div class="view-header">
             <div>
               <h1>🛎️ Pantalla KDS: Aceptar y Preparar Comandas</h1>
-              <p>Control operativo de comandas y cobro en caja por turnos.</p>
+              <p>Control operativo en vivo.</p>
             </div>
-            <button class="btn btn-add" onclick="cargarComandasEnVivo()"><i class="fa-solid fa-rotate"></i> Actualizar Ahora</button>
+            <button class="btn btn-add" onclick="cargarComandasEnVivo()"><i class="fa-solid fa-rotate"></i> Actualizar</button>
           </div>
 
           <div class="tables-monitor-bar">
             <div class="tables-monitor-header">
               <span>📍 Monitor de Mesas (Rojo = Ocupada | Verde = Libre):</span>
-              <span style="font-size:11px; color:#aaa;">Toca una mesa ocupada para desocuparla</span>
             </div>
             <div class="tables-monitor-grid" id="tablesMonitorGrid"></div>
           </div>
@@ -387,141 +332,132 @@
           <div class="live-orders-grid" id="liveOrdersGrid"></div>
         </section>
 
-        <!-- VISTA 2: CATÁLOGO DE PLATOS -->
+        <!-- 2. CATÁLOGO DE PLATOS -->
         <section id="viewPlatos" style="display:none;">
           <div class="view-header">
             <div>
               <h1>🍽️ Catálogo Visual de la Carta</h1>
-              <p>Edita nombres, descripciones, recetas e imágenes de platos.</p>
+              <p>Edita platos, precios y disponibilidad en tiempo real.</p>
             </div>
             <button class="btn btn-add" onclick="abrirModalPlato()"><i class="fa-solid fa-plus"></i> Nuevo Plato</button>
           </div>
           <div class="dishes-grid" id="dishesVisualGrid"></div>
         </section>
 
-        <!-- VISTA 3: IDENTIDAD, IGV TRIBUTARIO Y APARIENCIA -->
+        <!-- 3. IDENTIDAD Y SUNAT -->
         <section id="viewIdentidad" style="display:none;">
-          <div class="view-header"><h1>🏪 Configuración de Negocio & Tributación</h1></div>
+          <div class="view-header"><h1>🏪 Identidad del Negocio & SUNAT</h1></div>
           <div class="card">
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
               <div>
-                <label>Razón Social / Nombre Comercial:</label>
+                <label>Nombre del Restaurante:</label>
                 <input type="text" id="cfgBusinessName">
               </div>
               <div>
-                <label>RUC del Negocio (SUNAT):</label>
-                <input type="text" id="cfgRuc" placeholder="Ej. 20601234567">
+                <label>RUC (SUNAT):</label>
+                <input type="text" id="cfgRuc">
               </div>
             </div>
 
-            <label>Dirección Fiscal del Local:</label>
-            <input type="text" id="cfgDireccion" placeholder="Portal de Carnes 214, Plaza de Armas, Cusco">
+            <label>Dirección Fiscal:</label>
+            <input type="text" id="cfgDireccion">
 
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
               <div>
-                <label>IGV (%) Incluido en Precios:</label>
-                <input type="number" step="1" id="cfgIgvTasa" value="18">
+                <label>Tasa IGV (%):</label>
+                <input type="number" id="cfgIgvTasa" value="18">
               </div>
               <div>
-                <label>Tema Visual del Panel:</label>
-                <select id="cfgTemaVisual" onchange="cambiarTemaVisual(this.value)">
-                  <option value="dark">Oscuro Gourmet (Por Defecto)</option>
-                  <option value="light">Claro Oficina</option>
-                </select>
+                <label>Eslogan:</label>
+                <input type="text" id="cfgBusinessSlogan">
               </div>
             </div>
 
-            <label>Eslogan o Subtítulo:</label>
-            <input type="text" id="cfgBusinessSlogan">
-            
-            <label>Subir Logo (Archivo Imagen PNG / JPG):</label>
+            <label>Subir Logo (PNG / JPG):</label>
             <input type="file" id="cfgLogoFileInput" accept="image/*" onchange="convertirLogoABase64(event)">
             <div style="margin-top:6px; display:flex; align-items:center; gap:8px;">
               <span style="font-size:11px; color:#aaa;">Logo actual:</span>
               <div id="previewCurrentLogo" class="brand-avatar" style="width:36px; height:36px;">🍽️</div>
             </div>
 
-            <button class="btn btn-save" style="margin-top:16px; width:100%;" onclick="guardarIdentidadFirebase()">
-              <i class="fa-solid fa-floppy-disk"></i> Guardar Cambios en la Nube
-            </button>
+            <button class="btn btn-save" style="margin-top:16px; width:100%;" onclick="guardarIdentidadFirebase()">Guardar Configuración</button>
           </div>
         </section>
 
-        <!-- VISTA 4: PAGOS -->
+        <!-- 4. PAGOS -->
         <section id="viewConfig" style="display:none;">
           <div class="view-header"><h1>💳 Canales de Cobro</h1></div>
           <div class="card">
             <label>WhatsApp:</label><input type="text" id="cfgWhatsApp">
-            <label>Celular Yape/Plin:</label><input type="text" id="cfgYapePhone">
+            <label>Yape/Plin:</label><input type="text" id="cfgYapePhone">
             <label>Titular:</label><input type="text" id="cfgTitular">
-            <label>Tipo de Cambio USD:</label><input type="number" step="0.01" id="cfgTipoCambio">
-            <button class="btn btn-save" style="margin-top:16px; width:100%;" onclick="guardarIdentidadFirebase()">Guardar Pagos</button>
+            <button class="btn btn-save" style="margin-top:16px; width:100%;" onclick="guardarIdentidadFirebase()">Guardar Canales</button>
           </div>
         </section>
 
-        <!-- VISTA 5: QR MESAS -->
+        <!-- 5. QR MESAS -->
         <section id="viewMesas" style="display:none;">
           <div class="view-header"><h1>🏷️ Códigos QR por Mesa</h1></div>
           <div class="card">
             <label>Mesa:</label><input type="text" id="qrMesaNumero" value="Mesa 01" oninput="actualizarQRVisual()">
             <label>URL Menú:</label><input type="text" id="qrUrlBase" value="https://phyxcius.github.io/restaurante/" oninput="actualizarQRVisual()">
             
-            <div id="areaImpresionQR" style="text-align:center; padding:16px; background:#fff; border-radius:14px; max-width:260px; margin:14px auto; box-shadow:0 4px 15px rgba(0,0,0,0.3);">
-              <h3 id="qrPrintBusinessName" style="color:#000; font-size:16px; font-weight:900; text-transform:uppercase; margin-bottom:2px;">INKA BISTRO</h3>
-              <p id="qrPrintBusinessPhone" style="color:#555; font-size:11px; margin-bottom:8px; font-weight:bold;">Pedidos: 51969773064</p>
-              <img id="imgQRGenerado" src="" alt="QR" style="width:190px; height:190px; object-fit:contain; display:block; margin:0 auto;">
-              <h2 id="lblQRMesa" style="color:#000; font-size:18px; font-weight:900; margin-top:8px; text-transform:uppercase;">Mesa 01</h2>
+            <div id="areaImpresionQR" style="text-align:center; padding:16px; background:#fff; border-radius:14px; max-width:260px; margin:14px auto;">
+              <h3 id="qrPrintBusinessName" style="color:#000; font-size:16px; font-weight:900;">LA CUSQUEÑITA</h3>
+              <img id="imgQRGenerado" src="" alt="QR" style="width:190px; height:190px; margin:8px auto; display:block;">
+              <h2 id="lblQRMesa" style="color:#000; font-size:18px;">Mesa 01</h2>
             </div>
-
-            <button class="btn btn-add" style="width:100%;" onclick="window.print()"><i class="fa-solid fa-print"></i> Imprimir QR</button>
+            <button class="btn btn-add" style="width:100%;" onclick="window.print()">Imprimir QR</button>
           </div>
         </section>
 
-        <!-- VISTA 6: REPORTE CONTABLE Y ESTRUCTURA TRIBUTARIA SUNAT -->
+        <!-- 6. REPORTES SUNAT CON FILTRO POR USUARIO -->
         <section id="viewReportes" style="display:none;">
           <div class="view-header">
             <div>
-              <h1>📊 Reporte Contable & Registro de Ventas</h1>
-              <p>Estructura tributaria para control contable y arqueo fiscal.</p>
+              <h1>📊 Reporte Contable & SUNAT</h1>
+              <p>Registro de ventas con desglose de Base Imponible, IGV y Filtro por Cajero/Usuario.</p>
             </div>
-            <button class="btn btn-print no-print" onclick="window.print()"><i class="fa-solid fa-print"></i> Imprimir Reporte Formal</button>
+            <button class="btn btn-print no-print" onclick="window.print()"><i class="fa-solid fa-print"></i> Imprimir Reporte</button>
           </div>
 
           <div class="card" id="areaImpresionReporte">
-            <!-- CABECERA DE IMPRESIÓN FORMAL TRIBUTARIA -->
             <div style="border-bottom:2px solid #555; padding-bottom:8px; margin-bottom:12px;">
-              <h2 id="repLocalRazonSocial" style="color:var(--gold); font-size:18px; text-transform:uppercase;">INKA BISTRO CUSCO</h2>
+              <h2 id="repLocalRazonSocial" style="color:var(--gold); font-size:18px;">LA CUSQUEÑITA</h2>
               <div style="font-size:12px; color:var(--text-muted);">
                 <span id="repLocalRuc">RUC: 20601234567</span> | <span id="repLocalDireccion">Cusco, Perú</span>
               </div>
               <div style="font-size:11px; color:#aaa; margin-top:2px;">
-                REGISTRO DE VENTAS E INGRESOS • MONEDA: SOLES (PEN) • FECHA EMISIÓN: <span id="repFechaEmision">12/10/2026</span>
+                REGISTRO OFICIAL DE VENTAS • MONEDA: SOLES (PEN) • FECHA: <span id="repFechaEmision"></span>
               </div>
             </div>
 
             <div class="filter-grid-contable no-print">
               <div>
-                <label>Fecha Específica:</label>
+                <label>Filtrar por Usuario / Cajero:</label>
+                <select id="filtroUsuarioCajero" onchange="aplicarFiltrosContables()">
+                  <option value="">Todos los Usuarios</option>
+                  <option value="admin">Administrador</option>
+                  <option value="cajero">Cajero</option>
+                  <option value="Mañana">Turno Mañana</option>
+                  <option value="Tarde">Turno Tarde</option>
+                  <option value="Noche">Turno Noche</option>
+                </select>
+              </div>
+              <div>
+                <label>Fecha:</label>
                 <input type="date" id="filtroFecha" onchange="aplicarFiltrosContables()">
               </div>
               <div>
-                <label>Filtrar por Mes:</label>
+                <label>Mes:</label>
                 <select id="filtroMes" onchange="aplicarFiltrosContables()">
-                  <option value="">Todos los Meses</option>
+                  <option value="">Todos</option>
                   <option value="/01/">Enero</option><option value="/02/">Febrero</option>
                   <option value="/03/">Marzo</option><option value="/04/">Abril</option>
                   <option value="/05/">Mayo</option><option value="/06/">Junio</option>
                   <option value="/07/">Julio</option><option value="/08/">Agosto</option>
                   <option value="/09/">Septiembre</option><option value="/10/">Octubre</option>
                   <option value="/11/">Noviembre</option><option value="/12/">Diciembre</option>
-                </select>
-              </div>
-              <div>
-                <label>Filtrar por Año:</label>
-                <select id="filtroAno" onchange="aplicarFiltrosContables()">
-                  <option value="">Todos</option>
-                  <option value="2026" selected>2026</option>
-                  <option value="2025">2025</option>
                 </select>
               </div>
               <div>
@@ -540,48 +476,43 @@
               <thead>
                 <tr>
                   <th>Fecha/Hora</th>
-                  <th>Mesa / Cliente</th>
+                  <th>Mesa/Cliente</th>
+                  <th>Atendido Por</th>
                   <th>Platos Consumidos</th>
                   <th>Método Pago</th>
-                  <th>Base Imponible</th>
+                  <th>Base Imp.</th>
                   <th>IGV (18%)</th>
-                  <th>Total Importe</th>
+                  <th>Total</th>
                 </tr>
               </thead>
               <tbody id="tablaVentasBody"></tbody>
             </table>
 
-            <!-- CUADRO DE LIQUIDACIÓN Y ARQUEO -->
             <div style="margin-top:14px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; border-top:1px dashed #666; padding-top:10px;">
               <div style="font-size:12px; color:var(--text-muted);">
                 Base Imponible Total: <b id="repPrintBase" style="color:var(--text-main);">S/ 0.00</b><br>
                 Total IGV Fiscal: <b id="repPrintIgv" style="color:var(--text-main);">S/ 0.00</b>
               </div>
-              <div style="font-size:18px; font-weight:900; color:var(--gold);" id="repPrintTotales">
-                Total Recaudado: S/ 0.00
-              </div>
+              <div style="font-size:18px; font-weight:900; color:var(--gold);" id="repPrintTotales">Total: S/ 0.00</div>
             </div>
           </div>
         </section>
 
-        <!-- VISTA 7: RESEÑAS -->
+        <!-- 7. RESEÑAS -->
         <section id="viewResenas" style="display:none;">
-          <div class="view-header"><h1>⭐ Reseñas & Comentarios de Clientes</h1></div>
-          <div class="card"><div id="contenedorResenasAdmin">Cargando opiniones...</div></div>
+          <div class="view-header"><h1>⭐ Reseñas & Comentarios</h1></div>
+          <div class="card"><div id="contenedorResenasAdmin">Cargando...</div></div>
         </section>
 
       </main>
     </div>
   </div>
 
-  <!-- MODAL DE COBRO DE MESAS (TPV / CAJA) -->
+  <!-- MODAL COBRO -->
   <div class="modal-cobro-overlay" id="modalCobroTPV">
     <div class="modal-cobro-box">
       <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px;">
-        <div>
-          <h3 style="color:var(--gold); font-size:17px; font-weight:900;" id="tpvMesaTitulo">Cobrar Mesa</h3>
-          <span style="font-size:11px; color:#aaa;" id="tpvClienteSub">Cliente</span>
-        </div>
+        <h3 style="color:var(--gold); font-size:17px; font-weight:900;" id="tpvMesaTitulo">Cobrar Mesa</h3>
         <button type="button" style="background:none; border:none; color:#aaa; font-size:22px; cursor:pointer;" onclick="cerrarModalCobro()">&times;</button>
       </div>
 
@@ -589,9 +520,7 @@
         <span style="font-weight:bold; font-size:13px;">Total a Cobrar:</span>
         <span style="font-size:24px; font-weight:900; color:#86efac;" id="tpvTotalPagar">S/ 0.00</span>
       </div>
-      <div style="font-size:11px; color:#aaa; text-align:right;" id="tpvIgvDesgloseTxt">(Inc. IGV 18%)</div>
 
-      <label style="margin-top:4px;">Selecciona el Método de Pago:</label>
       <div class="grid-cobro-metodos">
         <button type="button" class="btn-metodo-cobro active" id="btnTPVEfectivo" onclick="seleccionarMetodoCobro('Efectivo', this)">💵 Efectivo</button>
         <button type="button" class="btn-metodo-cobro" onclick="seleccionarMetodoCobro('Yape', this)">🟣 Yape</button>
@@ -623,7 +552,7 @@
     </div>
   </div>
 
-  <!-- MODAL DE EDICIÓN DE PLATOS (SOLO ADMINISTRADOR) -->
+  <!-- MODAL PLATO -->
   <div class="modal-overlay" id="dishModal">
     <div class="modal-box">
       <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -665,10 +594,9 @@
     </div>
   </div>
 
-  <!-- TICKETS DE IMPRESIÓN (COCINA Y CAJA) -->
   <div id="ticketImpresionArea" style="display:none;">
     <div style="text-align:center; border-bottom:1px dashed #000; padding-bottom:6px;">
-      <h3 id="ticketTitleLocal">INKA BISTRO</h3>
+      <h3 id="ticketTitleLocal">LA CUSQUEÑITA</h3>
       <p id="ticketTipoDoc">*** COMANDA COCINA ***</p>
       <p id="ticketFechaHora">FECHA</p>
       <h2 id="ticketMesaNom" style="margin:4px 0;">MESA</h2>
@@ -679,34 +607,31 @@
 
   <script>
     const FIREBASE_DB_URL = "https://restaurante1-695f7-default-rtdb.firebaseio.com/";
-    const USUARIO = "phyxcius";
-    const REPOSITORIO = "restaurante";
-    const ARCHIVO = "productos.json";
 
-    const PASSWORD_MAESTRA_TOKEN = "42423549";
-    let tokenDesbloqueado = false;
-    
-    const STORAGE_KEY_SECRETA = "inkabistro_vault_secret_token";
-    const STORAGE_KEY_AUTH = "inkabistro_admin_sesion_activa";
-    const STORAGE_KEY_ROL = "inkabistro_rol_actual";
-    const STORAGE_KEY_TURNO = "inkabistro_turno_actual";
-    const STORAGE_KEY_CAJA_CHICA = "inkabistro_caja_chica_inicial";
-    const STORAGE_KEY_COMANDAS = "inkabistro_comandas_activas";
-    const STORAGE_KEY_VENTAS = "inkabistro_ventas_registro";
+    let catalogo = [
+      {
+        id: "dish-saltado", category: "mains", tag: "Plato Fuerte", precioPEN: 35.00, disponible: true,
+        posterUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?w=500",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+        i18n: { es: { name: "Saltado", desc: "Papas fritas con carne picada y arroz" } }
+      },
+      {
+        id: "dish-aji", category: "mains", tag: "Plato Fuerte", precioPEN: 35.00, disponible: true,
+        posterUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?w=500",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+        i18n: { es: { name: "Aji de gallina", desc: "Gallina al hilo servida con crema de ají y arroz" } }
+      }
+    ];
 
-    let catalogo = [];
     let configRestaurante = {
-      nombre: "Inka Bistro Cusco",
+      nombre: "La Cusqueñita",
       eslogan: "Cusco • Gourmet",
       ruc: "20601234567",
-      direccion: "Portal de Carnes 214, Plaza de Armas, Cusco",
+      direccion: "Portal de Carnes 214, Cusco",
       igv: 18,
-      tema: "dark",
       logo: "🍽️",
       whatsapp: "51969773064",
-      yapePhone: "+51 987 654 321",
-      titular: "INKA BISTRO CUSCO E.I.R.L.",
-      exchangeRateUSD: 3.75
+      yapePhone: "+51 987 654 321"
     };
 
     const todasLasMesas = [
@@ -715,43 +640,29 @@
       "Mesa 11", "Mesa 12", "Barra", "Terraza 1", "Terraza 2"
     ];
 
-    // PALETA DE COLORES DISTINTIVOS PARA COMANDAS
-    const coloresComandas = [
-      "#38241b", "#1a2c38", "#1c3321", "#362138", "#382f1b", "#1b3338"
-    ];
-
+    const coloresComandas = ["#38241b", "#1a2c38", "#1c3321", "#362138", "#382f1b"];
     let todasLasVentas = [];
     let comandaSeleccionadaCobro = null;
     let metodoCobroActual = "Efectivo";
     let platoEditandoId = null;
 
-    // CONTROL DE MENÚ RESPONSIVE
     function abrirMenuLateral() {
-      const wrapper = document.getElementById('adminLayoutWrapper');
-      wrapper.classList.remove('sidebar-collapsed');
-      wrapper.classList.add('sidebar-open');
+      document.getElementById('adminLayoutWrapper').classList.remove('sidebar-collapsed');
+      document.getElementById('adminLayoutWrapper').classList.add('sidebar-open');
     }
     function cerrarMenuLateral() {
-      const wrapper = document.getElementById('adminLayoutWrapper');
-      wrapper.classList.add('sidebar-collapsed');
-      wrapper.classList.remove('sidebar-open');
+      document.getElementById('adminLayoutWrapper').classList.add('sidebar-collapsed');
+      document.getElementById('adminLayoutWrapper').classList.remove('sidebar-open');
     }
     function seleccionarOpcionNav(sec) {
       mostrarSeccion(sec);
       if (window.innerWidth <= 860) cerrarMenuLateral();
     }
 
-    // ==============================================================
-    // LOGIN POR ROLES (ADMINISTRADOR VS CAJERO) Y CAJA CHICA
-    // ==============================================================
     function alternarCamposLogin() {
-      const rol = document.getElementById('loginRol').value;
-      document.getElementById('cajaChicaLoginGroup').style.display = (rol === 'cajero') ? 'block' : 'none';
-      if (rol === 'cajero') {
-        document.getElementById('loginUsuario').value = 'caja';
-      } else {
-        document.getElementById('loginUsuario').value = 'admin';
-      }
+      const r = document.getElementById('loginRol').value;
+      document.getElementById('cajaChicaLoginGroup').style.display = (r === 'cajero') ? 'block' : 'none';
+      document.getElementById('loginUsuario').value = (r === 'cajero') ? 'caja' : 'admin';
     }
 
     function verificarLoginSistema(e) {
@@ -762,22 +673,18 @@
 
       if (rol === 'admin') {
         if (u === 'admin' && p === 'regocijo123') {
-          sessionStorage.setItem(STORAGE_KEY_AUTH, "true");
-          sessionStorage.setItem(STORAGE_KEY_ROL, "admin");
-          sessionStorage.setItem(STORAGE_KEY_TURNO, "Gerencia / Administración");
+          sessionStorage.setItem("auth_rest", "true");
+          sessionStorage.setItem("rol_rest", "admin");
+          sessionStorage.setItem("turno_rest", "Gerencia");
           mostrarPanelAdmin();
-        } else alert("Credenciales incorrectas de Administrador.");
+        } else alert("Credenciales incorrectas.");
       } else {
-        // Rol Cajero
         if (p === 'caja123' || p === 'regocijo123') {
-          const turno = document.getElementById('loginTurno').value;
-          const montoCaja = parseFloat(document.getElementById('loginCajaChica').value) || 0;
-          sessionStorage.setItem(STORAGE_KEY_AUTH, "true");
-          sessionStorage.setItem(STORAGE_KEY_ROL, "cajero");
-          sessionStorage.setItem(STORAGE_KEY_TURNO, turno);
-          sessionStorage.setItem(STORAGE_KEY_CAJA_CHICA, montoCaja);
+          sessionStorage.setItem("auth_rest", "true");
+          sessionStorage.setItem("rol_rest", "cajero");
+          sessionStorage.setItem("turno_rest", document.getElementById('loginTurno').value);
           mostrarPanelAdmin();
-        } else alert("Contraseña de cajero incorrecta.");
+        } else alert("Clave de cajero incorrecta.");
       }
     }
 
@@ -785,37 +692,28 @@
       document.getElementById('pantallaLogin').style.display = 'none';
       document.getElementById('panelAdminPrincipal').style.display = 'block';
 
-      const rol = sessionStorage.getItem(STORAGE_KEY_ROL) || 'admin';
-      const turno = sessionStorage.getItem(STORAGE_KEY_TURNO) || '';
+      const rol = sessionStorage.getItem("rol_rest") || 'admin';
+      const turno = sessionStorage.getItem("turno_rest") || '';
       document.getElementById('lblSesionUsuario').innerText = (rol === 'admin') ? "Administrador" : "Cajero Operativo";
       document.getElementById('lblSesionTurno').innerText = turno;
 
-      // Restricción visual de opciones según rol
       const esAdmin = (rol === 'admin');
       document.querySelectorAll('.rol-admin-only').forEach(el => {
         el.style.display = esAdmin ? 'flex' : 'none';
       });
 
       await cargarIdentidadFirebase();
-      cargarDesdeGitHub();
+      await cargarPlatosFirebase();
+      renderizarVisualDishes();
       cargarComandasEnVivo();
-      cargarResenasFirebase();
-      actualizarQRVisual();
       setInterval(cargarComandasEnVivo, 1800);
     }
 
     function cerrarTurnoCaja() {
-      const rol = sessionStorage.getItem(STORAGE_KEY_ROL);
-      const turno = sessionStorage.getItem(STORAGE_KEY_TURNO);
-      const cajaChica = parseFloat(sessionStorage.getItem(STORAGE_KEY_CAJA_CHICA)) || 0;
-
-      if (confirm(`¿Deseas cerrar el turno ${turno} e imprimir la liquidación de caja?`)) {
-        // Resumen del turno
-        window.print();
-        cerrarSesionAdmin();
-      }
+      window.print();
+      sessionStorage.clear();
+      window.location.reload();
     }
-
     function cerrarSesionAdmin() {
       sessionStorage.clear();
       window.location.reload();
@@ -835,7 +733,6 @@
       if (s === 'comandas') cargarComandasEnVivo();
       if (s === 'platos') renderizarVisualDishes();
       if (s === 'reportes') renderizarReporte();
-      if (s === 'resenas') cargarResenasFirebase();
       if (s === 'mesas') actualizarQRVisual();
     }
 
@@ -849,9 +746,6 @@
       return s;
     }
 
-    // ==============================================================
-    // CONFIGURACIÓN TRIBUTARIA E IDENTIDAD (SUNAT + IGV)
-    // ==============================================================
     async function cargarIdentidadFirebase() {
       try {
         const res = await fetch(`${FIREBASE_DB_URL}config/identidad.json`);
@@ -861,87 +755,143 @@
         }
       } catch (e) {}
 
-      document.getElementById('cfgBusinessName').value = configRestaurante.nombre || "Inka Bistro Cusco";
-      document.getElementById('cfgBusinessSlogan').value = configRestaurante.eslogan || "Cusco • Gourmet";
+      document.getElementById('cfgBusinessName').value = configRestaurante.nombre || "La Cusqueñita";
+      document.getElementById('cfgBusinessSlogan').value = configRestaurante.eslogan || "";
       document.getElementById('cfgRuc').value = configRestaurante.ruc || "20601234567";
-      document.getElementById('cfgDireccion').value = configRestaurante.direccion || "Portal de Carnes 214, Cusco";
+      document.getElementById('cfgDireccion').value = configRestaurante.direccion || "";
       document.getElementById('cfgIgvTasa').value = configRestaurante.igv || 18;
-      document.getElementById('cfgWhatsApp').value = configRestaurante.whatsapp || "51969773064";
-      document.getElementById('cfgYapePhone').value = configRestaurante.yapePhone || "+51 987 654 321";
-      document.getElementById('cfgTitular').value = configRestaurante.titular || "INKA BISTRO CUSCO";
-      document.getElementById('cfgTipoCambio').value = configRestaurante.exchangeRateUSD || 3.75;
-      
-      aplicarIdentidadEnInterfaz();
-    }
 
-    function aplicarIdentidadEnInterfaz() {
-      const nom = configRestaurante.nombre || "Inka Bistro Cusco";
-      document.getElementById('headerBusinessName').innerText = nom;
-      document.getElementById('headerBusinessSlogan').innerText = configRestaurante.eslogan || "";
-      document.getElementById('topBarTitle').innerText = nom;
-      
-      // En reportes SUNAT
-      document.getElementById('repLocalRazonSocial').innerText = nom;
-      document.getElementById('repLocalRuc').innerText = "RUC: " + (configRestaurante.ruc || "20601234567");
-      document.getElementById('repLocalDireccion').innerText = configRestaurante.direccion || "Cusco, Perú";
+      document.getElementById('headerBusinessName').innerText = configRestaurante.nombre;
+      document.getElementById('repLocalRazonSocial').innerText = configRestaurante.nombre;
+      document.getElementById('repLocalRuc').innerText = "RUC: " + configRestaurante.ruc;
+      document.getElementById('repLocalDireccion').innerText = configRestaurante.direccion;
       document.getElementById('repFechaEmision').innerText = new Date().toLocaleDateString();
-
-      const av = document.getElementById('headerAvatar');
-      const prev = document.getElementById('previewCurrentLogo');
-      if (configRestaurante.logo && configRestaurante.logo.startsWith('data:image')) {
-        av.innerHTML = `<img src="${configRestaurante.logo}" alt="Logo">`;
-        prev.innerHTML = `<img src="${configRestaurante.logo}" alt="Logo">`;
-      } else {
-        av.innerText = configRestaurante.logo || "🍽️";
-        prev.innerText = configRestaurante.logo || "🍽️";
-      }
-
-      cambiarTemaVisual(configRestaurante.tema || 'dark');
       actualizarQRVisual();
-    }
-
-    function cambiarTemaVisual(t) {
-      configRestaurante.tema = t;
-      if (t === 'light') document.body.classList.add('theme-light');
-      else document.body.classList.remove('theme-light');
-    }
-
-    function convertirLogoABase64(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        configRestaurante.logo = e.target.result;
-        aplicarIdentidadEnInterfaz();
-      };
-      reader.readAsDataURL(file);
     }
 
     async function guardarIdentidadFirebase() {
       configRestaurante.nombre = document.getElementById('cfgBusinessName').value.trim() || configRestaurante.nombre;
-      configRestaurante.eslogan = document.getElementById('cfgBusinessSlogan').value.trim() || configRestaurante.eslogan;
+      configRestaurante.eslogan = document.getElementById('cfgBusinessSlogan').value.trim();
       configRestaurante.ruc = document.getElementById('cfgRuc').value.trim();
       configRestaurante.direccion = document.getElementById('cfgDireccion').value.trim();
       configRestaurante.igv = parseFloat(document.getElementById('cfgIgvTasa').value) || 18;
-      configRestaurante.whatsapp = document.getElementById('cfgWhatsApp').value.trim();
-      configRestaurante.yapePhone = document.getElementById('cfgYapePhone').value.trim();
-      configRestaurante.titular = document.getElementById('cfgTitular').value.trim();
-      configRestaurante.exchangeRateUSD = parseFloat(document.getElementById('cfgTipoCambio').value) || 3.75;
 
-      try {
-        await fetch(`${FIREBASE_DB_URL}config/identidad.json`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(configRestaurante)
-        });
-        aplicarIdentidadEnInterfaz();
-        alert("✔ Configuración e impuestos SUNAT guardados en Firebase.");
-      } catch (e) { alert("Error al guardar."); }
+      await fetch(`${FIREBASE_DB_URL}config/identidad.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(configRestaurante)
+      });
+      alert("✔ Guardado exitoso.");
+      cargarIdentidadFirebase();
     }
 
-    // ==============================================================
-    // KDS: COMANDAS EN VIVO (SIN BOTÓN DE ELIMINACIÓN - ANTI FRAUDE)
-    // ==============================================================
+    // CARGA DE PLATOS Y CORRECCIÓN DE CATÁLOGO VISUAL
+    async function cargarPlatosFirebase() {
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}catalogo_platos.json`);
+        if (res.ok) {
+          const d = await res.json();
+          if (d) catalogo = Object.values(d);
+        }
+      } catch (e) {}
+    }
+
+    function renderizarVisualDishes() {
+      const grid = document.getElementById('dishesVisualGrid');
+      const esAdmin = sessionStorage.getItem("rol_rest") === 'admin';
+
+      grid.innerHTML = catalogo.map((dish, idx) => {
+        const es = dish.i18n?.es || { name: dish.nombre, desc: dish.descripcion };
+        const disp = dish.disponible !== false;
+
+        return `
+          <div class="dish-card-visual ${disp ? '' : 'agotado'}">
+            <div class="dish-media">
+              <img src="${dish.posterUrl || 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500'}" alt="${es.name}">
+            </div>
+            <div style="padding:14px; display:flex; flex-direction:column; gap:6px;">
+              <strong style="font-size:16px;">${es.name}</strong>
+              <span style="font-size:12px; color:#aaa;">${es.desc}</span>
+              <div style="font-size:18px; font-weight:900; color:#fde047; margin-top:4px;">S/ ${(dish.precioPEN || dish.precio || 0).toFixed(2)}</div>
+              
+              <div style="display:flex; justify-content:space-between; align-items:center; background:#18100c; padding:6px 10px; border-radius:6px; margin-top:8px;">
+                <span style="font-size:11px; font-weight:bold; color:${disp ? '#86efac' : '#fca5a5'};">${disp ? '🟢 Disponible' : '🔴 Agotado'}</span>
+                <button class="switch-btn ${disp ? 'btn-to-off' : 'btn-to-on'}" onclick="toggleStock(${idx})">${disp ? 'Agotar' : 'Activar'}</button>
+              </div>
+
+              ${esAdmin ? `
+                <button type="button" class="btn btn-save" style="margin-top:8px; padding:6px; font-size:11.5px;" onclick="abrirModalPlato('${dish.id}')">
+                  <i class="fa-solid fa-pen-to-square"></i> Editar Plato
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleStock(idx) {
+      catalogo[idx].disponible = (catalogo[idx].disponible === false);
+      renderizarVisualDishes();
+    }
+
+    function abrirModalPlato(id = null) {
+      platoEditandoId = id;
+      if (id) {
+        const dish = catalogo.find(d => d.id === id);
+        const es = dish.i18n?.es || { name: dish.nombre, desc: dish.descripcion };
+        document.getElementById('inputDishName').value = es.name || '';
+        document.getElementById('inputDishDesc').value = es.desc || '';
+        document.getElementById('inputDishPrice').value = dish.precioPEN || dish.precio || 0;
+        document.getElementById('inputDishCategory').value = dish.category || 'mains';
+        document.getElementById('inputDishPoster').value = dish.posterUrl || '';
+        document.getElementById('inputDishVideo').value = dish.videoUrl || '';
+      } else {
+        document.getElementById('inputDishName').value = '';
+        document.getElementById('inputDishDesc').value = '';
+        document.getElementById('inputDishPrice').value = '35.00';
+        document.getElementById('inputDishPoster').value = 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500';
+        document.getElementById('inputDishVideo').value = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
+      }
+      document.getElementById('dishModal').classList.add('active');
+    }
+    function cerrarModalPlato() { document.getElementById('dishModal').classList.remove('active'); }
+
+    async function guardarPlatoDesdeModal() {
+      const nombre = document.getElementById('inputDishName').value.trim();
+      const desc = document.getElementById('inputDishDesc').value.trim();
+      const precio = parseFloat(document.getElementById('inputDishPrice').value) || 0;
+      if (!nombre) return alert("Nombre requerido.");
+
+      const item = {
+        id: platoEditandoId || ("dish-" + Date.now()),
+        category: document.getElementById('inputDishCategory').value,
+        precioPEN: precio,
+        precio: precio,
+        videoUrl: document.getElementById('inputDishVideo').value.trim(),
+        posterUrl: document.getElementById('inputDishPoster').value.trim(),
+        disponible: true,
+        i18n: { es: { name: nombre, desc: desc } }
+      };
+
+      if (platoEditandoId) {
+        const idx = catalogo.findIndex(d => d.id === platoEditandoId);
+        catalogo[idx] = item;
+      } else {
+        catalogo.push(item);
+      }
+
+      await fetch(`${FIREBASE_DB_URL}catalogo_platos/${item.id}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(item)
+      });
+
+      cerrarModalPlato();
+      renderizarVisualDishes();
+    }
+
+    // COMANDAS EN VIVO Y CONTROL
     async function cargarComandasEnVivo() {
       const grid = document.getElementById('liveOrdersGrid');
       let comandas = [];
@@ -952,12 +902,9 @@
           const dataFB = await resFB.json();
           if (dataFB) comandas = Object.values(dataFB);
         }
-      } catch (e) {
-        comandas = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
-      }
+      } catch (e) {}
 
       comandas.sort((a, b) => (b.id || "").localeCompare(a.id || ""));
-
       const pedidosActivos = comandas.filter(c => c.estado !== 'liberado');
       document.getElementById('badgeTotalComandas').innerText = pedidosActivos.length;
       document.getElementById('badgeTopOrders').innerText = pedidosActivos.length;
@@ -965,7 +912,7 @@
       actualizarMonitorDeMesas(comandas);
 
       if (comandas.length === 0) {
-        grid.innerHTML = '<p style="color:#aaa; font-size:14px; padding:20px 0;">No hay comandas registradas en este momento.</p>';
+        grid.innerHTML = '<p style="color:#aaa; font-size:14px; padding:20px 0;">No hay comandas registradas.</p>';
         return;
       }
 
@@ -975,7 +922,7 @@
         const pagandoClass = (c.clientePidiendoCuenta === true) ? "cliente-pagando" : "";
 
         return `
-          <div class="order-card ${estado} ${pagandoClass}" style="background:${colorCard}; border-color:${c.clientePidiendoCuenta ? '#ec4899' : 'rgba(255,255,255,0.1)'};">
+          <div class="order-card ${estado} ${pagandoClass}" style="background:${colorCard};">
             <div class="order-card-header">
               <div>
                 <strong style="font-size:16px; color:#fff;">${c.cliente || c.mesa || 'Mesa'}</strong>
@@ -987,7 +934,7 @@
             </div>
 
             ${c.clientePidiendoCuenta ? `
-              <div style="background:#ec4899; color:#fff; padding:6px 10px; border-radius:6px; font-weight:900; font-size:12px; text-align:center; animation:pulseRed 1.5s infinite;">
+              <div style="background:#ec4899; color:#fff; padding:6px; border-radius:6px; font-weight:bold; font-size:11px; text-align:center;">
                 🔔 ¡EL CLIENTE HA PEDIDO LA CUENTA EN MESA!
               </div>
             ` : ''}
@@ -1019,7 +966,6 @@
                 </button>
               ` : ''}
 
-              <!-- IMPRESIÓN PARA CHEF -->
               <button type="button" class="btn btn-print" style="padding:8px 10px; font-size:11.5px;" onclick="imprimirTicketCocina('${c.id}')">
                 <i class="fa-solid fa-print"></i> Ticket Cocina
               </button>
@@ -1044,61 +990,48 @@
       grid.innerHTML = todasLasMesas.map(m => {
         const estaOcupada = mesasOcupadas.includes(normalizarNombreMesa(m));
         return `
-          <div class="table-pill ${estaOcupada ? 'ocupada' : 'libre'}" onclick="desocuparMesaDirecta('${m}', ${estaOcupada})">
+          <div class="table-pill ${estaOcupada ? 'ocupada' : 'libre'}">
             ${m.replace('Mesa ', 'M-')} ${estaOcupada ? '🔒' : '✔'}
           </div>
         `;
       }).join('');
     }
 
+    // ACCIÓN DIRECTA EN FIREBASE
     async function cambiarEstadoFirebase(idComanda, nuevoEstado) {
-      try {
-        await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ estado: nuevoEstado, clientePidiendoCuenta: false })
-        });
-      } catch (e) {}
+      await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ estado: nuevoEstado, clientePidiendoCuenta: false })
+      });
       await cargarComandasEnVivo();
     }
 
     async function activarPreguntaMozo(idComanda) {
-      try {
-        await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mozoPregunta: true })
-        });
-        alert("✔ Notificación enviada al celular del cliente.");
-      } catch (e) {}
+      await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mozoPregunta: true })
+      });
+      alert("✔ Notificación enviada al cliente.");
     }
 
-    // ==============================================================
-    // COBRO TPV & VUELTO CON DESGLOSE TRIBUTARIO IGV
-    // ==============================================================
+    // MODAL DE COBRO
     async function abrirModalCobro(idComanda) {
       try {
         const res = await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`);
         if (res.ok) comandaSeleccionadaCobro = await res.json();
       } catch (e) {}
 
-      if (!comandaSeleccionadaCobro) return alert("No se encontró la comanda.");
+      if (!comandaSeleccionadaCobro) return alert("Error al cargar comanda.");
 
       document.getElementById('tpvMesaTitulo').innerText = `Cobrar ${comandaSeleccionadaCobro.mesa || 'Mesa'}`;
-      document.getElementById('tpvClienteSub').innerText = `${comandaSeleccionadaCobro.cliente || 'Comensal'}`;
-      
-      const total = parseFloat(comandaSeleccionadaCobro.totalPEN || comandaSeleccionadaCobro.total || 0);
-      const tasaIgv = configRestaurante.igv || 18;
-      const base = total / (1 + (tasaIgv / 100));
-      const igv = total - base;
-
+      const total = parseFloat(comandaSeleccionadaCobro.totalPEN || 0);
       document.getElementById('tpvTotalPagar').innerText = `S/ ${total.toFixed(2)}`;
-      document.getElementById('tpvIgvDesgloseTxt').innerText = `(Base: S/ ${base.toFixed(2)} + IGV ${tasaIgv}%: S/ ${igv.toFixed(2)})`;
 
-      seleccionarMetodoCobro(comandaSeleccionadaCobro.pago || 'Efectivo', document.getElementById('btnTPVEfectivo'));
+      seleccionarMetodoCobro('Efectivo', document.getElementById('btnTPVEfectivo'));
       document.getElementById('tpvMontoRecibido').value = '';
       calcularVueltoTPV();
-
       document.getElementById('modalCobroTPV').classList.add('active');
     }
 
@@ -1111,66 +1044,53 @@
       metodoCobroActual = metodo;
       document.querySelectorAll('.btn-metodo-cobro').forEach(b => b.classList.remove('active'));
       if (btn) btn.classList.add('active');
-
-      const drawer = document.getElementById('tpvCajaEfectivoDrawer');
-      drawer.style.display = (metodo === 'Efectivo') ? 'block' : 'none';
+      document.getElementById('tpvCajaEfectivoDrawer').style.display = (metodo === 'Efectivo') ? 'block' : 'none';
       if (metodo === 'Efectivo') calcularVueltoTPV();
     }
 
     function setTPVMontoRapido(m) {
       if (!comandaSeleccionadaCobro) return;
-      const total = parseFloat(comandaSeleccionadaCobro.totalPEN || comandaSeleccionadaCobro.total || 0);
+      const total = parseFloat(comandaSeleccionadaCobro.totalPEN || 0);
       document.getElementById('tpvMontoRecibido').value = (m === 'exacto') ? total : m;
       calcularVueltoTPV();
     }
 
     function calcularVueltoTPV() {
       if (!comandaSeleccionadaCobro) return;
-      const total = parseFloat(comandaSeleccionadaCobro.totalPEN || comandaSeleccionadaCobro.total || 0);
+      const total = parseFloat(comandaSeleccionadaCobro.totalPEN || 0);
       const recibido = parseFloat(document.getElementById('tpvMontoRecibido').value);
-      
       const badge = document.getElementById('tpvBadgeVuelto');
       const txt = document.getElementById('tpvVueltoTxt');
       const monto = document.getElementById('tpvVueltoMonto');
 
       if (isNaN(recibido) || recibido <= 0) {
         badge.className = "badge-vuelto-resultado";
-        txt.innerText = "Ingresa monto en efectivo para calcular vuelto";
+        txt.innerText = "Ingresa monto en efectivo";
         monto.innerText = "";
         return;
       }
-
-      const vuelto = recibido - total;
-      if (vuelto < 0) {
+      const v = recibido - total;
+      if (v < 0) {
         badge.className = "badge-vuelto-resultado falta";
-        txt.innerText = `⚠️ Falta dinero (Faltan S/ ${Math.abs(vuelto).toFixed(2)})`;
+        txt.innerText = `Faltan S/ ${Math.abs(v).toFixed(2)}`;
         monto.innerText = "";
       } else {
         badge.className = "badge-vuelto-resultado";
-        txt.innerText = "💵 Vuelto a entregar:";
-        monto.innerText = `S/ ${vuelto.toFixed(2)}`;
+        txt.innerText = "Vuelto:";
+        monto.innerText = `S/ ${v.toFixed(2)}`;
       }
     }
 
     async function procesarCobroYDesocuparMesa() {
       if (!comandaSeleccionadaCobro) return;
 
-      const total = parseFloat(comandaSeleccionadaCobro.totalPEN || comandaSeleccionadaCobro.total || 0);
+      const total = parseFloat(comandaSeleccionadaCobro.totalPEN || 0);
       const tasaIgv = configRestaurante.igv || 18;
       const baseImponible = total / (1 + (tasaIgv / 100));
       const montoIgv = total - baseImponible;
 
-      let montoRecibido = total;
-      let vueltoEntregado = 0;
-
-      if (metodoCobroActual === 'Efectivo') {
-        const valRecibido = parseFloat(document.getElementById('tpvMontoRecibido').value);
-        if (isNaN(valRecibido) || valRecibido < total) {
-          return alert(`⚠️ El monto en efectivo ingresado es menor al total.`);
-        }
-        montoRecibido = valRecibido;
-        vueltoEntregado = montoRecibido - total;
-      }
+      const rolActual = sessionStorage.getItem("rol_rest") || "admin";
+      const turnoActual = sessionStorage.getItem("turno_rest") || "General";
 
       const ventaRegistrada = {
         id: comandaSeleccionadaCobro.id,
@@ -1182,53 +1102,96 @@
         igv: montoIgv,
         totalPEN: total,
         pago: metodoCobroActual,
-        cajero: sessionStorage.getItem(STORAGE_KEY_ROL) + " (" + sessionStorage.getItem(STORAGE_KEY_TURNO) + ")",
-        estado: "cobrado"
+        cajero: `${rolActual} (${turnoActual})`,
+        usuarioCobro: rolActual
       };
 
-      try {
-        await fetch(`${FIREBASE_DB_URL}ventas/${ventaRegistrada.id}.json`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(ventaRegistrada)
-        });
+      await fetch(`${FIREBASE_DB_URL}ventas/${ventaRegistrada.id}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(ventaRegistrada)
+      });
 
-        // Marcar en comanda que fue pagada y enviar el bloqueo final al cliente
-        await fetch(`${FIREBASE_DB_URL}comandas/${comandaSeleccionadaCobro.id}.json`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            estado: 'liberado',
-            pago: metodoCobroActual,
-            cobradoEnCaja: true,
-            agradecimientoFinal: true
-          })
-        });
-      } catch (e) {}
+      await fetch(`${FIREBASE_DB_URL}comandas/${comandaSeleccionadaCobro.id}.json`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          estado: 'liberado',
+          pago: metodoCobroActual,
+          agradecimientoFinal: true
+        })
+      });
 
-      alert(`✔ Cobro procesado exitosamente (S/ ${total.toFixed(2)} en ${metodoCobroActual}).\nLa ${comandaSeleccionadaCobro.mesa} quedó liberada.`);
+      alert(`✔ Cobrado S/ ${total.toFixed(2)} por ${rolActual}. Mesa liberada.`);
       cerrarModalCobro();
       cargarComandasEnVivo();
     }
 
-    async function desocuparMesaDirecta(nombreMesa, estaOcupada) {
-      if (!estaOcupada) return;
-      if (confirm(`¿Liberar manualmente la ${nombreMesa}?`)) {
-        try {
-          const res = await fetch(`${FIREBASE_DB_URL}comandas.json`);
-          if (res.ok) {
-            const data = await res.json();
-            for (let key in data) {
-              if (normalizarNombreMesa(data[key].mesa) === normalizarNombreMesa(nombreMesa)) {
-                await cambiarEstadoFirebase(data[key].id, 'liberado');
-              }
-            }
-          }
-        } catch (e) {}
-      }
+    // REPORTES SUNAT CON FILTRO POR USUARIOS
+    async function renderizarReporte() {
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}ventas.json`);
+        if (res.ok) {
+          const data = await res.json();
+          todasLasVentas = data ? Object.values(data) : [];
+        }
+      } catch (e) {}
+      aplicarFiltrosContables();
     }
 
-    // IMPRESIÓN DE TICKET DE COCINA PARA EL CHEF
+    function aplicarFiltrosContables() {
+      const usuarioFiltro = document.getElementById('filtroUsuarioCajero').value.toLowerCase();
+      const fechaFiltro = document.getElementById('filtroFecha').value;
+      const mesFiltro = document.getElementById('filtroMes').value;
+      const metodoFiltro = document.getElementById('filtroMetodo').value.toLowerCase();
+
+      const tbody = document.getElementById('tablaVentasBody');
+      tbody.innerHTML = '';
+      
+      let totalPEN = 0, totalBase = 0, totalIgv = 0;
+
+      const ventasFiltradas = todasLasVentas.filter(v => {
+        let ok = true;
+        if (usuarioFiltro && !(v.cajero || '').toLowerCase().includes(usuarioFiltro)) ok = false;
+        if (fechaFiltro) {
+          const [y, m, d] = fechaFiltro.split('-');
+          if (!v.fecha.includes(`${d}/${m}/${y}`)) ok = false;
+        }
+        if (mesFiltro && !v.fecha.includes(mesFiltro)) ok = false;
+        if (metodoFiltro && !(v.pago || '').toLowerCase().includes(metodoFiltro)) ok = false;
+        return ok;
+      });
+
+      ventasFiltradas.forEach(v => {
+        const t = parseFloat(v.totalPEN || 0);
+        const b = parseFloat(v.baseImponible || (t / 1.18));
+        const i = parseFloat(v.igv || (t - b));
+
+        totalPEN += t; totalBase += b; totalIgv += i;
+
+        tbody.innerHTML += `
+          <tr>
+            <td>${v.fecha}</td>
+            <td><b>${v.cliente || v.mesa}</b></td>
+            <td><span style="background:#221510; padding:2px 6px; border-radius:4px; font-size:11px;">${v.cajero || 'Admin'}</span></td>
+            <td>${v.productos}</td>
+            <td>${v.pago || 'Efectivo'}</td>
+            <td>S/ ${b.toFixed(2)}</td>
+            <td>S/ ${i.toFixed(2)}</td>
+            <td><b>S/ ${t.toFixed(2)}</b></td>
+          </tr>
+        `;
+      });
+
+      if (ventasFiltradas.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#888;">No hay registros con los filtros seleccionados.</td></tr>';
+      }
+
+      document.getElementById('repPrintBase').innerText = `S/ ${totalBase.toFixed(2)}`;
+      document.getElementById('repPrintIgv').innerText = `S/ ${totalIgv.toFixed(2)}`;
+      document.getElementById('repPrintTotales').innerText = `Total: S/ ${totalPEN.toFixed(2)}`;
+    }
+
     async function imprimirTicketCocina(idComanda) {
       let comanda = null;
       try {
@@ -1236,9 +1199,9 @@
         if (res.ok) comanda = await res.json();
       } catch (e) {}
 
-      if (!comanda) return alert("No se pudo cargar la comanda.");
+      if (!comanda) return alert("Error al cargar comanda.");
 
-      document.getElementById('ticketTitleLocal').innerText = (configRestaurante.nombre || "INKA BISTRO").toUpperCase();
+      document.getElementById('ticketTitleLocal').innerText = configRestaurante.nombre.toUpperCase();
       document.getElementById('ticketFechaHora').innerText = comanda.fecha;
       document.getElementById('ticketMesaNom').innerText = comanda.cliente || comanda.mesa;
       document.getElementById('ticketDetallePlatos').innerHTML = comanda.productos.split(', ').map(p => `<div>• ${p}</div>`).join('');
@@ -1249,260 +1212,17 @@
       document.getElementById('ticketImpresionArea').style.display = 'none';
     }
 
-    // ==============================================================
-    // CONTABILIDAD Y REPORTE SUNAT CON DISCRIMINACIÓN DE IGV
-    // ==============================================================
-    async function renderizarReporte() {
-      try {
-        const res = await fetch(`${FIREBASE_DB_URL}ventas.json`);
-        if (res.ok) {
-          const data = await res.json();
-          todasLasVentas = data ? Object.values(data) : [];
-        }
-      } catch (e) {}
-
-      aplicarFiltrosContables();
-    }
-
-    function aplicarFiltrosContables() {
-      const fechaFiltro = document.getElementById('filtroFecha').value;
-      const mesFiltro = document.getElementById('filtroMes').value;
-      const anoFiltro = document.getElementById('filtroAno').value;
-      const metodoFiltro = document.getElementById('filtroMetodo').value;
-
-      const tbody = document.getElementById('tablaVentasBody');
-      tbody.innerHTML = '';
-      
-      let totalPEN = 0;
-      let totalBase = 0;
-      let totalIgv = 0;
-
-      const ventasFiltradas = todasLasVentas.filter(v => {
-        let coincide = true;
-        if (fechaFiltro) {
-          const [y, m, d] = fechaFiltro.split('-');
-          if (!v.fecha.includes(`${d}/${m}/${y}`)) coincide = false;
-        }
-        if (mesFiltro && !v.fecha.includes(mesFiltro)) coincide = false;
-        if (anoFiltro && !v.fecha.includes(anoFiltro)) coincide = false;
-        if (metodoFiltro && !(v.pago || '').toLowerCase().includes(metodoFiltro.toLowerCase())) coincide = false;
-        return coincide;
-      });
-
-      ventasFiltradas.forEach(v => {
-        const total = parseFloat(v.totalPEN || 0);
-        const base = parseFloat(v.baseImponible || (total / 1.18));
-        const igv = parseFloat(v.igv || (total - base));
-
-        totalPEN += total;
-        totalBase += base;
-        totalIgv += igv;
-
-        tbody.innerHTML += `
-          <tr>
-            <td>${v.fecha}</td>
-            <td><b>${v.cliente || v.mesa}</b></td>
-            <td>${v.productos}</td>
-            <td>${v.pago || 'Efectivo'}</td>
-            <td>S/ ${base.toFixed(2)}</td>
-            <td>S/ ${igv.toFixed(2)}</td>
-            <td><b>S/ ${total.toFixed(2)}</b></td>
-          </tr>
-        `;
-      });
-
-      if (ventasFiltradas.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#888;">No hay registros con los filtros seleccionados.</td></tr>';
-      }
-
-      document.getElementById('repPrintBase').innerText = `S/ ${totalBase.toFixed(2)}`;
-      document.getElementById('repPrintIgv').innerText = `S/ ${totalIgv.toFixed(2)}`;
-      document.getElementById('repPrintTotales').innerText = `Total Recaudado: S/ ${totalPEN.toFixed(2)}`;
-    }
-
-    // ==============================================================
-    // EDICIÓN DE PLATOS DE LA CARTA (SOLO ADMINISTRADOR)
-    // ==============================================================
-    function renderizarVisualDishes() {
-      const grid = document.getElementById('dishesVisualGrid');
-      const esAdmin = sessionStorage.getItem(STORAGE_KEY_ROL) === 'admin';
-
-      grid.innerHTML = catalogo.map((dish, idx) => {
-        const es = dish.i18n?.es || { name: dish.nombre, desc: dish.descripcion };
-        const disp = dish.disponible !== false;
-
-        return `
-          <div class="dish-card-visual ${disp ? '' : 'agotado'}">
-            <div class="dish-media">
-              <img src="${dish.posterUrl || 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500'}" alt="${es.name}">
-            </div>
-            <div style="padding:14px; display:flex; flex-direction:column; gap:6px;">
-              <strong style="font-size:16px;">${es.name}</strong>
-              <span style="font-size:12px; color:#aaa;">${es.desc}</span>
-              <div style="font-size:18px; font-weight:900; color:#fde047; margin-top:4px;">S/ ${(dish.precioPEN || dish.precio || 0).toFixed(2)}</div>
-              
-              <div style="display:flex; justify-content:space-between; align-items:center; background:#18100c; padding:6px 10px; border-radius:6px; margin-top:8px;">
-                <span style="font-size:11px; font-weight:bold; color:${disp ? '#86efac' : '#fca5a5'};">${disp ? '🟢 Disponible' : '🔴 Agotado'}</span>
-                <button class="switch-btn ${disp ? 'btn-to-off' : 'btn-to-on'}" onclick="toggleStock(${idx})">${disp ? 'Agotar' : 'Activar'}</button>
-              </div>
-
-              ${esAdmin ? `
-                <div style="display:flex; gap:6px; margin-top:8px;">
-                  <button type="button" class="btn btn-save" style="flex:1; padding:6px; font-size:11.5px;" onclick="abrirModalPlato('${dish.id}')">
-                    <i class="fa-solid fa-pen-to-square"></i> Editar Plato
-                  </button>
-                </div>
-              ` : ''}
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function toggleStock(idx) {
-      catalogo[idx].disponible = (catalogo[idx].disponible === false);
-      renderizarVisualDishes();
-    }
-
-    function abrirModalPlato(id = null) {
-      platoEditandoId = id;
-      if (id) {
-        const dish = catalogo.find(d => d.id === id);
-        const es = dish.i18n?.es || { name: dish.nombre, desc: dish.descripcion };
-        document.getElementById('inputDishName').value = es.name || '';
-        document.getElementById('inputDishDesc').value = es.desc || '';
-        document.getElementById('inputDishPrice').value = dish.precioPEN || dish.precio || 0;
-        document.getElementById('inputDishCategory').value = dish.category || 'top';
-        document.getElementById('inputDishPoster').value = dish.posterUrl || '';
-        document.getElementById('inputDishVideo').value = dish.videoUrl || '';
-      } else {
-        document.getElementById('inputDishName').value = '';
-        document.getElementById('inputDishDesc').value = '';
-        document.getElementById('inputDishPrice').value = '35.00';
-        document.getElementById('inputDishPoster').value = 'https://images.unsplash.com/photo-1544025162-d76694265947?w=800';
-        document.getElementById('inputDishVideo').value = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
-      }
-      document.getElementById('dishModal').classList.add('active');
-    }
-    function cerrarModalPlato() { document.getElementById('dishModal').classList.remove('active'); }
-
-    function guardarPlatoDesdeModal() {
-      const nombre = document.getElementById('inputDishName').value.trim();
-      const desc = document.getElementById('inputDishDesc').value.trim();
-      const precio = parseFloat(document.getElementById('inputDishPrice').value) || 0;
-      if (!nombre) return alert("Ingresa el nombre del plato.");
-
-      const item = {
-        id: platoEditandoId || ("dish-" + Date.now()),
-        category: document.getElementById('inputDishCategory').value,
-        precioPEN: precio,
-        precio: precio,
-        videoUrl: document.getElementById('inputDishVideo').value.trim(),
-        posterUrl: document.getElementById('inputDishPoster').value.trim(),
-        disponible: true,
-        i18n: {
-          es: { name: nombre, desc: desc },
-          en: { name: nombre, desc: desc },
-          fr: { name: nombre, desc: desc },
-          pt: { name: nombre, desc: desc }
-        }
-      };
-
-      if (platoEditandoId) {
-        const idx = catalogo.findIndex(d => d.id === platoEditandoId);
-        catalogo[idx] = item;
-      } else {
-        catalogo.push(item);
-      }
-
-      cerrarModalPlato();
-      renderizarVisualDishes();
-    }
-
-    async function cargarDesdeGitHub() {
-      const token = obtenerTokenSecreto();
-      try {
-        const res = await fetch(`https://api.github.com/repos/${USUARIO}/${REPOSITORIO}/contents/${ARCHIVO}?ref=main&_t=${Date.now()}`, {
-          headers: token ? { "Authorization": `token ${token}` } : {}
-        });
-        if (res.ok) {
-          const d = await res.json();
-          const datos = JSON.parse(decodeURIComponent(escape(atob(d.content))));
-          catalogo = datos.productos || datos.catalogo || catalogo;
-        }
-      } catch (e) {}
-      renderizarVisualDishes();
-    }
-
-    async function sincronizarConGitHub() {
-      const token = obtenerTokenSecreto();
-      if (!token) return alert("Configura tu token en el acordeón de la izquierda.");
-
-      const btn = document.getElementById('btnPublicarSidebar');
-      btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
-
-      let sha = "";
-      try {
-        const check = await fetch(`https://api.github.com/repos/${USUARIO}/${REPOSITORIO}/contents/${ARCHIVO}?ref=main&_t=${Date.now()}`, {
-          headers: { "Authorization": `token ${token}`, "Accept": "application/vnd.github.v3+json" }
-        });
-        if (check.ok) sha = (await check.json()).sha;
-      } catch (e) {}
-
-      const payload = {
-        message: "Actualización de carta",
-        content: btoa(unescape(encodeURIComponent(JSON.stringify({ restaurante: configRestaurante.nombre, config: configRestaurante, productos: catalogo }, null, 2)))),
-        branch: "main"
-      };
-      if (sha) payload.sha = sha;
-
-      try {
-        await fetch(`https://api.github.com/repos/${USUARIO}/${REPOSITORIO}/contents/${ARCHIVO}`, {
-          method: "PUT",
-          headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-        alert("✔ Guardado en GitHub exitosamente.");
-      } catch (e) { alert("Error al guardar."); }
-      btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Publicar en GitHub';
-    }
-
     function actualizarQRVisual() {
       const m = document.getElementById('qrMesaNumero').value.trim() || "Mesa 01";
       const u = document.getElementById('qrUrlBase').value.trim() || "https://phyxcius.github.io/restaurante/";
       const link = `${u}?mesa=${encodeURIComponent(m)}`;
-      
-      const nom = (configRestaurante.nombre || "INKA BISTRO").toUpperCase();
-      document.getElementById('qrPrintBusinessName').innerText = nom;
+      document.getElementById('qrPrintBusinessName').innerText = configRestaurante.nombre.toUpperCase();
       document.getElementById('lblQRMesa').innerText = m;
       document.getElementById('imgQRGenerado').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(link)}`;
     }
 
-    async function cargarResenasFirebase() {
-      const cont = document.getElementById('contenedorResenasAdmin');
-      try {
-        const res = await fetch(`${FIREBASE_DB_URL}resenas.json`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data) {
-            cont.innerHTML = Object.values(data).map(r => `
-              <div style="background:#1a120f; padding:10px; border-radius:8px; margin-bottom:8px; border:1px solid rgba(255,255,255,0.08);">
-                <div style="display:flex; justify-content:space-between;">
-                  <strong style="color:#facc15;">${r.autor} (${'⭐'.repeat(r.rating || 5)})</strong>
-                  <span style="font-size:11px; color:#aaa;">${r.fecha}</span>
-                </div>
-                <p style="font-size:12px; color:#eee; margin-top:4px;">"${r.texto}"</p>
-              </div>
-            `).join('');
-            return;
-          }
-        }
-      } catch (e) {}
-      cont.innerHTML = '<p style="color:#aaa; font-size:13px;">No hay opiniones registradas aún.</p>';
-    }
-
     window.onload = () => {
-      if (sessionStorage.getItem(STORAGE_KEY_AUTH) === "true") mostrarPanelAdmin();
+      if (sessionStorage.getItem("auth_rest") === "true") mostrarPanelAdmin();
     };
   </script>
 </body>
