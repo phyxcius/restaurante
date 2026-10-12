@@ -57,7 +57,7 @@
 
     /* VISTA PRINCIPAL */
     .main-view { padding: 24px 28px; overflow-y: auto; max-height: 100vh; }
-    .view-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: gap: 12px; border-bottom: 1.5px solid rgba(255,255,255,0.08); padding-bottom: 14px; }
+    .view-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px; border-bottom: 1.5px solid rgba(255,255,255,0.08); padding-bottom: 14px; }
     .view-header h1 { font-size: 22px; font-weight: 900; color: var(--gold); }
 
     .card { background: var(--card-bg); padding: 18px 20px; border-radius: 14px; border: 1px solid var(--card-border); margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.25); }
@@ -141,7 +141,7 @@
       display: flex; align-items: center; justify-content: center; gap: 6px;
     }
 
-    /* CATÁLOGO */
+    /* CATÁLOGO VISUAL */
     .dishes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
     .dish-card-visual { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
     .dish-card-visual.agotado { opacity: 0.65; border-color: #7f1d1d; }
@@ -272,12 +272,12 @@
         <div class="view-header">
           <div>
             <h1>🛎️ Pantalla KDS: Aceptar y Preparar Comandas</h1>
-            <p>Revisa y reconfirma las órdenes entrantes para enviarlas a cocina.</p>
+            <p>Sincronización en tiempo real vía Firebase para todas las mesas.</p>
           </div>
           <button class="btn btn-add" onclick="cargarComandasEnVivo()"><i class="fa-solid fa-rotate"></i> Actualizar Ahora</button>
         </div>
 
-        <!-- Monitor de Mesas Libres y Ocupadas -->
+        <!-- Monitor de Mesas -->
         <div class="tables-monitor-bar">
           <div class="tables-monitor-header">
             <span>📍 Monitor de Mesas (Rojo = Ocupada | Verde = Libre):</span>
@@ -408,10 +408,12 @@
   </div>
 
   <script>
+    // URL DE TU PROYECTO FIREBASE
+    const FIREBASE_DB_URL = "https://restaurante1-695f7-default-rtdb.firebaseio.com/";
+
     const USUARIO = "phyxcius";
     const REPOSITORIO = "restaurante";
     const ARCHIVO = "productos.json";
-    const ARCHIVO_COMANDAS = "comandas.json";
 
     const PASSWORD_MAESTRA_TOKEN = "42423549";
     let tokenDesbloqueado = false;
@@ -457,7 +459,7 @@
       document.getElementById('ghTokenInput').value = obtenerTokenSecreto();
       cargarDesdeGitHub();
       cargarComandasEnVivo();
-      setInterval(cargarComandasEnVivo, 4000);
+      setInterval(cargarComandasEnVivo, 2000); // Polling a Firebase cada 2 segundos
     }
 
     function cerrarSesionAdmin() {
@@ -519,27 +521,36 @@
       }
     }
 
+    function normalizarNombreMesa(m) {
+      if (!m) return "";
+      let s = m.trim();
+      const match = s.match(/\d+/);
+      if (match && s.toLowerCase().includes("mesa")) {
+        const num = parseInt(match[0]);
+        return "Mesa " + (num < 10 ? "0" + num : num);
+      }
+      return s;
+    }
+
     // ==============================================================
-    // KDS: RECTIFICACIÓN Y ACCIÓN DE COMANDAS EN VIVO
+    // KDS: LECTURA EN TIEMPO REAL DESDE FIREBASE
     // ==============================================================
     async function cargarComandasEnVivo() {
       const grid = document.getElementById('liveOrdersGrid');
       let comandas = [];
 
       try {
-        const res = await fetch(`comandas.json?_nocache=${Date.now()}`);
-        if (res.ok) comandas = await res.json();
-      } catch (e) {}
-
-      // Mezclar con comandas locales
-      const local = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
-      if (Array.isArray(local) && local.length > 0) {
-        local.forEach(loc => {
-          if (!comandas.some(c => c.id === loc.id)) {
-            comandas.push(loc);
-          }
-        });
+        const resFB = await fetch(`${FIREBASE_DB_URL}comandas.json`);
+        if (resFB.ok) {
+          const dataFB = await resFB.json();
+          if (dataFB) comandas = Object.values(dataFB);
+        }
+      } catch (e) {
+        comandas = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
       }
+
+      // Ordenar por las más recientes primero
+      comandas.sort((a, b) => (b.id || "").localeCompare(a.id || ""));
 
       const pedidosActivos = comandas.filter(c => c.estado !== 'liberado' && c.estado !== 'rechazado');
       document.getElementById('badgeTotalComandas').innerText = pedidosActivos.length;
@@ -584,22 +595,22 @@
 
             <div class="order-actions-container">
               ${estado === 'por_confirmar' ? `
-                <button type="button" class="btn-action-confirm" onclick="cambiarEstadoComanda(${i}, 'cocina')">
+                <button type="button" class="btn-action-confirm" onclick="cambiarEstadoFirebase('${c.id}', 'cocina')">
                   <i class="fa-solid fa-check"></i> ✔ Aceptar y Pasar a Cocina
                 </button>
-                <button type="button" class="btn btn-del" style="padding:8px 12px; font-size:11px;" onclick="rechazarComanda(${i})">
+                <button type="button" class="btn btn-del" style="padding:8px 12px; font-size:11px;" onclick="cambiarEstadoFirebase('${c.id}', 'rechazado')">
                   <i class="fa-solid fa-ban"></i> Rechazar
                 </button>
               ` : ''}
 
               ${estado === 'cocina' ? `
-                <button type="button" class="btn-action-kitchen" onclick="cambiarEstadoComanda(${i}, 'servido')">
+                <button type="button" class="btn-action-kitchen" onclick="cambiarEstadoFirebase('${c.id}', 'servido')">
                   <i class="fa-solid fa-utensils"></i> 🍽️ Marcar como Servido
                 </button>
               ` : ''}
 
               ${estado === 'servido' ? `
-                <button type="button" class="btn-action-liberar" onclick="liberarMesa(${i})">
+                <button type="button" class="btn-action-liberar" onclick="liberarMesa('${c.id}', '${c.mesa}')">
                   <i class="fa-solid fa-door-open"></i> 🔓 Cobrar y Desocupar Mesa
                 </button>
               ` : ''}
@@ -610,7 +621,7 @@
                 </div>
               ` : ''}
 
-              <button type="button" class="btn btn-del" style="padding:8px 12px; font-size:13px;" title="Eliminar comanda" onclick="eliminarComanda(${i})">
+              <button type="button" class="btn btn-del" style="padding:8px 12px; font-size:13px;" title="Eliminar comanda" onclick="eliminarComandaFirebase('${c.id}')">
                 <i class="fa-solid fa-trash"></i>
               </button>
             </div>
@@ -637,100 +648,51 @@
       }).join('');
     }
 
-    function normalizarNombreMesa(m) {
-      if (!m) return "";
-      let s = m.trim();
-      const match = s.match(/\d+/);
-      if (match && s.toLowerCase().includes("mesa")) {
-        const num = parseInt(match[0]);
-        return "Mesa " + (num < 10 ? "0" + num : num);
-      }
-      return s;
-    }
-
-    function desocuparMesaDirecta(nombreMesa, estaOcupada) {
-      if (!estaOcupada) return;
-      if (confirm(`¿Deseas desocupar y liberar la ${nombreMesa} para nuevos clientes?`)) {
-        let comandas = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
-        comandas.forEach(c => {
-          if (normalizarNombreMesa(c.mesa) === normalizarNombreMesa(nombreMesa) && (c.estado === 'por_confirmar' || c.estado === 'cocina' || c.estado === 'servido')) {
-            c.estado = 'liberado';
-          }
-        });
-        guardarYNotificarComandas(comandas);
-      }
-    }
-
-    function cambiarEstadoComanda(idx, nuevoEstado) {
-      let comandas = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
-      if (!comandas[idx]) return;
-
-      comandas[idx].estado = nuevoEstado;
-      guardarYNotificarComandas(comandas);
-
-      // Actualizar registro contable
-      let ventas = JSON.parse(localStorage.getItem(STORAGE_KEY_VENTAS)) || [];
-      const vIdx = ventas.findIndex(v => v.id === comandas[idx].id);
-      if (vIdx !== -1) {
-        ventas[vIdx].estado = nuevoEstado;
-        localStorage.setItem(STORAGE_KEY_VENTAS, JSON.stringify(ventas));
-      }
-    }
-
-    function liberarMesa(idx) {
-      if (confirm("¿Confirmar que la mesa ha pagado y ha quedado desocupada para nuevos clientes?")) {
-        cambiarEstadoComanda(idx, 'liberado');
-      }
-    }
-
-    function rechazarComanda(idx) {
-      if (confirm("¿Deseas rechazar o cancelar esta orden? La mesa quedará liberada inmediatamente.")) {
-        cambiarEstadoComanda(idx, 'rechazado');
-      }
-    }
-
-    function eliminarComanda(idx) {
-      if (confirm("¿Deseas eliminar permanentemente esta comanda del panel?")) {
-        let comandas = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
-        comandas.splice(idx, 1);
-        guardarYNotificarComandas(comandas);
-      }
-    }
-
-    // AUTO-PUBLICACIÓN DE COMANDAS A GITHUB EN TIEMPO REAL
-    async function guardarYNotificarComandas(comandas) {
-      localStorage.setItem(STORAGE_KEY_COMANDAS, JSON.stringify(comandas));
-      cargarComandasEnVivo();
-
-      const token = obtenerTokenSecreto();
-      if (!token) return;
-
-      let sha = "";
+    // ACTUALIZACIÓN DIRECTA EN FIREBASE (< 300 ms)
+    async function cambiarEstadoFirebase(idComanda, nuevoEstado) {
       try {
-        const check = await fetch(`https://api.github.com/repos/${USUARIO}/${REPOSITORIO}/contents/${ARCHIVO_COMANDAS}?ref=main&_t=${Date.now()}`, {
-          headers: { "Authorization": `token ${token}`, "Accept": "application/vnd.github.v3+json" }
-        });
-        if (check.ok) {
-          const d = await check.json();
-          sha = d.sha;
-        }
-      } catch (e) {}
-
-      const payload = {
-        message: "Actualización de comandas y estado de mesas en vivo",
-        content: btoa(unescape(encodeURIComponent(JSON.stringify(comandas, null, 2)))),
-        branch: "main"
-      };
-      if (sha) payload.sha = sha;
-
-      try {
-        await fetch(`https://api.github.com/repos/${USUARIO}/${REPOSITORIO}/contents/${ARCHIVO_COMANDAS}`, {
-          method: "PUT",
-          headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
+        await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}/estado.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(nuevoEstado)
         });
       } catch (e) {
-        console.warn("Auto-sincronización fallida:", e);
+        console.error("Error al actualizar en Firebase:", e);
+      }
+      cargarComandasEnVivo();
+    }
+
+    async function liberarMesa(idComanda, nombreMesa) {
+      if (confirm(`¿Confirmar cobro y desocupar la ${nombreMesa || 'mesa'}? Quedará libre para nuevos clientes.`)) {
+        await cambiarEstadoFirebase(idComanda, 'liberado');
+      }
+    }
+
+    async function desocuparMesaDirecta(nombreMesa, estaOcupada) {
+      if (!estaOcupada) return;
+      if (confirm(`¿Deseas desocupar la ${nombreMesa}? Quedará libre de inmediato en todos los celulares.`)) {
+        try {
+          const res = await fetch(`${FIREBASE_DB_URL}comandas.json`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data) {
+              for (let key in data) {
+                if (normalizarNombreMesa(data[key].mesa) === normalizarNombreMesa(nombreMesa)) {
+                  await cambiarEstadoFirebase(data[key].id, 'liberado');
+                }
+              }
+            }
+          }
+        } catch (e) {}
+      }
+    }
+
+    async function eliminarComandaFirebase(idComanda) {
+      if (confirm("¿Deseas eliminar permanentemente esta comanda del panel?")) {
+        try {
+          await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, { method: 'DELETE' });
+        } catch (e) {}
+        cargarComandasEnVivo();
       }
     }
 
@@ -870,7 +832,7 @@
       document.getElementById('imgQRGenerado').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(link)}`;
     }
 
-    // CARGA DE DATOS DESDE GITHUB
+    // CARGA DE CATÁLOGO DESDE GITHUB
     async function cargarDesdeGitHub() {
       const token = obtenerTokenSecreto();
       try {
