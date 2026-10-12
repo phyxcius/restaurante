@@ -49,7 +49,6 @@
       background: rgba(254, 252, 232, 0.12); border: 1px solid rgba(234, 179, 8, 0.45);
       padding: 3px 8px 3px 5px; border-radius: 20px; text-decoration: none; backdrop-filter: blur(8px);
     }
-    .chuspa-nav-badge:active { transform: scale(0.96); }
     .chuspa-nav-img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; background: #fff; border: 1px solid #ca8a04; }
     .chuspa-nav-info { display: flex; flex-direction: column; line-height: 1.1; }
     .chuspa-nav-title { font-size: 10px; font-weight: 900; color: #fde047; }
@@ -95,7 +94,6 @@
     .btn-mozo-si { flex: 1; background: #4d7c0f; color: #fff; border: none; padding: 6px; border-radius: 6px; font-weight: 900; font-size: 11px; cursor: pointer; }
     .btn-mozo-no { background: #78350f; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 800; font-size: 11px; cursor: pointer; }
 
-    /* RESEÑAS */
     .review-box-client {
       display: none; background: #261c16; border: 1.5px solid var(--accent);
       border-radius: 10px; padding: 10px; margin-top: 8px;
@@ -113,19 +111,12 @@
     .video-player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
     .slide-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(24,17,14,0.4) 0%, transparent 50%, rgba(24,17,14,0.92) 100%); pointer-events: none; }
 
-    .side-actions { position: absolute; right: 12px; bottom: 105px; display: flex; flex-direction: column; align-items: center; gap: 15px; z-index: 10; }
-    .action-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; color: #fff; cursor: pointer; }
-    .action-icon { width: 44px; height: 44px; border-radius: 50%; background: var(--glass-panel); border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; font-size: 18px; color: #fff; }
-    .action-label { font-size: 11px; font-weight: 600; color: var(--text-muted); }
-
     .dish-info { position: relative; z-index: 10; padding: 0 75px 85px 16px; width: 100%; }
-    .badge-tag { display: inline-block; background: var(--gold-badge); color: #381504; font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; margin-bottom: 6px; }
     .dish-title { font-size: 21px; font-weight: 800; line-height: 1.2; margin-bottom: 4px; }
-    .dish-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .dish-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; margin-bottom: 8px; }
     .dish-price-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
     .price-now { font-size: 23px; font-weight: 800; color: #fef08a; }
     .price-alt { font-size: 13px; color: #cbd5e1; font-weight: 600; }
-
     .btn-quick-add { background: linear-gradient(135deg, var(--primary), var(--accent)); border: 1px solid rgba(251, 191, 36, 0.4); color: #fff; padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
 
     /* BOTÓN FLOTANTE PEDIDOS */
@@ -146,9 +137,7 @@
     }
     .chat-badge { position: absolute; top: -3px; right: -3px; background-color: #ef4444; color: #fff; border: 2px solid #fff; font-size: 11px; font-weight: 800; min-width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
-    /* ==============================================================
-       POPUP DE COMANDA COMPLETO (PALETA MEXICAN DELIGHT)
-       ============================================================== */
+    /* POPUP DE COMANDA COMPLETO (MEXICAN DELIGHT) */
     .popup-modal { position: fixed; inset: 0; background: rgba(18, 12, 10, 0.88); backdrop-filter: blur(6px); z-index: 100000; display: none; align-items: flex-end; justify-content: center; }
     .popup-modal.active { display: flex; }
     .popup-sheet {
@@ -195,6 +184,7 @@
       font-size: 11px; font-weight: 800; text-align: left; cursor: pointer; display: flex; justify-content: space-between;
     }
 
+    /* SELECTOR DE MESAS Y BLOQUEO */
     .table-selector-label {
       font-size: 11px; font-weight: 900; text-transform: uppercase; color: var(--modal-dark);
       letter-spacing: 0.5px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;
@@ -210,6 +200,7 @@
     .table-box-btn.bloqueada { background: #dc2626 !important; border-color: #991b1b !important; color: #fff !important; cursor: not-allowed; }
     .table-box-btn.deshabilitada-qr { opacity: 0.35 !important; cursor: not-allowed !important; filter: grayscale(1); }
 
+    /* MÉTODOS DE PAGO */
     .grid-payments { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
     .btn-pay-option {
       background: var(--modal-card-bg); border: 1.5px solid rgba(28, 25, 23, 0.2);
@@ -221,6 +212,7 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.25);
     }
 
+    /* CAJÓN DE EFECTIVO */
     .cash-box-drawer {
       background: var(--modal-card-bg); border: 2px dashed var(--modal-green);
       border-radius: 12px; padding: 10px 12px; margin-bottom: 10px;
@@ -243,6 +235,7 @@
     }
     .vuelto-badge-box.alerta { background: rgba(220, 38, 38, 0.18); color: #991b1b; border-color: #dc2626; }
 
+    /* INPUTS */
     .custom-input {
       width: 100%; background: #fff; border: 1.5px solid rgba(28, 25, 23, 0.22);
       border-radius: 10px; color: var(--modal-dark); padding: 9px 12px; font-size: 12.5px;
@@ -259,7 +252,7 @@
       justify-content: center; gap: 8px; box-shadow: 0 6px 18px rgba(77, 124, 15, 0.4); width: 100%;
     }
 
-    /* PANTALLA COMPLETA DE AGRADECIMIENTO TRAS COBRO */
+    /* PANTALLA AGRADECIMIENTO */
     .screen-agradecimiento-overlay {
       position: fixed; inset: 0; background: rgba(18, 12, 10, 0.96); backdrop-filter: blur(10px);
       z-index: 200000; display: none; align-items: center; justify-content: center; padding: 24px; text-align: center;
@@ -277,21 +270,21 @@
 </head>
 <body>
 
-  <!-- PANTALLA FINAL DE AGRADECIMIENTO TRAS COBRO -->
+  <!-- AGRADECIMIENTO TRAS COBRO -->
   <div class="screen-agradecimiento-overlay" id="pantallaAgradecimiento">
     <div class="box-agradecimiento">
       <div id="agradeceLogo" style="font-size:46px;">🍽️</div>
       <h2 style="color:var(--gold); font-size:22px; font-weight:900;" id="agradeceNombreLocal">La Cusqueñita</h2>
-      <p style="font-size:14px; color:#ddd; line-height:1.5;">
+      <p style="font-size:14px; color:#ddd; line-height:1.5;" id="agradeceMsgTexto">
         ¡Muchas gracias por tu visita! Tu comanda ha sido cancelada y la mesa ha quedado libre. Esperamos que hayas disfrutado tu experiencia gastronómica.
       </p>
 
       <div style="background:rgba(255,255,255,0.06); padding:12px; border-radius:12px; width:100%; margin-top:4px;">
-        <span style="font-size:12px; color:#fde047; font-weight:800; display:block; margin-bottom:8px;">
+        <span style="font-size:12px; color:#fde047; font-weight:800; display:block; margin-bottom:8px;" id="agradeceReservaSugerencia">
           ¿Planeas volver? Reserva tu mesa para Eventos, Grupos o Familias
         </span>
-        <a href="reservas.html" class="btn-ir-reservas">
-          <i class="fa-solid fa-calendar-check"></i> Ir al Catálogo de Reservas
+        <a href="reservas.html" class="btn-ir-reservas" id="btnAgradeceReservar">
+          <i class="fa-solid fa-calendar-check"></i> <span id="lblBtnReservarLink">Ir al Catálogo de Reservas</span>
         </a>
       </div>
     </div>
@@ -336,24 +329,24 @@
       <p class="kds-msg-text" id="kdsMsg">Esperando que el mozo o caja acepte tu comanda...</p>
       
       <button type="button" class="btn-pedir-cuenta" id="btnPedirCuentaCliente" onclick="solicitarCuentaEnCaja()">
-        <i class="fa-solid fa-bell"></i> 💵 Pedir Cuenta y Pagar en Caja
+        <i class="fa-solid fa-bell"></i> <span id="lblPedirCuentaTxt">💵 Pedir Cuenta y Pagar en Caja</span>
       </button>
 
       <div class="mozo-prompt-banner" id="mozoPromptBanner">
-        <p><i class="fa-solid fa-bell-concierge"></i> El mozo pregunta: ¿Deseas ordenar algo más para tu mesa?</p>
+        <p id="lblMozoPreguntaTxt"><i class="fa-solid fa-bell-concierge"></i> El mozo pregunta: ¿Deseas ordenar algo más para tu mesa?</p>
         <div class="mozo-btn-row">
-          <button type="button" class="btn-mozo-si" onclick="abrirParaAgregarPlatos()"><i class="fa-solid fa-plus"></i> Sí, agregar platos</button>
-          <button type="button" class="btn-mozo-no" onclick="responderMozo(false)">No, gracias</button>
+          <button type="button" class="btn-mozo-si" onclick="abrirParaAgregarPlatos()"><i class="fa-solid fa-plus"></i> <span id="lblMozoSi">Sí, agregar platos</span></button>
+          <button type="button" class="btn-mozo-no" onclick="responderMozo(false)" id="lblMozoNo">No, gracias</button>
         </div>
       </div>
 
       <div class="review-box-client" id="clientReviewBox">
-        <span style="font-size:11px; color:#fde047; font-weight:800;">⭐ ¡Califica tu experiencia gastronómica!</span>
+        <span style="font-size:11px; color:#fde047; font-weight:800;" id="lblCalificaTitle">⭐ ¡Califica tu experiencia gastronómica!</span>
         <div class="stars-row" id="starsRow">
           <span onclick="setRating(1)">★</span><span onclick="setRating(2)">★</span><span onclick="setRating(3)">★</span><span onclick="setRating(4)">★</span><span onclick="setRating(5)">★</span>
         </div>
         <input type="text" id="clientReviewTxt" style="width:100%; padding:7px; border-radius:6px; font-size:12px; margin-bottom:4px; outline:none;" placeholder="Tu comentario...">
-        <button type="button" class="btn-mozo-si" style="width:100%; padding:7px;" onclick="enviarResenaFirebase()">Enviar Reseña</button>
+        <button type="button" class="btn-mozo-si" style="width:100%; padding:7px;" onclick="enviarResenaFirebase()" id="lblBtnEnviarResena">Enviar Reseña</button>
       </div>
 
       <div class="kds-details-row">
@@ -370,7 +363,7 @@
 
   <!-- BOTÓN FLOTANTE PEDIDOS -->
   <div class="chat-bubble-container" onclick="openOrdersPopup()">
-    <div class="chat-bubble-label" onclick="openOrdersPopup()"><span>🔥 Pedidos</span></div>
+    <div class="chat-bubble-label" onclick="openOrdersPopup()"><span id="lblBurbujaPedidos">🔥 Pedidos</span></div>
     <div class="chat-bubble-btn" onclick="openOrdersPopup()">
       <i class="fa-solid fa-bell-concierge" style="color:#fff; font-size:22px;"></i>
       <div class="chat-badge" id="ordersBadgeCount">0</div>
@@ -381,7 +374,7 @@
   <div class="popup-modal" id="ordersPopupModal" onclick="closeOrdersPopup(event)">
     <div class="popup-sheet" onclick="event.stopPropagation()">
       <div class="sheet-header">
-        <h3><i class="fa-solid fa-receipt" style="color:var(--modal-green);"></i> Confirmar Comanda</h3>
+        <h3 id="lblTituloPopup"><i class="fa-solid fa-receipt" style="color:var(--modal-green);"></i> Confirmar Comanda</h3>
         <button type="button" onclick="closeOrdersPopup()">&times;</button>
       </div>
 
@@ -390,7 +383,7 @@
 
       <!-- SELECTOR COMPACTO DE LA CARTA PARA AÑADIR MÁS -->
       <div class="quick-add-catalog">
-        <div style="font-size:11px; font-weight:900; color:var(--modal-dark);"><i class="fa-solid fa-plus"></i> Añadir platos a tu mesa:</div>
+        <div style="font-size:11px; font-weight:900; color:var(--modal-dark);" id="lblAddPlatosTitle"><i class="fa-solid fa-plus"></i> Añadir platos a tu mesa:</div>
         <div class="quick-add-grid" id="quickAddCatalogGrid"></div>
       </div>
 
@@ -403,18 +396,18 @@
 
       <!-- SELECTOR DE MÉTODOS DE PAGO: EFECTIVO, YAPE, PLIN, TARJETA POS -->
       <div class="grid-payments">
-        <button type="button" class="btn-pay-option active" id="btnPayEfectivo" onclick="elegirPago('Efectivo', this)">💵 Efectivo</button>
+        <button type="button" class="btn-pay-option active" id="btnPayEfectivo" onclick="elegirPago('Efectivo', this)">💵 <span id="lblPayEfectivo">Efectivo</span></button>
         <button type="button" class="btn-pay-option" onclick="elegirPago('Yape', this)">🟣 Yape</button>
         <button type="button" class="btn-pay-option" onclick="elegirPago('Plin', this)">🔵 Plin</button>
-        <button type="button" class="btn-pay-option" onclick="elegirPago('Tarjeta POS', this)">💳 POS</button>
+        <button type="button" class="btn-pay-option" onclick="elegirPago('Tarjeta POS', this)">💳 <span id="lblPayPos">POS</span></button>
       </div>
 
       <!-- CAJÓN DE EFECTIVO & VUELTO -->
       <div class="cash-box-drawer" id="cajaEfectivoDesplegable">
-        <div style="font-size: 11.5px; font-weight: 900; color: var(--modal-dark);">💵 ¿Con cuánto en efectivo pagarás?</div>
+        <div style="font-size: 11.5px; font-weight: 900; color: var(--modal-dark);" id="lblCuantoPagasTxt">💵 ¿Con cuánto en efectivo pagarás?</div>
         <input type="number" id="montoEfectivoIngresado" class="cash-input" placeholder="Ej. 100" min="0" step="5" oninput="calcularVueltoEfectivo()"/>
         <div class="cash-quick-btns">
-          <button type="button" class="btn-quick-cash" onclick="setMontoEfectivoRapido('exacto')">Pagar Exacto</button>
+          <button type="button" class="btn-quick-cash" onclick="setMontoEfectivoRapido('exacto')" id="lblBtnExacto">Pagar Exacto</button>
           <button type="button" class="btn-quick-cash" onclick="setMontoEfectivoRapido(50)">S/ 50</button>
           <button type="button" class="btn-quick-cash" onclick="setMontoEfectivoRapido(100)">S/ 100</button>
           <button type="button" class="btn-quick-cash" onclick="setMontoEfectivoRapido(200)">S/ 200</button>
@@ -431,7 +424,7 @@
 
       <!-- TOTAL COMANDA & EQUIVALENCIA USD -->
       <div class="order-total-bar">
-        <span style="font-weight:900; color:var(--modal-dark); font-size:14px;">Total comanda:</span>
+        <span style="font-weight:900; color:var(--modal-dark); font-size:14px;" id="lblTotalComandaTxt">Total comanda:</span>
         <div>
           <span style="font-size:21px; font-weight:900; color:var(--modal-dark);" id="orderTotalPrice">S/ 0.00</span>
           <div style="font-size:11px; color:#57534e; text-align:right; font-weight:bold;" id="orderSecondaryPrice">≈ $ 0.00</div>
@@ -488,7 +481,6 @@
     let ultimoTotalPagarPEN = 0;
     let ratingSeleccionado = 5;
 
-    // BLOQUEO Y ASIGNACIÓN ESTRICTA DE MESA
     let mesaFijadaPorQR = false;
     let mesaSeleccionada = sessionStorage.getItem("inkabistro_mesa_qr") || "Mesa 01";
     let comandaActivaId = localStorage.getItem("inkabistro_mi_comanda_id") || null;
@@ -503,17 +495,111 @@
       { id: "Terraza 2", label: "☀️ Ter. 2", extra: true }
     ];
 
-    // ==============================================================
-    // SISTEMA DE SONIDOS NATIVO (DESBLOQUEO AUTOMÁTICO EN EL 1ER TOQUE)
-    // ==============================================================
+    // DICCIONARIO MULTILINGÜE DEL POPUP Y SISTEMA
+    const DICCIONARIO = {
+      es: {
+        pedidosBurbuja: "🔥 Pedidos",
+        confirmarComanda: "Confirmar Comanda",
+        addPlatosTitle: "Añadir platos a tu mesa:",
+        mesaAsignada: "📍 Tu Mesa Asignada (Bloqueada):",
+        efectivo: "Efectivo",
+        pos: "POS",
+        cuantoPagas: "💵 ¿Con cuánto en efectivo pagarás?",
+        pagarExacto: "Pagar Exacto",
+        calcVuelto: "Ingresa monto en efectivo para vuelto",
+        vueltoEntregar: "💵 Vuelto a entregar:",
+        faltaDinero: "⚠️ Falta dinero",
+        placeholderNombre: "Nombre de quien pide (opcional)",
+        placeholderNotas: "Notas para cocina (término de carne, alergias, etc.)",
+        totalComanda: "Total comanda:",
+        btnEnviar: "Enviar Comanda al Panel / Cocina",
+        btnEnviarAdd: "Añadir a mi Comanda en Curso",
+        pedirCuenta: "💵 Pedir Cuenta y Pagar en Caja",
+        mozoPregunta: "El mozo pregunta: ¿Deseas ordenar algo más para tu mesa?",
+        mozoSi: "Sí, agregar platos",
+        mozoNo: "No, gracias",
+        calificaExp: "⭐ ¡Califica tu experiencia gastronómica!",
+        enviarResena: "Enviar Reseña"
+      },
+      en: {
+        pedidosBurbuja: "🔥 Order",
+        confirmarComanda: "Confirm Order",
+        addPlatosTitle: "Add more dishes to your table:",
+        mesaAsignada: "📍 Your Assigned Table (Locked):",
+        efectivo: "Cash",
+        pos: "Card / POS",
+        cuantoPagas: "💵 How much cash will you pay with?",
+        pagarExacto: "Exact Amount",
+        calcVuelto: "Enter cash amount for change",
+        vueltoEntregar: "💵 Your change:",
+        faltaDinero: "⚠️ Insufficient cash",
+        placeholderNombre: "Guest name (optional)",
+        placeholderNotas: "Kitchen notes (meat doneness, allergies, etc.)",
+        totalComanda: "Total amount:",
+        btnEnviar: "Send Order to Kitchen",
+        btnEnviarAdd: "Add to Active Table Order",
+        pedirCuenta: "💵 Request Bill & Pay at Cashier",
+        mozoPregunta: "Waiter asks: Would you like to order anything else?",
+        mozoSi: "Yes, add dishes",
+        mozoNo: "No, thank you",
+        calificaExp: "⭐ Rate your dining experience!",
+        enviarResena: "Submit Review"
+      },
+      fr: {
+        pedidosBurbuja: "🔥 Commande",
+        confirmarComanda: "Confirmer la commande",
+        addPlatosTitle: "Ajouter des plats à votre table :",
+        mesaAsignada: "📍 Votre table assignée (Verrouillée) :",
+        efectivo: "Espèces",
+        pos: "Carte / TPE",
+        cuantoPagas: "💵 Combien payez-vous en espèces ?",
+        pagarExacto: "Montant exact",
+        calcVuelto: "Entrez le montant pour la monnaie",
+        vueltoEntregar: "💵 Monnaie à rendre :",
+        faltaDinero: "⚠️ Montant insuffisant",
+        placeholderNombre: "Votre nom (optionnel)",
+        placeholderNotas: "Notes cuisine (cuisson, allergies, etc.)",
+        totalComanda: "Total commande :",
+        btnEnviar: "Envoyer la commande en cuisine",
+        btnEnviarAdd: "Ajouter à la commande en cours",
+        pedirCuenta: "💵 Demander l'addition en caisse",
+        mozoPregunta: "Le serveur demande : Souhaitez-vous autre chose ?",
+        mozoSi: "Oui, ajouter des plats",
+        mozoNo: "Non, merci",
+        calificaExp: "⭐ Évaluez votre expérience !",
+        enviarResena: "Envoyer l'avis"
+      },
+      pt: {
+        pedidosBurbuja: "🔥 Pedidos",
+        confirmarComanda: "Confirmar Pedido",
+        addPlatosTitle: "Adicionar mais pratos à sua mesa:",
+        mesaAsignada: "📍 Sua Mesa Atribuída (Bloqueada):",
+        efectivo: "Dinheiro",
+        pos: "Cartão / POS",
+        cuantoPagas: "💵 Com quanto em dinheiro você vai pagar?",
+        pagarExacto: "Valor Exato",
+        calcVuelto: "Insira o valor para calcular o troco",
+        vueltoEntregar: "💵 Seu troco:",
+        faltaDinero: "⚠️ Dinheiro insuficiente",
+        placeholderNombre: "Seu nome (opcional)",
+        placeholderNotas: "Notas para a cozinha (ponto da carne, alergias...)",
+        totalComanda: "Total do pedido:",
+        btnEnviar: "Enviar Pedido para a Cozinha",
+        btnEnviarAdd: "Adicionar ao Pedido em Andamento",
+        pedirCuenta: "💵 Pedir a Conta e Pagar no Caixa",
+        mozoPregunta: "Garçom pergunta: Gostaria de pedir mais alguma coisa?",
+        mozoSi: "Sim, adicionar pratos",
+        mozoNo: "Não, obrigado",
+        calificaExp: "⭐ Avalie sua experiência gastronômica!",
+        enviarResena: "Enviar Avaliação"
+      }
+    };
+
+    // SONIDO WEB AUDIO NATIVO
     let audioCtx = null;
     function asegurarAudioCtx() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
     }
     window.addEventListener('click', asegurarAudioCtx, { once: true });
     window.addEventListener('touchstart', asegurarAudioCtx, { once: true });
@@ -525,8 +611,8 @@
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = "sine";
-        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
-        osc.frequency.exponentialRampToValueAtTime(783.99, audioCtx.currentTime + 0.15); // G5
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(783.99, audioCtx.currentTime + 0.15);
         gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
         osc.connect(gain);
@@ -562,18 +648,18 @@
       if (comandaActivaId) {
         mesaFijadaPorQR = true;
       }
-
       actualizarBadgeMesaHeader();
     }
 
     function actualizarBadgeMesaHeader() {
       const badge = document.getElementById('selectedTableBadge');
       if (badge) {
-        badge.innerText = mesaFijadaPorQR ? `${mesaSeleccionada} (Fijada 🔒)` : mesaSeleccionada;
+        badge.innerText = mesaFijadaPorQR ? `${mesaSeleccionada} 🔒` : mesaSeleccionada;
       }
       const lblHeader = document.getElementById('lblMesaHeaderInfo');
       if (lblHeader && mesaFijadaPorQR) {
-        lblHeader.innerText = "📍 Tu Mesa Asignada (Bloqueada):";
+        const dic = DICCIONARIO[currentLang] || DICCIONARIO.es;
+        lblHeader.innerText = dic.mesaAsignada;
       }
     }
 
@@ -590,15 +676,14 @@
         }
       } catch (e) {}
 
-      // Solo bloquear mesas de pedidos activos (sin contar liberadas ni la propia orden activa)
       const ocupadas = comandas
         .filter(c => {
-          const est = (c.estado || "").toLowerCase().trim();
+          const est = String(c.estado || "").toLowerCase().trim();
           const activa = (est === "por_confirmar" || est === "cocina" || est === "servido");
-          const esMiPedido = (comandaActivaId && c.id === comandaActivaId);
-          // Ignorar bloqueos antiguos que no sean comandas vigentes
-          const esValida = Boolean(c.mesa && c.mesa.trim());
-          return activa && !esMiPedido && esValida;
+          const esMiPedido = (comandaActivaId && String(c.id) === String(comandaActivaId));
+          // Ignorar IDs que sean bloqueos manuales inválidos o sin mesa
+          const tieneMesa = Boolean(c.mesa && String(c.mesa).trim().length > 0);
+          return activa && !esMiPedido && tieneMesa;
         })
         .map(c => normalizarNombreMesa(c.mesa));
 
@@ -631,11 +716,11 @@
         
         if (estaOcupada) {
           btn.innerHTML = `${m.label} <span style="font-size:9px;">🔒</span>`;
-          btn.title = `La ${m.id} está ocupada con otra orden.`;
+          btn.title = `La ${m.id} está ocupada.`;
           btn.onclick = () => alert(`⚠️ La ${m.id} ya tiene un pedido en curso.`);
         } else if (mesaFijadaPorQR && !esMiMesa) {
           btn.innerHTML = `${m.label} 🔒`;
-          btn.title = `Bloqueada. Tu sesión está asignada únicamente a tu ${mesaSeleccionada}.`;
+          btn.title = `Bloqueada para esta mesa.`;
           btn.onclick = () => alert(`🔒 Tu sesión está fija en la ${mesaSeleccionada}. Todos tus pedidos adicionales se agregan a esta mesa.`);
         } else {
           btn.innerText = m.label;
@@ -648,7 +733,7 @@
 
     function selectTableRow(numMesa, boton) {
       if (mesaFijadaPorQR) {
-        alert(`🔒 Tu pedido está bloqueado en: ${mesaSeleccionada}`);
+        alert(`🔒 Tu sesión está fijada en: ${mesaSeleccionada}`);
         return;
       }
       mesaSeleccionada = numMesa;
@@ -657,9 +742,32 @@
       document.getElementById('selectedTableBadge').innerText = numMesa;
     }
 
-    // CAMBIO DE IDIOMA COMPLETO Y DINÁMICO
+    // CAMBIO TOTAL DE IDIOMA EN VISTA PRINCIPAL Y POPUP
     function cambiarIdiomaGlobal(nuevoLang) {
       currentLang = nuevoLang;
+      const dic = DICCIONARIO[currentLang] || DICCIONARIO.es;
+
+      // Traducir popup
+      document.getElementById('lblBurbujaPedidos').innerText = dic.pedidosBurbuja;
+      document.getElementById('lblTituloPopup').innerHTML = `<i class="fa-solid fa-receipt" style="color:var(--modal-green);"></i> ${dic.confirmarComanda}`;
+      document.getElementById('lblAddPlatosTitle').innerHTML = `<i class="fa-solid fa-plus"></i> ${dic.addPlatosTitle}`;
+      document.getElementById('lblMesaHeaderInfo').innerText = dic.mesaAsignada;
+      document.getElementById('lblPayEfectivo').innerText = dic.efectivo;
+      document.getElementById('lblPayPos').innerText = dic.pos;
+      document.getElementById('lblCuantoPagasTxt').innerText = dic.cuantoPagas;
+      document.getElementById('lblBtnExacto').innerText = dic.pagarExacto;
+      document.getElementById('textoDetalleVuelto').innerText = dic.calcVuelto;
+      document.getElementById('clientNameInput').placeholder = dic.placeholderNombre;
+      document.getElementById('notesInput').placeholder = dic.placeholderNotas;
+      document.getElementById('lblTotalComandaTxt').innerText = dic.totalComanda;
+      document.getElementById('lblBtnEnviar').innerText = comandaActivaId ? dic.btnEnviarAdd : dic.btnEnviar;
+      document.getElementById('lblPedirCuentaTxt').innerText = dic.pedirCuenta;
+      document.getElementById('lblMozoPreguntaTxt').innerHTML = `<i class="fa-solid fa-bell-concierge"></i> ${dic.mozoPregunta}`;
+      document.getElementById('lblMozoSi').innerText = dic.mozoSi;
+      document.getElementById('lblMozoNo').innerText = dic.mozoNo;
+      document.getElementById('lblCalificaTitle').innerText = dic.calificaExp;
+      document.getElementById('lblBtnEnviarResena').innerText = dic.enviarResena;
+
       renderFeed();
       renderCategoryChips();
       renderQuickCatalogPopup();
@@ -865,47 +973,39 @@
       const box = document.getElementById('cajaRespuestaVuelto');
       const txt = document.getElementById('textoDetalleVuelto');
       const montoTxt = document.getElementById('montoCalculadoVuelto');
+      const dic = DICCIONARIO[currentLang] || DICCIONARIO.es;
 
       if (isNaN(pagaCon) || pagaCon <= 0) {
         box.className = "vuelto-badge-box";
-        txt.innerText = "Ingresa monto en efectivo para vuelto";
+        txt.innerText = dic.calcVuelto;
         montoTxt.innerText = "";
         return;
       }
       const v = pagaCon - ultimoTotalPagarPEN;
       if (v < 0) {
         box.className = "vuelto-badge-box alerta";
-        txt.innerText = `⚠️ Falta dinero (Faltan S/ ${Math.abs(v).toFixed(2)})`;
+        txt.innerText = `${dic.faltaDinero} (S/ ${Math.abs(v).toFixed(2)})`;
         montoTxt.innerText = "";
       } else {
         box.className = "vuelto-badge-box";
-        txt.innerText = "💵 Vuelto a entregar:";
+        txt.innerText = dic.vueltoEntregar;
         montoTxt.innerText = `S/ ${v.toFixed(2)}`;
       }
     }
 
     function abrirParaAgregarPlatos() {
       responderMozo(true);
-      document.getElementById('lblBtnEnviar').innerText = "Añadir a mi Comanda en Curso";
+      const dic = DICCIONARIO[currentLang] || DICCIONARIO.es;
+      document.getElementById('lblBtnEnviar').innerText = dic.btnEnviarAdd;
       openOrdersPopup();
     }
 
-    // TRANSMISIÓN CENTRALIZADA EN SU PROPIA COMANDA CON SONIDO
+    // ENVÍO DE COMANDA BLINDADO (GARANTIZADO)
     async function enviarComandaDirectaAlPanel() {
       const itemIds = Object.keys(pedido);
       if (itemIds.length === 0) return alert("Por favor añade al menos un plato a la comanda.");
 
       const mesaNorm = normalizarNombreMesa(mesaSeleccionada);
-
-      if (!comandaActivaId) {
-        const mesasOcupadas = await obtenerMesasOcupadasEnRed();
-        if (mesasOcupadas.includes(mesaNorm)) {
-          alert(`⛔ La ${mesaSeleccionada} ya se encuentra ocupada con otra orden en curso.`);
-          await renderizarCuadriculaMesas();
-          return;
-        }
-      }
-
       const cliente = document.getElementById('clientNameInput').value.trim() || "Comensal";
       const notas = document.getElementById('notesInput').value.trim();
 
@@ -924,14 +1024,15 @@
         platosComanda.push({ id, nombre: info.name, cantidad: cant, precio: dish.precioPEN || dish.precio });
       });
 
+      // Si ya existía comanda activa, acumular platos
       if (comandaActivaId) {
         try {
           const res = await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`);
           if (res.ok) {
             const dataVieja = await res.json();
             if (dataVieja && dataVieja.estado !== 'liberado') {
-              const productosUnificados = dataVieja.productos + ", " + detalleTexto.replace(/, $/, "");
-              const nuevoTotal = (dataVieja.totalPEN || 0) + ultimoTotalPagarPEN;
+              const productosUnificados = (dataVieja.productos || "") + ", " + detalleTexto.replace(/, $/, "");
+              const nuevoTotal = parseFloat(dataVieja.totalPEN || 0) + ultimoTotalPagarPEN;
               
               await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`, {
                 method: 'PATCH',
@@ -941,14 +1042,14 @@
                   totalPEN: nuevoTotal,
                   mozoPregunta: false,
                   pago: metodoPago,
-                  notas: notas ? (dataVieja.notas + " | " + notas) : dataVieja.notas
+                  notas: notas ? (dataVieja.notas + " | " + notas) : (dataVieja.notas || "")
                 })
               });
 
               for (let k in pedido) delete pedido[k];
               actualizarVistaPopup();
               btn.disabled = false;
-              btn.innerHTML = '<i class="fa-solid fa-bell-concierge"></i> Enviar Comanda al Panel / Cocina';
+              btn.innerHTML = '<i class="fa-solid fa-bell-concierge"></i> ' + (DICCIONARIO[currentLang]||DICCIONARIO.es).btnEnviar;
               closeOrdersPopup();
               reproducirSonidoCampanaExito();
               verificarEstadoComandaEnVivo();
@@ -958,6 +1059,7 @@
         } catch (e) {}
       }
 
+      // Nueva comanda
       const nuevaComanda = {
         id: "CMD-" + Date.now(),
         fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }),
@@ -967,7 +1069,7 @@
         items: platosComanda,
         totalPEN: ultimoTotalPagarPEN,
         pago: metodoPago,
-        notas: notas,
+        notas: notas || "Sin notas",
         estado: "por_confirmar",
         mozoPregunta: false
       };
@@ -978,7 +1080,9 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(nuevaComanda)
         });
-      } catch (e) {}
+      } catch (e) {
+        console.error("Error al enviar comanda:", e);
+      }
 
       comandaActivaId = nuevaComanda.id;
       localStorage.setItem("inkabistro_mi_comanda_id", comandaActivaId);
@@ -991,7 +1095,7 @@
         for (let k in pedido) delete pedido[k];
         actualizarVistaPopup();
         btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-bell-concierge"></i> Enviar Comanda al Panel / Cocina';
+        btn.innerHTML = '<i class="fa-solid fa-bell-concierge"></i> ' + (DICCIONARIO[currentLang]||DICCIONARIO.es).btnEnviar;
         closeOrdersPopup();
         reproducirSonidoCampanaExito();
         verificarEstadoComandaEnVivo();
