@@ -28,18 +28,33 @@
     .admin-layout { display: grid; grid-template-columns: 290px 1fr; min-height: 100vh; width: 100%; }
 
     /* SIDEBAR */
-    .sidebar { background: var(--sidebar-bg); border-right: 1.5px solid var(--card-border); padding: 20px 16px; display: flex; flex-direction: column; gap: 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
-    .brand-box { display: flex; align-items: center; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .sidebar { background: var(--sidebar-bg); border-right: 1.5px solid var(--card-border); padding: 20px 16px; display: flex; flex-direction: column; gap: 14px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+    .brand-box { display: flex; align-items: center; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); }
     .brand-avatar { width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(135deg, var(--accent), var(--primary)); display: flex; align-items: center; justify-content: center; font-size: 22px; color: #fff; }
 
-    /* ACORDEÓN TOKEN CON CONTRASEÑA */
+    /* BADGE LA CHUSPA TECH */
+    .chuspa-badge-sidebar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(254, 252, 232, 0.08);
+      border: 1px solid rgba(234, 179, 8, 0.35);
+      padding: 6px 10px;
+      border-radius: 20px;
+      text-decoration: none;
+      transition: transform 0.2s;
+    }
+    .chuspa-badge-sidebar:hover { transform: scale(1.02); background: rgba(254, 252, 232, 0.15); }
+    .chuspa-img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1px solid #ca8a04; background: #fff; }
+
+    /* ACORDEÓN TOKEN CON CONTRASEÑA 42423549 */
     .token-box { background: #251a15; border: 1.5px dashed var(--accent); border-radius: 10px; overflow: hidden; }
     .token-trigger { width: 100%; background: none; border: none; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 800; color: var(--gold); font-size: 12px; }
     .token-content { display: none; padding: 12px; background: #18100c; border-top: 1px solid rgba(255,255,255,0.08); }
     .token-content input { width: 100%; padding: 7px; background: #110907; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #fff; font-size: 12px; margin-top: 4px; outline: none; }
 
     .nav-menu { display: flex; flex-direction: column; gap: 6px; flex: 1; }
-    .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 10px; border: 1px solid transparent; background: transparent; color: var(--text-muted); font-size: 13.5px; font-weight: 700; cursor: pointer; text-align: left; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 10px; border: 1px solid transparent; background: transparent; color: var(--text-muted); font-size: 13px; font-weight: 700; cursor: pointer; text-align: left; }
     .nav-item i { font-size: 15px; width: 20px; text-align: center; color: var(--accent); }
     .nav-item:hover { background: #281c17; color: #fff; }
     .nav-item.active { background: #38241b; color: var(--gold); border-color: var(--card-border); }
@@ -47,7 +62,7 @@
 
     /* VISTA PRINCIPAL */
     .main-view { padding: 24px 28px; overflow-y: auto; max-height: 100vh; }
-    .view-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; border-bottom: 1.5px solid rgba(255,255,255,0.08); padding-bottom: 14px; }
+    .view-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px; border-bottom: 1.5px solid rgba(255,255,255,0.08); padding-bottom: 14px; }
     .view-header h1 { font-size: 22px; font-weight: 900; color: var(--gold); }
 
     .card { background: var(--card-bg); padding: 18px 20px; border-radius: 14px; border: 1px solid var(--card-border); margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.25); }
@@ -60,8 +75,30 @@
     .btn-del { background: #451a1a; color: #fca5a5; border: 1px solid #dc2626; }
     .btn-print { background: var(--blue); color: #fff; }
 
+    /* MONITOR DE MESAS OCUPADAS / LIBRES */
+    .tables-monitor-bar {
+      background: #1a110e;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 18px;
+    }
+    .tables-monitor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--gold); }
+    .tables-monitor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 6px; }
+    .table-pill {
+      padding: 6px 4px;
+      text-align: center;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      border: 1px solid transparent;
+    }
+    .table-pill.libre { background: rgba(22, 163, 74, 0.15); border-color: #16a34a; color: #86efac; }
+    .table-pill.ocupada { background: rgba(220, 38, 38, 0.25); border-color: #dc2626; color: #fca5a5; animation: pulseRed 2s infinite; }
+    @keyframes pulseRed { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+
     /* ==============================================================
-       ESTILOS MEJORADOS PARA LAS COMANDAS (KDS)
+       TARJETAS KDS EN VIVO
        ============================================================== */
     .live-orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
     .order-card {
@@ -75,28 +112,21 @@
       box-shadow: 0 4px 15px rgba(0,0,0,0.4);
     }
     
-    /* 🟡 Estado 1: Por Confirmar */
     .order-card.por_confirmar {
       border-color: #f59e0b;
       background: #2b1d16;
       box-shadow: 0 0 16px rgba(245, 158, 11, 0.25);
     }
-    
-    /* 🔵 Estado 2: En Cocina */
     .order-card.cocina {
       border-color: #0284c7;
       background: #172330;
       box-shadow: 0 0 16px rgba(2, 132, 199, 0.25);
     }
-    
-    /* 🟢 Estado 3: Servido */
     .order-card.servido {
       border-color: #16a34a;
       background: #15271c;
       opacity: 0.85;
     }
-    
-    /* 🔴 Estado 4: Rechazado */
     .order-card.rechazado {
       border-color: #dc2626;
       background: #2c1616;
@@ -117,15 +147,9 @@
 
     .order-items-box { font-size: 14px; font-weight: 800; color: #fde047; line-height: 1.4; padding: 4px 0; }
     .order-notes-tag { font-size: 12px; color: #fca5a5; background: rgba(0,0,0,0.3); padding: 5px 8px; border-radius: 6px; border-left: 3px solid #f87171; }
-
     .order-bottom-bar { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 8px; font-size: 12.5px; }
     
-    /* Contenedor de Botones de Acción */
-    .order-actions-container {
-      display: flex;
-      gap: 8px;
-      margin-top: 6px;
-    }
+    .order-actions-container { display: flex; gap: 8px; margin-top: 6px; }
     .btn-action-confirm {
       flex: 1;
       background: linear-gradient(135deg, #16a34a, #22c55e);
@@ -157,7 +181,7 @@
       gap: 6px;
     }
 
-    /* CATÁLOGO */
+    /* CATÁLOGO VISUAL */
     .dishes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
     .dish-card-visual { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
     .dish-card-visual.agotado { opacity: 0.65; border-color: #7f1d1d; }
@@ -218,6 +242,15 @@
         </div>
       </div>
 
+      <!-- ENLACE LA CHUSPA TECH -->
+      <a href="https://www.lachuspaanuncios.com/" target="_blank" rel="noopener noreferrer" class="chuspa-badge-sidebar" title="Visitar La Chuspa Anuncios">
+        <img src="CHUSPITA-circulo.png" alt="La Chuspa" class="chuspa-img" onerror="this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png'">
+        <div style="display:flex; flex-direction:column; line-height:1.15;">
+          <span style="font-size:11px; font-weight:900; color:#fde047;">La Chuspa Tech</span>
+          <span style="font-size:8.5px; font-weight:700; color:#fed7aa;">by La Chuspa</span>
+        </div>
+      </a>
+
       <!-- ACORDEÓN TOKEN CON CONTRASEÑA 42423549 -->
       <div class="token-box">
         <button class="token-trigger" type="button" onclick="alternarAcordeonToken()">
@@ -274,14 +307,23 @@
     <!-- PANEL DERECHO -->
     <main class="main-view">
 
-      <!-- VISTA 1: COMANDAS EN VIVO RECTIFICADA -->
+      <!-- VISTA 1: COMANDAS EN VIVO Y MONITOR DE MESAS -->
       <section id="viewComandas">
         <div class="view-header">
           <div>
             <h1>🛎️ Pantalla KDS: Aceptar y Preparar Comandas</h1>
-            <p>Confirma las órdenes que ingresan desde los celulares para pasarlas a cocina.</p>
+            <p>Revisa y reconfirma las órdenes entrantes para enviarlas a cocina.</p>
           </div>
           <button class="btn btn-add" onclick="cargarComandasEnVivo()"><i class="fa-solid fa-rotate"></i> Actualizar Ahora</button>
+        </div>
+
+        <!-- Monitor de Mesas Libres y Ocupadas -->
+        <div class="tables-monitor-bar">
+          <div class="tables-monitor-header">
+            <span>📍 Estado de Mesas en Sala:</span>
+            <span style="font-size:11px; color:#aaa;">Rojo = Pedido en curso | Verde = Libre</span>
+          </div>
+          <div class="tables-monitor-grid" id="tablesMonitorGrid"></div>
         </div>
 
         <div class="live-orders-grid" id="liveOrdersGrid"></div>
@@ -429,6 +471,12 @@
       exchangeRateUSD: 3.75
     };
 
+    const todasLasMesas = [
+      "Mesa 01", "Mesa 02", "Mesa 03", "Mesa 04", "Mesa 05",
+      "Mesa 06", "Mesa 07", "Mesa 08", "Mesa 09", "Mesa 10",
+      "Mesa 11", "Mesa 12", "Barra", "Terraza 1", "Terraza 2"
+    ];
+
     let currentEditingId = null;
     let modalLang = "es";
     let modalTempI18n = {};
@@ -448,8 +496,7 @@
       document.getElementById('ghTokenInput').value = obtenerTokenSecreto();
       cargarDesdeGitHub();
       cargarComandasEnVivo();
-      // Polling cada 6 segundos para recibir nuevos pedidos
-      setInterval(cargarComandasEnVivo, 6000);
+      setInterval(cargarComandasEnVivo, 5000); // Consulta en vivo cada 5 segundos
     }
 
     function cerrarSesionAdmin() {
@@ -512,21 +559,24 @@
     }
 
     // ==============================================================
-    // KDS: RECTIFICACIÓN COMPLETA DE COMANDAS EN VIVO Y BOTONES
+    // KDS: RECTIFICACIÓN Y ACCIÓN DE COMANDAS EN VIVO
     // ==============================================================
     function cargarComandasEnVivo() {
       const grid = document.getElementById('liveOrdersGrid');
       let comandas = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
 
-      // Conteo de comandas pendientes
-      const pendientes = comandas.filter(c => c.estado === 'por_confirmar' || !c.estado);
-      document.getElementById('badgeTotalComandas').innerText = comandas.filter(c => c.estado !== 'servido' && c.estado !== 'rechazado').length;
+      // Conteo de pedidos activos
+      const pedidosActivos = comandas.filter(c => c.estado !== 'servido' && c.estado !== 'rechazado');
+      document.getElementById('badgeTotalComandas').innerText = pedidosActivos.length;
 
-      // Sonido si hay un nuevo pedido entrante
+      // Sonido si entra nueva comanda
       if (comandas.length > totalComandasPrevias && totalComandasPrevias !== 0) {
         reproducirAlertaSonora();
       }
       totalComandasPrevias = comandas.length;
+
+      // Actualizar Monitor de Mesas
+      actualizarMonitorDeMesas(comandas);
 
       if (comandas.length === 0) {
         grid.innerHTML = '<p style="color:#aaa; font-size:14px; padding:20px 0;">No hay comandas registradas en este momento.</p>';
@@ -534,14 +584,13 @@
       }
 
       grid.innerHTML = comandas.map((c, i) => {
-        // Normalizar estado
         const estado = (c.estado || 'por_confirmar').toLowerCase();
 
         return `
           <div class="order-card ${estado}">
             <div class="order-card-header">
               <div>
-                <strong style="font-size:16px; color:#fff;">${c.cliente || c.mesa || 'Mesa en Sala'}</strong>
+                <strong style="font-size:16px; color:#fff;">${c.cliente || c.mesa || 'Mesa'}</strong>
                 <div style="font-size:11px; color:#aaa; margin-top:2px;">${c.id || 'CMD-00'} • ${c.fecha || ''}</div>
               </div>
               <span class="order-status-badge status-${estado}">
@@ -563,7 +612,7 @@
               <span style="font-size:16px; font-weight:900; color:#86efac;">S/ ${(c.totalPEN || c.total || 0).toFixed(2)}</span>
             </div>
 
-            <!-- BOTONES DE ACCIÓN VISIBLES Y RECTIFICADOS -->
+            <!-- BOTONES DE ACCIÓN PARA ACEPTAR Y PREPARAR -->
             <div class="order-actions-container">
               ${estado === 'por_confirmar' ? `
                 <button type="button" class="btn-action-confirm" onclick="cambiarEstadoComanda(${i}, 'cocina')">
@@ -582,15 +631,32 @@
 
               ${estado === 'servido' ? `
                 <div style="font-size:12px; color:#86efac; font-weight:bold; display:flex; align-items:center; gap:6px; flex:1;">
-                  <i class="fa-solid fa-circle-check"></i> Pedido Servido en Mesa
+                  <i class="fa-solid fa-circle-check"></i> Mesa Atendida & Libre
                 </div>
               ` : ''}
 
-              <!-- Botón eliminar comanda -->
+              <!-- Botón eliminar permanentemente -->
               <button type="button" class="btn btn-del" style="padding:8px 12px; font-size:13px;" title="Eliminar comanda" onclick="eliminarComanda(${i})">
                 <i class="fa-solid fa-trash"></i>
               </button>
             </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // MONITOR DE MESAS
+    function actualizarMonitorDeMesas(comandas) {
+      const grid = document.getElementById('tablesMonitorGrid');
+      const mesasOcupadas = comandas
+        .filter(c => c.estado === 'por_confirmar' || c.estado === 'cocina')
+        .map(c => (c.mesa || '').trim());
+
+      grid.innerHTML = todasLasMesas.map(m => {
+        const estaOcupada = mesasOcupadas.includes(m);
+        return `
+          <div class="table-pill ${estaOcupada ? 'ocupada' : 'libre'}">
+            ${m.replace('Mesa ', 'M-')} ${estaOcupada ? '🔒' : '✔'}
           </div>
         `;
       }).join('');
@@ -603,7 +669,7 @@
       comandas[idx].estado = nuevoEstado;
       localStorage.setItem(STORAGE_KEY_COMANDAS, JSON.stringify(comandas));
 
-      // Actualizar también en el registro de ventas si coincide
+      // Actualizar en el registro contable
       let ventas = JSON.parse(localStorage.getItem(STORAGE_KEY_VENTAS)) || [];
       const vIdx = ventas.findIndex(v => v.id === comandas[idx].id);
       if (vIdx !== -1) {
@@ -615,7 +681,7 @@
     }
 
     function rechazarComanda(idx) {
-      if (confirm("¿Deseas rechazar o cancelar esta orden?")) {
+      if (confirm("¿Deseas rechazar o cancelar esta orden? La mesa quedará liberada.")) {
         let comandas = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
         comandas[idx].estado = "rechazado";
         localStorage.setItem(STORAGE_KEY_COMANDAS, JSON.stringify(comandas));
@@ -640,8 +706,8 @@
         osc.connect(gain);
         gain.connect(audioCtx.destination);
         osc.type = "sine";
-        osc.frequency.value = 880; // Nota A5
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
         osc.start();
         osc.stop(audioCtx.currentTime + 0.25);
       } catch (e) {}
@@ -768,7 +834,7 @@
       document.getElementById('imgQRGenerado').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(link)}`;
     }
 
-    // CARGA DESDE GITHUB
+    // GITHUB
     async function cargarDesdeGitHub() {
       const token = obtenerTokenSecreto();
       try {
@@ -785,7 +851,6 @@
       renderizarVisualDishes();
     }
 
-    // PUBLICAR EN GITHUB
     async function sincronizarConGitHub() {
       const token = obtenerTokenSecreto();
       if (!token) return alert("Configura tu token en el acordeón de la izquierda.");
