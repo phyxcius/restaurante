@@ -6,56 +6,234 @@
   <title>Reservas Prepago | La Cusqueñita</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    body { background: #18110e; color: #fff; font-family: system-ui, sans-serif; padding: 20px; display: flex; justify-content: center; }
-    .card-reserva { background: #261a15; border: 1.5px solid #f59e0b; border-radius: 16px; max-width: 440px; width: 100%; padding: 24px; }
-    h2 { color: #fde047; text-align: center; margin-bottom: 6px; }
-    p { font-size: 13px; color: #aaa; text-align: center; margin-bottom: 16px; }
-    label { font-size: 12px; font-weight: bold; color: #fde047; display: block; margin-top: 10px; }
-    input, select { width: 100%; padding: 9px; margin-top: 4px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: #160e0b; color: #fff; }
-    .btn-reservar { background: linear-gradient(135deg, #c2410c, #f59e0b); color: #fff; border: none; padding: 12px; border-radius: 20px; font-size: 14px; font-weight: bold; width: 100%; margin-top: 16px; cursor: pointer; }
+    :root {
+      --primary: #c2410c;
+      --accent: #f59e0b;
+      --bg-dark: #18110e;
+      --card-bg: #261a15;
+      --gold: #fde047;
+      --green: #15803d;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: var(--bg-dark); color: #fff; padding: 20px 14px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    
+    .card-reserva {
+      background: var(--card-bg);
+      border: 1.5px solid var(--accent);
+      border-radius: 20px;
+      max-width: 450px;
+      width: 100%;
+      padding: 26px 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    }
+    .header-box { text-align: center; margin-bottom: 18px; border-bottom: 1px dashed rgba(255,255,255,0.12); padding-bottom: 12px; }
+    .brand-icon { font-size: 38px; margin-bottom: 4px; }
+    h2 { color: var(--gold); font-size: 21px; font-weight: 900; }
+    p.sub { font-size: 12px; color: #aaa; margin-top: 3px; }
+
+    label { font-size: 11.5px; font-weight: 800; color: var(--gold); display: block; margin-top: 10px; text-transform: uppercase; }
+    input, select, textarea {
+      width: 100%; padding: 10px 12px; margin-top: 4px; border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.2); background: #160e0b; color: #fff; font-size: 13.5px; outline: none;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+
+    .grid-dos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .notice-prepago {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: 10px;
+      padding: 10px;
+      margin-top: 14px;
+      font-size: 11.5px;
+      color: #fed7aa;
+      line-height: 1.4;
+    }
+
+    .btn-reservar {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #fff; border: none; padding: 14px; border-radius: 22px;
+      font-size: 14px; font-weight: 900; width: 100%; margin-top: 16px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+      box-shadow: 0 4px 15px rgba(194, 65, 12, 0.4);
+    }
+    .btn-reservar:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .btn-regresar {
+      display: block; text-align: center; margin-top: 14px; font-size: 12px;
+      color: #aaa; text-decoration: none; font-weight: 700;
+    }
+    .btn-regresar:hover { color: #fff; }
   </style>
 </head>
 <body>
+
   <div class="card-reserva">
-    <h2>🍽️ Reservas Prepago</h2>
-    <p>La Cusqueñita • Eventos, Parejas o Grupos Familiares</p>
-    <form onsubmit="enviarReservaWhatsApp(event)">
-      <label>Tipo de Reserva:</label>
-      <select id="resTipo">
+    <div class="header-box">
+      <div class="brand-icon" id="lblLogoLocal">🍽️</div>
+      <h2 id="lblNombreLocal">La Cusqueñita</h2>
+      <p class="sub">Catálogo Oficial de Reservas Prepago</p>
+    </div>
+
+    <form onsubmit="procesarReservaEnNube(event)">
+      <label>Tipo de Evento o Reserva:</label>
+      <select id="resTipo" required>
         <option value="Parejas (Cena Romántica)">Parejas (Cena Romántica)</option>
-        <option value="Grupo Familiar">Grupo Familiar (4 - 8 personas)</option>
-        <option value="Evento Corporativo">Evento Corporativo / Empresa</option>
+        <option value="Grupo Familiar (4 a 8 personas)">Grupo Familiar (4 a 8 personas)</option>
         <option value="Celebración de Cumpleaños">Celebración de Cumpleaños</option>
+        <option value="Evento Corporativo / Empresa">Evento Corporativo / Empresa</option>
+        <option value="Mesa Ejecutiva">Mesa Ejecutiva</option>
       </select>
 
-      <label>Nombre del Titular:</label>
-      <input type="text" id="resNombre" placeholder="Tu nombre completo" required>
+      <label>Nombre y Apellidos del Titular:</label>
+      <input type="text" id="resNombre" placeholder="Ej. Carlos Mendoza" required>
 
-      <label>Fecha de la Reserva:</label>
-      <input type="date" id="resFecha" required>
+      <label>Teléfono Celular / WhatsApp:</label>
+      <input type="tel" id="resTelefono" placeholder="Ej. 984123456" required>
 
-      <label>Hora de Asistencia:</label>
-      <input type="time" id="resHora" required>
+      <div class="grid-dos">
+        <div>
+          <label>Fecha:</label>
+          <input type="date" id="resFecha" required>
+        </div>
+        <div>
+          <label>Hora:</label>
+          <input type="time" id="resHora" required>
+        </div>
+      </div>
 
-      <label>Número de Personas:</label>
-      <input type="number" id="resPersonas" min="1" value="2" required>
+      <div class="grid-dos">
+        <div>
+          <label>N° Personas:</label>
+          <input type="number" id="resPersonas" min="1" max="50" value="2" required>
+        </div>
+        <div>
+          <label>Mesa Preferida (Opcional):</label>
+          <select id="resMesaPreferencia">
+            <option value="Cualquier mesa disponible">Indistinta</option>
+            <option value="Terraza 1">Terraza 1</option>
+            <option value="Terraza 2">Terraza 2</option>
+            <option value="Salón Principal">Salón Principal</option>
+            <option value="Zona Íntima">Zona Íntima</option>
+          </select>
+        </div>
+      </div>
 
-      <button type="submit" class="btn-reservar"><i class="fa-brands fa-whatsapp"></i> Enviar Solicitud a WhatsApp</button>
+      <label>Notas especiales o requerimientos:</label>
+      <input type="text" id="resNotas" placeholder="Ej. Decoración de cumpleaños, alergia a mariscos...">
+
+      <div class="notice-prepago">
+        <i class="fa-solid fa-circle-info"></i> <b>Información Importante:</b><br>
+        Las reservas quedan registradas en el sistema y se confirman con un abono previo (Yape, Plin o Transferencia). El personal se comunicará contigo vía WhatsApp para validar la disponibilidad.
+      </div>
+
+      <button type="submit" class="btn-reservar" id="btnEnviarReserva">
+        <i class="fa-brands fa-whatsapp"></i> <span>Registrar y Confirmar en WhatsApp</span>
+      </button>
+
+      <a href="index.html" class="btn-regresar">
+        <i class="fa-solid fa-arrow-left"></i> Volver a la Carta Digital
+      </a>
     </form>
   </div>
 
   <script>
-    function enviarReservaWhatsApp(e) {
-      e.preventDefault();
-      const tipo = document.getElementById('resTipo').value;
-      const nom = document.getElementById('resNombre').value.trim();
-      const fec = document.getElementById('resFecha').value;
-      const hor = document.getElementById('resHora').value;
-      const per = document.getElementById('resPersonas').value;
+    // URL OFICIAL DE TU FIREBASE RTDB
+    const FIREBASE_DB_URL = "https://restaurante1-695f7-default-rtdb.firebaseio.com/";
 
-      const mensaje = `¡Hola La Cusqueñita! Deseo solicitar una reserva prepago:%0A%0A• Tipo: ${tipo}%0A• Nombre: ${nom}%0A• Fecha: ${fec}%0A• Hora: ${hor}%0A• Personas: ${per}%0A%0A¿Podrían confirmarme disponibilidad y cuentas para el depósito de reserva? Muchas gracias.`;
-      window.location.href = `https://wa.me/51969773064?text=${mensaje}`;
+    let configNegocio = {
+      nombre: "La Cusqueñita",
+      whatsapp: "51969773064",
+      logo: "🍽️"
+    };
+
+    // CARGAR NOMBRE Y WHATSAPP DESDE FIREBASE
+    async function inicializarDatosNegocio() {
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}config/identidad.json`);
+        if (res.ok) {
+          const conf = await res.json();
+          if (conf) {
+            configNegocio = Object.assign(configNegocio, conf);
+            document.getElementById('lblNombreLocal').innerText = configNegocio.nombre || "La Cusqueñita";
+            if (configNegocio.logo && configNegocio.logo.startsWith('data:image')) {
+              document.getElementById('lblLogoLocal').innerHTML = `<img src="${configNegocio.logo}" style="width:44px; height:44px; border-radius:50%; object-fit:cover;">`;
+            }
+          }
+        }
+      } catch (e) {}
+
+      // Pre-seleccionar fecha mínima (hoy)
+      const hoy = new Date().toISOString().split('T')[0];
+      document.getElementById('resFecha').min = hoy;
+      document.getElementById('resFecha').value = hoy;
     }
+
+    // REGISTRO EN FIREBASE + REDIRECCIÓN A WHATSAPP
+    async function procesarReservaEnNube(e) {
+      e.preventDefault();
+
+      const btn = document.getElementById('btnEnviarReserva');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando reserva...';
+
+      const reservaId = "RES-" + Date.now();
+      const tipo = document.getElementById('resTipo').value;
+      const nombre = document.getElementById('resNombre').value.trim();
+      const telefono = document.getElementById('resTelefono').value.trim();
+      const fecha = document.getElementById('resFecha').value;
+      const hora = document.getElementById('resHora').value;
+      const personas = document.getElementById('resPersonas').value;
+      const mesa = document.getElementById('resMesaPreferencia').value;
+      const notas = document.getElementById('resNotas').value.trim();
+
+      const objetoReserva = {
+        id: reservaId,
+        fechaCreacion: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        tipo: tipo,
+        cliente: nombre,
+        telefono: telefono,
+        fechaReserva: fecha,
+        horaReserva: hora,
+        personas: personas,
+        preferenciaMesa: mesa,
+        notas: notas || "Ninguna",
+        estado: "pendiente_abono"
+      };
+
+      // 1. Guardar en el nodo /reservas/ de Firebase
+      try {
+        await fetch(`${FIREBASE_DB_URL}reservas/${reservaId}.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(objetoReserva)
+        });
+      } catch (err) {
+        console.warn("No se pudo conectar con Firebase, derivando directo:", err);
+      }
+
+      // 2. Armar mensaje estructurado para WhatsApp
+      const numeroWsp = configNegocio.whatsapp || "51969773064";
+      const textoWhatsApp = 
+        `¡Hola *${configNegocio.nombre}*! 👋%0A` +
+        `Deseo confirmar mi *SOLICITUD DE RESERVA PREPAGO*:%0A%0A` +
+        `📌 *Código Reserva:* ${reservaId}%0A` +
+        `👤 *Titular:* ${nombre}%0A` +
+        `📞 *Teléfono:* ${telefono}%0A` +
+        `🎉 *Tipo:* ${tipo}%0A` +
+        `📅 *Fecha:* ${fecha}%0A` +
+        `⏰ *Hora:* ${hora}%0A` +
+        `👥 *Personas:* ${personas}%0A` +
+        `🪑 *Zona/Mesa:* ${mesa}%0A` +
+        (notas ? `📝 *Notas:* ${notas}%0A%0A` : `%0A`) +
+        `¿Podrían confirmarme la disponibilidad y brindarme los datos de cuenta (Yape/Plin/Banco) para realizar el abono? Muchas gracias.`;
+
+      // 3. Abrir WhatsApp oficial
+      window.location.href = `https://wa.me/${numeroWsp}?text=${textoWhatsApp}`;
+    }
+
+    window.addEventListener('DOMContentLoaded', inicializarDatosNegocio);
   </script>
 </body>
 </html>
