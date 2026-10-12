@@ -1,93 +1,68 @@
 {
-  "restaurantConfig": {
-    "brandName": "Inka Chef",
-    "whatsapp": "51987654321",
-    "yapePhone": "987654321",
-    "accountHolder": "Inka Chef S.A.C.",
-    "usdExchangeRate": 3.75,
-    "baseUrl": "https://phyxcius.github.io/restaurante/index.html"
+  "restaurante": "Inka Bistro Cusco",
+  "config": {
+    "nombre": "Inka Bistro Cusco",
+    "eslogan": "Cusco • Gourmet",
+    "logo": "🍽️",
+    "whatsapp": "51969773064",
+    "yapePhone": "+51 987 654 321",
+    "titular": "INKA BISTRO CUSCO E.I.R.L.",
+    "exchangeRateUSD": 3.75
   },
-  "menuItems": [
+  "productos": [
     {
-      "id": "dish_1",
-      "category": "specials",
-      "tag": "Imperdible",
-      "pricePen": 48,
-      "poster": "https://images.unsplash.com/photo-1544025162-d76694265947?w=900&auto=format&fit=crop&q=80",
-      "videoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-      "likes": 540,
-      "i18n": {
-        "es": {
-          "name": "Lomo Saltado Ahumado",
-          "desc": "Trozos jugosos de lomo fino flambeados al pisco, cebolla morada crocante, tomate y papas amarillas fritas."
-        },
-        "en": {
-          "name": "Smoked Lomo Saltado",
-          "desc": "Tender beef tenderloin flambéed with Pisco, red onions, plum tomatoes, served with crispy yellow fries."
-        },
-        "fr": {
-          "name": "Lomo Saltado Fumé",
-          "desc": "Émincé de bœuf mariné sauté au wok, oignons rouges croquants, tomates et frites maison."
-        },
-        "pt": {
-          "name": "Lomo Saltado Defumado",
-          "desc": "Filé mignon suculento flambado com pisco, cebola roxa crocante, tomate e batatas amarelas fritas."
-        }
-      }
-    },
-    {
-      "id": "dish_2",
+      "id": "dish-1791769983964",
       "category": "mains",
-      "tag": "Plato Bandera",
-      "pricePen": 52,
-      "poster": "https://images.unsplash.com/photo-1535400255456-984241443b29?w=900&auto=format&fit=crop&q=80",
-      "videoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-      "likes": 672,
+      "precioPEN": 35,
+      "precio": 35,
+      "videoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+      "posterUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?w=800",
       "i18n": {
         "es": {
-          "name": "Ceviche Mixto Carretillero",
-          "desc": "Pesca del día con mariscos en leche de tigre de ají limo, acompañado de camote glaseado y chicharrón de calamar."
+          "name": "Saltado",
+          "desc": "Papas fritas con carne picada y arroz"
         },
         "en": {
-          "name": "Street-Style Mixed Ceviche",
-          "desc": "Catch of the day and seafood cured in citrus lime chili marinade, sweet potato and crispy calamari."
+          "name": "",
+          "desc": ""
         },
         "fr": {
-          "name": "Ceviche Mixte du Pacifique",
-          "desc": "Poisson du jour et fruits de mer marinés au citron vert frais, patate douce glacée et calamars croustillants."
+          "name": "",
+          "desc": ""
         },
         "pt": {
-          "name": "Ceviche Misto Carretillero",
-          "desc": "Peixe do dia e frutos do mar marinados em limão com pimenta, batata-doce e lula crocante."
+          "name": "",
+          "desc": ""
         }
-      }
+      },
+      "disponible": true
     },
     {
-      "id": "dish_3",
-      "category": "drinks",
-      "tag": "Cocktail",
-      "pricePen": 28,
-      "poster": "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=900&auto=format&fit=crop&q=80",
-      "videoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-      "likes": 810,
+      "id": "dish-1791770040831",
+      "category": "mains",
+      "precioPEN": 35,
+      "precio": 35,
+      "videoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+      "posterUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?w=800",
       "i18n": {
         "es": {
-          "name": "Pisco Sour Catedral Clásico",
-          "desc": "Destilado peruano Quebranta de 42°, limón sutil recién exprimido, jarabe artesanal y espuma de clara suave."
+          "name": "Aji de gallina",
+          "desc": "Gallina al hilo semi picante con papa sancochada y arroz"
         },
         "en": {
-          "name": "Classic Cathedral Pisco Sour",
-          "desc": "Peruvian Quebranta Pisco, fresh hand-squeezed lime juice, simple syrup, egg white foam and aromatic bitters."
+          "name": "",
+          "desc": ""
         },
         "fr": {
-          "name": "Pisco Sour Cathédrale",
-          "desc": "Pisco Quebranta raffiné, citron vert pressé, sirop de canne et mousse onctueuse aux amers aromatiques."
+          "name": "",
+          "desc": ""
         },
         "pt": {
-          "name": "Pisco Sour Catedral Clássico",
-          "desc": "Pisco Quebranta artesanal, limão espremido na hora, xarope caseiro e espuma cremosa com angostura."
+          "name": "",
+          "desc": ""
         }
-      }
+      },
+      "disponible": true
     }
   ]
 }
