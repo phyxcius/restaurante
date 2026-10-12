@@ -32,7 +32,7 @@
     .brand-box { display: flex; align-items: center; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08); }
     .brand-avatar { width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(135deg, var(--accent), var(--primary)); display: flex; align-items: center; justify-content: center; font-size: 22px; color: #fff; }
 
-    /* ACORDEÓN PROTEGIDO */
+    /* ACORDEÓN TOKEN CON CONTRASEÑA */
     .token-box { background: #251a15; border: 1.5px dashed var(--accent); border-radius: 10px; overflow: hidden; }
     .token-trigger { width: 100%; background: none; border: none; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 800; color: var(--gold); font-size: 12px; }
     .token-content { display: none; padding: 12px; background: #18100c; border-top: 1px solid rgba(255,255,255,0.08); }
@@ -60,18 +60,25 @@
     .btn-del { background: #451a1a; color: #fca5a5; border: 1px solid #dc2626; }
     .btn-print { background: var(--blue); color: #fff; }
 
-    /* KDS: COMANDAS EN VIVO */
-    .live-orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 16px; }
+    /* KDS: COMANDAS EN VIVO Y ESTADOS */
+    .live-orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
     .order-card { background: #261b17; border-radius: 12px; border: 2px solid var(--card-border); padding: 16px; display: flex; flex-direction: column; gap: 8px; position: relative; }
-    .order-card.pendiente { border-color: #f59e0b; background: #2d1e18; }
-    .order-card.cocina { border-color: #38bdf8; }
+    .order-card.por_confirmar { border-color: #f59e0b; background: #2d1e18; box-shadow: 0 0 15px rgba(245, 158, 11, 0.25); }
+    .order-card.cocina { border-color: #38bdf8; background: #1c232d; }
     .order-card.servido { border-color: #4ade80; opacity: 0.75; }
+    .order-card.rechazado { border-color: #ef4444; opacity: 0.6; background: #2d1616; }
 
     .order-card-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 8px; }
-    .order-status-badge { font-size: 10px; font-weight: 900; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; }
-    .status-pendiente { background: #f59e0b; color: #000; }
+    .order-status-badge { font-size: 10px; font-weight: 900; text-transform: uppercase; padding: 4px 8px; border-radius: 6px; }
+    .status-por_confirmar { background: #f59e0b; color: #000; animation: pulseOrder 2s infinite; }
     .status-cocina { background: #0284c7; color: #fff; }
     .status-servido { background: #16a34a; color: #fff; }
+    .status-rechazado { background: #dc2626; color: #fff; }
+
+    @keyframes pulseOrder {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
 
     /* CATÁLOGO VISUAL */
     .dishes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
@@ -144,7 +151,7 @@
         </div>
       </div>
 
-      <!-- ACORDEÓN TOKEN GITHUB PROTEGIDO CON CONTRASEÑA -->
+      <!-- ACORDEÓN TOKEN CON CONTRASEÑA 42423549 -->
       <div class="token-box">
         <button class="token-trigger" type="button" onclick="alternarAcordeonToken()">
           <span><i class="fa-solid fa-lock"></i> Token GitHub</span>
@@ -200,12 +207,12 @@
     <!-- PANEL DERECHO -->
     <main class="main-view">
 
-      <!-- VISTA 1: COMANDAS EN VIVO -->
+      <!-- VISTA 1: PANTALLA KDS CON RECONFIRMACIÓN DE COMANDAS -->
       <section id="viewComandas">
         <div class="view-header">
           <div>
-            <h1>🛎️ Pantalla de Cocina (Comandas en Vivo)</h1>
-            <p>Los pedidos realizados desde los celulares se actualizan automáticamente aquí.</p>
+            <h1>🛎️ Pantalla de Cocina & Comandas en Vivo</h1>
+            <p>Revisa y reconfirma las órdenes entrantes antes de que pasen a preparación.</p>
           </div>
           <button class="btn btn-add" onclick="cargarComandasEnVivo()"><i class="fa-solid fa-rotate"></i> Actualizar Ahora</button>
         </div>
@@ -397,7 +404,7 @@
     }
 
     // ==============================================================
-    // ACORDEÓN TOKEN CON VALIDACIÓN DE CONTRASEÑA 42423549
+    // ACORDEÓN TOKEN CON CONTRASEÑA 42423549
     // ==============================================================
     function alternarAcordeonToken() {
       const box = document.getElementById('contenidoAcordeonToken');
@@ -410,7 +417,7 @@
       }
 
       if (!tokenDesbloqueado) {
-        const clave = prompt("🔐 ACCESO CREADOR:\n\nIngresa la contraseña de seguridad para desplegar el token:");
+        const clave = prompt("🔐 ACCESO CREADOR:\n\nIngresa la contraseña para desplegar el token:");
         if (clave === PASSWORD_MAESTRA_TOKEN) {
           tokenDesbloqueado = true;
           box.style.display = 'block';
@@ -439,12 +446,14 @@
       }
     }
 
-    // PANTALLA DE COCINA (KDS)
+    // ==============================================================
+    // KDS: PANTALLA DE COCINA CON RECONFIRMACIÓN DE COMANDAS
+    // ==============================================================
     function cargarComandasEnVivo() {
       const grid = document.getElementById('liveOrdersGrid');
       let comandas = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
 
-      document.getElementById('badgeTotalComandas').innerText = comandas.filter(c => c.estado !== 'servido').length;
+      document.getElementById('badgeTotalComandas').innerText = comandas.filter(c => c.estado !== 'servido' && c.estado !== 'rechazado').length;
 
       if (comandas.length === 0) {
         grid.innerHTML = '<p style="color:#aaa; font-size:14px;">No hay comandas pendientes en este momento.</p>';
@@ -458,7 +467,9 @@
               <strong style="font-size:16px; color:#fff;">${c.cliente}</strong>
               <div style="font-size:11px; color:#aaa;">${c.id} • ${c.fecha}</div>
             </div>
-            <span class="order-status-badge status-${c.estado}">${c.estado}</span>
+            <span class="order-status-badge status-${c.estado}">
+              ${c.estado === 'por_confirmar' ? '⚠️ Por Confirmar' : c.estado}
+            </span>
           </div>
 
           <div style="font-size:13px; font-weight:bold; color:var(--gold); margin:4px 0;">
@@ -472,10 +483,26 @@
             <span style="font-size:15px; font-weight:900; color:#86efac;">S/ ${(c.totalPEN || 0).toFixed(2)}</span>
           </div>
 
+          <!-- BOTONES DE RECONFIRMACIÓN Y PASO A COCINA -->
           <div style="display:flex; gap:6px; margin-top:8px;">
-            ${c.estado === 'pendiente' ? `<button class="btn btn-save" style="flex:1; padding:6px;" onclick="cambiarEstadoComanda(${i}, 'cocina')">🧑‍🍳 En Cocina</button>` : ''}
-            ${c.estado === 'cocina' ? `<button class="btn btn-add" style="flex:1; padding:6px;" onclick="cambiarEstadoComanda(${i}, 'servido')">✅ Servido</button>` : ''}
-            <button class="btn btn-del" style="padding:6px 10px;" onclick="eliminarComanda(${i})"><i class="fa-solid fa-trash"></i></button>
+            ${c.estado === 'por_confirmar' ? `
+              <button class="btn btn-add" style="flex:1; padding:7px; font-size:11.5px;" onclick="cambiarEstadoComanda(${i}, 'cocina')">
+                <i class="fa-solid fa-check"></i> Reconfirmar a Cocina
+              </button>
+              <button class="btn btn-del" style="padding:7px; font-size:11.5px;" onclick="rechazarComanda(${i})">
+                <i class="fa-solid fa-xmark"></i> Rechazar
+              </button>
+            ` : ''}
+
+            ${c.estado === 'cocina' ? `
+              <button class="btn btn-add" style="flex:1; padding:7px; font-size:11.5px;" onclick="cambiarEstadoComanda(${i}, 'servido')">
+                <i class="fa-solid fa-utensils"></i> Marcar Servido
+              </button>
+            ` : ''}
+
+            <button class="btn btn-del" style="padding:6px 10px;" onclick="eliminarComanda(${i})">
+              <i class="fa-solid fa-trash"></i>
+            </button>
           </div>
         </div>
       `).join('');
@@ -488,8 +515,17 @@
       cargarComandasEnVivo();
     }
 
+    function rechazarComanda(idx) {
+      if (confirm("¿Deseas rechazar o cancelar esta orden?")) {
+        let comandas = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
+        comandas[idx].estado = "rechazado";
+        localStorage.setItem(STORAGE_KEY_COMANDAS, JSON.stringify(comandas));
+        cargarComandasEnVivo();
+      }
+    }
+
     function eliminarComanda(idx) {
-      if (confirm("¿Eliminar esta comanda?")) {
+      if (confirm("¿Eliminar esta comanda del panel?")) {
         let comandas = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
         comandas.splice(idx, 1);
         localStorage.setItem(STORAGE_KEY_COMANDAS, JSON.stringify(comandas));
@@ -618,7 +654,7 @@
       document.getElementById('imgQRGenerado').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(link)}`;
     }
 
-    // CARGA DE DATOS DESDE GITHUB
+    // CARGA DE ARCHIVO DESDE GITHUB
     async function cargarDesdeGitHub() {
       const token = obtenerTokenSecreto();
       try {
@@ -642,7 +678,7 @@
 
       const btn = document.getElementById('btnPublicarSidebar');
       btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+      btn.innerText = "⏳ Guardando...";
 
       let sha = "";
       try {
