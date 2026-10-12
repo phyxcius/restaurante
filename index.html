@@ -15,7 +15,6 @@
       --text-main: #fffdfa;
       --text-muted: #d6cbbf;
       --gold-badge: #fbbf24;
-      --whatsapp-green: #25d366;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; font-family: system-ui, -apple-system, sans-serif; }
@@ -66,20 +65,44 @@
 
     .btn-quick-add { background: linear-gradient(135deg, var(--primary), var(--accent)); border: 1px solid rgba(251, 191, 36, 0.4); color: #fff; padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
 
-    /* BOTÓN FLOTANTE INFERIOR DERECHO */
+    /* BOTÓN FLOTANTE */
     .chat-bubble-container { position: fixed; bottom: 20px; right: 18px; display: flex; align-items: center; gap: 8px; z-index: 1500; cursor: pointer; }
     .chat-bubble-label { background: linear-gradient(135deg, #fef08a 0%, #fde047 100%); color: #78350f; font-weight: 900; font-size: 13px; padding: 8px 14px; border-radius: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.4); border: 2px solid var(--accent); }
     .chat-bubble-btn { position: relative; width: 56px; height: 56px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 50%; box-shadow: 0 6px 20px rgba(194, 65, 12, 0.5); display: flex; align-items: center; justify-content: center; border: 2px solid #facc15; }
     .chat-badge { position: absolute; top: -3px; right: -3px; background-color: #ef4444; color: #fff; border: 2px solid #fff; font-size: 11px; font-weight: 800; min-width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
-    /* POPUP DE ORDEN */
+    /* POPUP DE COMANDA */
     .popup-modal { position: fixed; inset: 0; background: rgba(18, 12, 10, 0.85); backdrop-filter: blur(6px); z-index: 2000; display: none; align-items: flex-end; justify-content: center; }
     .popup-modal.active { display: flex; }
     .popup-sheet { background: #241a15; width: 100%; max-width: 480px; max-height: 90dvh; border-radius: 24px 24px 0 0; padding: 18px 18px 24px; display: flex; flex-direction: column; border-top: 1.5px solid var(--glass-border); overflow-y: auto; }
 
     .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 10px; }
-    .order-items-list { overflow-y: auto; max-height: 22dvh; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+    .order-items-list { overflow-y: auto; max-height: 20dvh; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
     .order-item-row { display: flex; justify-content: space-between; align-items: center; background: #2d211b; padding: 8px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); }
+
+    /* SELECTOR DE MESAS EN CUADRADITOS */
+    .table-selector-label { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--gold-badge); letter-spacing: 0.5px; margin-bottom: 6px; display: flex; justify-content: space-between; }
+    .table-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 12px; }
+    .table-box-btn {
+      background: #2e201b;
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      color: #fff;
+      font-weight: 800;
+      font-size: 12px;
+      padding: 9px 4px;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+    .table-box-btn:active { transform: scale(0.95); }
+    .table-box-btn.selected {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-color: #facc15;
+      color: #fff;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+    }
+    .table-box-btn.extra { grid-column: span 2; font-size: 11px; }
 
     .grid-payments { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
     .btn-pay-option { background: #2d211b; border: 1px solid rgba(255, 255, 255, 0.12); color: var(--text-muted); padding: 8px 4px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; text-align: center; }
@@ -149,6 +172,29 @@
 
       <div class="order-items-list" id="orderItemsList"></div>
 
+      <!-- CUADRADITOS DE NÚMERO DE MESA -->
+      <div class="table-selector-label">
+        <span>📍 Selecciona tu Mesa:</span>
+        <span id="selectedTableBadge" style="color:#fde047;">Mesa 01</span>
+      </div>
+      <div class="table-grid" id="tableGridContainer">
+        <button type="button" class="table-box-btn selected" onclick="selectTableRow('Mesa 01', this)">1</button>
+        <button type="button" class="table-box-btn" onclick="selectTableRow('Mesa 02', this)">2</button>
+        <button type="button" class="table-box-btn" onclick="selectTableRow('Mesa 03', this)">3</button>
+        <button type="button" class="table-box-btn" onclick="selectTableRow('Mesa 04', this)">4</button>
+        <button type="button" class="table-box-btn" onclick="selectTableRow('Mesa 05', this)">5</button>
+        <button type="button" class="table-box-btn" onclick="selectTableRow('Mesa 06', this)">6</button>
+        <button type="button" class="table-box-btn" onclick="selectTableRow('Mesa 07', this)">7</button>
+        <button type="button" class="table-box-btn" onclick="selectTableRow('Mesa 08', this)">8</button>
+        <button type="button" class="table-box-btn" onclick="selectTableRow('Mesa 09', this)">9</button>
+        <button type="button" class="table-box-btn" onclick="selectTableRow('Mesa 10', this)">10</button>
+        <button type="button" class="table-box-btn" onclick="selectTableRow('Mesa 11', this)">11</button>
+        <button type="button" class="table-box-btn" onclick="selectTableRow('Mesa 12', this)">12</button>
+        <button type="button" class="table-box-btn extra" onclick="selectTableRow('Barra', this)">🍸 Barra</button>
+        <button type="button" class="table-box-btn extra" onclick="selectTableRow('Terraza 1', this)">☀️ Ter. 1</button>
+        <button type="button" class="table-box-btn extra" onclick="selectTableRow('Terraza 2', this)">☀️ Ter. 2</button>
+      </div>
+
       <!-- PAGO Y VUELTO -->
       <div class="grid-payments">
         <button type="button" class="btn-pay-option active" id="btnPayEfectivo" onclick="elegirPago('Efectivo', this)">💵 Efectivo</button>
@@ -172,10 +218,9 @@
         </div>
       </div>
 
-      <!-- MESA Y NOTAS -->
-      <input type="text" id="tableOrAddressInput" class="custom-input" placeholder="Nº de Mesa (ej: Mesa 04 / Terraza / Barra)" />
+      <!-- DATOS ADICIONALES -->
       <input type="text" id="clientNameInput" class="custom-input" placeholder="Nombre de quien pide (opcional)" />
-      <input type="text" id="notesInput" class="custom-input" placeholder="Especificaciones para cocina (término, alergias)" />
+      <input type="text" id="notesInput" class="custom-input" placeholder="Notas para cocina (término de carne, alergias, etc.)" />
 
       <!-- TOTAL Y ENVÍO -->
       <div style="display:flex; justify-content:space-between; align-items:baseline; margin: 10px 0; border-top:1px dashed rgba(255,255,255,0.15); padding-top:8px;">
@@ -194,7 +239,6 @@
   </div>
 
   <script>
-    // CONFIGURACIÓN PREDETERMINADA
     let CONFIG = {
       nombre: "Inka Bistro Cusco",
       eslogan: "Cusco • Gourmet",
@@ -212,13 +256,28 @@
     let metodoPago = "Efectivo";
     let videoObserver = null;
     let ultimoTotalPagarPEN = 0;
+    let mesaSeleccionada = "Mesa 01";
 
-    // DETECTAR PARÁMETRO DE MESA DESDE EL CÓDIGO QR (?mesa=04)
+    function selectTableRow(numMesa, boton) {
+      mesaSeleccionada = numMesa;
+      document.querySelectorAll('.table-box-btn').forEach(b => b.classList.remove('selected'));
+      boton.classList.add('selected');
+      document.getElementById('selectedTableBadge').innerText = numMesa;
+    }
+
     function detectarMesaDesdeURL() {
       const params = new URLSearchParams(window.location.search);
       const mesa = params.get('mesa');
       if (mesa) {
-        document.getElementById('tableOrAddressInput').value = decodeURIComponent(mesa);
+        mesaSeleccionada = decodeURIComponent(mesa);
+        document.getElementById('selectedTableBadge').innerText = mesaSeleccionada;
+        document.querySelectorAll('.table-box-btn').forEach(b => {
+          if (b.innerText.trim() === mesaSeleccionada.replace('Mesa ', '').trim() || b.innerText.includes(mesaSeleccionada)) {
+            b.classList.add('selected');
+          } else {
+            b.classList.remove('selected');
+          }
+        });
       }
     }
 
@@ -231,7 +290,7 @@
           if (data.config) CONFIG = Object.assign(CONFIG, data.config);
           if (data.restaurante) CONFIG.nombre = data.restaurante;
         }
-      } catch (e) { console.warn("Usando catálogo local", e); }
+      } catch (e) { console.warn("Catálogo local", e); }
 
       if (catalogo.length === 0) {
         catalogo = [
@@ -337,7 +396,6 @@
       document.querySelectorAll('video').forEach(v => v.muted = isGlobalMuted);
     }
 
-    /* CARRITO / ORDEN */
     function addToOrder(id) {
       pedido[id] = (pedido[id] || 0) + 1;
       actualizarVistaPopup();
@@ -428,14 +486,10 @@
       }
     }
 
-    // ==============================================================
-    // ENVÍO DIRECTO DE LA COMANDA AL PANEL DE CONTROL
-    // ==============================================================
     async function enviarComandaDirectaAlPanel() {
       const itemIds = Object.keys(pedido);
       if (itemIds.length === 0) return alert("Por favor añade al menos un plato a la comanda.");
 
-      const mesa = document.getElementById('tableOrAddressInput').value.trim() || "Mesa en Sala (No especificada)";
       const cliente = document.getElementById('clientNameInput').value.trim() || "Comensal";
       const notas = document.getElementById('notesInput').value.trim();
 
@@ -458,35 +512,29 @@
       const nuevaComanda = {
         id: "CMD-" + Date.now(),
         fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        cliente: `${mesa} (${cliente})`,
+        cliente: `${mesaSeleccionada} (${cliente})`,
+        mesa: mesaSeleccionada,
         productos: detalleTexto.replace(/, $/, ""),
         items: platosComanda,
         totalPEN: ultimoTotalPagarPEN,
         pago: metodoPago,
         notas: notas,
-        estado: "pendiente" // pendiente | cocina | servido
+        estado: "por_confirmar" // Estado inicial de reconfirmación
       };
 
-      // 1. Guardar en almacenamiento compartido para el Panel de Control
       const STORAGE_KEY_COMANDAS = "inkabistro_comandas_activas";
       let comandasActivas = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
       comandasActivas.unshift(nuevaComanda);
       localStorage.setItem(STORAGE_KEY_COMANDAS, JSON.stringify(comandasActivas));
 
-      // 2. Registro histórico para reportes contables
       const STORAGE_KEY_VENTAS = "inkabistro_ventas_registro";
       let ventas = JSON.parse(localStorage.getItem(STORAGE_KEY_VENTAS)) || [];
       ventas.unshift(nuevaComanda);
       localStorage.setItem(STORAGE_KEY_VENTAS, JSON.stringify(ventas));
 
-      msg.innerText = "✔ ¡Comanda recibida en la pantalla de cocina del panel!";
+      msg.innerText = `✔ ¡Comanda enviada a Cocina para ${mesaSeleccionada}!`;
 
-      // 3. Opcional: Notificar a WhatsApp de respaldo
       setTimeout(() => {
-        if (confirm("¿Deseas enviar también la confirmación al WhatsApp del restaurante?")) {
-          const wspText = `🛎️ *NUEVA COMANDA [${nuevaComanda.id}]*\n📍 *Ubicación:* ${mesa}\n👤 *Cliente:* ${cliente}\n📋 *Platos:* ${detalleTexto}\n💰 *Total:* S/ ${ultimoTotalPagarPEN.toFixed(2)}\n💳 *Pago:* ${metodoPago}`;
-          window.open(`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(wspText)}`, '_blank');
-        }
         for (let k in pedido) delete pedido[k];
         actualizarVistaPopup();
         btn.disabled = false;
