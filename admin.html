@@ -42,7 +42,7 @@
     .chuspa-badge-sidebar:hover { transform: scale(1.02); background: rgba(254, 252, 232, 0.15); }
     .chuspa-img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1px solid #ca8a04; background: #fff; }
 
-    /* TOKEN GITHUB PROTEGIDO CON CONTRASEÑA 42423549 */
+    /* ACORDEÓN TOKEN CON CONTRASEÑA 42423549 */
     .token-box { background: #251a15; border: 1.5px dashed var(--accent); border-radius: 10px; overflow: hidden; }
     .token-trigger { width: 100%; background: none; border: none; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 800; color: var(--gold); font-size: 12px; }
     .token-content { display: none; padding: 12px; background: #18100c; border-top: 1px solid rgba(255,255,255,0.08); }
@@ -57,7 +57,7 @@
 
     /* VISTA PRINCIPAL */
     .main-view { padding: 24px 28px; overflow-y: auto; max-height: 100vh; }
-    .view-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px; border-bottom: 1.5px solid rgba(255,255,255,0.08); padding-bottom: 14px; }
+    .view-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: gap: 12px; border-bottom: 1.5px solid rgba(255,255,255,0.08); padding-bottom: 14px; }
     .view-header h1 { font-size: 22px; font-weight: 900; color: var(--gold); }
 
     .card { background: var(--card-bg); padding: 18px 20px; border-radius: 14px; border: 1px solid var(--card-border); margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.25); }
@@ -571,21 +571,17 @@
               </span>
             </div>
 
-            <!-- Platos -->
             <div class="order-items-box">
               ${c.productos || 'Sin detalle de platos'}
             </div>
 
-            <!-- Notas -->
             ${c.notas ? `<div class="order-notes-tag">📝 Nota: ${c.notas}</div>` : ''}
 
-            <!-- Barra inferior -->
             <div class="order-bottom-bar">
               <span>Pago: <b>${c.pago || 'Efectivo'}</b></span>
               <span style="font-size:16px; font-weight:900; color:#86efac;">S/ ${(c.totalPEN || c.total || 0).toFixed(2)}</span>
             </div>
 
-            <!-- BOTONES DE ACCIÓN PARA CADA ESTADO -->
             <div class="order-actions-container">
               ${estado === 'por_confirmar' ? `
                 <button type="button" class="btn-action-confirm" onclick="cambiarEstadoComanda(${i}, 'cocina')">
@@ -626,13 +622,13 @@
     // MONITOR DE MESAS
     function actualizarMonitorDeMesas(comandas) {
       const grid = document.getElementById('tablesMonitorGrid');
-      // Las mesas ocupadas son aquellas en por_confirmar, cocina o servido
       const mesasOcupadas = comandas
         .filter(c => c.estado === 'por_confirmar' || c.estado === 'cocina' || c.estado === 'servido')
-        .map(c => (c.mesa || '').trim());
+        .map(c => normalizarNombreMesa(c.mesa));
 
       grid.innerHTML = todasLasMesas.map(m => {
-        const estaOcupada = mesasOcupadas.includes(m);
+        const idNormal = normalizarNombreMesa(m);
+        const estaOcupada = mesasOcupadas.includes(idNormal);
         return `
           <div class="table-pill ${estaOcupada ? 'ocupada' : 'libre'}" onclick="desocuparMesaDirecta('${m}', ${estaOcupada})">
             ${m.replace('Mesa ', 'M-')} ${estaOcupada ? '🔒' : '✔'}
@@ -641,12 +637,23 @@
       }).join('');
     }
 
+    function normalizarNombreMesa(m) {
+      if (!m) return "";
+      let s = m.trim();
+      const match = s.match(/\d+/);
+      if (match && s.toLowerCase().includes("mesa")) {
+        const num = parseInt(match[0]);
+        return "Mesa " + (num < 10 ? "0" + num : num);
+      }
+      return s;
+    }
+
     function desocuparMesaDirecta(nombreMesa, estaOcupada) {
       if (!estaOcupada) return;
       if (confirm(`¿Deseas desocupar y liberar la ${nombreMesa} para nuevos clientes?`)) {
         let comandas = JSON.parse(localStorage.getItem(STORAGE_KEY_COMANDAS)) || [];
         comandas.forEach(c => {
-          if (c.mesa === nombreMesa && (c.estado === 'por_confirmar' || c.estado === 'cocina' || c.estado === 'servido')) {
+          if (normalizarNombreMesa(c.mesa) === normalizarNombreMesa(nombreMesa) && (c.estado === 'por_confirmar' || c.estado === 'cocina' || c.estado === 'servido')) {
             c.estado = 'liberado';
           }
         });
@@ -690,12 +697,11 @@
       }
     }
 
-    // GUARDAR Y SUBIR COMANDAS A LA NUBE
+    // AUTO-PUBLICACIÓN DE COMANDAS A GITHUB EN TIEMPO REAL
     async function guardarYNotificarComandas(comandas) {
       localStorage.setItem(STORAGE_KEY_COMANDAS, JSON.stringify(comandas));
       cargarComandasEnVivo();
 
-      // Sincronizar comandas.json en GitHub para que todos los dispositivos lean el cambio
       const token = obtenerTokenSecreto();
       if (!token) return;
 
@@ -711,7 +717,7 @@
       } catch (e) {}
 
       const payload = {
-        message: "Actualización de estado de comandas y mesas",
+        message: "Actualización de comandas y estado de mesas en vivo",
         content: btoa(unescape(encodeURIComponent(JSON.stringify(comandas, null, 2)))),
         branch: "main"
       };
@@ -724,7 +730,7 @@
           body: JSON.stringify(payload)
         });
       } catch (e) {
-        console.warn("No se pudo sincronizar comandas.json en GitHub:", e);
+        console.warn("Auto-sincronización fallida:", e);
       }
     }
 
@@ -881,7 +887,7 @@
       renderizarVisualDishes();
     }
 
-    // PUBLICAR EN GITHUB
+    // PUBLICAR CATÁLOGO EN GITHUB
     async function sincronizarConGitHub() {
       const token = obtenerTokenSecreto();
       if (!token) return alert("Configura tu token en el acordeón de la izquierda.");
