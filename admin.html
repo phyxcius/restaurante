@@ -60,25 +60,12 @@
     }
     .brand-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-    .user-session-badge {
-      background: rgba(245, 158, 11, 0.12); border: 1px solid var(--card-border);
-      border-radius: 8px; padding: 6px 10px; font-size: 11.5px;
-      display: flex; justify-content: space-between; align-items: center;
-    }
-
     .btn-toggle-menu {
       width: 36px; height: 36px; border-radius: 8px;
       background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35);
       color: var(--gold); display: flex; align-items: center; justify-content: center;
       font-size: 15px; cursor: pointer; flex-shrink: 0;
     }
-
-    .chuspa-badge-sidebar {
-      display: flex; align-items: center; gap: 8px;
-      background: rgba(254, 252, 232, 0.08); border: 1px solid rgba(234, 179, 8, 0.35);
-      padding: 6px 10px; border-radius: 20px; text-decoration: none;
-    }
-    .chuspa-img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1px solid #ca8a04; background: #fff; }
 
     .nav-menu { display: flex; flex-direction: column; gap: 6px; flex: 1; }
     .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 10px; border: 1px solid transparent; background: transparent; color: var(--text-muted); font-size: 13px; font-weight: 700; cursor: pointer; text-align: left; }
@@ -137,28 +124,20 @@
     .btn-action-confirm { flex: 1; background: linear-gradient(135deg, #16a34a, #22c55e); color: #fff; padding: 9px; font-size: 12px; border-radius: 8px; border: none; font-weight: 800; cursor: pointer; }
     .btn-action-kitchen { flex: 1; background: linear-gradient(135deg, #0284c7, #38bdf8); color: #fff; padding: 9px; font-size: 12px; border-radius: 8px; border: none; font-weight: 800; cursor: pointer; }
     .btn-action-cobrar { flex: 1; background: linear-gradient(135deg, #15803d, #22c55e); color: #fff; padding: 9px; font-size: 12px; border-radius: 8px; border: none; font-weight: 900; cursor: pointer; }
-    .btn-action-ask-more { width: 100%; background: #ca8a04; color: #fff; padding: 7px; font-size: 11.5px; border-radius: 6px; border: none; font-weight: 800; cursor: pointer; }
 
-    /* MODAL COBRO */
-    .modal-cobro-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); z-index: 500; display: none; align-items: center; justify-content: center; padding: 14px; }
-    .modal-cobro-overlay.active { display: flex; }
-    .modal-cobro-box { background: #241712; border: 2px solid var(--accent); border-radius: 18px; max-width: 460px; width: 100%; padding: 22px; display: flex; flex-direction: column; gap: 12px; }
-    .grid-cobro-metodos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 8px 0; }
-    .btn-metodo-cobro { background: #332018; border: 1px solid rgba(255,255,255,0.15); color: #ddd; padding: 10px 4px; border-radius: 8px; font-size: 11.5px; font-weight: 800; cursor: pointer; text-align: center; }
-    .btn-metodo-cobro.active { background: linear-gradient(135deg, var(--primary), var(--accent)); border-color: #fde047; color: #fff; }
-    .caja-vuelto-tpv { background: #180e0a; border: 1.5px dashed var(--accent); border-radius: 12px; padding: 12px; margin-top: 4px; }
-    .quick-cash-row { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
-    .btn-quick-monto { background: #3a251b; border: 1px solid rgba(245,158,11,0.3); color: #fde047; padding: 5px 9px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; }
-    .badge-vuelto-resultado { margin-top: 10px; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 900; display: flex; justify-content: space-between; align-items: center; background: rgba(22, 163, 74, 0.2); color: #86efac; border: 1px solid #16a34a; }
-    .badge-vuelto-resultado.falta { background: rgba(220, 38, 38, 0.2); color: #fca5a5; border-color: #dc2626; }
+    /* MÓDULO RESERVAS EN ADMIN */
+    .reservas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+    .reserva-card {
+      background: #1e1410; border: 1.5px solid var(--accent); border-radius: 12px; padding: 14px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .reserva-badge-tipo { background: var(--primary); color: #fff; font-size: 10px; font-weight: 900; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; }
+    .mesa-checkbox-group { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+    .mesa-check-label {
+      background: #2b1c16; border: 1px solid rgba(255,255,255,0.15); padding: 4px 8px; border-radius: 6px;
+      font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px;
+    }
 
-    /* MODAL PLATO */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 550; display: none; align-items: center; justify-content: center; padding: 20px; }
-    .modal-overlay.active { display: flex; }
-    .modal-box { background: var(--card-bg); border: 1.5px solid var(--card-border); border-radius: 16px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 22px; display: flex; flex-direction: column; gap: 12px; }
-
-    /* TABLA REPORTES */
-    .filter-grid-contable { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; background: #18100c; padding: 12px; border-radius: 10px; margin-bottom: 14px; }
     .custom-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; }
     .custom-table th, .custom-table td { border: 1px solid rgba(255,255,255,0.1); padding: 8px 10px; }
     .custom-table th { background: #2f221c; color: var(--gold); }
@@ -167,6 +146,9 @@
     .dish-card-visual { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
     .dish-media { height: 150px; background: #000; overflow: hidden; }
     .dish-media img { width: 100%; height: 100%; object-fit: cover; }
+    .switch-btn { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; border: none; cursor: pointer; }
+    .switch-btn.btn-to-off { background: #451a1a; color: #fca5a5; border: 1px solid #dc2626; }
+    .switch-btn.btn-to-on { background: #14532d; color: #86efac; border: 1px solid #16a34a; }
 
     .sidebar-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 180; }
 
@@ -178,64 +160,37 @@
       .admin-layout.sidebar-open .sidebar-backdrop { display: block; }
       .main-view { padding: 16px 14px; }
     }
-
-    @media print {
-      body { background: #fff !important; color: #000 !important; }
-      .no-print, .top-admin-bar, .sidebar, .sidebar-backdrop, .nav-menu, .btn, .filter-grid-contable { display: none !important; }
-      #ticketImpresionArea, #ticketImpresionArea * { visibility: visible; }
-      #areaImpresionReporte, #areaImpresionReporte * { visibility: visible; }
-      #areaImpresionReporte { width: 100% !important; border: none !important; }
-      .custom-table th, .custom-table td { color: #000 !important; border: 1px solid #333 !important; }
-      .custom-table th { background: #eee !important; }
-    }
   </style>
 </head>
 <body>
 
-  <!-- LOGIN -->
+  <!-- PANTALLA LOGIN -->
   <div id="pantallaLogin" style="display:flex; justify-content:center; align-items:center; min-height:85vh; padding:16px;">
     <div class="card" style="max-width:400px; width:100%; padding:26px;">
       <div style="text-align:center; font-size:38px; margin-bottom:6px;">🍽️</div>
       <h3 style="color:var(--gold); text-align:center; margin-bottom:4px;" id="loginTitlePreview">La Cusqueñita</h3>
-      <p style="font-size:12px; color:var(--text-muted); text-align:center; margin-bottom:16px;">Control de Caja & Operaciones</p>
+      <p style="font-size:12px; color:var(--text-muted); text-align:center; margin-bottom:16px;">Acceso al Panel Administrativo</p>
       
       <form onsubmit="verificarLoginSistema(event)">
-        <label>Rol:</label>
-        <select id="loginRol" onchange="alternarCamposLogin()">
-          <option value="admin">Administrador (Acceso Total)</option>
-          <option value="cajero">Cajero / Mozo (Solo Operaciones)</option>
-        </select>
-
         <label>Usuario:</label>
         <input type="text" id="loginUsuario" value="admin" required autofocus>
 
         <label>Contraseña:</label>
         <input type="password" id="loginPassword" placeholder="••••••••" required>
 
-        <div id="cajaChicaLoginGroup" style="display:none; background:#180e0a; padding:10px; border-radius:8px; margin-top:10px; border:1px dashed var(--accent);">
-          <label style="margin-top:0;">Turno:</label>
-          <select id="loginTurno">
-            <option value="Mañana (07:00 - 15:00)">Mañana</option>
-            <option value="Tarde (15:00 - 23:00)">Tarde</option>
-            <option value="Noche (23:00 - 07:00)">Noche</option>
-          </select>
-          <label>Caja Chica Inicial (S/):</label>
-          <input type="number" step="0.5" id="loginCajaChica" value="100.00">
-        </div>
-
         <button type="submit" class="btn btn-save" style="margin-top:16px; width:100%;">Iniciar Sesión</button>
       </form>
     </div>
   </div>
 
-  <!-- DASHBOARD -->
+  <!-- DASHBOARD PRINCIPAL -->
   <div id="panelAdminPrincipal" style="display: none;">
     <header class="top-admin-bar no-print">
       <button type="button" class="btn-open-sidebar" onclick="abrirMenuLateral()">
         <i class="fa-solid fa-bars"></i> <span>Menú</span>
       </button>
       <div style="font-weight:900; font-size:14px; color:var(--gold);" id="topBarTitle">La Cusqueñita</div>
-      <div id="badgeTopOrders" style="background:#ef4444; color:#fff; font-size:11px; padding:2px 8px; border-radius:12px; font-weight:bold;">0</div>
+      <button type="button" onclick="probarSonidoUber()" style="background:none; border:none; color:var(--gold); font-size:16px;"><i class="fa-solid fa-volume-high"></i></button>
     </header>
 
     <div class="admin-layout" id="adminLayoutWrapper">
@@ -246,7 +201,7 @@
           <div class="brand-left">
             <div class="brand-avatar" id="headerAvatar">🍽️</div>
             <div>
-              <h2 id="headerBusinessName" style="font-size:15px; color:var(--gold); white-space:nowrap; text-overflow:ellipsis; overflow:hidden; max-width:145px;">La Cusqueñita</h2>
+              <h2 id="headerBusinessName" style="font-size:15px; color:var(--gold); white-space:nowrap; overflow:hidden; max-width:145px;">La Cusqueñita</h2>
               <span id="headerBusinessSlogan" style="font-size:10.5px; color:#aaa; display:block;">Cusco • Gourmet</span>
             </div>
           </div>
@@ -255,45 +210,34 @@
           </button>
         </div>
 
-        <div class="user-session-badge">
-          <div>
-            <b id="lblSesionUsuario">Admin</b>
-            <span style="font-size:9.5px; color:#aaa; display:block;" id="lblSesionTurno">Acceso Total</span>
-          </div>
-          <button type="button" class="btn btn-del" style="padding:4px 7px; font-size:10px;" onclick="cerrarTurnoCaja()">Cerrar Caja</button>
-        </div>
-
-        <a href="https://www.lachuspaanuncios.com/" target="_blank" rel="noopener noreferrer" class="chuspa-badge-sidebar">
-          <img src="CHUSPITA-circulo.png" alt="La Chuspa" class="chuspa-img" onerror="this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png'">
-          <div style="display:flex; flex-direction:column; line-height:1.15;">
-            <span style="font-size:11px; font-weight:900; color:#fde047;">La Chuspa Tech</span>
-            <span style="font-size:8.5px; font-weight:700; color:#fed7aa;">by La Chuspa</span>
-          </div>
-        </a>
-
         <nav class="nav-menu">
           <button class="nav-item active" id="btnNavComandas" onclick="seleccionarOpcionNav('comandas')">
             <i class="fa-solid fa-bell-concierge"></i> Comandas en Vivo
             <span class="badge-live-orders" id="badgeTotalComandas">0</span>
           </button>
           
-          <button class="nav-item rol-admin-only" id="btnNavPlatos" onclick="seleccionarOpcionNav('platos')">
+          <button class="nav-item" id="btnNavReservas" onclick="seleccionarOpcionNav('reservas')">
+            <i class="fa-solid fa-calendar-check"></i> Gestión de Reservas
+            <span class="badge-live-orders" id="badgeTotalReservas" style="background:#2563eb;">0</span>
+          </button>
+
+          <button class="nav-item" id="btnNavPlatos" onclick="seleccionarOpcionNav('platos')">
             <i class="fa-solid fa-utensils"></i> Catálogo de Platos
           </button>
           
-          <button class="nav-item rol-admin-only" id="btnNavIdentidad" onclick="seleccionarOpcionNav('identidad')">
+          <button class="nav-item" id="btnNavIdentidad" onclick="seleccionarOpcionNav('identidad')">
             <i class="fa-solid fa-store"></i> Identidad & SUNAT
           </button>
           
-          <button class="nav-item rol-admin-only" id="btnNavConfig" onclick="seleccionarOpcionNav('config')">
+          <button class="nav-item" id="btnNavConfig" onclick="seleccionarOpcionNav('config')">
             <i class="fa-solid fa-credit-card"></i> Pagos & Contacto
           </button>
           
-          <button class="nav-item rol-admin-only" id="btnNavMesas" onclick="seleccionarOpcionNav('mesas')">
+          <button class="nav-item" id="btnNavMesas" onclick="seleccionarOpcionNav('mesas')">
             <i class="fa-solid fa-qrcode"></i> Códigos QR Mesas
           </button>
           
-          <button class="nav-item rol-admin-only" id="btnNavReportes" onclick="seleccionarOpcionNav('reportes')">
+          <button class="nav-item" id="btnNavReportes" onclick="seleccionarOpcionNav('reportes')">
             <i class="fa-solid fa-chart-line"></i> Reporte Contable & SUNAT
           </button>
           
@@ -309,7 +253,7 @@
         </div>
       </aside>
 
-      <!-- VISTAS -->
+      <!-- VISTAS PRINCIPALES -->
       <main class="main-view" id="mainArea">
 
         <!-- 1. COMANDAS KDS -->
@@ -317,14 +261,14 @@
           <div class="view-header">
             <div>
               <h1>🛎️ Pantalla KDS: Aceptar y Preparar Comandas</h1>
-              <p>Control operativo en vivo.</p>
+              <p>Revisa y gestiona las órdenes entrantes con alertas sonoras.</p>
             </div>
             <button class="btn btn-add" onclick="cargarComandasEnVivo()"><i class="fa-solid fa-rotate"></i> Actualizar</button>
           </div>
 
           <div class="tables-monitor-bar">
             <div class="tables-monitor-header">
-              <span>📍 Monitor de Mesas (Rojo = Ocupada | Verde = Libre):</span>
+              <span>📍 Monitor de Mesas (Rojo = Ocupada/Reservada | Verde = Libre):</span>
             </div>
             <div class="tables-monitor-grid" id="tablesMonitorGrid"></div>
           </div>
@@ -332,19 +276,54 @@
           <div class="live-orders-grid" id="liveOrdersGrid"></div>
         </section>
 
-        <!-- 2. CATÁLOGO DE PLATOS -->
+        <!-- 2. GESTIÓN DE RESERVAS Y BLOQUEO DE GRUPOS / CENA NAVIDEÑA -->
+        <section id="viewReservas" style="display:none;">
+          <div class="view-header">
+            <div>
+              <h1>📅 Módulo de Reservas & Bloqueo de Mesas por Grupos</h1>
+              <p>Asigna y bloquea múltiples mesas para cenas navideñas, grupos y eventos.</p>
+            </div>
+            <button class="btn btn-add" onclick="cargarReservasFirebase()"><i class="fa-solid fa-rotate"></i> Actualizar</button>
+          </div>
+
+          <!-- INTERRUPTOR DE RESERVAS O REDIRECCIÓN WEB -->
+          <div class="card" style="border:1.5px solid var(--accent); background:#1e1410;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+              <div>
+                <strong style="color:var(--gold); font-size:14px;"><i class="fa-solid fa-sliders"></i> Estado del Sistema de Reservas Online</strong>
+                <p style="font-size:11.5px; color:#aaa; margin-top:2px;">
+                  Si las bloqueas, los comensales serán redirigidos a la página web oficial del restaurante.
+                </p>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <select id="cfgEstadoReservas" style="width:auto; padding:7px 12px; font-weight:bold;" onchange="guardarEstadoReservas(this.value)">
+                  <option value="habilitadas">🟢 Habilitadas (Aceptar reservas)</option>
+                  <option value="bloqueadas">🔴 Bloqueadas (Redirigir a Web)</option>
+                </select>
+              </div>
+            </div>
+            <div style="margin-top:10px;">
+              <label>URL de la Página Web para Redirección:</label>
+              <input type="url" id="cfgUrlRedireccionWeb" value="https://www.lachuspaanuncios.com/" onchange="guardarUrlWeb(this.value)">
+            </div>
+          </div>
+
+          <div class="reservas-grid" id="reservasCardsGrid"></div>
+        </section>
+
+        <!-- 3. CATÁLOGO DE PLATOS -->
         <section id="viewPlatos" style="display:none;">
           <div class="view-header">
             <div>
               <h1>🍽️ Catálogo Visual de la Carta</h1>
-              <p>Edita platos, precios y disponibilidad en tiempo real.</p>
+              <p>Edita platos, recetas, precios e imágenes en tiempo real.</p>
             </div>
             <button class="btn btn-add" onclick="abrirModalPlato()"><i class="fa-solid fa-plus"></i> Nuevo Plato</button>
           </div>
           <div class="dishes-grid" id="dishesVisualGrid"></div>
         </section>
 
-        <!-- 3. IDENTIDAD Y SUNAT -->
+        <!-- 4. IDENTIDAD Y SUNAT -->
         <section id="viewIdentidad" style="display:none;">
           <div class="view-header"><h1>🏪 Identidad del Negocio & SUNAT</h1></div>
           <div class="card">
@@ -384,7 +363,7 @@
           </div>
         </section>
 
-        <!-- 4. PAGOS -->
+        <!-- 5. PAGOS -->
         <section id="viewConfig" style="display:none;">
           <div class="view-header"><h1>💳 Canales de Cobro</h1></div>
           <div class="card">
@@ -395,7 +374,7 @@
           </div>
         </section>
 
-        <!-- 5. QR MESAS -->
+        <!-- 6. QR MESAS -->
         <section id="viewMesas" style="display:none;">
           <div class="view-header"><h1>🏷️ Códigos QR por Mesa</h1></div>
           <div class="card">
@@ -411,12 +390,12 @@
           </div>
         </section>
 
-        <!-- 6. REPORTES SUNAT CON FILTRO POR USUARIO -->
+        <!-- 7. REPORTES SUNAT CON FILTRO POR USUARIOS -->
         <section id="viewReportes" style="display:none;">
           <div class="view-header">
             <div>
               <h1>📊 Reporte Contable & SUNAT</h1>
-              <p>Registro de ventas con desglose de Base Imponible, IGV y Filtro por Cajero/Usuario.</p>
+              <p>Ventas con Base Imponible, IGV y Filtro por Cajero/Usuario.</p>
             </div>
             <button class="btn btn-print no-print" onclick="window.print()"><i class="fa-solid fa-print"></i> Imprimir Reporte</button>
           </div>
@@ -427,9 +406,6 @@
               <div style="font-size:12px; color:var(--text-muted);">
                 <span id="repLocalRuc">RUC: 20601234567</span> | <span id="repLocalDireccion">Cusco, Perú</span>
               </div>
-              <div style="font-size:11px; color:#aaa; margin-top:2px;">
-                REGISTRO OFICIAL DE VENTAS • MONEDA: SOLES (PEN) • FECHA: <span id="repFechaEmision"></span>
-              </div>
             </div>
 
             <div class="filter-grid-contable no-print">
@@ -439,9 +415,6 @@
                   <option value="">Todos los Usuarios</option>
                   <option value="admin">Administrador</option>
                   <option value="cajero">Cajero</option>
-                  <option value="Mañana">Turno Mañana</option>
-                  <option value="Tarde">Turno Tarde</option>
-                  <option value="Noche">Turno Noche</option>
                 </select>
               </div>
               <div>
@@ -460,16 +433,6 @@
                   <option value="/11/">Noviembre</option><option value="/12/">Diciembre</option>
                 </select>
               </div>
-              <div>
-                <label>Método de Pago:</label>
-                <select id="filtroMetodo" onchange="aplicarFiltrosContables()">
-                  <option value="">Todos</option>
-                  <option value="Efectivo">Efectivo</option>
-                  <option value="Yape">Yape</option>
-                  <option value="Plin">Plin</option>
-                  <option value="Tarjeta">Tarjeta POS</option>
-                </select>
-              </div>
             </div>
 
             <table class="custom-table" id="tablaContableReport">
@@ -478,8 +441,8 @@
                   <th>Fecha/Hora</th>
                   <th>Mesa/Cliente</th>
                   <th>Atendido Por</th>
-                  <th>Platos Consumidos</th>
-                  <th>Método Pago</th>
+                  <th>Platos</th>
+                  <th>Método</th>
                   <th>Base Imp.</th>
                   <th>IGV (18%)</th>
                   <th>Total</th>
@@ -488,17 +451,11 @@
               <tbody id="tablaVentasBody"></tbody>
             </table>
 
-            <div style="margin-top:14px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; border-top:1px dashed #666; padding-top:10px;">
-              <div style="font-size:12px; color:var(--text-muted);">
-                Base Imponible Total: <b id="repPrintBase" style="color:var(--text-main);">S/ 0.00</b><br>
-                Total IGV Fiscal: <b id="repPrintIgv" style="color:var(--text-main);">S/ 0.00</b>
-              </div>
-              <div style="font-size:18px; font-weight:900; color:var(--gold);" id="repPrintTotales">Total: S/ 0.00</div>
-            </div>
+            <div style="margin-top:14px; text-align:right; font-size:18px; font-weight:900; color:var(--gold);" id="repPrintTotales">Total: S/ 0.00</div>
           </div>
         </section>
 
-        <!-- 7. RESEÑAS -->
+        <!-- 8. RESEÑAS -->
         <section id="viewResenas" style="display:none;">
           <div class="view-header"><h1>⭐ Reseñas & Comentarios</h1></div>
           <div class="card"><div id="contenedorResenasAdmin">Cargando...</div></div>
@@ -506,103 +463,6 @@
 
       </main>
     </div>
-  </div>
-
-  <!-- MODAL COBRO -->
-  <div class="modal-cobro-overlay" id="modalCobroTPV">
-    <div class="modal-cobro-box">
-      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px;">
-        <h3 style="color:var(--gold); font-size:17px; font-weight:900;" id="tpvMesaTitulo">Cobrar Mesa</h3>
-        <button type="button" style="background:none; border:none; color:#aaa; font-size:22px; cursor:pointer;" onclick="cerrarModalCobro()">&times;</button>
-      </div>
-
-      <div style="background:#180e0a; padding:10px 14px; border-radius:10px; display:flex; justify-content:space-between; align-items:baseline;">
-        <span style="font-weight:bold; font-size:13px;">Total a Cobrar:</span>
-        <span style="font-size:24px; font-weight:900; color:#86efac;" id="tpvTotalPagar">S/ 0.00</span>
-      </div>
-
-      <div class="grid-cobro-metodos">
-        <button type="button" class="btn-metodo-cobro active" id="btnTPVEfectivo" onclick="seleccionarMetodoCobro('Efectivo', this)">💵 Efectivo</button>
-        <button type="button" class="btn-metodo-cobro" onclick="seleccionarMetodoCobro('Yape', this)">🟣 Yape</button>
-        <button type="button" class="btn-metodo-cobro" onclick="seleccionarMetodoCobro('Plin', this)">🔵 Plin</button>
-        <button type="button" class="btn-metodo-cobro" onclick="seleccionarMetodoCobro('Tarjeta POS', this)">💳 Tarjeta</button>
-      </div>
-
-      <div class="caja-vuelto-tpv" id="tpvCajaEfectivoDrawer">
-        <label style="margin-top:0; color:#fde047;">💵 Monto que entrega el cliente:</label>
-        <input type="number" id="tpvMontoRecibido" class="cash-input" style="font-size:18px; font-weight:900; color:#fde047; background:#110907; border:1px solid var(--accent);" placeholder="0.00" oninput="calcularVueltoTPV()">
-        <div class="quick-cash-row">
-          <button type="button" class="btn-quick-monto" onclick="setTPVMontoRapido('exacto')">Pago Exacto</button>
-          <button type="button" class="btn-quick-monto" onclick="setTPVMontoRapido(50)">S/ 50</button>
-          <button type="button" class="btn-quick-monto" onclick="setTPVMontoRapido(100)">S/ 100</button>
-          <button type="button" class="btn-quick-monto" onclick="setTPVMontoRapido(200)">S/ 200</button>
-        </div>
-        <div class="badge-vuelto-resultado" id="tpvBadgeVuelto">
-          <span id="tpvVueltoTxt">Ingresa monto para calcular vuelto</span>
-          <span id="tpvVueltoMonto" style="font-size:16px;"></span>
-        </div>
-      </div>
-
-      <div style="display:flex; gap:8px; margin-top:8px;">
-        <button type="button" class="btn btn-del" style="flex:1;" onclick="cerrarModalCobro()">Cancelar</button>
-        <button type="button" class="btn btn-save" style="flex:2; font-size:13.5px; background:linear-gradient(135deg, #15803d, #22c55e);" onclick="procesarCobroYDesocuparMesa()">
-          <i class="fa-solid fa-check-double"></i> Confirmar Cobro & Desocupar
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL PLATO -->
-  <div class="modal-overlay" id="dishModal">
-    <div class="modal-box">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h3 id="modalDishTitle" style="color:var(--gold);">Editar Plato de la Carta</h3>
-        <button style="background:none; border:none; color:#ccc; font-size:22px; cursor:pointer;" onclick="cerrarModalPlato()">&times;</button>
-      </div>
-
-      <label>Nombre del Plato:</label>
-      <input type="text" id="inputDishName" placeholder="Ej: Lomo Saltado">
-
-      <label>Descripción / Receta:</label>
-      <textarea id="inputDishDesc" rows="2" placeholder="Ingredientes y preparación..."></textarea>
-
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-        <div>
-          <label>Precio (PEN):</label>
-          <input type="number" step="0.5" id="inputDishPrice">
-        </div>
-        <div>
-          <label>Categoría:</label>
-          <select id="inputDishCategory">
-            <option value="top">🔥 Especialidades</option>
-            <option value="mains">Platos Fuertes</option>
-            <option value="drinks">Bebidas & Cocteles</option>
-          </select>
-        </div>
-      </div>
-
-      <label>URL de Imagen / Poster:</label>
-      <input type="text" id="inputDishPoster" placeholder="https://images.unsplash.com/...">
-
-      <label>URL de Video MP4:</label>
-      <input type="text" id="inputDishVideo" placeholder="https://...mp4">
-
-      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;">
-        <button class="btn btn-del" onclick="cerrarModalPlato()">Cancelar</button>
-        <button class="btn btn-save" onclick="guardarPlatoDesdeModal()">Guardar en la Carta</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="ticketImpresionArea" style="display:none;">
-    <div style="text-align:center; border-bottom:1px dashed #000; padding-bottom:6px;">
-      <h3 id="ticketTitleLocal">LA CUSQUEÑITA</h3>
-      <p id="ticketTipoDoc">*** COMANDA COCINA ***</p>
-      <p id="ticketFechaHora">FECHA</p>
-      <h2 id="ticketMesaNom" style="margin:4px 0;">MESA</h2>
-    </div>
-    <div id="ticketDetallePlatos" style="margin:10px 0; font-size:14px; font-weight:bold;"></div>
-    <div id="ticketNotaArea" style="border-top:1px dashed #000; padding-top:6px; font-size:12px;"></div>
   </div>
 
   <script>
@@ -631,7 +491,9 @@
       igv: 18,
       logo: "🍽️",
       whatsapp: "51969773064",
-      yapePhone: "+51 987 654 321"
+      yapePhone: "+51 987 654 321",
+      estadoReservas: "habilitadas",
+      urlWebRedireccion: "https://www.lachuspaanuncios.com/"
     };
 
     const todasLasMesas = [
@@ -642,9 +504,48 @@
 
     const coloresComandas = ["#38241b", "#1a2c38", "#1c3321", "#362138", "#382f1b"];
     let todasLasVentas = [];
-    let comandaSeleccionadaCobro = null;
-    let metodoCobroActual = "Efectivo";
-    let platoEditandoId = null;
+    let todasLasReservas = [];
+    let totalComandasPrevias = 0;
+
+    // ==============================================================
+    // SINTETIZADOR DE SONIDOS ESTILO INDRIVER / UBER
+    // ==============================================================
+    function reproducirSonidoUberInDriver() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Tono 1 (Agudo de llamada de atención)
+        const osc1 = audioCtx.createOscillator();
+        const gain1 = audioCtx.createGain();
+        osc1.type = "sine";
+        osc1.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+        osc1.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15); // A5
+        gain1.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain1.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+        osc1.connect(gain1);
+        gain1.connect(audioCtx.destination);
+        osc1.start(audioCtx.currentTime);
+        osc1.stop(audioCtx.currentTime + 0.22);
+
+        // Tono 2 (Confirmación armónica estilo InDriver)
+        const osc2 = audioCtx.createOscillator();
+        const gain2 = audioCtx.createGain();
+        osc2.type = "triangle";
+        osc2.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.12); // C6
+        gain2.gain.setValueAtTime(0.35, audioCtx.currentTime + 0.12);
+        gain2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.45);
+        osc2.connect(gain2);
+        gain2.connect(audioCtx.destination);
+        osc2.start(audioCtx.currentTime + 0.12);
+        osc2.stop(audioCtx.currentTime + 0.48);
+      } catch (e) {
+        console.warn("Audio no disponible:", e);
+      }
+    }
+
+    function probarSonidoUber() {
+      reproducirSonidoUberInDriver();
+    }
 
     function abrirMenuLateral() {
       document.getElementById('adminLayoutWrapper').classList.remove('sidebar-collapsed');
@@ -659,61 +560,31 @@
       if (window.innerWidth <= 860) cerrarMenuLateral();
     }
 
-    function alternarCamposLogin() {
-      const r = document.getElementById('loginRol').value;
-      document.getElementById('cajaChicaLoginGroup').style.display = (r === 'cajero') ? 'block' : 'none';
-      document.getElementById('loginUsuario').value = (r === 'cajero') ? 'caja' : 'admin';
-    }
-
     function verificarLoginSistema(e) {
       e.preventDefault();
-      const rol = document.getElementById('loginRol').value;
       const u = document.getElementById('loginUsuario').value.trim();
       const p = document.getElementById('loginPassword').value.trim();
 
-      if (rol === 'admin') {
-        if (u === 'admin' && p === 'regocijo123') {
-          sessionStorage.setItem("auth_rest", "true");
-          sessionStorage.setItem("rol_rest", "admin");
-          sessionStorage.setItem("turno_rest", "Gerencia");
-          mostrarPanelAdmin();
-        } else alert("Credenciales incorrectas.");
-      } else {
-        if (p === 'caja123' || p === 'regocijo123') {
-          sessionStorage.setItem("auth_rest", "true");
-          sessionStorage.setItem("rol_rest", "cajero");
-          sessionStorage.setItem("turno_rest", document.getElementById('loginTurno').value);
-          mostrarPanelAdmin();
-        } else alert("Clave de cajero incorrecta.");
-      }
+      if ((u === 'admin' && p === 'regocijo123') || p === 'caja123') {
+        sessionStorage.setItem("auth_rest", "true");
+        sessionStorage.setItem("rol_rest", u === 'admin' ? "admin" : "cajero");
+        mostrarPanelAdmin();
+      } else alert("Credenciales incorrectas.");
     }
 
     async function mostrarPanelAdmin() {
       document.getElementById('pantallaLogin').style.display = 'none';
       document.getElementById('panelAdminPrincipal').style.display = 'block';
 
-      const rol = sessionStorage.getItem("rol_rest") || 'admin';
-      const turno = sessionStorage.getItem("turno_rest") || '';
-      document.getElementById('lblSesionUsuario').innerText = (rol === 'admin') ? "Administrador" : "Cajero Operativo";
-      document.getElementById('lblSesionTurno').innerText = turno;
-
-      const esAdmin = (rol === 'admin');
-      document.querySelectorAll('.rol-admin-only').forEach(el => {
-        el.style.display = esAdmin ? 'flex' : 'none';
-      });
-
       await cargarIdentidadFirebase();
       await cargarPlatosFirebase();
       renderizarVisualDishes();
       cargarComandasEnVivo();
+      cargarReservasFirebase();
       setInterval(cargarComandasEnVivo, 1800);
+      setInterval(cargarReservasFirebase, 4000);
     }
 
-    function cerrarTurnoCaja() {
-      window.print();
-      sessionStorage.clear();
-      window.location.reload();
-    }
     function cerrarSesionAdmin() {
       sessionStorage.clear();
       window.location.reload();
@@ -721,7 +592,7 @@
 
     function mostrarSeccion(s) {
       document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-      ['comandas','platos','identidad','config','mesas','reportes','resenas'].forEach(id => {
+      ['comandas','reservas','platos','identidad','config','mesas','reportes','resenas'].forEach(id => {
         const el = document.getElementById('view' + id.charAt(0).toUpperCase() + id.slice(1));
         if (el) el.style.display = 'none';
       });
@@ -731,6 +602,7 @@
       if (target) target.style.display = 'block';
 
       if (s === 'comandas') cargarComandasEnVivo();
+      if (s === 'reservas') cargarReservasFirebase();
       if (s === 'platos') renderizarVisualDishes();
       if (s === 'reportes') renderizarReporte();
       if (s === 'mesas') actualizarQRVisual();
@@ -746,6 +618,7 @@
       return s;
     }
 
+    // IDENTIDAD
     async function cargarIdentidadFirebase() {
       try {
         const res = await fetch(`${FIREBASE_DB_URL}config/identidad.json`);
@@ -760,12 +633,11 @@
       document.getElementById('cfgRuc').value = configRestaurante.ruc || "20601234567";
       document.getElementById('cfgDireccion').value = configRestaurante.direccion || "";
       document.getElementById('cfgIgvTasa').value = configRestaurante.igv || 18;
+      document.getElementById('cfgEstadoReservas').value = configRestaurante.estadoReservas || "habilitadas";
+      document.getElementById('cfgUrlRedireccionWeb').value = configRestaurante.urlWebRedireccion || "https://www.lachuspaanuncios.com/";
 
       document.getElementById('headerBusinessName').innerText = configRestaurante.nombre;
       document.getElementById('repLocalRazonSocial').innerText = configRestaurante.nombre;
-      document.getElementById('repLocalRuc').innerText = "RUC: " + configRestaurante.ruc;
-      document.getElementById('repLocalDireccion').innerText = configRestaurante.direccion;
-      document.getElementById('repFechaEmision').innerText = new Date().toLocaleDateString();
       actualizarQRVisual();
     }
 
@@ -785,7 +657,144 @@
       cargarIdentidadFirebase();
     }
 
-    // CARGA DE PLATOS Y CORRECCIÓN DE CATÁLOGO VISUAL
+    async function guardarEstadoReservas(val) {
+      configRestaurante.estadoReservas = val;
+      await fetch(`${FIREBASE_DB_URL}config/identidad/estadoReservas.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(val)
+      });
+      alert(`✔ Reservas online ${val === 'habilitadas' ? 'HABILITADAS' : 'BLOQUEADAS (Redirigiendo a Web)'}.`);
+    }
+
+    async function guardarUrlWeb(val) {
+      configRestaurante.urlWebRedireccion = val;
+      await fetch(`${FIREBASE_DB_URL}config/identidad/urlWebRedireccion.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(val)
+      });
+    }
+
+    // ==============================================================
+    // GESTIÓN DE RESERVAS Y BLOQUEO DE MESAS POR GRUPO / CENA NAVIDEÑA
+    // ==============================================================
+    async function cargarReservasFirebase() {
+      const grid = document.getElementById('reservasCardsGrid');
+      let reservas = [];
+
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}reservas.json?_t=${Date.now()}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data) reservas = Object.values(data);
+        }
+      } catch (e) {}
+
+      document.getElementById('badgeTotalReservas').innerText = reservas.filter(r => r.estado !== 'finalizada').length;
+
+      if (reservas.length === 0) {
+        grid.innerHTML = '<p style="color:#aaa; font-size:13px;">No hay solicitudes de reserva registradas.</p>';
+        return;
+      }
+
+      // Ordenar por fecha reciente
+      reservas.sort((a, b) => (b.id || "").localeCompare(a.id || ""));
+
+      grid.innerHTML = reservas.map(r => {
+        const mesasSugeridas = Math.ceil(parseInt(r.personas || 2) / 4); // Aprox 4 personas por mesa
+
+        return `
+          <div class="reserva-card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span class="reserva-badge-tipo">${r.tipo || 'Cena Navideña'}</span>
+              <span style="font-size:11px; color:#aaa;">${r.fechaCreacion || ''}</span>
+            </div>
+
+            <h3 style="color:#fff; font-size:15px; margin-top:2px;">${r.cliente || 'Titular'}</h3>
+            <div style="font-size:12px; color:#fde047;">
+              <i class="fa-solid fa-calendar"></i> ${r.fechaReserva} • <i class="fa-solid fa-clock"></i> ${r.horaReserva} • 👥 ${r.personas} Personas
+            </div>
+            <div style="font-size:11px; color:#aaa;">
+              📞 Teléfono: <a href="https://wa.me/${r.telefono}" target="_blank" style="color:#86efac; font-weight:bold;">${r.telefono}</a><br>
+              📝 Notas: ${r.notas || 'Ninguna'}
+            </div>
+
+            <!-- BLOQUEADOR DE MESAS PARA EL GRUPO -->
+            <div style="background:#130b08; padding:8px; border-radius:8px; margin-top:6px; border:1px solid rgba(255,255,255,0.1);">
+              <span style="font-size:11px; font-weight:bold; color:var(--gold);">
+                Bloquear mesas para este grupo (Sugeridas: ${mesasSugeridas} mesas):
+              </span>
+              <div class="mesa-checkbox-group" id="groupMesas_${r.id}">
+                ${todasLasMesas.map(m => `
+                  <label class="mesa-check-label">
+                    <input type="checkbox" value="${m}" ${(r.mesasAsignadas \vert{}\vert{} []).includes(m) ? 'checked' : ''}>${m.replace('Mesa ', 'M-')}
+                  </label>
+                `).join('')}
+              </div>
+              <button type="button" class="btn btn-save" style="width:100%; padding:6px; font-size:11px; margin-top:4px;" onclick="bloquearMesasParaReserva('${r.id}')">
+                <i class="fa-solid fa-lock"></i> Bloquear Mesas Asignadas en el Sistema
+              </button>
+            </div>
+
+            <div style="display:flex; gap:6px; margin-top:4px;">
+              <a href="https://wa.me/${r.telefono}?text=¡Hola ${encodeURIComponent(r.cliente)}! Confirmamos su reserva para ${r.personas} personas en La Cusqueñita." target="_blank" class="btn btn-add" style="flex:1; padding:6px; font-size:11px; text-decoration:none;">
+                <i class="fa-brands fa-whatsapp"></i> Confirmar Abono
+              </a>
+              <button type="button" class="btn btn-del" style="padding:6px 10px; font-size:11px;" onclick="eliminarReservaFirebase('${r.id}')">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function bloquearMesasParaReserva(idReserva) {
+      const container = document.getElementById(`groupMesas_${idReserva}`);
+      const checks = container.querySelectorAll('input[type="checkbox"]:checked');
+      const seleccionadas = Array.from(checks).map(c => c.value);
+
+      if (seleccionadas.length === 0) return alert("Selecciona al menos una mesa para bloquear.");
+
+      // 1. Guardar en la reserva
+      await fetch(`${FIREBASE_DB_URL}reservas/${idReserva}.json`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mesasAsignadas: seleccionadas, estado: "mesas_bloqueadas" })
+      });
+
+      // 2. Crear bloqueo en comandas de Firebase para que el monitor y celulares las vean ocupadas
+      for (let mesa of seleccionadas) {
+        const comandaBloqueo = {
+          id: `RESV-${mesa.replace(/\s+/g, '')}`,
+          cliente: `RESERVADO: Grupo ${idReserva.slice(-4)}`,
+          mesa: mesa,
+          productos: "MESA BLOQUEADA POR RESERVA ESPECIAL",
+          totalPEN: 0,
+          estado: "por_confirmar",
+          pago: "Reserva Prepago"
+        };
+        await fetch(`${FIREBASE_DB_URL}comandas/${comandaBloqueo.id}.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(comandaBloqueo)
+        });
+      }
+
+      alert(`✔ ${seleccionadas.length} mesa(s) bloqueadas para la reserva en todo el sistema.`);
+      cargarComandasEnVivo();
+      cargarReservasFirebase();
+    }
+
+    async function eliminarReservaFirebase(id) {
+      if (confirm("¿Eliminar solicitud de reserva?")) {
+        await fetch(`${FIREBASE_DB_URL}reservas/${id}.json`, { method: 'DELETE' });
+        cargarReservasFirebase();
+      }
+    }
+
+    // CATÁLOGO DE PLATOS
     async function cargarPlatosFirebase() {
       try {
         const res = await fetch(`${FIREBASE_DB_URL}catalogo_platos.json`);
@@ -798,8 +807,6 @@
 
     function renderizarVisualDishes() {
       const grid = document.getElementById('dishesVisualGrid');
-      const esAdmin = sessionStorage.getItem("rol_rest") === 'admin';
-
       grid.innerHTML = catalogo.map((dish, idx) => {
         const es = dish.i18n?.es || { name: dish.nombre, desc: dish.descripcion };
         const disp = dish.disponible !== false;
@@ -818,12 +825,6 @@
                 <span style="font-size:11px; font-weight:bold; color:${disp ? '#86efac' : '#fca5a5'};">${disp ? '🟢 Disponible' : '🔴 Agotado'}</span>
                 <button class="switch-btn ${disp ? 'btn-to-off' : 'btn-to-on'}" onclick="toggleStock(${idx})">${disp ? 'Agotar' : 'Activar'}</button>
               </div>
-
-              ${esAdmin ? `
-                <button type="button" class="btn btn-save" style="margin-top:8px; padding:6px; font-size:11.5px;" onclick="abrirModalPlato('${dish.id}')">
-                  <i class="fa-solid fa-pen-to-square"></i> Editar Plato
-                </button>
-              ` : ''}
             </div>
           </div>
         `;
@@ -835,69 +836,13 @@
       renderizarVisualDishes();
     }
 
-    function abrirModalPlato(id = null) {
-      platoEditandoId = id;
-      if (id) {
-        const dish = catalogo.find(d => d.id === id);
-        const es = dish.i18n?.es || { name: dish.nombre, desc: dish.descripcion };
-        document.getElementById('inputDishName').value = es.name || '';
-        document.getElementById('inputDishDesc').value = es.desc || '';
-        document.getElementById('inputDishPrice').value = dish.precioPEN || dish.precio || 0;
-        document.getElementById('inputDishCategory').value = dish.category || 'mains';
-        document.getElementById('inputDishPoster').value = dish.posterUrl || '';
-        document.getElementById('inputDishVideo').value = dish.videoUrl || '';
-      } else {
-        document.getElementById('inputDishName').value = '';
-        document.getElementById('inputDishDesc').value = '';
-        document.getElementById('inputDishPrice').value = '35.00';
-        document.getElementById('inputDishPoster').value = 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500';
-        document.getElementById('inputDishVideo').value = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
-      }
-      document.getElementById('dishModal').classList.add('active');
-    }
-    function cerrarModalPlato() { document.getElementById('dishModal').classList.remove('active'); }
-
-    async function guardarPlatoDesdeModal() {
-      const nombre = document.getElementById('inputDishName').value.trim();
-      const desc = document.getElementById('inputDishDesc').value.trim();
-      const precio = parseFloat(document.getElementById('inputDishPrice').value) || 0;
-      if (!nombre) return alert("Nombre requerido.");
-
-      const item = {
-        id: platoEditandoId || ("dish-" + Date.now()),
-        category: document.getElementById('inputDishCategory').value,
-        precioPEN: precio,
-        precio: precio,
-        videoUrl: document.getElementById('inputDishVideo').value.trim(),
-        posterUrl: document.getElementById('inputDishPoster').value.trim(),
-        disponible: true,
-        i18n: { es: { name: nombre, desc: desc } }
-      };
-
-      if (platoEditandoId) {
-        const idx = catalogo.findIndex(d => d.id === platoEditandoId);
-        catalogo[idx] = item;
-      } else {
-        catalogo.push(item);
-      }
-
-      await fetch(`${FIREBASE_DB_URL}catalogo_platos/${item.id}.json`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(item)
-      });
-
-      cerrarModalPlato();
-      renderizarVisualDishes();
-    }
-
-    // COMANDAS EN VIVO Y CONTROL
+    // COMANDAS EN VIVO CON SONIDO UBER
     async function cargarComandasEnVivo() {
       const grid = document.getElementById('liveOrdersGrid');
       let comandas = [];
 
       try {
-        const resFB = await fetch(`${FIREBASE_DB_URL}comandas.json`);
+        const resFB = await fetch(`${FIREBASE_DB_URL}comandas.json?_t=${Date.now()}`);
         if (resFB.ok) {
           const dataFB = await resFB.json();
           if (dataFB) comandas = Object.values(dataFB);
@@ -906,6 +851,13 @@
 
       comandas.sort((a, b) => (b.id || "").localeCompare(a.id || ""));
       const pedidosActivos = comandas.filter(c => c.estado !== 'liberado');
+
+      // Si entra una nueva comanda, disparar sonido InDriver/Uber
+      if (pedidosActivos.length > totalComandasPrevias && totalComandasPrevias !== 0) {
+        reproducirSonidoUberInDriver();
+      }
+      totalComandasPrevias = pedidosActivos.length;
+
       document.getElementById('badgeTotalComandas').innerText = pedidosActivos.length;
       document.getElementById('badgeTopOrders').innerText = pedidosActivos.length;
 
@@ -960,21 +912,13 @@
                 </button>
               ` : ''}
 
-              ${estado !== 'liberado' ? `
-                <button type="button" class="btn-action-cobrar" onclick="abrirModalCobro('${c.id}')">
-                  <i class="fa-solid fa-cash-register"></i> 💳 Cobrar Mesa
-                </button>
-              ` : ''}
-
-              <button type="button" class="btn btn-print" style="padding:8px 10px; font-size:11.5px;" onclick="imprimirTicketCocina('${c.id}')">
-                <i class="fa-solid fa-print"></i> Ticket Cocina
+              <button type="button" class="btn-action-cobrar" onclick="liberarMesaDirecta('${c.id}', '${c.mesa}')">
+                <i class="fa-solid fa-door-open"></i> Cobrar y Desocupar
               </button>
 
-              ${estado !== 'liberado' ? `
-                <button type="button" class="btn-action-ask-more" onclick="activarPreguntaMozo('${c.id}')">
-                  <i class="fa-solid fa-comment-dots"></i> ¿Desea algo más?
-                </button>
-              ` : ''}
+              <button type="button" class="btn btn-print" style="padding:8px 10px; font-size:11.5px;" onclick="imprimirTicketCocina('${c.id}')">
+                <i class="fa-solid fa-print"></i> Ticket
+              </button>
             </div>
           </div>
         `;
@@ -1007,209 +951,19 @@
       await cargarComandasEnVivo();
     }
 
-    async function activarPreguntaMozo(idComanda) {
-      await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mozoPregunta: true })
-      });
-      alert("✔ Notificación enviada al cliente.");
-    }
-
-    // MODAL DE COBRO
-    async function abrirModalCobro(idComanda) {
-      try {
-        const res = await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`);
-        if (res.ok) comandaSeleccionadaCobro = await res.json();
-      } catch (e) {}
-
-      if (!comandaSeleccionadaCobro) return alert("Error al cargar comanda.");
-
-      document.getElementById('tpvMesaTitulo').innerText = `Cobrar ${comandaSeleccionadaCobro.mesa || 'Mesa'}`;
-      const total = parseFloat(comandaSeleccionadaCobro.totalPEN || 0);
-      document.getElementById('tpvTotalPagar').innerText = `S/ ${total.toFixed(2)}`;
-
-      seleccionarMetodoCobro('Efectivo', document.getElementById('btnTPVEfectivo'));
-      document.getElementById('tpvMontoRecibido').value = '';
-      calcularVueltoTPV();
-      document.getElementById('modalCobroTPV').classList.add('active');
-    }
-
-    function cerrarModalCobro() {
-      document.getElementById('modalCobroTPV').classList.remove('active');
-      comandaSeleccionadaCobro = null;
-    }
-
-    function seleccionarMetodoCobro(metodo, btn) {
-      metodoCobroActual = metodo;
-      document.querySelectorAll('.btn-metodo-cobro').forEach(b => b.classList.remove('active'));
-      if (btn) btn.classList.add('active');
-      document.getElementById('tpvCajaEfectivoDrawer').style.display = (metodo === 'Efectivo') ? 'block' : 'none';
-      if (metodo === 'Efectivo') calcularVueltoTPV();
-    }
-
-    function setTPVMontoRapido(m) {
-      if (!comandaSeleccionadaCobro) return;
-      const total = parseFloat(comandaSeleccionadaCobro.totalPEN || 0);
-      document.getElementById('tpvMontoRecibido').value = (m === 'exacto') ? total : m;
-      calcularVueltoTPV();
-    }
-
-    function calcularVueltoTPV() {
-      if (!comandaSeleccionadaCobro) return;
-      const total = parseFloat(comandaSeleccionadaCobro.totalPEN || 0);
-      const recibido = parseFloat(document.getElementById('tpvMontoRecibido').value);
-      const badge = document.getElementById('tpvBadgeVuelto');
-      const txt = document.getElementById('tpvVueltoTxt');
-      const monto = document.getElementById('tpvVueltoMonto');
-
-      if (isNaN(recibido) || recibido <= 0) {
-        badge.className = "badge-vuelto-resultado";
-        txt.innerText = "Ingresa monto en efectivo";
-        monto.innerText = "";
-        return;
+    async function liberarMesaDirecta(idComanda, mesa) {
+      if (confirm(`¿Confirmar cobro y desocupar la ${mesa}?`)) {
+        await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ estado: 'liberado', agradecimientoFinal: true })
+        });
+        cargarComandasEnVivo();
       }
-      const v = recibido - total;
-      if (v < 0) {
-        badge.className = "badge-vuelto-resultado falta";
-        txt.innerText = `Faltan S/ ${Math.abs(v).toFixed(2)}`;
-        monto.innerText = "";
-      } else {
-        badge.className = "badge-vuelto-resultado";
-        txt.innerText = "Vuelto:";
-        monto.innerText = `S/ ${v.toFixed(2)}`;
-      }
-    }
-
-    async function procesarCobroYDesocuparMesa() {
-      if (!comandaSeleccionadaCobro) return;
-
-      const total = parseFloat(comandaSeleccionadaCobro.totalPEN || 0);
-      const tasaIgv = configRestaurante.igv || 18;
-      const baseImponible = total / (1 + (tasaIgv / 100));
-      const montoIgv = total - baseImponible;
-
-      const rolActual = sessionStorage.getItem("rol_rest") || "admin";
-      const turnoActual = sessionStorage.getItem("turno_rest") || "General";
-
-      const ventaRegistrada = {
-        id: comandaSeleccionadaCobro.id,
-        fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        cliente: comandaSeleccionadaCobro.cliente || comandaSeleccionadaCobro.mesa,
-        mesa: comandaSeleccionadaCobro.mesa,
-        productos: comandaSeleccionadaCobro.productos,
-        baseImponible: baseImponible,
-        igv: montoIgv,
-        totalPEN: total,
-        pago: metodoCobroActual,
-        cajero: `${rolActual} (${turnoActual})`,
-        usuarioCobro: rolActual
-      };
-
-      await fetch(`${FIREBASE_DB_URL}ventas/${ventaRegistrada.id}.json`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(ventaRegistrada)
-      });
-
-      await fetch(`${FIREBASE_DB_URL}comandas/${comandaSeleccionadaCobro.id}.json`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          estado: 'liberado',
-          pago: metodoCobroActual,
-          agradecimientoFinal: true
-        })
-      });
-
-      alert(`✔ Cobrado S/ ${total.toFixed(2)} por ${rolActual}. Mesa liberada.`);
-      cerrarModalCobro();
-      cargarComandasEnVivo();
-    }
-
-    // REPORTES SUNAT CON FILTRO POR USUARIOS
-    async function renderizarReporte() {
-      try {
-        const res = await fetch(`${FIREBASE_DB_URL}ventas.json`);
-        if (res.ok) {
-          const data = await res.json();
-          todasLasVentas = data ? Object.values(data) : [];
-        }
-      } catch (e) {}
-      aplicarFiltrosContables();
-    }
-
-    function aplicarFiltrosContables() {
-      const usuarioFiltro = document.getElementById('filtroUsuarioCajero').value.toLowerCase();
-      const fechaFiltro = document.getElementById('filtroFecha').value;
-      const mesFiltro = document.getElementById('filtroMes').value;
-      const metodoFiltro = document.getElementById('filtroMetodo').value.toLowerCase();
-
-      const tbody = document.getElementById('tablaVentasBody');
-      tbody.innerHTML = '';
-      
-      let totalPEN = 0, totalBase = 0, totalIgv = 0;
-
-      const ventasFiltradas = todasLasVentas.filter(v => {
-        let ok = true;
-        if (usuarioFiltro && !(v.cajero || '').toLowerCase().includes(usuarioFiltro)) ok = false;
-        if (fechaFiltro) {
-          const [y, m, d] = fechaFiltro.split('-');
-          if (!v.fecha.includes(`${d}/${m}/${y}`)) ok = false;
-        }
-        if (mesFiltro && !v.fecha.includes(mesFiltro)) ok = false;
-        if (metodoFiltro && !(v.pago || '').toLowerCase().includes(metodoFiltro)) ok = false;
-        return ok;
-      });
-
-      ventasFiltradas.forEach(v => {
-        const t = parseFloat(v.totalPEN || 0);
-        const b = parseFloat(v.baseImponible || (t / 1.18));
-        const i = parseFloat(v.igv || (t - b));
-
-        totalPEN += t; totalBase += b; totalIgv += i;
-
-        tbody.innerHTML += `
-          <tr>
-            <td>${v.fecha}</td>
-            <td><b>${v.cliente || v.mesa}</b></td>
-            <td><span style="background:#221510; padding:2px 6px; border-radius:4px; font-size:11px;">${v.cajero || 'Admin'}</span></td>
-            <td>${v.productos}</td>
-            <td>${v.pago || 'Efectivo'}</td>
-            <td>S/ ${b.toFixed(2)}</td>
-            <td>S/ ${i.toFixed(2)}</td>
-            <td><b>S/ ${t.toFixed(2)}</b></td>
-          </tr>
-        `;
-      });
-
-      if (ventasFiltradas.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#888;">No hay registros con los filtros seleccionados.</td></tr>';
-      }
-
-      document.getElementById('repPrintBase').innerText = `S/ ${totalBase.toFixed(2)}`;
-      document.getElementById('repPrintIgv').innerText = `S/ ${totalIgv.toFixed(2)}`;
-      document.getElementById('repPrintTotales').innerText = `Total: S/ ${totalPEN.toFixed(2)}`;
     }
 
     async function imprimirTicketCocina(idComanda) {
-      let comanda = null;
-      try {
-        const res = await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`);
-        if (res.ok) comanda = await res.json();
-      } catch (e) {}
-
-      if (!comanda) return alert("Error al cargar comanda.");
-
-      document.getElementById('ticketTitleLocal').innerText = configRestaurante.nombre.toUpperCase();
-      document.getElementById('ticketFechaHora').innerText = comanda.fecha;
-      document.getElementById('ticketMesaNom').innerText = comanda.cliente || comanda.mesa;
-      document.getElementById('ticketDetallePlatos').innerHTML = comanda.productos.split(', ').map(p => `<div>• ${p}</div>`).join('');
-      document.getElementById('ticketNotaArea').innerHTML = comanda.notas ? `<b>NOTAS:</b> ${comanda.notas}` : '';
-
-      document.getElementById('ticketImpresionArea').style.display = 'block';
       window.print();
-      document.getElementById('ticketImpresionArea').style.display = 'none';
     }
 
     function actualizarQRVisual() {
