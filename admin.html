@@ -89,6 +89,27 @@
       display: flex; justify-content: space-between; align-items: center;
     }
 
+    /* ACORDEONES CON CONTRASEÑA */
+    .vault-box {
+      background: #251a15; border: 1.5px dashed var(--accent); border-radius: 10px; overflow: hidden;
+    }
+    .vault-box.danger-vault {
+      border-color: #ef4444; background: #221212;
+    }
+    .vault-trigger {
+      width: 100%; background: none; border: none; padding: 10px 12px;
+      display: flex; justify-content: space-between; align-items: center;
+      cursor: pointer; font-weight: 800; color: var(--gold); font-size: 11.5px;
+    }
+    .vault-box.danger-vault .vault-trigger { color: #fca5a5; }
+    .vault-content {
+      display: none; padding: 12px; background: #18100c; border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .vault-content input {
+      width: 100%; padding: 7px; background: #110907; border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 6px; color: #fff; font-size: 12px; margin-top: 4px; outline: none;
+    }
+
     .nav-menu { display: flex; flex-direction: column; gap: 6px; flex: 1; }
     .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 10px; border: 1px solid transparent; background: transparent; color: var(--text-muted); font-size: 13px; font-weight: 700; cursor: pointer; text-align: left; }
     .nav-item i { font-size: 15px; width: 20px; text-align: center; color: var(--accent); }
@@ -118,32 +139,18 @@
     .table-pill.libre { background: rgba(22, 163, 74, 0.15); border-color: #16a34a; color: #86efac; }
     .table-pill.ocupada { background: rgba(220, 38, 38, 0.25); border-color: #dc2626; color: #fca5a5; }
 
-    /* COMANDAS ESTÁTICAS CON 4 ESTADOS Y COLORES DISTINTIVOS */
+    /* COMANDAS CON 4 ESTADOS Y COLORES DISTINTIVOS */
     .live-orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; min-height: 60px; }
     .order-card {
       border-radius: 14px; border: 2.5px solid transparent;
       padding: 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
       position: relative; transition: all 0.3s ease;
     }
-    
-    /* ESTADO 1: INICIADO (AMARILLO ÁMBAR) */
-    .order-card.estado-iniciado {
-      background: #2b1f0c; border-color: #f59e0b;
-    }
-    /* ESTADO 2: EN PROCESO (AZUL COCINA) */
-    .order-card.estado-cocina {
-      background: #0f2333; border-color: #0284c7;
-    }
-    /* ESTADO 3: RECIBIDO EN MESA (VERDE SERVIDO) */
-    .order-card.estado-servido {
-      background: #0e2918; border-color: #16a34a;
-    }
-    /* ESTADO 4: FINALIZADO / COBRADO (GRIS OSCURO ELEGANTE - NO DESAPARECE) */
-    .order-card.estado-finalizado {
-      background: #1e1e1e; border-color: #6b7280; opacity: 0.88;
-    }
+    .order-card.estado-iniciado { background: #2b1f0c; border-color: #f59e0b; }
+    .order-card.estado-cocina { background: #0f2333; border-color: #0284c7; }
+    .order-card.estado-servido { background: #0e2918; border-color: #16a34a; }
+    .order-card.estado-finalizado { background: #1e1e1e; border-color: #6b7280; opacity: 0.88; }
 
-    /* HALO GIRATORIO CUANDO PIDE LA CUENTA */
     .order-card.cliente-pagando {
       border-color: #ec4899 !important;
       box-shadow: 0 0 25px #ec4899, 0 0 10px #3b82f6 !important;
@@ -182,7 +189,6 @@
     .modal-overlay.active { display: flex; }
     .modal-box { background: var(--card-bg); border: 1.5px solid var(--card-border); border-radius: 16px; max-width: 520px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 22px; display: flex; flex-direction: column; gap: 12px; }
 
-    /* TABLA REPORTES */
     .custom-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; }
     .custom-table th, .custom-table td { border: 1px solid rgba(255,255,255,0.1); padding: 8px 10px; }
     .custom-table th { background: #2f221c; color: var(--gold); }
@@ -197,7 +203,6 @@
       .main-view { padding: 16px 14px; max-height: none; }
     }
 
-    /* REGLAS DE IMPRESIÓN SUNAT */
     @media print {
       body { background: #fff !important; color: #000 !important; }
       .no-print, .top-admin-bar, .sidebar, .sidebar-backdrop, .btn, .tables-monitor-bar, #pantallaLogin { display: none !important; }
@@ -284,6 +289,38 @@
           <button type="button" class="btn btn-del" style="padding:4px 7px; font-size:10px;" onclick="cerrarTurno()">Cerrar Caja</button>
         </div>
 
+        <!-- 1. ACORDEÓN TOKEN GITHUB CON CLAVE 42423549 -->
+        <div class="vault-box">
+          <button class="vault-trigger" type="button" onclick="toggleAcordeonClave('token')">
+            <span><i class="fa-solid fa-key"></i> Token GitHub</span>
+            <span id="badgeVaultToken">🔒 Bloqueado</span>
+          </button>
+          <div class="vault-content" id="contentVaultToken">
+            <label style="margin-top:0;">Personal Token (ghp_...):</label>
+            <input type="password" id="ghTokenInput" placeholder="Pega tu token de GitHub">
+            <div style="display:flex; gap:6px; margin-top:8px;">
+              <button class="btn btn-save" style="font-size:11px; padding:6px 10px;" onclick="guardarTokenManual()">Guardar</button>
+              <button class="btn btn-del" style="font-size:11px; padding:6px 10px;" onclick="borrarTokenManual()">Borrar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. ACORDEÓN RESETEAR BASE DE DATOS CON CLAVE 42423549 -->
+        <div class="vault-box danger-vault">
+          <button class="vault-trigger" type="button" onclick="toggleAcordeonClave('reset')">
+            <span><i class="fa-solid fa-triangle-exclamation"></i> Resetear Base de Datos</span>
+            <span id="badgeVaultReset">🔒 Bloqueado</span>
+          </button>
+          <div class="vault-content" id="contentVaultReset">
+            <p style="font-size:11px; color:#fca5a5; line-height:1.35; margin-bottom:8px;">
+              Elimina todas las comandas, limpia mesas ocupadas y purga reservas fantasma en Firebase dejando el sistema 100% limpio.
+            </p>
+            <button class="btn btn-del" style="width:100%; font-size:11.5px; padding:8px;" onclick="ejecutarResetBaseDatosLimpia()">
+              <i class="fa-solid fa-broom"></i> Resetear a Estado Limpio
+            </button>
+          </div>
+        </div>
+
         <nav class="nav-menu">
           <button class="nav-item active" id="btnNavComandas" onclick="seleccionarOpcionNav('comandas')">
             <i class="fa-solid fa-bell-concierge"></i> Comandas en Vivo
@@ -340,7 +377,7 @@
           <div class="live-orders-grid" id="liveOrdersGrid"></div>
         </section>
 
-        <!-- 2. CATÁLOGO DE PLATOS (CON BOTÓN EDITAR) -->
+        <!-- 2. CATÁLOGO DE PLATOS -->
         <section id="viewPlatos" style="display:none;">
           <div class="view-header">
             <div>
@@ -381,7 +418,6 @@
               </div>
             </div>
 
-            <!-- EDICIÓN DEL LOGO DEL NEGOCIO -->
             <label>Subir Nuevo Logo (Imagen PNG o JPG):</label>
             <input type="file" id="cfgLogoFileInput" accept="image/*" onchange="convertirLogoABase64(event)">
             <div style="margin-top:8px; display:flex; align-items:center; gap:10px;">
@@ -393,7 +429,7 @@
           </div>
         </section>
 
-        <!-- 4. REPORTE CONTABLE SUNAT (CORREGIDO) -->
+        <!-- 4. REPORTE CONTABLE SUNAT -->
         <section id="viewReportes" style="display:none;">
           <div class="view-header">
             <div>
@@ -439,7 +475,7 @@
           </div>
         </section>
 
-        <!-- 5. QR MESAS (CENTRADO Y EXACTO SEGÚN REFERENCIA) -->
+        <!-- 5. QR MESAS -->
         <section id="viewMesas" style="display:none;">
           <div class="view-header">
             <div>
@@ -467,7 +503,6 @@
               </div>
             </div>
 
-            <!-- VISTA PREVIA CENTRADA IDENTICA A LA HOJA IMPRESA -->
             <div id="tarjetaQRImpresionCentrada" style="border:2px dashed #444; border-radius:18px; max-width:320px; margin:20px auto; padding:24px 18px; background:#fff; color:#000; text-align:center; box-shadow:0 4px 15px rgba(0,0,0,0.3);">
               <h2 id="qrPrintTituloLocal" style="font-size:22px; font-weight:900; letter-spacing:0.5px; margin-bottom:2px;">LA CUSQUEÑITA</h2>
               <p style="font-size:12px; color:#555; margin-bottom:12px;">Cusco • Gourmet</p>
@@ -483,7 +518,7 @@
           </div>
         </section>
 
-        <!-- 6. RESEÑAS Y CASILLA DE COMENTARIOS -->
+        <!-- 6. RESEÑAS -->
         <section id="viewResenas" style="display:none;">
           <div class="view-header">
             <div>
@@ -493,7 +528,6 @@
             <button class="btn btn-add" onclick="cargarResenasFirebase()"><i class="fa-solid fa-rotate"></i> Actualizar</button>
           </div>
 
-          <!-- CASILLA DE COMENTARIOS / REGISTRO INTERNO -->
           <div class="card" style="margin-bottom:14px;">
             <strong style="color:var(--gold);"><i class="fa-solid fa-comment"></i> Añadir Comentario o Nota Interna de Mesa:</strong>
             <div style="display:grid; grid-template-columns:1fr 2fr; gap:8px; margin-top:6px;">
@@ -552,7 +586,7 @@
     </div>
   </div>
 
-  <!-- MODAL DE COBRO DE CONSUMOS (APARECE AL COBRAR MESA) -->
+  <!-- MODAL DE COBRO DE CONSUMOS -->
   <div class="modal-overlay" id="modalCobroMesa">
     <div class="modal-box">
       <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -588,6 +622,7 @@
 
   <script>
     const FIREBASE_DB_URL = "https://restaurante1-695f7-default-rtdb.firebaseio.com/";
+    const PASSWORD_MAESTRA_VAULT = "42423549";
 
     let catalogo = [
       {
@@ -624,6 +659,9 @@
     let platoEditandoId = null;
     let comandaCobrandoActual = null;
     let totalComandasPrevias = 0;
+
+    let vaultTokenDesbloqueado = false;
+    let vaultResetDesbloqueado = false;
 
     // SONIDO WEB AUDIO TIPO UBER / INDRIVER
     let audioCtx = null;
@@ -701,6 +739,8 @@
         el.style.display = esAdmin ? 'flex' : 'none';
       });
 
+      document.getElementById('ghTokenInput').value = localStorage.getItem("inkabistro_vault_secret_token") || "";
+
       await cargarIdentidadFirebase();
       renderizarVisualDishes();
       await cargarComandasEnVivo();
@@ -708,6 +748,92 @@
       actualizarQRVisualDirecto();
       setInterval(cargarComandasEnVivo, 2000);
       setInterval(cargarResenasFirebase, 5000);
+    }
+
+    // ==============================================================
+    // CONTROL DE ACORDEONES CON CLAVE MAESTRA 42423549
+    // ==============================================================
+    function toggleAcordeonClave(tipo) {
+      if (tipo === 'token') {
+        const box = document.getElementById('contentVaultToken');
+        const badge = document.getElementById('badgeVaultToken');
+        if (box.style.display === 'block') {
+          box.style.display = 'none';
+          badge.innerText = '🔒 Bloqueado';
+          return;
+        }
+        if (!vaultTokenDesbloqueado) {
+          const clave = prompt("🔐 Ingresa la clave para acceder al Token GitHub:");
+          if (clave === PASSWORD_MAESTRA_VAULT) {
+            vaultTokenDesbloqueado = true;
+            box.style.display = 'block';
+            badge.innerText = '🔓 Desbloqueado';
+          } else if (clave !== null) {
+            alert("⛔ Contraseña incorrecta.");
+          }
+        } else {
+          box.style.display = 'block';
+          badge.innerText = '🔓 Desbloqueado';
+        }
+      } else if (tipo === 'reset') {
+        const box = document.getElementById('contentVaultReset');
+        const badge = document.getElementById('badgeVaultReset');
+        if (box.style.display === 'block') {
+          box.style.display = 'none';
+          badge.innerText = '🔒 Bloqueado';
+          return;
+        }
+        if (!vaultResetDesbloqueado) {
+          const clave = prompt("⚠️ ACCIÓN DESTRUCTIVA:\nIngresa la clave maestra para abrir el módulo de Reseteo:");
+          if (clave === PASSWORD_MAESTRA_VAULT) {
+            vaultResetDesbloqueado = true;
+            box.style.display = 'block';
+            badge.innerText = '🔓 Desbloqueado';
+          } else if (clave !== null) {
+            alert("⛔ Contraseña incorrecta.");
+          }
+        } else {
+          box.style.display = 'block';
+          badge.innerText = '🔓 Desbloqueado';
+        }
+      }
+    }
+
+    function guardarTokenManual() {
+      const val = document.getElementById('ghTokenInput').value.trim();
+      localStorage.setItem("inkabistro_vault_secret_token", val);
+      alert("✔ Token guardado en almacenamiento local seguro.");
+    }
+
+    function borrarTokenManual() {
+      if (confirm("¿Deseas eliminar el token guardado?")) {
+        localStorage.removeItem("inkabistro_vault_secret_token");
+        document.getElementById('ghTokenInput').value = "";
+        alert("✔ Token eliminado.");
+      }
+    }
+
+    // RESETEAR BASE DE DATOS A ESTADO LIMPIO
+    async function ejecutarResetBaseDatosLimpia() {
+      if (confirm("🚨 ATENCIÓN:\n¿Estás seguro de que deseas resetear la base de datos a estado limpio?\n\n• Se borrarán todas las comandas en curso.\n• Se liberarán todas las mesas.\n• Se limpiarán reservas y bloqueos.")) {
+        try {
+          // 1. Limpiar comandas en Firebase
+          await fetch(`${FIREBASE_DB_URL}comandas.json`, { method: 'DELETE' });
+
+          // 2. Limpiar reservas residuales
+          await fetch(`${FIREBASE_DB_URL}reservas.json`, { method: 'DELETE' });
+
+          // 3. Limpiar respaldos en almacenamiento local del navegador
+          localStorage.removeItem("inkabistro_comandas_activas");
+          localStorage.removeItem("inkabistro_mi_comanda_id");
+          sessionStorage.removeItem("inkabistro_mesa_qr");
+
+          alert("✔ Base de datos reseteada con éxito a estado limpio. Todas las mesas están libres.");
+          await cargarComandasEnVivo();
+        } catch (err) {
+          alert("Error al conectar con Firebase: " + err.message);
+        }
+      }
     }
 
     function toggleSidebarMenu() {
@@ -747,7 +873,7 @@
       return s;
     }
 
-    // IDENTIDAD Y EDICIÓN DE LOGO
+    // IDENTIDAD Y LOGO
     async function cargarIdentidadFirebase() {
       try {
         const res = await fetch(`${FIREBASE_DB_URL}config/identidad.json?_t=${Date.now()}`);
@@ -808,7 +934,7 @@
       cargarIdentidadFirebase();
     }
 
-    // CATÁLOGO DE PLATOS CON BOTÓN EDITAR
+    // CATÁLOGO DE PLATOS
     function renderizarVisualDishes() {
       const grid = document.getElementById('dishesVisualGrid');
       if (!grid) return;
@@ -832,7 +958,6 @@
                 <button class="switch-btn ${disp ? 'btn-to-off' : 'btn-to-on'}" onclick="toggleStock(${idx})">${disp ? 'Agotar' : 'Activar'}</button>
               </div>
 
-              <!-- BOTÓN EDITAR PLATO -->
               <button type="button" class="btn btn-save" style="margin-top:8px; padding:7px; font-size:12px;" onclick="abrirModalPlato('${dish.id}')">
                 <i class="fa-solid fa-pen-to-square"></i> ✏️ Editar Plato
               </button>
@@ -1043,7 +1168,6 @@
       await cargarComandasEnVivo();
     }
 
-    // ENVIAR NOTIFICACIÓN AL CLIENTE EN INDEX
     async function enviarMensajeAgregarMas(idComanda) {
       await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, {
         method: 'PATCH',
@@ -1100,7 +1224,7 @@
         body: JSON.stringify(venta)
       });
 
-      // 2. Pasar a estado FINALIZADO (no se elimina, queda estática)
+      // 2. Pasar a estado FINALIZADO (permanece estático)
       await fetch(`${FIREBASE_DB_URL}comandas/${comandaCobrandoActual.id}.json`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -1119,7 +1243,7 @@
     }
 
     // ==============================================================
-    // REPORTE CONTABLE Y REGISTRO SUNAT CORREGIDO
+    // REPORTE CONTABLE SUNAT
     // ==============================================================
     async function renderizarReporte() {
       let ventas = [];
@@ -1155,17 +1279,13 @@
         `;
       });
 
-      if (ventas.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#888;">No hay ventas registradas aún.</td></tr>';
-      }
-
       document.getElementById('repPrintBase').innerText = `S/ ${totalBase.toFixed(2)}`;
       document.getElementById('repPrintIgv').innerText = `S/ ${totalIgv.toFixed(2)}`;
       document.getElementById('repPrintTotales').innerText = `Total: S/ ${totalPEN.toFixed(2)}`;
     }
 
     // ==============================================================
-    // GENERADOR Y FORMATO DE IMPRESIÓN DE QR CENTRADO EXACTO
+    // QR CENTRADO EXACTO A LA HOJA IMPRESA
     // ==============================================================
     function actualizarQRVisualDirecto(mesaManual = null) {
       const selector = document.getElementById('qrMesaSelector');
@@ -1223,7 +1343,7 @@
     }
 
     // ==============================================================
-    // RESEÑAS CON CASILLA DE COMENTARIOS
+    // RESEÑAS Y CASILLA DE COMENTARIOS
     // ==============================================================
     async function cargarResenasFirebase() {
       const cont = document.getElementById('contenedorResenasAdmin');
