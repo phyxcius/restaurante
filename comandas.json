@@ -1,1 +1,21 @@
-[]
+[
+  {
+    "id": "CMD-1791777905973",
+    "fecha": "11/10/2026 11:05 p.m.",
+    "cliente": "Mesa 04 (Inkagrill)",
+    "mesa": "Mesa 04",
+    "productos": "1x Aji de gallina",
+    "items": [
+      {
+        "id": "dish-1791770040831",
+        "nombre": "Aji de gallina",
+        "cantidad": 1,
+        "precio": 35
+      }
+    ],
+    "totalPEN": 35,
+    "pago": "Efectivo",
+    "notas": "",
+    "estado": "cocina"
+  }
+]
