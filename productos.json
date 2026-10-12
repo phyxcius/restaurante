@@ -63,6 +63,33 @@
         }
       },
       "disponible": true
+    },
+    {
+      "id": "dish-1791820779638",
+      "category": "mains",
+      "precioPEN": 35,
+      "precio": 35,
+      "videoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+      "posterUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?w=800",
+      "i18n": {
+        "es": {
+          "name": "Cuy al horno",
+          "desc": "Nutritivo"
+        },
+        "en": {
+          "name": "",
+          "desc": ""
+        },
+        "fr": {
+          "name": "",
+          "desc": ""
+        },
+        "pt": {
+          "name": "",
+          "desc": ""
+        }
+      },
+      "disponible": true
     }
   ]
 }
