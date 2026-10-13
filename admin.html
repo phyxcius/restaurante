@@ -59,12 +59,8 @@
       display: grid; grid-template-columns: 290px 1fr; min-height: calc(100vh - 54px); width: 100%;
       transition: grid-template-columns 0.25s ease; position: relative;
     }
-    .admin-layout.sidebar-collapsed {
-      grid-template-columns: 0px 1fr;
-    }
-    .admin-layout.sidebar-collapsed .sidebar {
-      transform: translateX(-100%); opacity: 0; pointer-events: none; visibility: hidden;
-    }
+    .admin-layout.sidebar-collapsed { grid-template-columns: 0px 1fr; }
+    .admin-layout.sidebar-collapsed .sidebar { transform: translateX(-100%); opacity: 0; pointer-events: none; visibility: hidden; }
 
     .sidebar {
       background: var(--sidebar-bg); border-right: 1.5px solid var(--card-border);
@@ -117,7 +113,34 @@
     .btn-del { background: #451a1a; color: #fca5a5; border: 1px solid #dc2626; }
     .btn-print { background: var(--blue); color: #fff; }
 
-    /* FILTROS KDS EN VIVO */
+    /* ==============================================================
+       BARRA DE CALENDARIO Y AUDITORÍA DIARIA DE COMANDAS KDS
+       ============================================================== */
+    .kds-calendar-bar {
+      background: #180e0a; border: 1.5px solid var(--accent); border-radius: 14px;
+      padding: 12px 16px; margin-bottom: 14px; display: flex; flex-wrap: wrap;
+      justify-content: space-between; align-items: center; gap: 12px;
+    }
+    .kds-date-picker-wrap { display: flex; align-items: center; gap: 8px; }
+    .kds-date-input {
+      padding: 7px 12px; border-radius: 8px; border: 1px solid var(--gold);
+      background: #110907; color: #fde047; font-weight: 900; font-size: 13px; cursor: pointer;
+    }
+    .kds-date-quick-btn {
+      background: #2b1c16; border: 1px solid rgba(245, 158, 11, 0.35); color: #fed7aa;
+      padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer;
+    }
+    .kds-date-quick-btn.active {
+      background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; border-color: var(--gold);
+    }
+
+    .kds-day-metrics { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+    .metric-pill {
+      background: #221510; border: 1px solid rgba(255,255,255,0.08); padding: 5px 10px;
+      border-radius: 8px; font-size: 11.5px;
+    }
+    .metric-pill b { color: var(--gold); font-size: 13px; }
+
     .kds-search-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
     .kds-search-bar input { flex: 2; min-width: 200px; padding: 10px; border-radius: 8px; border: 1px solid var(--accent); background: #180e0a; color: #fff; }
     .kds-filter-btn { padding: 8px 12px; border-radius: 8px; border: 1px solid #555; background: #221814; color: #ddd; font-size: 12px; font-weight: bold; cursor: pointer; }
@@ -199,7 +222,7 @@
 
     @media print {
       body { background: #fff !important; color: #000 !important; }
-      .no-print, .top-admin-bar, .sidebar, .sidebar-backdrop, .btn, .tables-monitor-bar, #pantallaLogin, .kds-search-bar { display: none !important; }
+      .no-print, .top-admin-bar, .sidebar, .sidebar-backdrop, .btn, .tables-monitor-bar, #pantallaLogin, .kds-search-bar, .kds-calendar-bar { display: none !important; }
       #areaImpresionReporte, #areaImpresionReporte * { visibility: visible !important; }
       #areaImpresionReporte { width: 100% !important; margin: 0 !important; padding: 0 !important; border: none !important; color: #000 !important; }
       .custom-table th, .custom-table td { color: #000 !important; border: 1px solid #333 !important; }
@@ -283,7 +306,7 @@
           <button type="button" class="btn btn-del" style="padding:4px 7px; font-size:10px;" onclick="cerrarTurno()">Cerrar Caja</button>
         </div>
 
-        <!-- ACORDEÓN TOKEN GITHUB (CLAVE 42423549) -->
+        <!-- ACORDEÓN TOKEN GITHUB -->
         <div class="vault-box">
           <button class="vault-trigger" type="button" onclick="toggleAcordeonClave('token')">
             <span><i class="fa-solid fa-key"></i> Token GitHub</span>
@@ -299,7 +322,7 @@
           </div>
         </div>
 
-        <!-- ACORDEÓN RESETEAR BD LIMPIA (CLAVE 42423549) -->
+        <!-- ACORDEÓN RESETEAR BD LIMPIA -->
         <div class="vault-box danger-vault">
           <button class="vault-trigger" type="button" onclick="toggleAcordeonClave('reset')">
             <span><i class="fa-solid fa-triangle-exclamation"></i> Resetear Base de Datos</span>
@@ -355,14 +378,32 @@
 
       <main class="main-view" id="mainArea">
 
-        <!-- 1. COMANDAS KDS -->
+        <!-- 1. COMANDAS KDS CON CALENDARIO DIARIO -->
         <section id="viewComandas">
           <div class="view-header">
             <div>
               <h1>🛎️ Pantalla KDS: Control de Comandas</h1>
-              <p>Seguimiento estático de órdenes: Iniciado, En Proceso, Recibido en Mesa y Finalizado.</p>
+              <p>Monitoreo diario. Al empezar el día, el tablero inicia en limpio.</p>
             </div>
             <button class="btn btn-add" onclick="cargarComandasEnVivo()"><i class="fa-solid fa-rotate"></i> Actualizar</button>
+          </div>
+
+          <!-- BARRA DE CALENDARIO Y MÉTRICAS DIARIAS -->
+          <div class="kds-calendar-bar">
+            <div class="kds-date-picker-wrap">
+              <span style="font-size:12px; font-weight:900; color:var(--gold);"><i class="fa-solid fa-calendar-day"></i> Ver Comandas del Día:</span>
+              <input type="date" id="kdsFechaSeleccionada" class="kds-date-input" onchange="cambiarFechaKDS(this.value)">
+              <button type="button" class="kds-date-quick-btn active" id="btnKdsHoy" onclick="setKdsFechaRapida('hoy')">Hoy</button>
+              <button type="button" class="kds-date-quick-btn" id="btnKdsAyer" onclick="setKdsFechaRapida('ayer')">Ayer</button>
+              <button type="button" class="kds-date-quick-btn" id="btnKdsTodas" onclick="setKdsFechaRapida('todas')">Todas las fechas</button>
+            </div>
+
+            <div class="kds-day-metrics">
+              <div class="metric-pill">Comandas del Día: <b id="metricDiaTotal">0</b></div>
+              <div class="metric-pill">En Curso: <b id="metricDiaActivas" style="color:#38bdf8;">0</b></div>
+              <div class="metric-pill">Cobradas: <b id="metricDiaFinalizadas" style="color:#86efac;">0</b></div>
+              <div class="metric-pill">Vendido: <b id="metricDiaTotalPEN" style="color:#fde047;">S/ 0.00</b></div>
+            </div>
           </div>
 
           <!-- BARRA DE BÚSQUEDA Y FILTRO RÁPIDO -->
@@ -513,7 +554,6 @@
               </div>
             </div>
 
-            <!-- FILTROS DE AUDITORÍA AVANZADA -->
             <div class="filter-audit-grid no-print">
               <div>
                 <label>Desde Fecha:</label>
@@ -592,7 +632,7 @@
           </div>
         </section>
 
-        <!-- 6. QR MESAS (CENTRADO Y EXACTO) -->
+        <!-- 6. QR MESAS -->
         <section id="viewMesas" style="display:none;">
           <div class="view-header">
             <div>
@@ -804,6 +844,9 @@
     let filtroEstadoKDSActual = "todos";
     let totalComandasPrevias = 0;
 
+    // FILTRO DE CALENDARIO: Por defecto inicia filtrando únicamente la fecha de hoy
+    let fechaKdsSeleccionada = new Date().toISOString().split('T')[0];
+
     let vaultTokenDesbloqueado = false;
     let vaultResetDesbloqueado = false;
 
@@ -884,6 +927,9 @@
       });
 
       document.getElementById('ghTokenInput').value = localStorage.getItem("inkabistro_vault_secret_token") || "";
+
+      // Iniciar el input date del calendario en la fecha de hoy
+      document.getElementById('kdsFechaSeleccionada').value = fechaKdsSeleccionada;
 
       await cargarIdentidadFirebase();
       renderizarVisualDishes();
@@ -1131,7 +1177,35 @@
     }
 
     // ==============================================================
-    // KDS: COMANDAS ESTÁTICAS CON BUSCADOR Y ADICIONES
+    // CONTROL DEL CALENDARIO DE COMANDAS KDS
+    // ==============================================================
+    function cambiarFechaKDS(val) {
+      fechaKdsSeleccionada = val;
+      document.querySelectorAll('.kds-date-quick-btn').forEach(b => b.classList.remove('active'));
+      renderizarListaKDSFiltrada();
+    }
+
+    function setKdsFechaRapida(modo) {
+      document.querySelectorAll('.kds-date-quick-btn').forEach(b => b.classList.remove('active'));
+      const hoy = new Date();
+      if (modo === 'hoy') {
+        fechaKdsSeleccionada = hoy.toISOString().split('T')[0];
+        document.getElementById('btnKdsHoy').classList.add('active');
+      } else if (modo === 'ayer') {
+        const ayer = new Date(hoy);
+        ayer.setDate(ayer.getDate() - 1);
+        fechaKdsSeleccionada = ayer.toISOString().split('T')[0];
+        document.getElementById('btnKdsAyer').classList.add('active');
+      } else if (modo === 'todas') {
+        fechaKdsSeleccionada = "";
+        document.getElementById('btnKdsTodas').classList.add('active');
+      }
+      document.getElementById('kdsFechaSeleccionada').value = fechaKdsSeleccionada;
+      renderizarListaKDSFiltrada();
+    }
+
+    // ==============================================================
+    // KDS: COMANDAS ESTÁTICAS CON BUSCADOR Y FILTRADO POR FECHA DIARIA
     // ==============================================================
     async function cargarComandasEnVivo() {
       const grid = document.getElementById('liveOrdersGrid');
@@ -1156,15 +1230,14 @@
       comandas.sort((a, b) => String(b.id || "").localeCompare(String(a.id || "")));
       todasLasComandasCache = comandas;
 
+      // Actualizar monitor de mesas (solo mesas con comandas activas sin cobrar)
       const activasSinCobro = comandas.filter(c => String(c.estado || "").toLowerCase() !== 'finalizado');
       if (activasSinCobro.length > totalComandasPrevias && totalComandasPrevias !== 0) {
         reproducirSonidoUberInDriver();
       }
       totalComandasPrevias = activasSinCobro.length;
-
       document.getElementById('badgeTotalComandas').innerText = activasSinCobro.length;
 
-      // MONITOR DE MESAS
       const mesasOcupadas = activasSinCobro.map(c => normalizarNombreMesa(c.mesa || ''));
       monitorGrid.innerHTML = todasLasMesas.map(m => {
         const estaOcupada = mesasOcupadas.includes(normalizarNombreMesa(m));
@@ -1192,13 +1265,50 @@
       renderizarListaKDSFiltrada();
     }
 
+    // RENDERIZADO FILTRADO POR FECHA DE CALENDARIO + BÚSQUEDA
     function renderizarListaKDSFiltrada() {
       const grid = document.getElementById('liveOrdersGrid');
       if (!grid) return;
 
       const query = (document.getElementById('kdsFiltroBusqueda').value || '').toLowerCase().trim();
 
-      let filtradas = todasLasComandasCache.filter(c => {
+      // Formatear fecha para comparar con el formato "DD/MM/YYYY" guardado en c.fecha
+      let diaFiltroDDMMYYYY = "";
+      if (fechaKdsSeleccionada) {
+        const partes = fechaKdsSeleccionada.split('-');
+        if (partes.length === 3) {
+          diaFiltroDDMMYYYY = `${parseInt(partes[2])}/${parseInt(partes[1])}/${partes[0]}`;
+        }
+      }
+
+      // 1. Filtrar por fecha seleccionada
+      let comandasPorFecha = todasLasComandasCache.filter(c => {
+        if (!fechaKdsSeleccionada) return true;
+        const fec = String(c.fecha || "");
+        return fec.includes(diaFiltroDDMMYYYY) || fec.includes(fechaKdsSeleccionada);
+      });
+
+      // 2. Calcular métricas del día seleccionado
+      let totDia = comandasPorFecha.length;
+      let actDia = 0;
+      let finDia = 0;
+      let totalPagarDia = 0;
+
+      comandasPorFecha.forEach(c => {
+        const est = String(c.estado || "").toLowerCase();
+        const t = parseFloat(c.totalPEN || c.total || 0);
+        totalPagarDia += t;
+        if (est === 'finalizado') finDia++;
+        else actDia++;
+      });
+
+      document.getElementById('metricDiaTotal').innerText = totDia;
+      document.getElementById('metricDiaActivas').innerText = actDia;
+      document.getElementById('metricDiaFinalizadas').innerText = finDia;
+      document.getElementById('metricDiaTotalPEN').innerText = `S/ ${totalPagarDia.toFixed(2)}`;
+
+      // 3. Filtrar por estado del botón KDS
+      let filtradas = comandasPorFecha.filter(c => {
         let estado = String(c.estado || 'iniciado').toLowerCase();
         if (estado === 'por_confirmar') estado = 'iniciado';
 
@@ -1212,6 +1322,7 @@
         return true;
       });
 
+      // 4. Filtrar por texto de búsqueda
       if (query) {
         filtradas = filtradas.filter(c => {
           const m = String(c.mesa || '').toLowerCase();
@@ -1221,7 +1332,10 @@
       }
 
       if (filtradas.length === 0) {
-        grid.innerHTML = '<p style="color:#aaa; font-size:14px; padding:20px 0; text-align:center;">No hay comandas que coincidan con la búsqueda.</p>';
+        const fechaMsg = fechaKdsSeleccionada ? `el ${fechaKdsSeleccionada}` : "la fecha";
+        grid.innerHTML = `<p style="color:#aaa; font-size:14px; padding:24px 0; text-align:center;">
+          No hay comandas registradas para ${fechaMsg}. El tablero de este turno se encuentra en limpio.
+        </p>`;
         return;
       }
 
@@ -1238,7 +1352,7 @@
         let badgeTexto = "Iniciado";
         let badgeClase = "badge-iniciado";
 
-        if (estado === 'cocina') { badgeTexto = "🍳 En Proceso (Cocina)"; badgeClase = "badge-cocina"; }
+        if (estado === 'cocina') { badgeTexto = "🍳 En Proceso"; badgeClase = "badge-cocina"; }
         else if (estado === 'servido') { badgeTexto = "✅ Recibido en Mesa"; badgeClase = "badge-servido"; }
         else if (estado === 'finalizado') { badgeTexto = "🏁 Finalizado"; badgeClase = "badge-finalizado"; }
 
@@ -1269,7 +1383,7 @@
             <div class="order-actions-container">
               ${(estado === 'iniciado') ? `
                 <button type="button" class="btn-action-confirm" onclick="cambiarEstadoFirebase('${c.id}', 'cocina')">
-                  <i class="fa-solid fa-utensils"></i> En Proceso (Cocina)
+                  <i class="fa-solid fa-utensils"></i> En Proceso
                 </button>
               ` : ''}
 
@@ -1313,7 +1427,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mozoPregunta: true })
       });
-      alert("✔ Notificación enviada al cliente.");
+      alert("✔ Notificación enviada al cliente en index.");
     }
 
     // MODAL DE COBRO
