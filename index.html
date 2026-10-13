@@ -59,7 +59,7 @@
     .select-pill { background: var(--glass-panel); border: 1px solid var(--glass-border); color: #fff; padding: 4px 6px; border-radius: 14px; font-size: 10.5px; font-weight: 700; outline: none; }
     .icon-pill-btn { width: 30px; height: 30px; border-radius: 50%; background: var(--glass-panel); border: 1px solid var(--glass-border); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; }
 
-    /* SEGUIMIENTO KDS EN VIVO */
+    /* TARJETA KDS EN VIVO */
     .kds-tracking-card {
       display: none; width: calc(100% - 10px); margin: 0 auto;
       padding: 10px 12px; border-radius: 12px; backdrop-filter: blur(12px);
@@ -68,7 +68,7 @@
     }
     @keyframes fadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-    .kds-tracking-card.por_confirmar { display: block; background: rgba(45, 30, 24, 0.95); border-color: #f59e0b; }
+    .kds-tracking-card.por_confirmar, .kds-tracking-card.iniciado { display: block; background: rgba(45, 30, 24, 0.95); border-color: #f59e0b; }
     .kds-tracking-card.cocina { display: block; background: rgba(20, 32, 45, 0.95); border-color: #38bdf8; }
     .kds-tracking-card.servido { display: block; background: rgba(18, 38, 26, 0.95); border-color: #4ade80; }
     .kds-tracking-card.camino_a_caja {
@@ -125,7 +125,6 @@
     .video-player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
     .slide-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(24,17,14,0.4) 0%, transparent 50%, rgba(24,17,14,0.92) 100%); }
 
-    /* GUÍA GESTUAL */
     .gesture-hint-overlay {
       position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
       z-index: 40; pointer-events: none; display: flex; flex-direction: column; align-items: center; gap: 8px;
@@ -146,7 +145,7 @@
     .dish-info { position: relative; z-index: 10; padding: 0 75px 85px 16px; width: 100%; }
     .dish-title { font-size: 21px; font-weight: 800; line-height: 1.2; margin-bottom: 4px; }
     .dish-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; margin-bottom: 8px; }
-    .price-now { font-size: 23px; font-weight: 800; color: #fef08a; display: block; margin-bottom: 6px; }
+    .price-now { font-size: 23px; font-weight: 800; color: #fde047; display: block; margin-bottom: 6px; }
     .btn-quick-add { background: linear-gradient(135deg, var(--primary), var(--accent)); border: none; color: #fff; padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 12px; cursor: pointer; }
 
     /* BOTÓN FLOTANTE */
@@ -213,18 +212,21 @@
       font-size: 11px; font-weight: 800; text-align: left; cursor: pointer; display: flex; justify-content: space-between;
     }
 
+    /* SELECTOR DINÁMICO DE MESAS CON SCROLL Y BLOQUEO */
     .table-selector-label {
       font-size: 11px; font-weight: 900; text-transform: uppercase; color: var(--modal-dark);
       letter-spacing: 0.5px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;
     }
-    .table-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 10px; }
+    .table-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
+      gap: 6px; margin-bottom: 10px; max-height: 115px; overflow-y: auto; padding: 2px;
+    }
     .table-box-btn {
       background: var(--modal-card-bg); border: 1.5px solid rgba(28, 25, 23, 0.2);
-      color: var(--modal-dark); font-weight: 900; font-size: 12px; padding: 8px 4px; border-radius: 8px;
-      cursor: pointer; text-align: center;
+      color: var(--modal-dark); font-weight: 900; font-size: 11px; padding: 8px 2px; border-radius: 8px;
+      cursor: pointer; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .table-box-btn.selected { background: var(--modal-green); border-color: var(--modal-green-dark); color: #fff; box-shadow: 0 0 10px rgba(77, 124, 15, 0.5); }
-    .table-box-btn.extra { grid-column: span 2; font-size: 11px; }
     .table-box-btn.bloqueada { background: #dc2626 !important; border-color: #991b1b !important; color: #fff !important; cursor: not-allowed; }
     .table-box-btn.deshabilitada-qr { opacity: 0.35 !important; cursor: not-allowed !important; filter: grayscale(1); }
 
@@ -277,7 +279,7 @@
       justify-content: center; gap: 8px; box-shadow: 0 6px 18px rgba(77, 124, 15, 0.4); width: 100%;
     }
 
-    /* PANTALLA AGRADECIMIENTO CON OPCIONES DE SALIR / REINICIAR */
+    /* PANTALLA AGRADECIMIENTO */
     .screen-agradecimiento-overlay {
       position: fixed; inset: 0; background: rgba(18, 12, 10, 0.96); backdrop-filter: blur(10px);
       z-index: 200000; display: none; align-items: center; justify-content: center; padding: 24px; text-align: center;
@@ -365,7 +367,7 @@
     <!-- TARJETA KDS EN VIVO -->
     <div class="kds-tracking-card" id="kdsTrackingCard">
       <div class="kds-tracking-header">
-        <span class="kds-status-badge" id="kdsBadge">🟡 Por Confirmar</span>
+        <span class="kds-status-badge" id="kdsBadge">🟡 1. Iniciado</span>
         <button style="background:none; border:none; color:#aaa; font-size:12px; cursor:pointer;" onclick="cerrarSeguimiento()">✕</button>
       </div>
       <p class="kds-msg-text" id="kdsMsg">Esperando que el mozo o caja acepte tu comanda...</p>
@@ -443,13 +445,14 @@
         <div class="quick-add-grid" id="quickAddCatalogGrid"></div>
       </div>
 
+      <!-- SELECTOR DINÁMICO DE MESAS -->
       <div class="table-selector-label">
         <span id="lblMesaHeaderInfo">📍 Mesa Asignada:</span>
         <span id="selectedTableBadge" style="color:var(--modal-green-dark); font-size:12px; font-weight:900;">Mesa 01</span>
       </div>
       <div class="table-grid" id="tableGridContainer"></div>
 
-      <!-- SELECTOR DE MÉTODOS DE PAGO -->
+      <!-- MÉTODOS DE PAGO -->
       <div class="grid-payments">
         <button type="button" class="btn-pay-option active" id="btnPayEfectivo" onclick="elegirPago('Efectivo', this)">💵 <span id="lblPayEfectivo">Efectivo</span></button>
         <button type="button" class="btn-pay-option" onclick="elegirPago('Yape', this)">🟣 Yape</button>
@@ -529,6 +532,13 @@
       }
     ];
 
+    // LISTA DE MESAS DINÁMICAS (SINCRONIZADAS CON ADMIN Y FIREBASE)
+    let listaMesas = [
+      "Mesa 01", "Mesa 02", "Mesa 03", "Mesa 04", "Mesa 05",
+      "Mesa 06", "Mesa 07", "Mesa 08", "Mesa 09", "Mesa 010",
+      "Mesa 11", "Mesa 12", "Barra", "Terraza 1", "Terraza 2"
+    ];
+
     const pedido = {};
     let currentLang = "es";
     let isGlobalMuted = true;
@@ -539,16 +549,6 @@
     let mesaFijadaPorQR = false;
     let mesaSeleccionada = sessionStorage.getItem("inkabistro_mesa_qr") || "Mesa 01";
     let comandaActivaId = localStorage.getItem("inkabistro_mi_comanda_id") || null;
-
-    const listaMesas = [
-      { id: "Mesa 01", label: "1" }, { id: "Mesa 02", label: "2" }, { id: "Mesa 03", label: "3" },
-      { id: "Mesa 04", label: "4" }, { id: "Mesa 05", label: "5" }, { id: "Mesa 06", label: "6" },
-      { id: "Mesa 07", label: "7" }, { id: "Mesa 08", label: "8" }, { id: "Mesa 09", label: "9" },
-      { id: "Mesa 10", label: "10" }, { id: "Mesa 11", label: "11" }, { id: "Mesa 12", label: "12" },
-      { id: "Barra", label: "🍸 Barra", extra: true },
-      { id: "Terraza 1", label: "☀️ Ter. 1", extra: true },
-      { id: "Terraza 2", label: "☀️ Ter. 2", extra: true }
-    ];
 
     const DICCIONARIO = {
       es: {
@@ -695,6 +695,19 @@
       }
     }
 
+    // DESCARGAR MESAS DINÁMICAS DESDE FIREBASE
+    async function sincronizarMesasDesdeFirebase() {
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}config/mesas.json?_t=${Date.now()}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            listaMesas = data;
+          }
+        }
+      } catch (e) {}
+    }
+
     async function obtenerMesasOcupadasEnRed() {
       let comandas = [];
       try {
@@ -724,13 +737,14 @@
       const container = document.getElementById("tableGridContainer");
       if (!container) return;
 
+      await sincronizarMesasDesdeFirebase();
       const mesasOcupadas = await obtenerMesasOcupadasEnRed();
       container.innerHTML = "";
 
       const mesaActualNorm = normalizarNombreMesa(mesaSeleccionada);
 
       listaMesas.forEach(m => {
-        const idNormal = normalizarNombreMesa(m.id);
+        const idNormal = normalizarNombreMesa(m);
         const estaOcupada = mesasOcupadas.includes(idNormal);
         const esMiMesa = (mesaActualNorm === idNormal);
 
@@ -742,19 +756,19 @@
           claseBloqueoQR = "deshabilitada-qr";
         }
 
-        btn.className = `table-box-btn ${m.extra ? 'extra' : ''} ${esMiMesa ? 'selected' : ''} ${estaOcupada ? 'bloqueada' : ''} ${claseBloqueoQR}`;
+        btn.className = `table-box-btn ${esMiMesa ? 'selected' : ''} ${estaOcupada ? 'bloqueada' : ''} ${claseBloqueoQR}`;
         
         if (estaOcupada) {
-          btn.innerHTML = `${m.label} <span style="font-size:9px;">🔒</span>`;
-          btn.title = `La ${m.id} está ocupada.`;
-          btn.onclick = () => alert(`⚠️ La ${m.id} ya tiene un pedido en curso.`);
+          btn.innerHTML = `${m.replace('Mesa ', 'M-')} 🔒`;
+          btn.title = `La ${m} está ocupada.`;
+          btn.onclick = () => alert(`⚠️ La ${m} ya tiene un pedido en curso.`);
         } else if (mesaFijadaPorQR && !esMiMesa) {
-          btn.innerHTML = `${m.label} 🔒`;
+          btn.innerHTML = `${m.replace('Mesa ', 'M-')} 🔒`;
           btn.title = `Bloqueada para esta mesa.`;
           btn.onclick = () => alert(`🔒 Tu sesión está fija en la ${mesaSeleccionada}.`);
         } else {
-          btn.innerText = m.label;
-          btn.onclick = () => selectTableRow(m.id, btn);
+          btn.innerText = m.replace('Mesa ', 'M-');
+          btn.onclick = () => selectTableRow(m, btn);
         }
 
         container.appendChild(btn);
@@ -842,6 +856,7 @@
         }
       } catch (e) {}
 
+      await sincronizarMesasDesdeFirebase();
       renderCategoryChips();
       renderFeed();
       setupObserver();
@@ -1017,7 +1032,7 @@
       openOrdersPopup();
     }
 
-    // TRANSMISIÓN A COCINA (INICIAL O ADICIÓN QUE REINICIA ESTADO A COCINA)
+    // TRANSMISIÓN CENTRALIZADA EN SU PROPIA COMANDA
     async function enviarComandaDirectaAlPanel() {
       const itemIds = Object.keys(pedido);
       if (itemIds.length === 0) return alert("Por favor añade al menos un plato a la comanda.");
@@ -1041,7 +1056,6 @@
         platosComanda.push({ id, nombre: info.name, cantidad: cant, precio: dish.precioPEN || dish.precio });
       });
 
-      // Si el cliente ya tenía una comanda activa, agrega y REINICIA estado a 'cocina'
       if (comandaActivaId) {
         try {
           const res = await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`);
@@ -1058,7 +1072,7 @@
                   productos: productosUnificados,
                   totalPEN: nuevoTotal,
                   total: nuevoTotal,
-                  estado: 'cocina', // REINICIA A COCINA PARA QUE EL CHEF PREPARE LO NUEVO
+                  estado: 'cocina',
                   mozoPregunta: false,
                   clientePidiendoCuenta: false,
                   pago: metodoPago,
@@ -1079,7 +1093,6 @@
         } catch (e) {}
       }
 
-      // Nueva comanda
       const nuevaComanda = {
         id: "CMD-" + Date.now(),
         fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }),
@@ -1124,11 +1137,8 @@
       }, 400);
     }
 
-    // PEDIR CUENTA
     async function solicitarCuentaEnCaja() {
       if (!comandaActivaId) return;
-
-      const dic = DICCIONARIO[currentLang] || DICCIONARIO.es;
 
       await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`, {
         method: 'PATCH',
@@ -1172,7 +1182,6 @@
 
       if (!comanda) return;
 
-      // SI EL CAJERO COBRÓ Y FINALIZÓ LA MESA
       if (comanda.agradecimientoFinal === true || comanda.estado === 'finalizado' || comanda.estado === 'liberado') {
         document.getElementById('pantallaAgradecimiento').classList.add('active');
         return;
@@ -1228,7 +1237,6 @@
       document.getElementById('clientReviewBox').style.display = (comanda.estado === 'servido' && !comanda.resenaEnviada) ? 'block' : 'none';
     }
 
-    // REINICIO LIMPIO AL SALIR
     function reiniciarNavegadorLimpio() {
       localStorage.removeItem("inkabistro_mi_comanda_id");
       sessionStorage.removeItem("inkabistro_mesa_qr");
