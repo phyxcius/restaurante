@@ -25,7 +25,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
     body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
 
-    /* LOGIN */
+    /* PANTALLA LOGIN */
     #pantallaLogin {
       display: flex; justify-content: center; align-items: center; min-height: 100vh;
       padding: 16px; background: radial-gradient(circle at center, #241611 0%, #0d0806 100%);
@@ -42,7 +42,7 @@
       padding: 12px; margin-top: 10px;
     }
 
-    /* TOP BAR */
+    /* BARRA SUPERIOR */
     .top-admin-bar {
       display: flex; background: #190f0c; border-bottom: 1.5px solid var(--card-border);
       padding: 10px 14px; align-items: center; justify-content: space-between;
@@ -55,12 +55,17 @@
       display: inline-flex; align-items: center; gap: 6px;
     }
 
+    /* ESCRITORIO */
     .admin-layout {
       display: grid; grid-template-columns: 290px 1fr; min-height: calc(100vh - 54px); width: 100%;
       transition: grid-template-columns 0.25s ease; position: relative;
     }
-    .admin-layout.sidebar-collapsed { grid-template-columns: 0px 1fr; }
-    .admin-layout.sidebar-collapsed .sidebar { transform: translateX(-100%); opacity: 0; pointer-events: none; visibility: hidden; }
+    .admin-layout.sidebar-collapsed {
+      grid-template-columns: 0px 1fr;
+    }
+    .admin-layout.sidebar-collapsed .sidebar {
+      transform: translateX(-100%); opacity: 0; pointer-events: none; visibility: hidden;
+    }
 
     .sidebar {
       background: var(--sidebar-bg); border-right: 1.5px solid var(--card-border);
@@ -199,7 +204,7 @@
     /* AUDITORÍA SUNAT */
     .filter-audit-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; background: #180e0a; padding: 12px; border-radius: 10px; margin-bottom: 12px; border: 1px solid var(--card-border); }
 
-    /* MODAL */
+    /* MODALES */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 550; display: none; align-items: center; justify-content: center; padding: 20px; }
     .modal-overlay.active { display: flex; }
     .modal-box { background: var(--card-bg); border: 1.5px solid var(--card-border); border-radius: 16px; max-width: 520px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 22px; display: flex; flex-direction: column; gap: 12px; }
@@ -216,14 +221,41 @@
     .switch-btn.btn-to-off { background: #451a1a; color: #fca5a5; border: 1px solid #dc2626; }
     .switch-btn.btn-to-on { background: #14532d; color: #86efac; border: 1px solid #16a34a; }
 
-    .sidebar-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 180; }
+    /* BACKDROP Y REGLAS MÓVILES (CORREGIDO PARA DISPOSITIVOS MÓVILES) */
+    .sidebar-backdrop {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 180;
+    }
 
     @media (max-width: 860px) {
-      .admin-layout { display: block; }
-      .sidebar { position: fixed; top: 0; left: 0; width: 290px; height: 100vh; transform: translateX(-100%); visibility: hidden; }
-      .admin-layout.sidebar-open .sidebar { transform: translateX(0); visibility: visible; }
-      .admin-layout.sidebar-open .sidebar-backdrop { display: block; }
-      .main-view { padding: 16px 14px; max-height: none; }
+      .admin-layout {
+        display: block !important;
+      }
+      .sidebar {
+        position: fixed !important; top: 0 !important; left: 0 !important;
+        width: 290px !important; height: 100vh !important;
+        transform: translateX(-100%) !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        visibility: hidden !important;
+        z-index: 250 !important;
+      }
+      /* Cuando está abierto en móvil */
+      .admin-layout.sidebar-open .sidebar {
+        transform: translateX(0) !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        visibility: visible !important;
+      }
+      .admin-layout.sidebar-open .sidebar-backdrop {
+        display: block !important;
+      }
+      /* Anular la clase de escritorio en celular */
+      .admin-layout.sidebar-collapsed {
+        grid-template-columns: none !important;
+      }
+      .main-view {
+        padding: 16px 14px !important; max-height: none !important;
+      }
     }
 
     @media print {
@@ -290,7 +322,8 @@
     </header>
 
     <div class="admin-layout" id="adminLayoutWrapper">
-      <div class="sidebar-backdrop" onclick="toggleSidebarMenu()"></div>
+      <!-- Backdrop para tocar en celular y cerrar -->
+      <div class="sidebar-backdrop" onclick="cerrarMenuMovil()"></div>
 
       <aside class="sidebar no-print" id="sidebarPanel">
         <div class="brand-box">
@@ -301,6 +334,7 @@
               <span id="headerBusinessSlogan" style="font-size:10.5px; color:#aaa; display:block;">Cusco • Gourmet</span>
             </div>
           </div>
+          <button type="button" class="btn btn-del" style="padding:4px 8px; font-size:11px;" onclick="cerrarMenuMovil()" title="Cerrar"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
         <div class="user-session-badge">
@@ -435,7 +469,7 @@
           <div class="live-orders-grid" id="liveOrdersGrid"></div>
         </section>
 
-        <!-- 2. GESTOR DE MESAS PARA RESTAURANTES GRANDES (NUEVO) -->
+        <!-- 2. GESTOR DE MESAS -->
         <section id="viewMesasConfig" style="display:none;">
           <div class="view-header">
             <div>
@@ -660,7 +694,7 @@
           </div>
         </section>
 
-        <!-- 7. QR MESAS (SINCRONIZADO DINÁMICAMENTE) -->
+        <!-- 7. QR MESAS -->
         <section id="viewMesas" style="display:none;">
           <div class="view-header">
             <div>
@@ -851,7 +885,6 @@
       yapePhone: "+51 987 654 321"
     };
 
-    // ARREGLO DINÁMICO DE MESAS EN LA NUBE
     let listaMesasDinamicas = [
       "Mesa 01", "Mesa 02", "Mesa 03", "Mesa 04", "Mesa 05",
       "Mesa 06", "Mesa 07", "Mesa 08", "Mesa 09", "Mesa 010",
@@ -960,8 +993,53 @@
     }
 
     // ==============================================================
-    // GESTOR DE MESAS EN LA NUBE PARA RESTAURANTES GRANDES
+    // CONTROL DEL MENÚ LATERAL EN CELULAR Y ESCRITORIO (CORREGIDO)
     // ==============================================================
+    function toggleSidebarMenu() {
+      const layout = document.getElementById('adminLayoutWrapper');
+      if (window.innerWidth <= 860) {
+        // En celular: alternar clase sidebar-open
+        layout.classList.toggle('sidebar-open');
+      } else {
+        // En computadora: alternar clase sidebar-collapsed
+        layout.classList.toggle('sidebar-collapsed');
+      }
+    }
+
+    function cerrarMenuMovil() {
+      const layout = document.getElementById('adminLayoutWrapper');
+      layout.classList.remove('sidebar-open');
+    }
+
+    function seleccionarOpcionNav(sec) {
+      mostrarSeccion(sec);
+      // Cerrar menú si estamos en pantalla de celular
+      if (window.innerWidth <= 860) {
+        cerrarMenuMovil();
+      }
+    }
+
+    function mostrarSeccion(s) {
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+      ['comandas','mesasConfig','reservas','platos','identidad','reportes','mesas','resenas'].forEach(id => {
+        const el = document.getElementById('view' + id.charAt(0).toUpperCase() + id.slice(1));
+        if (el) el.style.display = 'none';
+      });
+      const btn = document.getElementById('btnNav' + s.charAt(0).toUpperCase() + s.slice(1));
+      if (btn) btn.classList.add('active');
+      const target = document.getElementById('view' + s.charAt(0).toUpperCase() + s.slice(1));
+      if (target) target.style.display = 'block';
+
+      if (s === 'comandas') cargarComandasEnVivo();
+      if (s === 'mesasConfig') cargarMesasDesdeFirebase();
+      if (s === 'reservas') cargarReservasFirebase();
+      if (s === 'platos') renderizarVisualDishes();
+      if (s === 'reportes') renderizarReporte();
+      if (s === 'mesas') actualizarQRVisualDirecto();
+      if (s === 'resenas') cargarResenasFirebase();
+    }
+
+    // MESAS DINÁMICAS
     async function cargarMesasDesdeFirebase() {
       try {
         const res = await fetch(`${FIREBASE_DB_URL}config/mesas.json?_t=${Date.now()}`);
@@ -979,7 +1057,6 @@
     function actualizarSelectoresYVistaMesas() {
       document.getElementById('totalMesasRegistradasTxt').innerText = listaMesasDinamicas.length;
       
-      // 1. Renderizar lista en sección de configuración
       const cont = document.getElementById('contenedorManagerMesas');
       if (cont) {
         cont.innerHTML = listaMesasDinamicas.map((m, idx) => `
@@ -990,7 +1067,6 @@
         `).join('');
       }
 
-      // 2. Actualizar selector de Códigos QR
       const qrSelect = document.getElementById('qrMesaSelectorDinamico');
       if (qrSelect) {
         const valorActual = qrSelect.value;
@@ -999,7 +1075,6 @@
         `).join('');
       }
 
-      // 3. Actualizar selector en módulo de reservas
       const resSelect = document.getElementById('resAdminMesaSelectorDinamico');
       if (resSelect) {
         resSelect.innerHTML = listaMesasDinamicas.map(m => `<option value="${m}">${m}</option>`).join('');
@@ -1047,7 +1122,7 @@
       }
     }
 
-    // ACORDEONES CLAVE 42423549
+    // VAULTS
     function toggleAcordeonClave(tipo) {
       if (tipo === 'token') {
         const box = document.getElementById('contentVaultToken');
@@ -1089,34 +1164,6 @@
         alert("✔ Sistema en estado limpio.");
         cargarComandasEnVivo();
       }
-    }
-
-    function toggleSidebarMenu() {
-      document.getElementById('adminLayoutWrapper').classList.toggle('sidebar-collapsed');
-    }
-    function seleccionarOpcionNav(sec) {
-      mostrarSeccion(sec);
-      if (window.innerWidth <= 860) toggleSidebarMenu();
-    }
-
-    function mostrarSeccion(s) {
-      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-      ['comandas','mesasConfig','reservas','platos','identidad','reportes','mesas','resenas'].forEach(id => {
-        const el = document.getElementById('view' + id.charAt(0).toUpperCase() + id.slice(1));
-        if (el) el.style.display = 'none';
-      });
-      const btn = document.getElementById('btnNav' + s.charAt(0).toUpperCase() + s.slice(1));
-      if (btn) btn.classList.add('active');
-      const target = document.getElementById('view' + s.charAt(0).toUpperCase() + s.slice(1));
-      if (target) target.style.display = 'block';
-
-      if (s === 'comandas') cargarComandasEnVivo();
-      if (s === 'mesasConfig') cargarMesasDesdeFirebase();
-      if (s === 'reservas') cargarReservasFirebase();
-      if (s === 'platos') renderizarVisualDishes();
-      if (s === 'reportes') renderizarReporte();
-      if (s === 'mesas') actualizarQRVisualDirecto();
-      if (s === 'resenas') cargarResenasFirebase();
     }
 
     function normalizarNombreMesa(m) {
@@ -1190,7 +1237,7 @@
       cargarIdentidadFirebase();
     }
 
-    // CATÁLOGO DE PLATOS
+    // CATÁLOGO
     function renderizarVisualDishes() {
       const grid = document.getElementById('dishesVisualGrid');
       if (!grid) return;
@@ -1341,7 +1388,6 @@
       totalComandasPrevias = activasSinCobro.length;
       document.getElementById('badgeTotalComandas').innerText = activasSinCobro.length;
 
-      // PINTAR MONITOR ADAPTADO A TODAS LAS MESAS DINÁMICAS
       const mesasOcupadas = activasSinCobro.map(c => normalizarNombreMesa(c.mesa || ''));
       monitorGrid.innerHTML = listaMesasDinamicas.map(m => {
         const estaOcupada = mesasOcupadas.includes(normalizarNombreMesa(m));
@@ -1793,7 +1839,7 @@
     // QR MESAS
     function actualizarQRVisualDirecto(mesaManual = null) {
       const selector = document.getElementById('qrMesaSelectorDinamico');
-      const mesa = mesaManual || (selector ? selector.value : "Mesa 01");
+      const mesa = mesaManual || (selector ? selector.value : (listaMesasDinamicas[0] || "Mesa 01"));
       const tel = document.getElementById('qrTelefonoInput').value.trim() || "+51969773064";
       const u = "https://phyxcius.github.io/restaurante/";
       const link = `${u}?mesa=${encodeURIComponent(mesa)}`;
@@ -1805,7 +1851,7 @@
 
     function imprimirTarjetaMesaQR() {
       const selector = document.getElementById('qrMesaSelectorDinamico');
-      const mesa = selector ? selector.value : "Mesa 01";
+      const mesa = selector ? selector.value : (listaMesasDinamicas[0] || "Mesa 01");
       const tel = document.getElementById('qrTelefonoInput').value.trim() || "+51969773064";
       const u = "https://phyxcius.github.io/restaurante/";
       const link = `${u}?mesa=${encodeURIComponent(mesa)}`;
