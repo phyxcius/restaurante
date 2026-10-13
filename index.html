@@ -59,7 +59,7 @@
     .select-pill { background: var(--glass-panel); border: 1px solid var(--glass-border); color: #fff; padding: 4px 6px; border-radius: 14px; font-size: 10.5px; font-weight: 700; outline: none; }
     .icon-pill-btn { width: 30px; height: 30px; border-radius: 50%; background: var(--glass-panel); border: 1px solid var(--glass-border); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; }
 
-    /* TARJETA KDS EN VIVO */
+    /* SEGUIMIENTO KDS EN VIVO */
     .kds-tracking-card {
       display: none; width: calc(100% - 10px); margin: 0 auto;
       padding: 10px 12px; border-radius: 12px; backdrop-filter: blur(12px);
@@ -125,6 +125,7 @@
     .video-player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
     .slide-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(24,17,14,0.4) 0%, transparent 50%, rgba(24,17,14,0.92) 100%); }
 
+    /* GUÍA GESTUAL */
     .gesture-hint-overlay {
       position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
       z-index: 40; pointer-events: none; display: flex; flex-direction: column; align-items: center; gap: 8px;
@@ -305,7 +306,7 @@
 </head>
 <body>
 
-  <!-- PANTALLA AGRADECIMIENTO TRAS COBRO (CON SALIR Y REINICIAR LIMPIO) -->
+  <!-- PANTALLA AGRADECIMIENTO TRAS COBRO -->
   <div class="screen-agradecimiento-overlay" id="pantallaAgradecimiento">
     <div class="box-agradecimiento">
       <button type="button" class="btn-close-thanks" onclick="reiniciarNavegadorLimpio()" title="Cerrar y volver">&times;</button>
@@ -325,7 +326,6 @@
         </a>
       </div>
 
-      <!-- BOTÓN PARA CERRAR, PURGAR DATOS Y REINICIAR NAVEGADOR -->
       <button type="button" class="btn-salir-limpiar" onclick="reiniciarNavegadorLimpio()">
         <i class="fa-solid fa-rotate-right"></i> No gracias, finalizar y salir
       </button>
@@ -386,7 +386,7 @@
       </button>
 
       <div class="mozo-prompt-banner" id="mozoPromptBanner">
-        <p><i class="fa-solid fa-bell-concierge"></i> El mozo pregunta: ¿Deseas ordenar algo más para tu mesa?</p>
+        <p id="lblMozoPreguntaTxt"><i class="fa-solid fa-bell-concierge"></i> El mozo pregunta: ¿Deseas ordenar algo más para tu mesa?</p>
         <div style="display:flex; gap:6px; margin-top:6px;">
           <button type="button" style="flex:1; background:#4d7c0f; color:#fff; border:none; padding:6px; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="abrirParaAgregarPlatos()">Sí, agregar platos</button>
           <button type="button" style="background:#78350f; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="responderMozo(false)">No, gracias</button>
@@ -394,7 +394,7 @@
       </div>
 
       <div class="review-box-client" id="clientReviewBox">
-        <span style="font-size:11px; color:#fde047; font-weight:800;">⭐ ¡Califica tu experiencia gastronómica!</span>
+        <span style="font-size:11px; color:#fde047; font-weight:800;" id="lblCalificaTitle">⭐ ¡Califica tu experiencia gastronómica!</span>
         <div class="stars-row" id="starsRow">
           <span onclick="setRating(1)">★</span><span onclick="setRating(2)">★</span><span onclick="setRating(3)">★</span><span onclick="setRating(4)">★</span><span onclick="setRating(5)">★</span>
         </div>
@@ -428,7 +428,7 @@
     </div>
   </div>
 
-  <!-- POPUP DE COMANDA COMPLETO (RESTAURADO CON TODAS LAS OPCIONES) -->
+  <!-- POPUP DE COMANDA -->
   <div class="popup-modal" id="ordersPopupModal" onclick="closeOrdersPopup(event)">
     <div class="popup-sheet" onclick="event.stopPropagation()">
       <div class="sheet-header">
@@ -449,7 +449,7 @@
       </div>
       <div class="table-grid" id="tableGridContainer"></div>
 
-      <!-- SELECTOR DE MÉTODOS DE PAGO: EFECTIVO, YAPE, PLIN, TARJETA POS -->
+      <!-- SELECTOR DE MÉTODOS DE PAGO -->
       <div class="grid-payments">
         <button type="button" class="btn-pay-option active" id="btnPayEfectivo" onclick="elegirPago('Efectivo', this)">💵 <span id="lblPayEfectivo">Efectivo</span></button>
         <button type="button" class="btn-pay-option" onclick="elegirPago('Yape', this)">🟣 Yape</button>
@@ -473,11 +473,11 @@
         </div>
       </div>
 
-      <!-- CAMPOS: NOMBRE Y NOTAS PARA COCINA -->
+      <!-- CAMPOS ADICIONALES -->
       <input type="text" id="clientNameInput" class="custom-input" placeholder="Nombre de quien pide (opcional)" />
       <input type="text" id="notesInput" class="custom-input" placeholder="Notas para cocina (término de carne, alergias, etc.)" />
 
-      <!-- TOTAL COMANDA & EQUIVALENCIA USD -->
+      <!-- TOTAL COMANDA -->
       <div class="order-total-bar">
         <span style="font-weight:900; color:var(--modal-dark); font-size:14px;" id="lblTotalComandaTxt">Total comanda:</span>
         <div>
@@ -710,7 +710,7 @@
       const ocupadas = comandas
         .filter(c => {
           const est = String(c.estado || "").toLowerCase().trim();
-          const activa = (est === "por_confirmar" || est === "cocina" || est === "servido" || est === "camino_a_caja");
+          const activa = (est === "iniciado" || est === "por_confirmar" || est === "cocina" || est === "servido" || est === "camino_a_caja");
           const esMiPedido = (comandaActivaId && String(c.id) === String(comandaActivaId));
           const tieneMesa = Boolean(c.mesa && String(c.mesa).trim().length > 0);
           return activa && !esMiPedido && tieneMesa;
@@ -1017,6 +1017,7 @@
       openOrdersPopup();
     }
 
+    // TRANSMISIÓN A COCINA (INICIAL O ADICIÓN QUE REINICIA ESTADO A COCINA)
     async function enviarComandaDirectaAlPanel() {
       const itemIds = Object.keys(pedido);
       if (itemIds.length === 0) return alert("Por favor añade al menos un plato a la comanda.");
@@ -1040,14 +1041,15 @@
         platosComanda.push({ id, nombre: info.name, cantidad: cant, precio: dish.precioPEN || dish.precio });
       });
 
+      // Si el cliente ya tenía una comanda activa, agrega y REINICIA estado a 'cocina'
       if (comandaActivaId) {
         try {
           const res = await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`);
           if (res.ok) {
             const dataVieja = await res.json();
-            if (dataVieja && dataVieja.estado !== 'liberado') {
+            if (dataVieja && dataVieja.estado !== 'finalizado' && dataVieja.estado !== 'liberado') {
               const productosUnificados = (dataVieja.productos || "") + ", " + detalleTexto.replace(/, $/, "");
-              const nuevoTotal = parseFloat(dataVieja.totalPEN || 0) + ultimoTotalPagarPEN;
+              const nuevoTotal = parseFloat(dataVieja.totalPEN || dataVieja.total || 0) + ultimoTotalPagarPEN;
               
               await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`, {
                 method: 'PATCH',
@@ -1055,9 +1057,12 @@
                 body: JSON.stringify({
                   productos: productosUnificados,
                   totalPEN: nuevoTotal,
+                  total: nuevoTotal,
+                  estado: 'cocina', // REINICIA A COCINA PARA QUE EL CHEF PREPARE LO NUEVO
                   mozoPregunta: false,
+                  clientePidiendoCuenta: false,
                   pago: metodoPago,
-                  notas: notas ? (dataVieja.notas + " | " + notas) : (dataVieja.notas || "")
+                  notas: notas ? ((dataVieja.notas || "") + " | Adición: " + notas) : (dataVieja.notas || "")
                 })
               });
 
@@ -1074,6 +1079,7 @@
         } catch (e) {}
       }
 
+      // Nueva comanda
       const nuevaComanda = {
         id: "CMD-" + Date.now(),
         fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }),
@@ -1082,9 +1088,10 @@
         productos: detalleTexto.replace(/, $/, ""),
         items: platosComanda,
         totalPEN: ultimoTotalPagarPEN,
+        total: ultimoTotalPagarPEN,
         pago: metodoPago,
         notas: notas || "Sin notas",
-        estado: "por_confirmar",
+        estado: "iniciado",
         mozoPregunta: false
       };
 
@@ -1117,8 +1124,11 @@
       }, 400);
     }
 
+    // PEDIR CUENTA
     async function solicitarCuentaEnCaja() {
       if (!comandaActivaId) return;
+
+      const dic = DICCIONARIO[currentLang] || DICCIONARIO.es;
 
       await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`, {
         method: 'PATCH',
@@ -1162,8 +1172,8 @@
 
       if (!comanda) return;
 
-      // SI EL CAJERO COBRÓ Y LIBERÓ LA MESA -> MOSTRAR PANTALLA AGRADECIMIENTO
-      if (comanda.agradecimientoFinal === true || comanda.estado === 'liberado') {
+      // SI EL CAJERO COBRÓ Y FINALIZÓ LA MESA
+      if (comanda.agradecimientoFinal === true || comanda.estado === 'finalizado' || comanda.estado === 'liberado') {
         document.getElementById('pantallaAgradecimiento').classList.add('active');
         return;
       }
@@ -1175,7 +1185,7 @@
       const btn = document.getElementById('btnPedirCuentaCliente');
 
       document.getElementById('kdsMesaTxt').innerText = comanda.mesa || "Mesa";
-      const totalTxt = `S/ ${(comanda.totalPEN || 0).toFixed(2)}`;
+      const totalTxt = `S/ ${(comanda.totalPEN || comanda.total || 0).toFixed(2)}`;
       document.getElementById('kdsTotalTxt').innerText = totalTxt;
 
       if (comanda.estado === 'camino_a_caja' || comanda.clientePidiendoCuenta === true) {
@@ -1199,17 +1209,17 @@
 
         card.className = "kds-tracking-card " + comanda.estado;
 
-        if (comanda.estado === 'por_confirmar') {
+        if (comanda.estado === 'iniciado' || comanda.estado === 'por_confirmar') {
           badge.className = "kds-status-badge badge-por_confirmar";
-          badge.innerText = "🟡 Por Confirmar";
+          badge.innerText = "🟡 1. Iniciado";
           msg.innerText = "Esperando que caja o mozo confirme tu comanda...";
         } else if (comanda.estado === 'cocina') {
           badge.className = "kds-status-badge badge-cocina";
-          badge.innerText = "🔵 En Cocina";
-          msg.innerText = "¡Tu orden fue aceptada! El chef la está preparando en este momento 🍳";
+          badge.innerText = "🔵 2. En Proceso (Cocina)";
+          msg.innerText = "¡Tu pedido está en cocina! El chef lo está preparando 🍳";
         } else if (comanda.estado === 'servido') {
           badge.className = "kds-status-badge badge-servido";
-          badge.innerText = "🟢 Servido en Mesa";
+          badge.innerText = "🟢 3. Recibido en Mesa";
           msg.innerText = "¡Buen provecho! Tu pedido ya está en tu mesa.";
         }
       }
@@ -1218,20 +1228,13 @@
       document.getElementById('clientReviewBox').style.display = (comanda.estado === 'servido' && !comanda.resenaEnviada) ? 'block' : 'none';
     }
 
-    // ==============================================================
-    // PURGA Y REINICIO LIMPIO AL SALIR DE LA PANTALLA DE AGRADECIMIENTO
-    // ==============================================================
+    // REINICIO LIMPIO AL SALIR
     function reiniciarNavegadorLimpio() {
-      // 1. Borrar comanda y mesa fijada del almacenamiento
       localStorage.removeItem("inkabistro_mi_comanda_id");
       sessionStorage.removeItem("inkabistro_mesa_qr");
       comandaActivaId = null;
       mesaFijadaPorQR = false;
-
-      // 2. Ocultar la pantalla de agradecimiento
       document.getElementById('pantallaAgradecimiento').classList.remove('active');
-
-      // 3. Recargar al inicio limpio sin parámetro de mesa en la URL
       window.location.href = window.location.pathname;
     }
 
