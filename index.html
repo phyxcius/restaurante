@@ -16,11 +16,17 @@
       --text-muted: #d6cbbf;
       --gold-badge: #fbbf24;
 
+      /* PALETA MODAL (MEXICAN DELIGHT) */
       --modal-bg: #eab308;
       --modal-green: #4d7c0f;
       --modal-green-dark: #365314;
       --modal-dark: #1c1917;
       --modal-card-bg: #fef08a;
+
+      /* COLOR DISTINTIVO PARA PEDIR CUENTA (PÚRPURA / VIOLETA NEÓN) */
+      --color-cuenta: #7c3aed;
+      --color-cuenta-hover: #9333ea;
+      --color-cuenta-glow: rgba(124, 58, 237, 0.65);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; font-family: system-ui, -apple-system, sans-serif; }
@@ -38,7 +44,7 @@
       display: flex; flex-direction: column; align-items: center; gap: 14px;
     }
     .security-lock-icon {
-      font-size: 50px; color: var(--gold); filter: drop-shadow(0 4px 15px rgba(245, 158, 11, 0.5));
+      font-size: 50px; color: var(--gold-badge); filter: drop-shadow(0 4px 15px rgba(245, 158, 11, 0.5));
       cursor: pointer;
     }
     .btn-bypass-dev {
@@ -75,10 +81,14 @@
     .chuspa-nav-sub { font-size: 7.5px; font-weight: 700; color: #fed7aa; }
 
     .header-controls { display: flex; align-items: center; gap: 5px; }
-    .select-pill { background: var(--glass-panel); border: 1px solid var(--glass-border); color: #fff; padding: 4px 6px; border-radius: 14px; font-size: 10.5px; font-weight: 700; outline: none; }
+    .select-pill {
+      background: var(--glass-panel); border: 1px solid var(--glass-border); color: #fff;
+      padding: 5px 7px; border-radius: 14px; font-size: 11px; font-weight: 800; outline: none; cursor: pointer;
+    }
+    .select-pill option { background: #241712; color: #fff; }
     .icon-pill-btn { width: 30px; height: 30px; border-radius: 50%; background: var(--glass-panel); border: 1px solid var(--glass-border); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; }
 
-    /* TARJETA KDS EN VIVO CON SEGUIMIENTO DE COLA Y ORDEN DE LLEGADA */
+    /* TARJETA KDS EN VIVO */
     .kds-tracking-card {
       display: none; width: calc(100% - 10px); margin: 0 auto;
       padding: 10px 12px; border-radius: 12px; backdrop-filter: blur(12px);
@@ -102,7 +112,6 @@
     .badge-servido { background: #16a34a; color: #fff; }
     .badge-camino_a_caja { background: #ec4899; color: #fff; }
 
-    /* BANNER DE TURNO EN ESPERA */
     .kds-turno-badge {
       background: linear-gradient(135deg, #f59e0b, #d97706); color: #000;
       font-size: 11px; font-weight: 900; padding: 2px 8px; border-radius: 12px;
@@ -128,12 +137,19 @@
     .reminder-caja-monto { font-size: 15px; font-weight: 900; color: #fde047; }
     .reminder-caja-pago { font-size: 12px; font-weight: 800; color: #86efac; }
 
+    /* BOTÓN PEDIR CUENTA: COLOR DISTINTIVO (PÚRPURA / VIOLETA NEÓN) */
     .btn-pedir-cuenta {
-      background: linear-gradient(135deg, #15803d, #22c55e); color: #fff; border: none;
-      padding: 7px 10px; border-radius: 6px; font-weight: 900; font-size: 11.5px; cursor: pointer; margin-top: 6px; width: 100%;
+      background: linear-gradient(135deg, var(--color-cuenta), var(--color-cuenta-hover)) !important;
+      color: #fff !important; border: 1.5px solid #d8b4fe !important;
+      padding: 10px 14px; border-radius: 12px; font-weight: 900; font-size: 12.5px; cursor: pointer;
+      margin-top: 8px; width: 100%; box-shadow: 0 4px 18px var(--color-cuenta-glow);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
+    .btn-pedir-cuenta:active { transform: scale(0.98); }
     .btn-pedir-cuenta.en-camino {
-      background: #831843; color: #fbcfe8; border: 1px solid #f472b6; cursor: default;
+      background: #4c1d95 !important; color: #e9d5ff !important; border-color: #c084fc !important; cursor: default;
+      box-shadow: none !important;
     }
 
     .mozo-prompt-banner {
@@ -158,7 +174,7 @@
     .video-player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
     .slide-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(24,17,14,0.4) 0%, transparent 50%, rgba(24,17,14,0.92) 100%); }
 
-    /* GUÍA GESTUAL */
+    /* GUÍA GESTUAL GLOBAL (ANIMACIÓN DE SWIPE) */
     .gesture-hint-overlay {
       position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
       z-index: 40; pointer-events: none; display: flex; flex-direction: column; align-items: center; gap: 8px;
@@ -176,11 +192,24 @@
       100% { transform: translate(-50%, -60px); opacity: 0; }
     }
 
+    /* BOTÓN DE AGREGAR PLATO CON DEDO GESTUAL INTERACTIVO */
     .dish-info { position: relative; z-index: 10; padding: 0 75px 85px 16px; width: 100%; }
     .dish-title { font-size: 21px; font-weight: 800; line-height: 1.2; margin-bottom: 4px; }
     .dish-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; margin-bottom: 8px; }
     .price-now { font-size: 23px; font-weight: 800; color: #fde047; display: block; margin-bottom: 6px; }
-    .btn-quick-add { background: linear-gradient(135deg, var(--primary), var(--accent)); border: none; color: #fff; padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 12px; cursor: pointer; }
+
+    .btn-quick-add {
+      background: linear-gradient(135deg, var(--primary), var(--accent)); border: 1.5px solid var(--gold-badge);
+      color: #fff; padding: 9px 18px; border-radius: 24px; font-weight: 800; font-size: 13px;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(194, 65, 12, 0.45);
+    }
+    .btn-quick-add .finger-tap-icon {
+      font-size: 15px; color: #fde047; animation: fingerTap 1.2s infinite alternate ease-in-out;
+    }
+    @keyframes fingerTap {
+      0% { transform: scale(1) translateY(0); }
+      100% { transform: scale(1.25) translateY(-3px); }
+    }
 
     /* BOTÓN FLOTANTE */
     .chat-bubble-container {
@@ -312,7 +341,7 @@
       justify-content: center; gap: 8px; box-shadow: 0 6px 18px rgba(77, 124, 15, 0.4); width: 100%;
     }
 
-    /* PANTALLA AGRADECIMIENTO INTEGRADA CON REDES Y LA CHUSPA TECH */
+    /* PANTALLA AGRADECIMIENTO INTEGRADA CON REDES, LA CHUSPA TECH Y COMPARTIR */
     .screen-agradecimiento-overlay {
       position: fixed; inset: 0; background: rgba(18, 12, 10, 0.96); backdrop-filter: blur(10px);
       z-index: 200000; display: none; align-items: center; justify-content: center; padding: 20px; text-align: center;
@@ -323,11 +352,11 @@
       padding: 22px 18px; display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative;
       max-height: 94dvh; overflow-y: auto;
     }
-    .btn-close-thanks {
+    .btn-close-modal {
       position: absolute; top: 12px; right: 14px; background: none; border: none;
       color: #aaa; font-size: 24px; font-weight: bold; cursor: pointer;
     }
-    .btn-close-thanks:hover { color: #fff; }
+    .btn-close-modal:hover { color: #fff; }
 
     .agradece-logo-wrap {
       width: 64px; height: 64px; border-radius: 50%; overflow: hidden; background: #000;
@@ -335,7 +364,6 @@
     }
     .agradece-logo-wrap img { width: 100%; height: 100%; object-fit: cover; }
 
-    /* REDES SOCIALES DEL RESTAURANTE */
     .social-links-grid {
       display: flex; justify-content: center; gap: 10px; margin-top: 6px; width: 100%; flex-wrap: wrap;
     }
@@ -349,7 +377,6 @@
     .btn-social-ig { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285aeb 90%); }
     .btn-social-tk { background: #000; border: 1px solid #333; }
 
-    /* SELLO LA CHUSPA TECH */
     .chuspa-tech-card-footer {
       background: rgba(254, 252, 232, 0.08); border: 1px dashed rgba(234, 179, 8, 0.45);
       border-radius: 12px; padding: 9px 12px; width: 100%; margin-top: 6px;
@@ -360,13 +387,30 @@
 
     .btn-ir-reservas {
       background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; border: none;
-      padding: 10px 16px; border-radius: 20px; font-weight: 900; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
+      padding: 10px 16px; border-radius: 20px; font-weight: 900; font-size: 13px; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
+    }
+    .btn-compartir-wa-reservas {
+      background: #15803d; color: #fff; border: 1px solid #4ade80; padding: 10px 16px;
+      border-radius: 20px; font-weight: 800; font-size: 12.5px; cursor: pointer; width: 100%;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px;
     }
     .btn-salir-limpiar {
       background: #374151; color: #f3f4f6; border: 1px solid #4b5563; padding: 10px 16px;
       border-radius: 20px; font-weight: 800; font-size: 12.5px; cursor: pointer; width: 100%;
     }
-    .btn-salir-limpiar:hover { background: #4b5563; }
+
+    /* MODAL DE RESERVAS INTEGRADO EN LA MISMA VENTANA */
+    .screen-reservas-modal-overlay {
+      position: fixed; inset: 0; background: rgba(10, 6, 4, 0.98); backdrop-filter: blur(12px);
+      z-index: 250000; display: none; align-items: center; justify-content: center; padding: 16px;
+    }
+    .screen-reservas-modal-overlay.active { display: flex; }
+    .box-reservas-modal {
+      background: #1e130f; border: 2px solid var(--accent); border-radius: 24px;
+      max-width: 440px; width: 100%; padding: 22px 18px; max-height: 94dvh; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 12px; position: relative; color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -375,36 +419,36 @@
   <div class="screen-security-lock" id="pantallaBloqueoSeguridad">
     <div class="security-lock-box">
       <div class="security-lock-icon" id="iconLockDev" onclick="clickIconoDesarrollador()"><i class="fa-solid fa-lock"></i></div>
-      <h2 style="color:var(--gold); font-size:20px; font-weight:900;" id="secTitleLocal">La Cusqueñita</h2>
-      <h3 style="color:#ef4444; font-size:15px; font-weight:800;">Acceso Restringido a la Carta</h3>
-      <p style="font-size:13px; color:#ddd; line-height:1.5;">
+      <h2 style="color:var(--gold-badge); font-size:20px; font-weight:900;" id="secTitleLocal">La Cusqueñita</h2>
+      <h3 style="color:#ef4444; font-size:15px; font-weight:800;" id="secHeadingTxt">Acceso Restringido a la Carta</h3>
+      <p style="font-size:13px; color:#ddd; line-height:1.5;" id="secDescTxt">
         Por tu seguridad y exclusividad del servicio, este menú solo está disponible escaneando el <b>código QR físico</b> vigente en tu mesa dentro del restaurante.
       </p>
-      <div style="background:rgba(255,255,255,0.05); padding:10px 14px; border-radius:10px; font-size:11.5px; color:#aaa;">
+      <div style="background:rgba(255,255,255,0.05); padding:10px 14px; border-radius:10px; font-size:11.5px; color:#aaa;" id="secSubNoteTxt">
         Si ya pagaste tu cuenta o estás fuera del local, esta sesión ha expirado automáticamente.
       </div>
-      <button type="button" class="btn-bypass-dev" onclick="ingresarClaveBypassDesarrollador()">
+      <button type="button" class="btn-bypass-dev" onclick="ingresarClaveBypassDesarrollador()" id="btnDevBypassTxt">
         <i class="fa-solid fa-code"></i> Modo Desarrollador / Probar en Casa
       </button>
     </div>
   </div>
 
-  <!-- PANTALLA AGRADECIMIENTO TRAS COBRO (CON REDES SOCIALES Y LA CHUSPA TECH) -->
+  <!-- PANTALLA AGRADECIMIENTO TRAS COBRO (CON REDES SOCIALES, COMPARTIR Y LA CHUSPA TECH) -->
   <div class="screen-agradecimiento-overlay" id="pantallaAgradecimiento">
     <div class="box-agradecimiento">
-      <button type="button" class="btn-close-thanks" onclick="reiniciarNavegadorLimpio()" title="Cerrar y volver">&times;</button>
+      <button type="button" class="btn-close-modal" onclick="reiniciarNavegadorLimpio()" title="Cerrar">&times;</button>
       
       <div class="agradece-logo-wrap" id="agradeceLogoWrap">🍽️</div>
-      <h2 style="color:var(--gold); font-size:20px; font-weight:900;" id="agradeceNombreLocal">La Cusqueñita</h2>
+      <h2 style="color:var(--gold-badge); font-size:20px; font-weight:900;" id="agradeceNombreLocal">La Cusqueñita</h2>
       
-      <p style="font-size:12.5px; color:#ddd; line-height:1.4;">
+      <p style="font-size:12.5px; color:#ddd; line-height:1.4;" id="agradeceMensajeTxt">
         ¡Muchas gracias por tu visita! Tu comanda ha sido cancelada y la mesa ha quedado libre. Esperamos que hayas disfrutado tu experiencia gastronómica.
       </p>
 
-      <!-- CONTACTO Y REDES SOCIALES DEL RESTAURANTE -->
+      <!-- CONTACTO Y REDES SOCIALES DEL NEGOCIO -->
       <div style="width:100%; border-top:1px dashed rgba(255,255,255,0.15); padding-top:8px;">
         <span style="font-size:11.5px; color:#fde047; font-weight:800; display:block;">
-          <i class="fa-solid fa-phone"></i> Contacto: <span id="agradeceContactoTxt">+51 969 773 064</span>
+          <i class="fa-solid fa-phone"></i> <span id="lblAgradeceContacto">Contacto:</span> <span id="agradeceContactoTxt">+51 969 773 064</span>
         </span>
         <div class="social-links-grid" id="agradeceSocialLinks">
           <a href="https://wa.me/51969773064" target="_blank" class="btn-social-icon btn-social-wa" id="linkSocialWa"><i class="fa-brands fa-whatsapp"></i></a>
@@ -414,14 +458,17 @@
         </div>
       </div>
 
-      <!-- RESERVAS -->
+      <!-- SECCIÓN DE RESERVAS CON COMPARTIR LINK A WHATSAPP -->
       <div style="background:rgba(255,255,255,0.06); padding:10px; border-radius:12px; width:100%; margin-top:2px;">
-        <span style="font-size:11px; color:#fde047; font-weight:800; display:block; margin-bottom:6px;">
+        <span style="font-size:11px; color:#fde047; font-weight:800; display:block; margin-bottom:6px;" id="lblVolverReservarTxt">
           ¿Planeas volver? Reserva tu mesa para Eventos o Familias
         </span>
-        <a href="reservas.html" class="btn-ir-reservas">
-          <i class="fa-solid fa-calendar-check"></i> Ir al Catálogo de Reservas
-        </a>
+        <button type="button" class="btn-ir-reservas" onclick="abrirModalReservasCliente()" id="btnAbrirModalReservasTxt">
+          <i class="fa-solid fa-calendar-check"></i> Ver y Generar Reservas
+        </button>
+        <button type="button" class="btn-compartir-wa-reservas" onclick="compartirLinkReservasWhatsApp()" id="btnCompartirWaReservasTxt">
+          <i class="fa-brands fa-whatsapp"></i> Compartir Catálogo de Reservas por WhatsApp
+        </button>
       </div>
 
       <!-- SELLO Y LOGO DE LA CHUSPA TECH -->
@@ -436,13 +483,70 @@
         <i class="fa-solid fa-arrow-up-right-from-square" style="color:#fde047; font-size:12px;"></i>
       </a>
 
-      <button type="button" class="btn-salir-limpiar" onclick="reiniciarNavegadorLimpio()">
+      <button type="button" class="btn-salir-limpiar" onclick="reiniciarNavegadorLimpio()" id="btnAgradeceSalirTxt">
         <i class="fa-solid fa-rotate-right"></i> Finalizar y salir
       </button>
     </div>
   </div>
 
-  <!-- CABECERA -->
+  <!-- VENTANA MODAL DE GENERACIÓN DE RESERVAS HABILITADA PARA CLIENTES -->
+  <div class="screen-reservas-modal-overlay" id="modalReservasCliente">
+    <div class="box-reservas-modal">
+      <button type="button" class="btn-close-modal" onclick="cerrarModalReservasCliente()" title="Cerrar ventana">&times;</button>
+
+      <div style="display:flex; align-items:center; gap:10px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px;">
+        <div class="agradece-logo-wrap" style="width:44px; height:44px; font-size:22px;" id="reservasLogoLocal">🍽️</div>
+        <div>
+          <h3 style="color:var(--gold-badge); font-size:16px;" id="resModalTituloLocal">La Cusqueñita</h3>
+          <span style="font-size:11px; color:#86efac;" id="lblModalReservaSub">Catálogo Oficial de Reservas & Eventos</span>
+        </div>
+      </div>
+
+      <p style="font-size:12px; color:#ccc;" id="lblModalReservaDesc">
+        Completa tus datos para agendar tu mesa familiar, grupo turístico o evento gastronómico.
+      </p>
+
+      <form onsubmit="enviarReservaDesdeCliente(event)" style="display:flex; flex-direction:column; gap:8px;">
+        <input type="text" id="resCliNombre" class="custom-input" placeholder="Nombre completo" required>
+        <input type="tel" id="resCliWhatsApp" class="custom-input" placeholder="WhatsApp de contacto (+51...)" required>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <input type="date" id="resCliFecha" class="custom-input" required>
+          <input type="time" id="resCliHora" class="custom-input" required>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <input type="number" id="resCliPersonas" class="custom-input" placeholder="N° Personas" min="1" value="4" required>
+          <select id="resCliMesaSelect" class="custom-input" style="background:#fff; color:#000;"></select>
+        </div>
+        <textarea id="resCliNotas" class="custom-input" rows="2" placeholder="Notas (motivo, alergias, requerimientos)..."></textarea>
+        
+        <button type="submit" class="btn-ir-reservas" id="btnEnviarReservaClienteTxt">
+          <i class="fa-solid fa-calendar-check"></i> Confirmar y Agendar Reserva
+        </button>
+      </form>
+
+      <!-- BOTÓN PARA COMPARTIR POR WHATSAPP DENTRO DE LA VENTANA -->
+      <button type="button" class="btn-compartir-wa-reservas" onclick="compartirLinkReservasWhatsApp()">
+        <i class="fa-brands fa-whatsapp"></i> Compartir este link a mi WhatsApp para reservar después
+      </button>
+
+      <!-- CONTACTO Y REDES DENTRO DE RESERVAS -->
+      <div style="text-align:center; margin-top:4px;">
+        <span style="font-size:11px; color:#aaa;"><i class="fa-solid fa-phone"></i> Pedidos & Reservas: <span id="resCliTelefonoTxt">+51 969 773 064</span></span>
+        <div class="social-links-grid" style="margin-top:6px;">
+          <a href="https://wa.me/51969773064" target="_blank" class="btn-social-icon btn-social-wa" id="linkSocialWa2"><i class="fa-brands fa-whatsapp"></i></a>
+          <a href="#" target="_blank" class="btn-social-icon btn-social-fb" id="linkSocialFb2"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="#" target="_blank" class="btn-social-icon btn-social-ig" id="linkSocialIg2"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#" target="_blank" class="btn-social-icon btn-social-tk" id="linkSocialTk2"><i class="fa-brands fa-tiktok"></i></a>
+        </div>
+      </div>
+
+      <button type="button" class="btn-salir-limpiar" onclick="cerrarModalReservasCliente()" id="btnCerrarModalResTxt">
+        ✕ Cerrar Ventana de Reservas
+      </button>
+    </div>
+  </div>
+
+  <!-- CABECERA PRINCIPAL -->
   <div class="top-header" id="topHeaderElement">
     <div class="top-bar-row">
       <div class="brand-section">
@@ -461,12 +565,18 @@
         </div>
       </a>
 
+      <!-- SELECTOR DE 9 IDIOMAS -->
       <div class="header-controls">
         <select class="select-pill" id="langSelector" onchange="cambiarIdiomaGlobal(this.value)">
           <option value="es" selected>🇪🇸 ES</option>
           <option value="en">🇬🇧 EN</option>
+          <option value="de">🇩🇪 DE</option>
+          <option value="it">🇮🇹 IT</option>
           <option value="fr">🇫🇷 FR</option>
           <option value="pt">🇧🇷 PT</option>
+          <option value="zh">🇨🇳 中文</option>
+          <option value="ja">🇯🇵 日本語</option>
+          <option value="ko">🇰🇷 한국어</option>
         </select>
         <button class="icon-pill-btn" onclick="toggleGlobalAudio()"><i class="fa-solid fa-volume-xmark" id="audioIcon"></i></button>
       </div>
@@ -484,7 +594,7 @@
 
       <div class="kds-cola-info-box" id="kdsColaBox">
         <div style="display:flex; justify-content:space-between;">
-          <span style="color:#ddd;">Comandas por delante en cocina:</span>
+          <span style="color:#ddd;" id="lblComandasDelanteTitle">Comandas por delante en cocina:</span>
           <b style="color:#fde047;" id="kdsComandasDelanteTxt">0 orden(es)</b>
         </div>
         <div class="kds-cola-live-ticker" id="kdsTickerTexto">
@@ -496,15 +606,16 @@
       
       <div class="reminder-caja-box" id="reminderCajaBox">
         <div class="reminder-caja-row">
-          <span>Total a Pagar:</span>
+          <span id="lblTotalPagarCaja">Total a Pagar:</span>
           <span class="reminder-caja-monto" id="remindTotalPagar">S/ 0.00</span>
         </div>
         <div class="reminder-caja-row" style="margin-top:2px;">
-          <span>Forma de Pago elegida:</span>
+          <span id="lblFormaPagoElegida">Forma de Pago elegida:</span>
           <span class="reminder-caja-pago" id="remindMetodoPago">💵 Efectivo</span>
         </div>
       </div>
 
+      <!-- BOTÓN PEDIR CUENTA: COLOR PÚRPURA VIOLETA NEÓN DISTINTIVO -->
       <button type="button" class="btn-pedir-cuenta" id="btnPedirCuentaCliente" onclick="solicitarCuentaEnCaja()">
         <i class="fa-solid fa-person-walking"></i> <span id="lblPedirCuentaTxt">💵 Pedir Cuenta y Pagar en Caja</span>
       </button>
@@ -512,8 +623,8 @@
       <div class="mozo-prompt-banner" id="mozoPromptBanner">
         <p id="lblMozoPreguntaTxt"><i class="fa-solid fa-bell-concierge"></i> El mozo pregunta: ¿Deseas ordenar algo más para tu mesa?</p>
         <div style="display:flex; gap:6px; margin-top:6px;">
-          <button type="button" style="flex:1; background:#4d7c0f; color:#fff; border:none; padding:6px; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="abrirParaAgregarPlatos()">Sí, agregar platos</button>
-          <button type="button" style="background:#78350f; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="responderMozo(false)">No, gracias</button>
+          <button type="button" style="flex:1; background:#4d7c0f; color:#fff; border:none; padding:6px; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="abrirParaAgregarPlatos()" id="btnSiAgregarMas">Sí, agregar platos</button>
+          <button type="button" style="background:#78350f; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="responderMozo(false)" id="btnNoGracias">No, gracias</button>
         </div>
       </div>
 
@@ -523,7 +634,7 @@
           <span onclick="setRating(1)">★</span><span onclick="setRating(2)">★</span><span onclick="setRating(3)">★</span><span onclick="setRating(4)">★</span><span onclick="setRating(5)">★</span>
         </div>
         <input type="text" id="clientReviewTxt" style="width:100%; padding:7px; border-radius:6px; font-size:12px; margin-bottom:4px; outline:none;" placeholder="Tu comentario...">
-        <button type="button" style="width:100%; padding:7px; background:#4d7c0f; color:#fff; border:none; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="enviarResenaFirebase()">Enviar Reseña</button>
+        <button type="button" style="width:100%; padding:7px; background:#4d7c0f; color:#fff; border:none; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="enviarResenaFirebase()" id="btnEnviarResenaTxt">Enviar Reseña</button>
       </div>
 
       <div class="kds-details-row">
@@ -539,7 +650,7 @@
   <div class="app-container" id="feedContainer">
     <div class="gesture-hint-overlay" id="hintManoGestual">
       <i class="fa-solid fa-hand-pointer gesture-hand-icon"></i>
-      <span class="gesture-hint-txt">Desliza tu dedo hacia arriba 👆</span>
+      <span class="gesture-hint-txt" id="lblSwipeUpHint">Desliza tu dedo hacia arriba 👆</span>
     </div>
   </div>
 
@@ -633,16 +744,22 @@
       exchangeRateUSD: 3.75
     };
 
+    // CATÁLOGO BASE CON TRADUCCIÓN EN 9 IDIOMAS
     const CATALOGO_DEFAULT = [
       {
         id: "dish-saltado", category: "mains", tag: "Plato Fuerte", precioPEN: 35.00, disponible: true,
         posterUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?w=500",
         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
         i18n: {
-          es: { name: "Saltado", desc: "Papas fritas con carne picada y arroz" },
-          en: { name: "Stir-Fried Beef", desc: "Sautéed beef strips with fries and rice" },
-          fr: { name: "Sauté de Bœuf", desc: "Émincé de bœuf sauté avec frites et riz" },
-          pt: { name: "Carne Salteada", desc: "Tiras de carne salteadas com batatas e arroz" }
+          es: { name: "Lomo Saltado", desc: "Trozos de lomo fino salteados al wok con cebolla, tomate, papas fritas y arroz" },
+          en: { name: "Stir-Fried Beef (Lomo Saltado)", desc: "Wok-sautéed tender beef strips with onions, tomatoes, crispy fries, and rice" },
+          de: { name: "Lomo Saltado", desc: "Im Wok gebratenes Rindfleisch mit Zwiebeln, Tomaten, knusprigen Pommes und Reis" },
+          it: { name: "Lomo Saltado", desc: "Strisce di manzo saltate al wok con cipolla, pomodori, patate fritte e riso" },
+          fr: { name: "Lomo Saltado", desc: "Émincé de bœuf sauté au wok avec oignons, tomates, frites croustillantes et riz" },
+          pt: { name: "Lomo Saltado", desc: "Tiras de carne salteadas no wok com cebola, tomate, batatas fritas e arroz" },
+          zh: { name: "秘鲁炒牛肉 (Lomo Saltado)", desc: "镬炒牛里脊肉条，配洋葱、番茄、香脆薯条和白米饭" },
+          ja: { name: "ロモ・サルタード (牛肉野菜炒め)", desc: "牛肉と玉ねぎ、トマトを強火で炒め、ポテトフライとご飯を添えた名物料理" },
+          ko: { name: "로모 살타도 (소고기 볶음)", desc: "양파, 토마토, 바삭한 감자튀김, 쌀밥과 함께 웍에 볶은 소고기 안심 요리" }
         }
       },
       {
@@ -650,10 +767,15 @@
         posterUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?w=500",
         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
         i18n: {
-          es: { name: "Ají de Gallina", desc: "Gallina al hilo servida con crema de ají y arroz" },
-          en: { name: "Creamy Chicken Stew", desc: "Shredded chicken in mild yellow pepper cream" },
-          fr: { name: "Poulet au Piment Doux", desc: "Effiloché de poulet crémeux au piment doux" },
-          pt: { name: "Frango com Creme de Pimenta", desc: "Frango desfiado em creme de pimenta amarela" }
+          es: { name: "Ají de Gallina", desc: "Gallina deshilachada en crema suave de ají amarillo cusqueño con arroz y papas" },
+          en: { name: "Creamy Chicken Stew (Ají de Gallina)", desc: "Shredded chicken in a velvety Peruvian yellow pepper cream sauce with rice" },
+          de: { name: "Ají de Gallina", desc: "Zartes Hühnerfleisch in einer cremigen gelben Chili-Sauce mit Reis und Kartoffeln" },
+          it: { name: "Ají de Gallina", desc: "Sfilacci di pollo in vellutata crema di peperoncino giallo peruviano con riso" },
+          fr: { name: "Ají de Gallina", desc: "Effiloché de poulet dans une sauce onctueuse au piment jaune doux, servi avec riz" },
+          pt: { name: "Ají de Gallina", desc: "Frango desfiado em creme aveludado de pimenta amarela peruana com arroz" },
+          zh: { name: "黄椒奶油鸡 (Ají de Gallina)", desc: "细腻秘鲁黄辣椒奶油酱手撕鸡肉，配土豆和香米饭" },
+          ja: { name: "アヒ・デ・ガジーナ (ペルー風チキンシチュー)", desc: "黄唐辛子とチーズのまろやかなクリームソースで煮込んだほぐし鶏肉料理" },
+          ko: { name: "아히 데 가이나 (페루식 치킨 스튜)", desc: "부드러운 노란 고추 크림소스에 버무린 잘게 찢은 닭고기와 밥" }
         }
       }
     ];
@@ -675,9 +797,9 @@
     let mesaFijadaPorQR = false;
     let mesaSeleccionada = sessionStorage.getItem("inkabistro_mesa_qr") || "Mesa 01";
     let comandaActivaId = localStorage.getItem("inkabistro_mi_comanda_id") || null;
-
     let clicksIconoDev = 0;
 
+    // DICCIONARIO MULTILINGÜE EN 9 IDIOMAS
     const DICCIONARIO = {
       es: {
         pedidosBurbuja: "🔥 Pedidos",
@@ -696,12 +818,33 @@
         totalComanda: "Total comanda:",
         btnEnviar: "Enviar Comanda a Cocina",
         btnEnviarAdd: "Añadir a mi Comanda en Curso",
-        pedirCuenta: "💵 Pedir Cuenta y Pagar en Caja"
+        pedirCuenta: "💵 Pedir Cuenta y Pagar en Caja",
+        swipeUp: "Desliza tu dedo hacia arriba 👆",
+        btnPedirPlato: "👆 Añadir Plato",
+        catTodos: "Todos",
+        catMains: "Platos Fuertes",
+        catTop: "🔥 Especialidades",
+        secHeading: "Acceso Restringido a la Carta",
+        secDesc: "Por tu seguridad y exclusividad, este menú solo está disponible escaneando el <b>código QR físico</b> de tu mesa en el restaurante.",
+        secSubNote: "Si ya pagaste tu cuenta o estás fuera del local, esta sesión ha expirado automáticamente.",
+        btnDevBypass: "Modo Desarrollador / Probar en Casa",
+        agradeceMensaje: "¡Muchas gracias por tu visita! Tu comanda ha sido cancelada y la mesa ha quedado libre. Esperamos que hayas disfrutado tu experiencia gastronómica.",
+        agradeceContacto: "Contacto:",
+        volverReservar: "¿Planeas volver? Reserva tu mesa para Eventos o Familias",
+        verReservas: "Ver y Generar Reservas",
+        compartirWaReservas: "Compartir Catálogo de Reservas por WhatsApp",
+        finalizarSalir: "Finalizar y salir",
+        resModalTitulo: "Catálogo Oficial de Reservas & Eventos",
+        resModalDesc: "Completa tus datos para agendar tu mesa familiar, grupo turístico o evento.",
+        resConfirmar: "Confirmar y Agendar Reserva",
+        resCerrar: "✕ Cerrar Ventana de Reservas",
+        comandasDelante: "Comandas por delante en cocina:",
+        tickerCocina: "Cocina atendiendo pedidos por orden de llegada..."
       },
       en: {
         pedidosBurbuja: "🔥 Order",
         confirmarComanda: "Confirm Order",
-        addPlatosTitle: "Add more dishes to your table:",
+        addPlatosTitle: "Add dishes to your table:",
         mesaAsignada: "📍 Your Assigned Table (Locked):",
         efectivo: "Cash",
         pos: "Card / POS",
@@ -715,7 +858,108 @@
         totalComanda: "Total amount:",
         btnEnviar: "Send Order to Kitchen",
         btnEnviarAdd: "Add to Active Table Order",
-        pedirCuenta: "💵 Request Bill & Pay at Cashier"
+        pedirCuenta: "💵 Request Bill & Pay at Cashier",
+        swipeUp: "Swipe up with your finger 👆",
+        btnPedirPlato: "👆 Add Dish",
+        catTodos: "All",
+        catMains: "Main Courses",
+        catTop: "🔥 Specials",
+        secHeading: "Restricted Menu Access",
+        secDesc: "For your security and exclusive service, this menu is only available by scanning the <b>physical QR code</b> at your table in the restaurant.",
+        secSubNote: "If you have already paid or are outside the venue, this session has automatically expired.",
+        btnDevBypass: "Developer Mode / Test at Home",
+        agradeceMensaje: "Thank you so much for your visit! Your bill has been paid and your table is now free. We hope you enjoyed your dining experience.",
+        agradeceContacto: "Contact:",
+        volverReservar: "Planning to return? Reserve your table for Events or Family Gatherings",
+        verReservas: "View and Make Reservations",
+        compartirWaReservas: "Share Reservation Catalog on WhatsApp",
+        finalizarSalir: "Finish and Exit",
+        resModalTitulo: "Official Reservation & Events Catalog",
+        resModalDesc: "Fill in your details to book your table for family, tour groups or events.",
+        resConfirmar: "Confirm and Book Table",
+        resCerrar: "✕ Close Reservation Window",
+        comandasDelante: "Orders ahead in kitchen:",
+        tickerCocina: "Kitchen preparing orders in sequence of arrival..."
+      },
+      de: {
+        pedidosBurbuja: "🔥 Bestellung",
+        confirmarComanda: "Bestellung bestätigen",
+        addPlatosTitle: "Gerichte zum Tisch hinzufügen:",
+        mesaAsignada: "📍 Zugewiesener Tisch (Gesperrt):",
+        efectivo: "Bargeld",
+        pos: "Karte / POS",
+        cuantoPagas: "💵 Wie viel Bargeld zahlen Sie?",
+        pagarExacto: "Genauer Betrag",
+        calcVuelto: "Bargeldbetrag für Rückgeld eingeben",
+        vueltoEntregar: "💵 Rückgeld:",
+        faltaDinero: "⚠️ Zu wenig Bargeld",
+        placeholderNombre: "Name des Gastes (optional)",
+        placeholderNotas: "Hinweise für die Küche (Garstufe, Allergien...)",
+        totalComanda: "Gesamtbetrag:",
+        btnEnviar: "Bestellung an Küche senden",
+        btnEnviarAdd: "Zur aktiven Bestellung hinzufügen",
+        pedirCuenta: "💵 Rechnung anfordern & an Kasse zahlen",
+        swipeUp: "Mit dem Finger nach oben wischen 👆",
+        btnPedirPlato: "👆 Gericht bestellen",
+        catTodos: "Alle",
+        catMains: "Hauptgerichte",
+        catTop: "🔥 Spezialitäten",
+        secHeading: "Eingeschränkter Menüzugriff",
+        secDesc: "Aus Sicherheitsgründen ist diese Speisekarte nur durch Scannen des <b>physischen QR-Codes</b> an Ihrem Tisch im Restaurant verfügbar.",
+        secSubNote: "Wenn Sie bereits bezahlt haben oder sich außerhalb befinden, ist die Sitzung abgelaufen.",
+        btnDevBypass: "Entwicklermodus / Zu Hause testen",
+        agradeceMensaje: "Vielen Dank für Ihren Besuch! Ihre Rechnung wurde beglichen und der Tisch ist frei. Wir hoffen, Sie hatten ein tolles Erlebnis.",
+        agradeceContacto: "Kontakt:",
+        volverReservar: "Wiederkommen geplant? Tisch für Events oder Familie reservieren",
+        verReservas: "Reservierungen ansehen & buchen",
+        compartirWaReservas: "Reservierungskatalog auf WhatsApp teilen",
+        finalizarSalir: "Beenden und schließen",
+        resModalTitulo: "Offizieller Reservierungs- & Eventkatalog",
+        resModalDesc: "Geben Sie Ihre Daten ein, um einen Tisch für Familie oder Gruppen zu buchen.",
+        resConfirmar: "Reservierung verbindlich buchen",
+        resCerrar: "✕ Reservierungsfenster schließen",
+        comandasDelante: "Bestellungen vor Ihnen in der Küche:",
+        tickerCocina: "Küche bereitet Bestellungen nach Eingang vor..."
+      },
+      it: {
+        pedidosBurbuja: "🔥 Ordini",
+        confirmarComanda: "Conferma Ordine",
+        addPlatosTitle: "Aggiungi piatti al tuo tavolo:",
+        mesaAsignada: "📍 Tavolo Assegnato (Bloccato):",
+        efectivo: "Contanti",
+        pos: "Carta / POS",
+        cuantoPagas: "💵 Quanto paghi in contanti?",
+        pagarExacto: "Importo Esatto",
+        calcVuelto: "Inserisci importo per calcolare il resto",
+        vueltoEntregar: "💵 Il tuo resto:",
+        faltaDinero: "⚠️ Contanti insufficienti",
+        placeholderNombre: "Nome del cliente (opzionale)",
+        placeholderNotas: "Note per la cucina (cottura, allergie...)",
+        totalComanda: "Totale ordine:",
+        btnEnviar: "Invia Ordine in Cucina",
+        btnEnviarAdd: "Aggiungi all'Ordine Attivo",
+        pedirCuenta: "💵 Chiedi il Conto e Paga in Cassa",
+        swipeUp: "Scorri verso l'alto con il dito 👆",
+        btnPedirPlato: "👆 Aggiungi Piatto",
+        catTodos: "Tutti",
+        catMains: "Secondi Piatti",
+        catTop: "🔥 Specialità",
+        secHeading: "Accesso Riservato al Menu",
+        secDesc: "Questo menu è disponibile esclusivamente scansionando il <b>codice QR fisico</b> al tavolo nel ristorante.",
+        secSubNote: "Se hai già pagato o sei fuori dal locale, la sessione è scaduta automaticamente.",
+        btnDevBypass: "Modalità Sviluppatore / Prova a Casa",
+        agradeceMensaje: "Grazie mille per la visita! Il conto è saldato e il tavolo è libero. Speriamo che l'esperienza gastronomica sia stata di tuo gradimento.",
+        agradeceContacto: "Contatto:",
+        volverReservar: "Vuoi tornare? Prenota il tavolo per eventi o famiglie",
+        verReservas: "Vedi e Prenota Tavoli",
+        compartirWaReservas: "Condividi Catalogo Prenotazioni su WhatsApp",
+        finalizarSalir: "Termina ed Esci",
+        resModalTitulo: "Catalogo Ufficiale Prenotazioni & Eventi",
+        resModalDesc: "Compila i campi per riservare un tavolo per gruppi o eventi.",
+        resConfirmar: "Conferma e Prenota Tavolo",
+        resCerrar: "✕ Chiudi Finestra Prenotazioni",
+        comandasDelante: "Ordini prima del tuo in cucina:",
+        tickerCocina: "Cucina al lavoro secondo l'ordine di arrivo..."
       },
       fr: {
         pedidosBurbuja: "🔥 Commande",
@@ -734,7 +978,28 @@
         totalComanda: "Total commande :",
         btnEnviar: "Envoyer la commande en cuisine",
         btnEnviarAdd: "Ajouter à la commande en cours",
-        pedirCuenta: "💵 Demander l'addition en caisse"
+        pedirCuenta: "💵 Demander l'addition & Payer en caisse",
+        swipeUp: "Glissez votre doigt vers le haut 👆",
+        btnPedirPlato: "👆 Commander Plat",
+        catTodos: "Tous",
+        catMains: "Plats Principaux",
+        catTop: "🔥 Spécialités",
+        secHeading: "Accès Restreint au Menu",
+        secDesc: "Ce menu est disponible uniquement en scannant le <b>QR code physique</b> de votre table au sein du restaurant.",
+        secSubNote: "Si vous avez déjà réglé votre addition ou si vous êtes dehors, cette session est expirée.",
+        btnDevBypass: "Mode Développeur / Tester à Domicile",
+        agradeceMensaje: "Merci beaucoup pour votre visite ! L'addition est réglée et la table est libre. Nous espérons que vous avez apprécié votre expérience.",
+        agradeceContacto: "Contact :",
+        volverReservar: "Vous comptez revenir ? Réservez pour vos événements ou en famille",
+        verReservas: "Voir et Réserver une Table",
+        compartirWaReservas: "Partager le Catalogue de Réservations sur WhatsApp",
+        finalizarSalir: "Terminer et quitter",
+        resModalTitulo: "Catalogue Officiel de Réservations & Événements",
+        resModalDesc: "Remplissez vos coordonnées pour réserver une table de groupe.",
+        resConfirmar: "Confirmer et Réserver",
+        resCerrar: "✕ Fermer la fenêtre de réservation",
+        comandasDelante: "Commandes avant la vôtre en cuisine :",
+        tickerCocina: "Cuisine préparant les commandes par ordre d'arrivée..."
       },
       pt: {
         pedidosBurbuja: "🔥 Pedidos",
@@ -743,7 +1008,7 @@
         mesaAsignada: "📍 Sua Mesa Atribuída (Bloqueada):",
         efectivo: "Dinheiro",
         pos: "Cartão / POS",
-        cuantoPagas: "💵 Com quanto em dinheiro você vai pagar?",
+        cuantoPagas: "💵 Com quanto em dinheiro vai pagar?",
         pagarExacto: "Valor Exato",
         calcVuelto: "Insira o valor para calcular o troco",
         vueltoEntregar: "💵 Seu troco:",
@@ -753,7 +1018,148 @@
         totalComanda: "Total do pedido:",
         btnEnviar: "Enviar Pedido para a Cozinha",
         btnEnviarAdd: "Adicionar ao Pedido em Andamento",
-        pedirCuenta: "💵 Pedir a Conta e Pagar no Caixa"
+        pedirCuenta: "💵 Pedir a Conta & Pagar no Caixa",
+        swipeUp: "Deslize o dedo para cima 👆",
+        btnPedirPlato: "👆 Adicionar Prato",
+        catTodos: "Todos",
+        catMains: "Pratos Principais",
+        catTop: "🔥 Especialidades",
+        secHeading: "Acesso Restrito ao Cardápio",
+        secDesc: "Por segurança, este cardápio só está disponível lendo o <b>código QR físico</b> na sua mesa no restaurante.",
+        secSubNote: "Se já pagou sua conta ou está fora do local, esta sessão expirou automaticamente.",
+        btnDevBypass: "Modo Desenvolvedor / Testar em Casa",
+        agradeceMensaje: "Muito obrigado pela sua visita! Sua comanda foi encerrada e a mesa liberada. Esperamos que tenha tido uma ótima experiência.",
+        agradeceContacto: "Contato:",
+        volverReservar: "Planeja voltar? Reserve sua mesa para eventos ou famílias",
+        verReservas: "Ver e Fazer Reservas",
+        compartirWaReservas: "Compartilhar Catálogo de Reservas no WhatsApp",
+        finalizarSalir: "Finalizar e sair",
+        resModalTitulo: "Catálogo Oficial de Reservas & Eventos",
+        resModalDesc: "Preencha seus dados para agendar sua mesa ou evento gastronômico.",
+        resConfirmar: "Confirmar e Agendar Mesa",
+        resCerrar: "✕ Fechar Janela de Reservas",
+        comandasDelante: "Comandas à frente na cozinha:",
+        tickerCocina: "Cozinha preparando pedidos por ordem de chegada..."
+      },
+      zh: {
+        pedidosBurbuja: "🔥 我的订单",
+        confirmarComanda: "确认点单",
+        addPlatosTitle: "加点菜品至本桌：",
+        mesaAsignada: "📍 您的固定桌号（已锁定）：",
+        efectivo: "现金",
+        pos: "刷卡 / POS",
+        cuantoPagas: "💵 支付现金金额？",
+        pagarExacto: "正好支付",
+        calcVuelto: "输入现金金额以计算找零",
+        vueltoEntregar: "💵 应找零钱：",
+        faltaDinero: "⚠️ 现金不足",
+        placeholderNombre: "顾客姓名（选填）",
+        placeholderNotas: "厨房备注（熟度、过敏原等）",
+        totalComanda: "订单总计：",
+        btnEnviar: "发送点单至后厨",
+        btnEnviarAdd: "追加菜品至当前订单",
+        pedirCuenta: "💵 请求账单并在收银台结账",
+        swipeUp: "用手指向上滑动屏幕 👆",
+        btnPedirPlato: "👆 选点此菜",
+        catTodos: "全部",
+        catMains: "特色主菜",
+        catTop: "🔥 招牌推荐",
+        secHeading: "菜单访问受限",
+        secDesc: "为了您的消费安全与专属服务，此菜单仅可通过在餐厅内扫描您餐桌上的<b>物理二维码</b>访问。",
+        secSubNote: "若您已结账或离开餐厅，此点餐会话已自动失效过期。",
+        btnDevBypass: "开发者测试模式 / 在家调试",
+        agradeceMensaje: "非常感谢您的光临！您的账单已结清，餐桌已释放。祝您美食体验愉快！",
+        agradeceContacto: "联系电话：",
+        volverReservar: "计划再次光临？提前为家庭或团队聚餐预订餐桌",
+        verReservas: "查看并在线预订餐位",
+        compartirWaReservas: "在 WhatsApp 上分享预订链接",
+        finalizarSalir: "结束并退出",
+        resModalTitulo: "官方餐位与团队宴会预订",
+        resModalDesc: "请填写您的预订信息以安排专属餐桌。",
+        resConfirmar: "确认并提交预订",
+        resCerrar: "✕ 关闭预订窗口",
+        comandasDelante: "后厨前方等待排队订单：",
+        tickerCocina: "后厨正在按先后顺序制作菜品..."
+      },
+      ja: {
+        pedidosBurbuja: "🔥 注文一覧",
+        confirmarComanda: "注文を確認する",
+        addPlatosTitle: "お料理を追加する：",
+        mesaAsignada: "📍 お客様のテーブル（固定中）：",
+        efectivo: "現金",
+        pos: "カード / POS",
+        cuantoPagas: "💵 お支払い金額は？",
+        pagarExacto: "ちょうど払う",
+        calcVuelto: "お預かり金額を入力してお釣りを計算",
+        vueltoEntregar: "💵 お釣り：",
+        faltaDinero: "⚠️ 金額が不足しています",
+        placeholderNombre: "お名前（任意）",
+        placeholderNotas: "厨房へのご要望（焼き加減、アレルギー等）",
+        totalComanda: "合計金額：",
+        btnEnviar: "厨房へ注文を送信",
+        btnEnviarAdd: "現在の注文に追加する",
+        pedirCuenta: "💵 お会計を依頼してレジで支払う",
+        swipeUp: "指で上にスワイプしてください 👆",
+        btnPedirPlato: "👆 この料理を注文",
+        catTodos: "すべて",
+        catMains: "メイン料理",
+        catTop: "🔥 おすすめ名物",
+        secHeading: "メニューアクセス制限中",
+        secDesc: "セキュリティ保護のため、このメニューは店内のテーブルにある<b>QRコード</b>からのみご覧いただけます。",
+        secSubNote: "お会計が完了しているか、店外にいらっしゃる場合、セッションは自動的に終了しています。",
+        btnDevBypass: "開発者モード / 自宅テスト",
+        agradeceMensaje: "ご来店誠にありがとうございました！お会計が完了しお席が解除されました。またのお越しをお待ちしております。",
+        agradeceContacto: "お問い合わせ：",
+        volverReservar: "またのご利用をお考えですか？団体やご家族のご予約を承ります",
+        verReservas: "予約メニューを表示・予約する",
+        compartirWaReservas: "WhatsAppで予約リンクを共有する",
+        finalizarSalir: "終了して閉じる",
+        resModalTitulo: "公式テーブル予約＆イベント受付",
+        resModalDesc: "ご予約情報を入力してお席を確保してください。",
+        resConfirmar: "予約を確定する",
+        resCerrar: "✕ 予約画面を閉じる",
+        comandasDelante: "厨房で調理待ちの前の注文数：",
+        tickerCocina: "厨房にて注文順に調理を進めています..."
+      },
+      ko: {
+        pedidosBurbuja: "🔥 주문 내역",
+        confirmarComanda: "주문서 확인",
+        addPlatosTitle: "테이블에 메뉴 추가하기:",
+        mesaAsignada: "📍 배정된 테이블 (고정됨):",
+        efectivo: "현금",
+        pos: "카드 / POS",
+        cuantoPagas: "💵 지불하실 현금 금액은?",
+        pagarExacto: "정액 결제",
+        calcVuelto: "거스름돈 계산을 위해 금액을 입력하세요",
+        vueltoEntregar: "💵 거스름돈:",
+        faltaDinero: "⚠️ 금액이 부족합니다",
+        placeholderNombre: "주문자 성함 (선택)",
+        placeholderNotas: "주방 요청사항 (고기 굽기, 알레르기 등)",
+        totalComanda: "주문 총액:",
+        btnEnviar: "주방으로 주문 전송",
+        btnEnviarAdd: "진행 중인 주문에 메뉴 추가",
+        pedirCuenta: "💵 계산서 요청 후 카운터에서 결제",
+        swipeUp: "손가락으로 화면을 위로 올리세요 👆",
+        btnPedirPlato: "👆 메뉴 담기",
+        catTodos: "전체",
+        catMains: "메인 요리",
+        catTop: "🔥 시그니처 메뉴",
+        secHeading: "메뉴 접근 제한됨",
+        secDesc: "보안을 위해 매장 내 테이블에 부착된 <b>실제 QR 코드</b>를 스캔해야만 메뉴를 이용하실 수 있습니다.",
+        secSubNote: "이미 계산을 완료하셨거나 매장 외부에 계신 경우 세션이 만료되었습니다.",
+        btnDevBypass: "개발자 모드 / 자택 테스트",
+        agradeceMensaje: "방문해 주셔서 대단히 감사합니다! 결제가 완료되어 테이블이 정리되었습니다. 즐거운 식사가 되셨기를 바랍니다.",
+        agradeceContacto: "문의처:",
+        volverReservar: "다시 방문하시겠습니까? 단체 및 가족 모임 예약을 진행해 보세요",
+        verReservas: "예약 메뉴 보기 및 예약하기",
+        compartirWaReservas: "WhatsApp으로 예약 링크 공유하기",
+        finalizarSalir: "종료 후 나가기",
+        resModalTitulo: "공식 테이블 및 단체 모임 예약",
+        resModalDesc: "예약 정보를 입력하시면 맞춤형 테이블이 배정됩니다.",
+        resConfirmar: "예약 확정 및 신청",
+        resCerrar: "✕ 예약 창 닫기",
+        comandasDelante: "주방에서 앞서 조리 대기 중인 주문:",
+        tickerCocina: "주방에서 주문 순서대로 요리를 준비 중입니다..."
       }
     };
 
@@ -798,7 +1204,7 @@
       return String(m || '').toLowerCase().replace(/[^a-z0-9]/g, '_');
     }
 
-    // VALIDACIÓN DE SEGURIDAD POR TOKEN QR
+    // VALIDACIÓN ESTRICTA DEL TOKEN QR
     async function validarAccesoPorTokenQR() {
       if (sessionStorage.getItem("inkabistro_dev_bypass") === "true") {
         return true;
@@ -853,6 +1259,19 @@
       document.getElementById('feedContainer').style.display = 'none';
       const bubble = document.querySelector('.chat-bubble-container');
       if (bubble) bubble.style.display = 'none';
+      aplicarIdiomaABloqueo();
+    }
+
+    function aplicarIdiomaABloqueo() {
+      const dic = DICCIONARIO[currentLang] || DICCIONARIO.es;
+      const h3 = document.getElementById('secHeadingTxt');
+      const p = document.getElementById('secDescTxt');
+      const note = document.getElementById('secSubNoteTxt');
+      const btn = document.getElementById('btnDevBypassTxt');
+      if (h3) h3.innerText = dic.secHeading;
+      if (p) p.innerHTML = dic.secDesc;
+      if (note) note.innerText = dic.secSubNote;
+      if (btn) btn.innerHTML = `<i class="fa-solid fa-code"></i> ${dic.btnDevBypass}`;
     }
 
     function clickIconoDesarrollador() {
@@ -918,6 +1337,12 @@
           }
         }
       } catch (e) {}
+
+      // Sincronizar mesas en el selector de reservas modal
+      const resSel = document.getElementById('resCliMesaSelect');
+      if (resSel) {
+        resSel.innerHTML = listaMesas.map(m => `<option value="${m}">${m}</option>`).join('');
+      }
     }
 
     async function obtenerMesasOcupadasEnRed() {
@@ -998,10 +1423,15 @@
       document.getElementById('selectedTableBadge').innerText = numMesa;
     }
 
+    // ==============================================================
+    // CAMBIO GLOBAL DE IDIOMAS (9 IDIOMAS)
+    // ==============================================================
     function cambiarIdiomaGlobal(nuevoLang) {
       currentLang = nuevoLang;
+      sessionStorage.setItem("inkabistro_user_lang", nuevoLang);
       const dic = DICCIONARIO[currentLang] || DICCIONARIO.es;
 
+      // Traducir interfaz principal
       document.getElementById('lblBurbujaPedidos').innerText = dic.pedidosBurbuja;
       document.getElementById('lblTituloPopup').innerHTML = `<i class="fa-solid fa-receipt" style="color:var(--modal-green);"></i> ${dic.confirmarComanda}`;
       document.getElementById('lblAddPlatosTitle').innerHTML = `<i class="fa-solid fa-plus"></i> ${dic.addPlatosTitle}`;
@@ -1016,7 +1446,28 @@
       document.getElementById('lblTotalComandaTxt').innerText = dic.totalComanda;
       document.getElementById('lblBtnEnviar').innerText = comandaActivaId ? dic.btnEnviarAdd : dic.btnEnviar;
       document.getElementById('lblPedirCuentaTxt').innerText = dic.pedirCuenta;
+      document.getElementById('lblSwipeUpHint').innerText = dic.swipeUp;
 
+      // Traducir KDS
+      document.getElementById('lblComandasDelanteTitle').innerText = dic.comandasDelante;
+      document.getElementById('btnSiAgregarMas').innerText = (currentLang === 'en') ? "Yes, add dishes" : "Sí, agregar platos";
+      document.getElementById('btnNoGracias').innerText = (currentLang === 'en') ? "No, thanks" : "No, gracias";
+
+      // Traducir Pantalla de Agradecimiento
+      document.getElementById('agradeceMensajeTxt').innerText = dic.agradeceMensaje;
+      document.getElementById('lblAgradeceContacto').innerText = dic.agradeceContacto;
+      document.getElementById('lblVolverReservarTxt').innerText = dic.volverReservar;
+      document.getElementById('btnAbrirModalReservasTxt').innerHTML = `<i class="fa-solid fa-calendar-check"></i> ${dic.verReservas}`;
+      document.getElementById('btnCompartirWaReservasTxt').innerHTML = `<i class="fa-brands fa-whatsapp"></i> ${dic.compartirWaReservas}`;
+      document.getElementById('btnAgradeceSalirTxt').innerHTML = `<i class="fa-solid fa-rotate-right"></i> ${dic.finalizarSalir}`;
+
+      // Traducir Modal de Reservas
+      document.getElementById('lblModalReservaSub').innerText = dic.resModalTitulo;
+      document.getElementById('lblModalReservaDesc').innerText = dic.resModalDesc;
+      document.getElementById('btnEnviarReservaClienteTxt').innerHTML = `<i class="fa-solid fa-calendar-check"></i> ${dic.resConfirmar}`;
+      document.getElementById('btnCerrarModalResTxt').innerText = dic.resCerrar;
+
+      aplicarIdiomaABloqueo();
       renderFeed();
       renderCategoryChips();
       renderQuickCatalogPopup();
@@ -1026,6 +1477,7 @@
     function getDishInfo(dish) {
       if (!dish) return { name: "", desc: "" };
       if (dish.i18n && dish.i18n[currentLang] && dish.i18n[currentLang].name) return dish.i18n[currentLang];
+      if (dish.i18n && dish.i18n['en'] && dish.i18n['en'].name && currentLang !== 'es') return dish.i18n['en'];
       if (dish.i18n && dish.i18n['es'] && dish.i18n['es'].name) return dish.i18n['es'];
       return { name: dish.nombre || "Plato", desc: dish.descripcion || "" };
     }
@@ -1045,6 +1497,13 @@
     }
 
     async function cargarDatos() {
+      // Recuperar idioma guardado si existe
+      const savedLang = sessionStorage.getItem("inkabistro_user_lang");
+      if (savedLang && DICCIONARIO[savedLang]) {
+        currentLang = savedLang;
+        document.getElementById('langSelector').value = currentLang;
+      }
+
       const accesoPermitido = await validarAccesoPorTokenQR();
       if (!accesoPermitido) {
         return;
@@ -1066,23 +1525,42 @@
             document.getElementById('topSlogan').innerText = CONFIG.eslogan || "Cusco • Gourmet";
             document.getElementById('agradeceNombreLocal').innerText = CONFIG.nombre || "La Cusqueñita";
             document.getElementById('secTitleLocal').innerText = CONFIG.nombre || "La Cusqueñita";
-            document.getElementById('agradeceContactoTxt').innerText = CONFIG.whatsapp || "+51 969 773 064";
+            document.getElementById('resModalTituloLocal').innerText = CONFIG.nombre || "La Cusqueñita";
 
-            // Enlaces de redes sociales
-            document.getElementById('linkSocialWa').href = `https://wa.me/${(CONFIG.whatsapp||'51969773064').replace(/\D/g,'')}`;
-            if (CONFIG.facebook) document.getElementById('linkSocialFb').href = CONFIG.facebook;
-            if (CONFIG.instagram) document.getElementById('linkSocialIg').href = CONFIG.instagram;
-            if (CONFIG.tiktok) document.getElementById('linkSocialTk').href = CONFIG.tiktok;
+            const waNum = CONFIG.whatsapp || "+51 969 773 064";
+            document.getElementById('agradeceContactoTxt').innerText = waNum;
+            document.getElementById('resCliTelefonoTxt').innerText = waNum;
 
-            // Renderizar logo del negocio (imagen o emoji)
+            const cleanWa = waNum.replace(/\D/g, '');
+            document.getElementById('linkSocialWa').href = `https://wa.me/${cleanWa}`;
+            document.getElementById('linkSocialWa2').href = `https://wa.me/${cleanWa}`;
+
+            if (CONFIG.facebook) {
+              document.getElementById('linkSocialFb').href = CONFIG.facebook;
+              document.getElementById('linkSocialFb2').href = CONFIG.facebook;
+            }
+            if (CONFIG.instagram) {
+              document.getElementById('linkSocialIg').href = CONFIG.instagram;
+              document.getElementById('linkSocialIg2').href = CONFIG.instagram;
+            }
+            if (CONFIG.tiktok) {
+              document.getElementById('linkSocialTk').href = CONFIG.tiktok;
+              document.getElementById('linkSocialTk2').href = CONFIG.tiktok;
+            }
+
+            // Renderizado de Logo
             const topIconEl = document.getElementById('topIcon');
             const agradeceLogoEl = document.getElementById('agradeceLogoWrap');
+            const resLogoEl = document.getElementById('reservasLogoLocal');
+
             if (CONFIG.logo && CONFIG.logo.startsWith('data:image')) {
               topIconEl.innerHTML = `<img src="${CONFIG.logo}" alt="Logo">`;
               agradeceLogoEl.innerHTML = `<img src="${CONFIG.logo}" alt="Logo">`;
+              resLogoEl.innerHTML = `<img src="${CONFIG.logo}" alt="Logo">`;
             } else {
               topIconEl.innerText = CONFIG.logo || "🍽️";
               agradeceLogoEl.innerText = CONFIG.logo || "🍽️";
+              resLogoEl.innerText = CONFIG.logo || "🍽️";
             }
           }
         }
@@ -1106,11 +1584,8 @@
       }
 
       await sincronizarMesasDesdeFirebase();
-      renderCategoryChips();
-      renderFeed();
+      cambiarIdiomaGlobal(currentLang);
       setupObserver();
-      renderQuickCatalogPopup();
-      actualizarVistaPopup();
       verificarEstadoComandaEnVivo();
 
       setInterval(verificarEstadoComandaEnVivo, 2000);
@@ -1126,15 +1601,18 @@
     function formatSecondaryPrice(pen) { return `≈ $ ${(pen / (CONFIG.exchangeRateUSD || 3.75)).toFixed(2)}`; }
 
     function renderCategoryChips() {
-      const cats = [{ key: "all", label: "Todos" }, { key: "mains", label: "Platos Fuertes" }, { key: "top", label: "🔥 Especialidades" }];
+      const dic = DICCIONARIO[currentLang] || DICCIONARIO.es;
+      const cats = [{ key: "all", label: dic.catTodos }, { key: "mains", label: dic.catMains }, { key: "top", label: dic.catTop }];
       document.getElementById('categoryChips').innerHTML = cats.map(c => `
         <div class="chip ${c.key === 'all' ? 'active' : ''}">${c.label}</div>
       `).join('');
     }
 
+    // RENDERIZADO DEL REEL: CADA PLATO TIENE SU DEDO GESTUAL ANIMADO
     function renderFeed() {
       const feed = document.getElementById('feedContainer');
       const hint = document.getElementById('hintManoGestual');
+      const dic = DICCIONARIO[currentLang] || DICCIONARIO.es;
 
       if (!catalogo || catalogo.length === 0) {
         catalogo = [...CATALOGO_DEFAULT];
@@ -1154,7 +1632,11 @@
                 <span class="price-now">${formatPrice(item.precioPEN || item.precio || 0)}</span>
                 <span class="price-alt">${formatSecondaryPrice(item.precioPEN || item.precio || 0)}</span>
               </div>
-              <button class="btn-quick-add" onclick="addToOrder('${item.id}')"><i class="fa-solid fa-plus"></i> Pedir Plato</button>
+              <!-- BOTÓN CON DEDO GESTUAL INTERACTIVO -->
+              <button class="btn-quick-add" onclick="addToOrder('${item.id}')">
+                <i class="fa-solid fa-hand-pointer finger-tap-icon"></i>
+                <span>${dic.btnPedirPlato}</span>
+              </button>
             </div>
           </div>
         `;
@@ -1285,7 +1767,6 @@
       openOrdersPopup();
     }
 
-    // TRANSMISIÓN DE COMANDA CON ASIGNACIÓN DE N° DE TURNO Y ORDEN
     async function enviarComandaDirectaAlPanel() {
       const itemIds = Object.keys(pedido);
       if (itemIds.length === 0) return alert("Por favor añade al menos un plato a la comanda.");
@@ -1309,7 +1790,6 @@
         platosComanda.push({ id, nombre: info.name, cantidad: cant, precio: dish.precioPEN || dish.precio });
       });
 
-      // Si el cliente ya tenía una comanda activa
       if (comandaActivaId) {
         try {
           const res = await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`);
@@ -1347,7 +1827,6 @@
         } catch (e) {}
       }
 
-      // Calcular número correlativo de turno para el chef
       let numeroTurnoChef = 1;
       try {
         const resAll = await fetch(`${FIREBASE_DB_URL}comandas.json?_t=${Date.now()}`);
@@ -1440,7 +1919,6 @@
       reproducirSonidoCampanaExito();
     }
 
-    // VERIFICACIÓN KDS EN VIVO CON ESTADO DE COLA DEL CHEF
     async function verificarEstadoComandaEnVivo() {
       if (!comandaActivaId) return;
 
@@ -1475,11 +1953,9 @@
       const totalTxt = `S/ ${(miComanda.totalPEN || miComanda.total || 0).toFixed(2)}`;
       document.getElementById('kdsTotalTxt').innerText = totalTxt;
 
-      // Actualizar número de turno
       const numTurno = miComanda.numeroTurno || "01";
       document.getElementById('kdsNumeroTurnoBadge').innerHTML = `<i class="fa-solid fa-hashtag"></i> Turno #${numTurno < 10 ? '0' + numTurno : numTurno}`;
 
-      // Calcular cuántas comandas están por delante en cocina
       const activasEnCocina = todasLasComandas.filter(c => {
         const est = String(c.estado || "").toLowerCase();
         return (est === 'iniciado' || est === 'por_confirmar' || est === 'cocina') && c.id !== comandaActivaId;
@@ -1487,15 +1963,13 @@
 
       const miTimestamp = miComanda.timestampOrden || 0;
       const comandasPorDelante = activasEnCocina.filter(c => (c.timestampOrden || 0) < miTimestamp);
-
       document.getElementById('kdsComandasDelanteTxt').innerText = `${comandasPorDelante.length} orden(es)`;
 
-      // Ticker de notificaciones de preparación en vivo
       const enCocinaActual = todasLasComandas.find(c => String(c.estado || "").toLowerCase() === 'cocina');
       if (enCocinaActual) {
         document.getElementById('kdsTickerTexto').innerHTML = `<i class="fa-solid fa-bell"></i> <b>${enCocinaActual.mesa}</b> en proceso de elaboración por el chef...`;
       } else {
-        document.getElementById('kdsTickerTexto').innerHTML = `<i class="fa-solid fa-check"></i> Cocina al día. Atendiendo pedidos por orden de llegada.`;
+        document.getElementById('kdsTickerTexto').innerHTML = `<i class="fa-solid fa-check"></i> ${(DICCIONARIO[currentLang]||DICCIONARIO.es).tickerCocina}`;
       }
 
       if (miComanda.estado === 'camino_a_caja' || miComanda.clientePidiendoCuenta === true) {
@@ -1515,7 +1989,7 @@
         reminderBox.style.display = 'none';
         btn.classList.remove('en-camino');
         btn.disabled = false;
-        btn.innerHTML = `<i class="fa-solid fa-person-walking"></i> <span>💵 Pedir Cuenta y Pagar en Caja</span>`;
+        btn.innerHTML = `<i class="fa-solid fa-person-walking"></i> <span>${(DICCIONARIO[currentLang]||DICCIONARIO.es).pedirCuenta}</span>`;
 
         card.className = "kds-tracking-card " + miComanda.estado;
 
@@ -1536,6 +2010,52 @@
 
       document.getElementById('mozoPromptBanner').style.display = (miComanda.mozoPregunta === true) ? 'block' : 'none';
       document.getElementById('clientReviewBox').style.display = (miComanda.estado === 'servido' && !miComanda.resenaEnviada) ? 'block' : 'none';
+    }
+
+    // ==============================================================
+    // CONTROL DE VENTANA DE RESERVAS HABILITADA PARA CLIENTES
+    // ==============================================================
+    function abrirModalReservasCliente() {
+      document.getElementById('modalReservasCliente').classList.add('active');
+      document.getElementById('resCliFecha').value = new Date().toISOString().split('T')[0];
+    }
+
+    function cerrarModalReservasCliente() {
+      document.getElementById('modalReservasCliente').classList.remove('active');
+    }
+
+    function compartirLinkReservasWhatsApp() {
+      const u = window.location.origin + window.location.pathname.replace('index.html', '') + 'reservas.html';
+      const msg = encodeURIComponent(`🍽️ ¡Hola! Te comparto el Catálogo Oficial de Reservas de *${CONFIG.nombre}* para agendar nuestra mesa o evento en Cusco:\n${u}`);
+      window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
+    }
+
+    async function enviarReservaDesdeCliente(e) {
+      e.preventDefault();
+      const id = "RES-" + Date.now();
+      const r = {
+        id: id,
+        cliente: document.getElementById('resCliNombre').value.trim(),
+        telefono: document.getElementById('resCliWhatsApp').value.trim(),
+        fechaReserva: document.getElementById('resCliFecha').value,
+        horaReserva: document.getElementById('resCliHora').value,
+        personas: document.getElementById('resCliPersonas').value,
+        mesaAsignada: document.getElementById('resCliMesaSelect').value,
+        notas: document.getElementById('resCliNotas').value.trim() || 'Sin notas',
+        fechaCreacion: new Date().toLocaleDateString()
+      };
+
+      try {
+        await fetch(`${FIREBASE_DB_URL}reservas/${id}.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(r)
+        });
+        alert(`✔ ¡Reserva registrada con éxito para ${r.cliente}! Nos comunicaremos a tu WhatsApp ${r.telefono} para confirmar.`);
+        cerrarModalReservasCliente();
+      } catch (err) {
+        alert("Error al enviar reserva: " + err.message);
+      }
     }
 
     function reiniciarNavegadorLimpio() {
