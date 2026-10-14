@@ -64,18 +64,24 @@
     .top-bar-row { display: flex; align-items: center; justify-content: space-between; }
     
     .brand-section { display: flex; align-items: center; gap: 8px; }
-    .brand-icon { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, var(--accent), var(--primary)); display: flex; align-items: center; justify-content: center; font-size: 17px; color: #fff; overflow: hidden; }
+    .brand-icon { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, var(--accent), var(--primary)); display: flex; align-items: center; justify-content: center; font-size: 17px; color: #fff; overflow: hidden; flex-shrink: 0; }
     .brand-icon img { width: 100%; height: 100%; object-fit: cover; }
     .brand-text h1 { font-size: 14px; font-weight: 900; line-height: 1.1; text-transform: uppercase; }
     .brand-text span { font-size: 9.5px; text-transform: uppercase; color: var(--accent); font-weight: 700; }
 
+    /* CORRECCIÓN ESTRICTA DE LA CHUSPA TECH */
     .chuspa-nav-badge {
       display: flex; align-items: center; gap: 6px;
       background: rgba(254, 252, 232, 0.12); border: 1px solid rgba(234, 179, 8, 0.45);
       padding: 3px 8px 3px 5px; border-radius: 20px; text-decoration: none; backdrop-filter: blur(8px);
+      max-height: 32px; overflow: hidden; flex-shrink: 0;
     }
     .chuspa-nav-badge:active { transform: scale(0.96); }
-    .chuspa-nav-img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; background: #fff; border: 1px solid #ca8a04; }
+    .chuspa-nav-img {
+      width: 22px !important; height: 22px !important; min-width: 22px !important; max-width: 22px !important;
+      border-radius: 50% !important; object-fit: cover !important; background: #fff !important;
+      border: 1px solid #ca8a04 !important; display: block !important;
+    }
     .chuspa-nav-info { display: flex; flex-direction: column; line-height: 1.1; }
     .chuspa-nav-title { font-size: 10px; font-weight: 900; color: #fde047; }
     .chuspa-nav-sub { font-size: 7.5px; font-weight: 700; color: #fed7aa; }
@@ -409,13 +415,18 @@
     .btn-social-ig { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285aeb 90%); }
     .btn-social-tk { background: #000; border: 1px solid #333; }
 
+    /* FOOTER CHUSPA TECH CON MEDIDAS RÍGIDAS */
     .chuspa-tech-card-footer {
       background: rgba(254, 252, 232, 0.08); border: 1px dashed rgba(234, 179, 8, 0.45);
       border-radius: 12px; padding: 9px 12px; width: 100%; margin-top: 6px;
       display: flex; align-items: center; justify-content: space-between; text-decoration: none;
     }
     .chuspa-tech-footer-left { display: flex; align-items: center; gap: 8px; text-align: left; }
-    .chuspa-tech-footer-img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #ca8a04; background: #fff; }
+    .chuspa-tech-footer-img {
+      width: 32px !important; height: 32px !important; min-width: 32px !important; max-width: 32px !important;
+      border-radius: 50% !important; object-fit: cover !important; border: 1px solid #ca8a04 !important;
+      background: #fff !important; display: block !important;
+    }
 
     .btn-ir-reservas {
       background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; border: none;
@@ -509,7 +520,7 @@
 
       <a href="https://www.lachuspaanuncios.com/" target="_blank" class="chuspa-tech-card-footer">
         <div class="chuspa-tech-footer-left">
-          <img src="CHUSPITA-circulo.png" alt="La Chuspa" class="chuspa-tech-footer-img" onerror="this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png'">
+          <img src="CHUSPITA-circulo.png" alt="La Chuspa" class="chuspa-tech-footer-img" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
           <div>
             <div style="font-size:11px; font-weight:900; color:#fde047;">Tecnología La Chuspa Tech</div>
             <div style="font-size:9px; color:#fed7aa;">Digitalización de restaurantes en Cusco</div>
@@ -579,7 +590,7 @@
     </div>
   </div>
 
-  <!-- CABECERA PRINCIPAL -->
+  <!-- CABECERA PRINCIPAL CON LA CHUSPA TECH BLINDADA -->
   <div class="top-header" id="topHeaderElement">
     <div class="top-bar-row">
       <div class="brand-section">
@@ -590,8 +601,9 @@
         </div>
       </div>
 
+      <!-- BADGE LA CHUSPA TECH CON IMAGEN RÍGIDA Y PROTEGIDA -->
       <a href="https://www.lachuspaanuncios.com/" target="_blank" rel="noopener noreferrer" class="chuspa-nav-badge">
-        <img src="CHUSPITA-circulo.png" alt="La Chuspa" onerror="this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png'">
+        <img src="CHUSPITA-circulo.png" alt="La Chuspa" class="chuspa-nav-img" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
         <div class="chuspa-nav-info">
           <span class="chuspa-nav-title">La Chuspa Tech</span>
           <span class="chuspa-nav-sub">by La Chuspa</span>
