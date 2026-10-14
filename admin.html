@@ -99,7 +99,7 @@
       display: flex; justify-content: space-between; align-items: center;
     }
 
-    /* ACORDEONES CON CONTRASEÑA EN EL VAULT */
+    /* ACORDEONES DEL VAULT */
     .vault-box { background: #251a15; border: 1.5px dashed var(--accent); border-radius: 10px; overflow: hidden; margin-bottom: 4px; }
     .vault-box.danger-vault { border-color: #ef4444; background: #221212; }
     .vault-trigger { width: 100%; background: none; border: none; padding: 9px 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 800; color: var(--gold); font-size: 11px; }
@@ -236,6 +236,24 @@
     .switch-btn.btn-to-off { background: #451a1a; color: #fca5a5; border: 1px solid #dc2626; }
     .switch-btn.btn-to-on { background: #14532d; color: #86efac; border: 1px solid #16a34a; }
 
+    /* MODALES FLOTANTES AISLADOS (CORREGIDO: SIEMPRE OCULTOS HASTA QUE SE ACTIVEN) */
+    .modal-overlay {
+      position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.85) !important;
+      backdrop-filter: blur(6px) !important; z-index: 999999 !important;
+      display: none !important; align-items: center !important; justify-content: center !important;
+      padding: 16px !important;
+    }
+    .modal-overlay.active {
+      display: flex !important;
+    }
+    .modal-box {
+      background: var(--card-bg) !important; border: 1.5px solid var(--card-border) !important;
+      border-radius: 16px !important; max-width: 520px !important; width: 100% !important;
+      max-height: 90vh !important; overflow-y: auto !important; padding: 22px !important;
+      display: flex !important; flex-direction: column !important; gap: 12px !important;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.95) !important;
+    }
+
     .sidebar-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 180; }
 
     @media (max-width: 860px) {
@@ -259,7 +277,7 @@
 </head>
 <body>
 
-  <!-- PANTALLA LOGIN -->
+  <!-- PANTALLA LOGIN DINÁMICO -->
   <div id="pantallaLogin">
     <div class="card-login">
       <div style="text-align:center; font-size:38px; margin-bottom:6px;">🍽️</div>
@@ -441,7 +459,7 @@
 
       <main class="main-view" id="mainArea">
 
-        <!-- 1. COMANDAS KDS -->
+        <!-- 1. COMANDAS KDS (SECCIÓN AISLADA) -->
         <section id="viewComandas">
           <div class="view-header">
             <div>
@@ -476,7 +494,6 @@
             <button class="kds-filter-btn" id="btnFiltroCocina" onclick="aplicarFiltroEstadoKDS('cocina')">En Cocina</button>
           </div>
 
-          <!-- MONITOR MESAS AVANZADO -->
           <div class="tables-monitor-bar">
             <div class="tables-monitor-header">
               <span>📍 Monitor de Mesas (Rojo = Ocupada | Verde = Libre):</span>
@@ -498,7 +515,7 @@
           <div class="live-orders-grid" id="liveOrdersGrid"></div>
         </section>
 
-        <!-- 2. GESTIÓN COMPLETA DE USUARIOS -->
+        <!-- 2. GESTIÓN DE USUARIOS (SECCIÓN AISLADA) -->
         <section id="viewUsuarios" style="display:none;">
           <div class="view-header">
             <div>
@@ -567,7 +584,7 @@
           </div>
         </section>
 
-        <!-- 3. CATÁLOGO DE PLATOS -->
+        <!-- 3. CATÁLOGO DE PLATOS (SECCIÓN AISLADA) -->
         <section id="viewPlatos" style="display:none;">
           <div class="view-header">
             <div>
@@ -579,7 +596,7 @@
           <div class="dishes-grid" id="dishesVisualGrid"></div>
         </section>
 
-        <!-- 4. GENERACIÓN DE RESERVAS -->
+        <!-- 4. GENERACIÓN DE RESERVAS (SECCIÓN AISLADA) -->
         <section id="viewReservas" style="display:none;">
           <div class="view-header">
             <div>
@@ -627,7 +644,7 @@
           <div id="contenedorReservasAdminList" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:14px;"></div>
         </section>
 
-        <!-- 5. IDENTIDAD, SUNAT Y REDES SOCIALES -->
+        <!-- 5. IDENTIDAD, SUNAT Y REDES SOCIALES (SECCIÓN AISLADA) -->
         <section id="viewIdentidad" style="display:none;">
           <div class="view-header"><h1>🏪 Identidad del Negocio & Redes Sociales</h1></div>
           <div class="card">
@@ -689,7 +706,7 @@
           </div>
         </section>
 
-        <!-- 6. REPORTE CONTABLE -->
+        <!-- 6. REPORTE CONTABLE (SECCIÓN AISLADA) -->
         <section id="viewReportes" style="display:none;">
           <div class="view-header">
             <div>
@@ -728,7 +745,7 @@
           </div>
         </section>
 
-        <!-- 7. QR MESAS -->
+        <!-- 7. QR MESAS (SECCIÓN AISLADA) -->
         <section id="viewMesas" style="display:none;">
           <div class="view-header">
             <div>
@@ -772,7 +789,7 @@
           </div>
         </section>
 
-        <!-- 8. RESEÑAS (SIN CONGELAMIENTO) -->
+        <!-- 8. RESEÑAS (SECCIÓN AISLADA) -->
         <section id="viewResenas" style="display:none;">
           <div class="view-header">
             <div>
@@ -788,12 +805,12 @@
     </div>
   </div>
 
-  <!-- MODAL DE EDICIÓN DE PLATOS CON SUBIDA DE FOTO Y VIDEO -->
-  <div class="modal-overlay" id="dishModal">
-    <div class="modal-box">
+  <!-- MODAL FLOTANTE 1: EDICIÓN DE PLATOS (AISLADO EN CAPA SUPERIOR FIXED) -->
+  <div class="modal-overlay" id="dishModal" onclick="cerrarModalPlato()">
+    <div class="modal-box" onclick="event.stopPropagation()">
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <h3 id="modalDishTitle" style="color:var(--gold);">Editar Plato de la Carta</h3>
-        <button style="background:none; border:none; color:#ccc; font-size:22px; cursor:pointer;" onclick="cerrarModalPlato()">&times;</button>
+        <button type="button" style="background:none; border:none; color:#ccc; font-size:24px; font-weight:bold; cursor:pointer;" onclick="cerrarModalPlato()">&times;</button>
       </div>
 
       <label>Nombre del Plato:</label>
@@ -830,18 +847,18 @@
       </div>
 
       <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;">
-        <button class="btn btn-del" onclick="cerrarModalPlato()">Cancelar</button>
-        <button class="btn btn-save" onclick="guardarPlatoDesdeModal()"><i class="fa-solid fa-floppy-disk"></i> Guardar Plato</button>
+        <button type="button" class="btn btn-del" onclick="cerrarModalPlato()">Cancelar</button>
+        <button type="button" class="btn btn-save" onclick="guardarPlatoDesdeModal()"><i class="fa-solid fa-floppy-disk"></i> Guardar Plato</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL DE COBRO DE MESA -->
-  <div class="modal-overlay" id="modalCobroMesa">
-    <div class="modal-box">
+  <!-- MODAL FLOTANTE 2: COBRO DE MESA (AISLADO EN CAPA SUPERIOR FIXED) -->
+  <div class="modal-overlay" id="modalCobroMesa" onclick="cerrarModalCobro()">
+    <div class="modal-box" onclick="event.stopPropagation()">
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <h3 style="color:var(--gold);" id="cobroTituloMesa">Cobro de Consumo</h3>
-        <button style="background:none; border:none; color:#ccc; font-size:22px; cursor:pointer;" onclick="cerrarModalCobro()">&times;</button>
+        <button type="button" style="background:none; border:none; color:#ccc; font-size:24px; font-weight:bold; cursor:pointer;" onclick="cerrarModalCobro()">&times;</button>
       </div>
 
       <div style="background:#180f0c; padding:12px; border-radius:10px; border:1px solid var(--accent); margin:6px 0;">
@@ -882,8 +899,8 @@
       </div>
 
       <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;">
-        <button class="btn btn-del" onclick="cerrarModalCobro()">Cancelar</button>
-        <button class="btn btn-save" style="background:linear-gradient(135deg, #15803d, #22c55e); width:100%;" onclick="confirmarCobroFinalizado()">
+        <button type="button" class="btn btn-del" onclick="cerrarModalCobro()">Cancelar</button>
+        <button type="button" class="btn btn-save" style="background:linear-gradient(135deg, #15803d, #22c55e); width:100%;" onclick="confirmarCobroFinalizado()">
           <i class="fa-solid fa-print"></i> Cobrar e Imprimir Comprobante Fiscal
         </button>
       </div>
@@ -980,9 +997,7 @@
     }
     function probarSonidoCampanaCocina() { reproducirSonidoCampanaCocina(); }
 
-    // ==============================================================
     // LOGIN DINÁMICO & CONTROL DE PERMISOS
-    // ==============================================================
     async function verificarLoginSistema(e) {
       e.preventDefault();
       const rolSeleccionado = document.getElementById('loginUsuarioSelector').value;
@@ -1035,7 +1050,6 @@
       document.getElementById('lblSesionTurno').innerText = turno;
       document.getElementById('lblSesionCajaChica').innerText = `Caja Inicial: S/ ${caja}`;
 
-      // APLICACIÓN ESTRICTA DE PERMISOS: Solo administradores ven las secciones admin
       const esAdmin = (rol === 'admin');
       document.querySelectorAll('.rol-admin-only').forEach(el => {
         el.style.display = esAdmin ? (el.tagName === 'BUTTON' ? 'flex' : 'block') : 'none';
@@ -1084,9 +1098,7 @@
       if (s === 'resenas') cargarResenasFirebase();
     }
 
-    // ==============================================================
-    // CONTROL DE ACORDEONES CON CONTRASEÑA EN EL VAULT
-    // ==============================================================
+    // ACORDEONES DEL VAULT
     function toggleAcordeonClave(tipo) {
       if (tipo === 'token') {
         const box = document.getElementById('contentVaultToken');
@@ -1148,9 +1160,7 @@
       }
     }
 
-    // ==============================================================
-    // GESTIÓN DE USUARIOS Y ROLES (PROTECCIÓN DE ADMINISTRADOR PRINCIPAL)
-    // ==============================================================
+    // USUARIOS
     async function cargarUsuariosDesdeFirebase() {
       const tbody = document.getElementById('tablaUsuariosBody');
       const totalTxt = document.getElementById('totalUsuariosTxt');
@@ -1188,7 +1198,6 @@
       }
 
       tbody.innerHTML = listaUsuariosFirebase.map(u => {
-        // NO SE PUEDE ELIMINAR EL ADMINISTRADOR PRINCIPAL O CREADOR
         const esCreadorOAdminPrincipal = (u.id === "usr-admin-principal" || u.nombre.toLowerCase() === "administrador");
         let badgeColor = "#0284c7";
         if (u.rol === 'admin') badgeColor = "#ef4444";
@@ -1304,6 +1313,192 @@
       const reader = new FileReader();
       reader.onload = (e) => { document.getElementById('inputDishVideo').value = e.target.result; };
       reader.readAsDataURL(file);
+    }
+
+    // MODAL EDICIÓN PLATOS (CONTROL ESTRICTO DE APERTURA / CIERRE)
+    function abrirModalPlato(id = null) {
+      platoEditandoId = id;
+      if (id) {
+        const dish = catalogo.find(d => d.id === id);
+        const es = dish.i18n?.es || { name: dish.nombre, desc: dish.descripcion };
+        document.getElementById('inputDishName').value = es.name || '';
+        document.getElementById('inputDishDesc').value = es.desc || '';
+        document.getElementById('inputDishPrice').value = dish.precioPEN || dish.precio || 0;
+        document.getElementById('inputDishCategory').value = dish.category || 'mains';
+        document.getElementById('inputDishPoster').value = dish.posterUrl || '';
+        document.getElementById('inputDishVideo').value = dish.videoUrl || '';
+      } else {
+        document.getElementById('inputDishName').value = '';
+        document.getElementById('inputDishDesc').value = '';
+        document.getElementById('inputDishPrice').value = '35.00';
+        document.getElementById('inputDishPoster').value = 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500';
+        document.getElementById('inputDishVideo').value = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
+      }
+      document.getElementById('dishModal').classList.add('active');
+    }
+    function cerrarModalPlato() {
+      document.getElementById('dishModal').classList.remove('active');
+    }
+
+    async function guardarPlatoDesdeModal() {
+      const nombre = document.getElementById('inputDishName').value.trim();
+      const desc = document.getElementById('inputDishDesc').value.trim();
+      const precio = parseFloat(document.getElementById('inputDishPrice').value) || 0;
+      if (!nombre) return alert("Nombre requerido.");
+
+      const item = {
+        id: platoEditandoId || ("dish-" + Date.now()),
+        category: document.getElementById('inputDishCategory').value,
+        precioPEN: precio,
+        precio: precio,
+        videoUrl: document.getElementById('inputDishVideo').value.trim(),
+        posterUrl: document.getElementById('inputDishPoster').value.trim(),
+        disponible: true,
+        i18n: { es: { name: nombre, desc: desc } }
+      };
+
+      if (platoEditandoId) {
+        const idx = catalogo.findIndex(d => d.id === platoEditandoId);
+        catalogo[idx] = item;
+      } else {
+        catalogo.push(item);
+      }
+
+      await fetch(`${FIREBASE_DB_URL}catalogo_platos/${item.id}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(item)
+      });
+
+      alert("✔ Plato guardado exitosamente.");
+      cerrarModalPlato();
+      renderizarVisualDishes();
+    }
+
+    // MODAL COBRO (CONTROL ESTRICTO DE APERTURA / CIERRE)
+    async function abrirModalCobroComanda(idComanda) {
+      let comanda = todasLasComandasCache.find(c => c.id === idComanda);
+      if (!comanda) {
+        try {
+          const res = await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`);
+          if (res.ok) comanda = await res.json();
+        } catch (e) {}
+      }
+
+      if (!comanda) return alert("Comanda no encontrada.");
+      comandaCobrandoActual = Object.assign({ id: idComanda }, comanda);
+
+      document.getElementById('cobroTituloMesa').innerText = `Cobro de ${comanda.mesa || 'Mesa'}`;
+      document.getElementById('cobroClienteTxt').innerText = `${comanda.cliente || comanda.mesa}`;
+      document.getElementById('cobroTotalTxt').innerText = `S/ ${(comanda.totalPEN || comanda.total || 0).toFixed(2)}`;
+      document.getElementById('modalCobroMesa').classList.add('active');
+    }
+    function cerrarModalCobro() {
+      document.getElementById('modalCobroMesa').classList.remove('active');
+    }
+
+    function alternarCamposFactura(tipo) {
+      document.getElementById('cajaDatosFactura').style.display = (tipo === 'Factura') ? 'block' : 'none';
+    }
+
+    async function confirmarCobroFinalizado() {
+      if (!comandaCobrandoActual) return;
+
+      const operador = sessionStorage.getItem("nombre_operador") || "Cajero";
+      const turno = sessionStorage.getItem("turno_rest") || "General";
+      const total = parseFloat(comandaCobrandoActual.totalPEN || comandaCobrandoActual.total || 0);
+      const metodo = document.getElementById('cobroMetodoPago').value;
+      const tipoComp = document.getElementById('cobroTipoComprobante').value;
+
+      const venta = {
+        id: comandaCobrandoActual.id,
+        fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }),
+        mesa: comandaCobrandoActual.mesa,
+        cliente: comandaCobrandoActual.cliente || comandaCobrandoActual.mesa,
+        productos: comandaCobrandoActual.productos || "",
+        baseImponible: total / 1.18,
+        igv: total - (total / 1.18),
+        totalPEN: total,
+        pago: metodo,
+        tipoComprobante: tipoComp,
+        rucCliente: document.getElementById('cobroRucCliente').value.trim(),
+        razonSocialCliente: document.getElementById('cobroRazonCliente').value.trim(),
+        cajero: `${operador} (${turno})`
+      };
+
+      await fetch(`${FIREBASE_DB_URL}ventas/${comandaCobrandoActual.id}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(venta)
+      });
+
+      await fetch(`${FIREBASE_DB_URL}comandas/${comandaCobrandoActual.id}.json`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          estado: 'finalizado',
+          pago: metodo,
+          tipoComprobante: tipoComp,
+          agradecimientoFinal: true,
+          clientePidiendoCuenta: false
+        })
+      });
+
+      await regenerarTokenMesa(comandaCobrandoActual.mesa);
+      cerrarModalCobro();
+      imprimirComprobanteFiscalDirecto(venta);
+
+      alert("✔ Venta cobrada y finalizada.");
+      await cargarComandasEnVivo();
+      actualizarQRVisualDirecto();
+    }
+
+    function reimprimirComprobanteFinalizado(idComanda) {
+      const c = todasLasComandasCache.find(item => item.id === idComanda);
+      if (!c) return alert("Comanda no encontrada.");
+      const total = parseFloat(c.totalPEN || c.total || 0);
+      const venta = {
+        mesa: c.mesa,
+        fecha: c.fecha || new Date().toLocaleDateString(),
+        productos: c.productos,
+        totalPEN: total,
+        tipoComprobante: c.tipoComprobante || "Boleta",
+        pago: c.pago || "Efectivo",
+        baseImponible: total / 1.18,
+        igv: total - (total / 1.18)
+      };
+      imprimirComprobanteFiscalDirecto(venta);
+    }
+
+    function imprimirComprobanteFiscalDirecto(v) {
+      const ventana = window.open('', '_blank');
+      ventana.document.write(`
+        <!DOCTYPE html><html><head><title>${v.tipoComprobante || 'Comprobante'}</title>
+        <style>body{font-family:monospace;padding:12px;width:75mm;text-align:center;}h3{margin:2px 0;}hr{border:1px dashed #000;}</style>
+        </head><body>
+          <h3>${configRestaurante.nombre.toUpperCase()}</h3>
+          <p>RUC: ${configRestaurante.ruc}</p>
+          <p>${configRestaurante.direccion}</p>
+          <hr>
+          <h3>*** ${v.tipoComprobante ? v.tipoComprobante.toUpperCase() : 'BOLETA DE VENTA'} ***</h3>
+          <p>${v.mesa} • ${v.fecha}</p>
+          ${v.rucCliente ? `<p style="text-align:left;"><b>RUC:</b> ${v.rucCliente}<br><b>Razón:</b> ${v.razonSocialCliente}</p>` : ''}
+          <hr>
+          <div style="text-align:left;font-size:13px;margin:8px 0;">
+            ${(v.productos || '').split(', ').map(p => `<div>• ${p}</div>`).join('')}
+          </div>
+          <hr>
+          <div style="text-align:right;font-size:12px;">
+            <div>OP. GRAVADA: S/ ${(v.baseImponible||0).toFixed(2)}</div>
+            <div>I.G.V. (18%): S/ ${(v.igv||0).toFixed(2)}</div>
+            <div style="font-size:15px;font-weight:bold;margin-top:4px;">TOTAL: S/ ${(v.totalPEN||0).toFixed(2)}</div>
+            <div>PAGO: ${v.pago || 'Efectivo'}</div>
+          </div>
+          <p style="font-size:11px;margin-top:10px;">¡Gracias por su visita!</p>
+          <script>window.onload=function(){window.print();window.close();}<\/script>
+        </body></html>
+      `);
+      ventana.document.close();
     }
 
     // IMPRIMIR COMANDA CHEF
@@ -1544,187 +1739,6 @@
     function toggleStock(idx) {
       catalogo[idx].disponible = (catalogo[idx].disponible === false);
       renderizarVisualDishes();
-    }
-
-    function abrirModalPlato(id = null) {
-      platoEditandoId = id;
-      if (id) {
-        const dish = catalogo.find(d => d.id === id);
-        const es = dish.i18n?.es || { name: dish.nombre, desc: dish.descripcion };
-        document.getElementById('inputDishName').value = es.name || '';
-        document.getElementById('inputDishDesc').value = es.desc || '';
-        document.getElementById('inputDishPrice').value = dish.precioPEN || dish.precio || 0;
-        document.getElementById('inputDishCategory').value = dish.category || 'mains';
-        document.getElementById('inputDishPoster').value = dish.posterUrl || '';
-        document.getElementById('inputDishVideo').value = dish.videoUrl || '';
-      } else {
-        document.getElementById('inputDishName').value = '';
-        document.getElementById('inputDishDesc').value = '';
-        document.getElementById('inputDishPrice').value = '35.00';
-        document.getElementById('inputDishPoster').value = 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500';
-        document.getElementById('inputDishVideo').value = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
-      }
-      document.getElementById('dishModal').classList.add('active');
-    }
-    function cerrarModalPlato() { document.getElementById('dishModal').classList.remove('active'); }
-
-    async function guardarPlatoDesdeModal() {
-      const nombre = document.getElementById('inputDishName').value.trim();
-      const desc = document.getElementById('inputDishDesc').value.trim();
-      const precio = parseFloat(document.getElementById('inputDishPrice').value) || 0;
-      if (!nombre) return alert("Nombre requerido.");
-
-      const item = {
-        id: platoEditandoId || ("dish-" + Date.now()),
-        category: document.getElementById('inputDishCategory').value,
-        precioPEN: precio,
-        precio: precio,
-        videoUrl: document.getElementById('inputDishVideo').value.trim(),
-        posterUrl: document.getElementById('inputDishPoster').value.trim(),
-        disponible: true,
-        i18n: { es: { name: nombre, desc: desc } }
-      };
-
-      if (platoEditandoId) {
-        const idx = catalogo.findIndex(d => d.id === platoEditandoId);
-        catalogo[idx] = item;
-      } else {
-        catalogo.push(item);
-      }
-
-      await fetch(`${FIREBASE_DB_URL}catalogo_platos/${item.id}.json`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(item)
-      });
-
-      alert("✔ Plato guardado exitosamente.");
-      cerrarModalPlato();
-      renderizarVisualDishes();
-    }
-
-    // COBRO FINALIZADO
-    async function abrirModalCobroComanda(idComanda) {
-      let comanda = todasLasComandasCache.find(c => c.id === idComanda);
-      if (!comanda) {
-        try {
-          const res = await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`);
-          if (res.ok) comanda = await res.json();
-        } catch (e) {}
-      }
-
-      if (!comanda) return alert("Comanda no encontrada.");
-      comandaCobrandoActual = Object.assign({ id: idComanda }, comanda);
-
-      document.getElementById('cobroTituloMesa').innerText = `Cobro de ${comanda.mesa || 'Mesa'}`;
-      document.getElementById('cobroClienteTxt').innerText = `${comanda.cliente || comanda.mesa}`;
-      document.getElementById('cobroTotalTxt').innerText = `S/ ${(comanda.totalPEN || comanda.total || 0).toFixed(2)}`;
-      document.getElementById('modalCobroMesa').classList.add('active');
-    }
-    function cerrarModalCobro() { document.getElementById('modalCobroMesa').classList.remove('active'); }
-
-    function alternarCamposFactura(tipo) {
-      document.getElementById('cajaDatosFactura').style.display = (tipo === 'Factura') ? 'block' : 'none';
-    }
-
-    async function confirmarCobroFinalizado() {
-      if (!comandaCobrandoActual) return;
-
-      const operador = sessionStorage.getItem("nombre_operador") || "Cajero";
-      const turno = sessionStorage.getItem("turno_rest") || "General";
-      const total = parseFloat(comandaCobrandoActual.totalPEN || comandaCobrandoActual.total || 0);
-      const metodo = document.getElementById('cobroMetodoPago').value;
-      const tipoComp = document.getElementById('cobroTipoComprobante').value;
-
-      const venta = {
-        id: comandaCobrandoActual.id,
-        fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }),
-        mesa: comandaCobrandoActual.mesa,
-        cliente: comandaCobrandoActual.cliente || comandaCobrandoActual.mesa,
-        productos: comandaCobrandoActual.productos || "",
-        baseImponible: total / 1.18,
-        igv: total - (total / 1.18),
-        totalPEN: total,
-        pago: metodo,
-        tipoComprobante: tipoComp,
-        rucCliente: document.getElementById('cobroRucCliente').value.trim(),
-        razonSocialCliente: document.getElementById('cobroRazonCliente').value.trim(),
-        cajero: `${operador} (${turno})`
-      };
-
-      await fetch(`${FIREBASE_DB_URL}ventas/${comandaCobrandoActual.id}.json`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(venta)
-      });
-
-      await fetch(`${FIREBASE_DB_URL}comandas/${comandaCobrandoActual.id}.json`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          estado: 'finalizado',
-          pago: metodo,
-          tipoComprobante: tipoComp,
-          agradecimientoFinal: true,
-          clientePidiendoCuenta: false
-        })
-      });
-
-      await regenerarTokenMesa(comandaCobrandoActual.mesa);
-      cerrarModalCobro();
-      imprimirComprobanteFiscalDirecto(venta);
-
-      alert("✔ Venta cobrada y finalizada.");
-      await cargarComandasEnVivo();
-      actualizarQRVisualDirecto();
-    }
-
-    function reimprimirComprobanteFinalizado(idComanda) {
-      const c = todasLasComandasCache.find(item => item.id === idComanda);
-      if (!c) return alert("Comanda no encontrada.");
-      const total = parseFloat(c.totalPEN || c.total || 0);
-      const venta = {
-        mesa: c.mesa,
-        fecha: c.fecha || new Date().toLocaleDateString(),
-        productos: c.productos,
-        totalPEN: total,
-        tipoComprobante: c.tipoComprobante || "Boleta",
-        pago: c.pago || "Efectivo",
-        baseImponible: total / 1.18,
-        igv: total - (total / 1.18)
-      };
-      imprimirComprobanteFiscalDirecto(venta);
-    }
-
-    function imprimirComprobanteFiscalDirecto(v) {
-      const ventana = window.open('', '_blank');
-      ventana.document.write(`
-        <!DOCTYPE html><html><head><title>${v.tipoComprobante || 'Comprobante'}</title>
-        <style>body{font-family:monospace;padding:12px;width:75mm;text-align:center;}h3{margin:2px 0;}hr{border:1px dashed #000;}</style>
-        </head><body>
-          <h3>${configRestaurante.nombre.toUpperCase()}</h3>
-          <p>RUC: ${configRestaurante.ruc}</p>
-          <p>${configRestaurante.direccion}</p>
-          <hr>
-          <h3>*** ${v.tipoComprobante ? v.tipoComprobante.toUpperCase() : 'BOLETA DE VENTA'} ***</h3>
-          <p>${v.mesa} • ${v.fecha}</p>
-          ${v.rucCliente ? `<p style="text-align:left;"><b>RUC:</b> ${v.rucCliente}<br><b>Razón:</b> ${v.razonSocialCliente}</p>` : ''}
-          <hr>
-          <div style="text-align:left;font-size:13px;margin:8px 0;">
-            ${(v.productos || '').split(', ').map(p => `<div>• ${p}</div>`).join('')}
-          </div>
-          <hr>
-          <div style="text-align:right;font-size:12px;">
-            <div>OP. GRAVADA: S/ ${(v.baseImponible||0).toFixed(2)}</div>
-            <div>I.G.V. (18%): S/ ${(v.igv||0).toFixed(2)}</div>
-            <div style="font-size:15px;font-weight:bold;margin-top:4px;">TOTAL: S/ ${(v.totalPEN||0).toFixed(2)}</div>
-            <div>PAGO: ${v.pago || 'Efectivo'}</div>
-          </div>
-          <p style="font-size:11px;margin-top:10px;">¡Gracias por su visita!</p>
-          <script>window.onload=function(){window.print();window.close();}<\/script>
-        </body></html>
-      `);
-      ventana.document.close();
     }
 
     // CARGA DE MESAS Y TOKENS
@@ -2151,7 +2165,7 @@
       `).join('');
     }
 
-    // RESEÑAS (SIN CONGELAMIENTO)
+    // RESEÑAS
     async function cargarResenasFirebase() {
       const cont = document.getElementById('contenedorResenasAdmin');
       if (!cont) return;
