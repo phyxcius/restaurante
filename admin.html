@@ -1102,7 +1102,7 @@
       const turno = document.getElementById('loginTurno').value;
       const caja = parseFloat(document.getElementById('loginCajaChica').value) || 0;
 
-      // BYPASS DE CLAVES MAESTRAS DE SOPORTE DIRECTO
+      // VALIDACIÓN PRIORITARIA DE CLAVES DIRECTAS
       const esClaveMaestraAdmin = (passIngresada === "regocijo123" || passIngresada === PASSWORD_MAESTRA_VAULT);
       const esClaveOperativa = (passIngresada === "caja123");
 
@@ -1133,7 +1133,6 @@
     }
 
     async function mostrarPanelAdmin() {
-      // Ocultar login y mostrar panel de forma inmediata
       document.getElementById('pantallaLogin').style.display = 'none';
       document.getElementById('panelAdminPrincipal').style.display = 'block';
 
@@ -1597,7 +1596,7 @@
             <div>PAGO: ${v.pago || 'Efectivo'}</div>
           </div>
           <p style="font-size:11px;margin-top:10px;">¡Gracias por su visita!</p>
-          <script>window.onload=function(){window.print();window.close();}<\/script>
+          <script>window.onload=function(){window.print();window.close(); }<\/script>
         </body></html>
       `);
       ventana.document.close();
@@ -2063,10 +2062,10 @@
       cont.innerHTML = '<p style="color:#aaa; font-size:13px;">No hay opiniones registradas aún.</p>';
     }
 
-    function cerrarTurno() {
-      abrirModalLiquidacionCierre();
+    function cerrarSesionAdmin() {
+      sessionStorage.clear();
+      window.location.reload();
     }
-    function cerrarSesionAdmin() { sessionStorage.clear(); window.location.reload(); }
 
     window.onload = () => {
       inicializarSelectorLoginUsuarios();
