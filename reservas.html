@@ -1,213 +1,337 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reservas Prepago | La Cusqueñita</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Reservas Oficiales | La Cusqueñita</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
     :root {
       --primary: #c2410c;
       --accent: #f59e0b;
-      --bg-dark: #18110e;
-      --card-bg: #261a15;
-      --gold: #fde047;
+      --bg-warm: #18110e;
+      --card-bg: #1e130f;
+      --gold-badge: #fbbf24;
+      --text-main: #fffdfa;
+      --border-card: #f59e0b;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
-    body { background: var(--bg-dark); color: #fff; padding: 20px 14px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-    
-    .card-reserva {
-      background: var(--card-bg); border: 1.5px solid var(--accent);
-      border-radius: 20px; max-width: 460px; width: 100%; padding: 26px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-    }
-    .header-box { text-align: center; margin-bottom: 18px; border-bottom: 1px dashed rgba(255,255,255,0.12); padding-bottom: 12px; }
-    h2 { color: var(--gold); font-size: 21px; font-weight: 900; }
-    p.sub { font-size: 12px; color: #aaa; margin-top: 3px; }
 
-    label { font-size: 11.5px; font-weight: 800; color: var(--gold); display: block; margin-top: 10px; text-transform: uppercase; }
-    input, select {
-      width: 100%; padding: 10px 12px; margin-top: 4px; border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.2); background: #160e0b; color: #fff; font-size: 13.5px; outline: none;
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body {
+      background-color: var(--bg-warm);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
     }
-    .grid-dos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-    .btn-reservar {
+    .box-reservas-page {
+      background: var(--card-bg);
+      border: 2px solid var(--border-card);
+      border-radius: 26px;
+      max-width: 430px;
+      width: 100%;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.85);
+      position: relative;
+    }
+
+    .header-reservas {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      padding-bottom: 12px;
+    }
+    .avatar-wrap {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid var(--gold-badge);
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
+
+    .header-titles h2 { font-size: 19px; font-weight: 900; color: var(--gold-badge); }
+    .header-titles span { font-size: 11.5px; color: #86efac; font-weight: bold; display: block; }
+
+    .desc-txt { font-size: 12.5px; color: #ddd; line-height: 1.45; }
+
+    /* ESTILO IDÉNTICO: CAMPOS TEXTBOX BLANCOS CON BORDES REDONDEADOS */
+    .custom-input-white {
+      width: 100%;
+      background: #ffffff !important;
+      color: #1c1917 !important;
+      border: 1.5px solid #d1d5db;
+      border-radius: 12px;
+      padding: 11px 14px;
+      font-size: 13.5px;
+      font-weight: 600;
+      outline: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .custom-input-white::placeholder { color: #6b7280; font-weight: 500; }
+    .custom-input-white:focus { border-color: var(--accent); }
+
+    .grid-duo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .btn-submit-reserva {
       background: linear-gradient(135deg, var(--primary), var(--accent));
-      color: #fff; border: none; padding: 14px; border-radius: 22px;
-      font-size: 14px; font-weight: 900; width: 100%; margin-top: 16px;
-      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+      color: #fff;
+      border: none;
+      padding: 13px;
+      border-radius: 20px;
+      font-weight: 900;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 6px 18px rgba(194, 65, 12, 0.45);
+      margin-top: 4px;
     }
+    .btn-submit-reserva:active { transform: scale(0.98); }
 
-    /* MENSAJE DE BLOQUEO Y REDIRECCIÓN */
-    .banner-bloqueado {
-      display: none; background: #3b1712; border: 1.5px solid #dc2626; border-radius: 12px;
-      padding: 16px; text-align: center; margin-bottom: 14px;
+    .btn-compartir-whatsapp {
+      background: #15803d;
+      color: #fff;
+      border: 1px solid #4ade80;
+      padding: 11px 14px;
+      border-radius: 20px;
+      font-weight: 800;
+      font-size: 12.5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    .btn-compartir-whatsapp:active { transform: scale(0.98); }
+
+    .social-links-grid {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 6px;
+    }
+    .btn-social-icon {
+      width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; color: #fff; font-size: 18px; text-decoration: none;
+    }
+    .btn-social-wa { background: #25d366; }
+    .btn-social-fb { background: #1877f2; }
+    .btn-social-ig { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285aeb 90%); }
+    .btn-social-tk { background: #000; border: 1px solid #444; }
+
+    .chuspa-tech-footer {
+      background: rgba(254, 252, 232, 0.08);
+      border: 1px dashed rgba(234, 179, 8, 0.45);
+      border-radius: 12px;
+      padding: 9px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-decoration: none;
+      margin-top: 4px;
+    }
+    .chuspa-tech-left { display: flex; align-items: center; gap: 8px; }
+    .chuspa-tech-img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; background: #fff; }
+
+    .btn-volver-carta {
+      background: #374151; color: #f3f4f6; border: 1px solid #4b5563; padding: 11px 16px;
+      border-radius: 20px; font-weight: 800; font-size: 13px; text-decoration: none; text-align: center;
+      display: block;
     }
   </style>
 </head>
 <body>
 
-  <div class="card-reserva">
-    <div class="header-box">
-      <div style="font-size:38px;">🍽️</div>
-      <h2 id="lblNombreLocal">La Cusqueñita</h2>
-      <p class="sub">Catálogo de Reservas Prepago & Eventos</p>
+  <div class="box-reservas-page">
+    <div class="header-reservas">
+      <div class="avatar-wrap" id="resLogoWrap">🍽️</div>
+      <div class="header-titles">
+        <h2 id="resTituloLocal">La Cusqueñita</h2>
+        <span>Catálogo Oficial de Reservas & Eventos</span>
+      </div>
     </div>
 
-    <!-- BANNER SI ESTÁN BLOQUEADAS -->
-    <div class="banner-bloqueado" id="bannerBloqueoWeb">
-      <h3 style="color:#fca5a5; font-size:15px; margin-bottom:4px;">⚠️ Reservas Online Pausadas</h3>
-      <p style="font-size:12px; color:#ddd; margin-bottom:12px;">Por favor visita nuestro portal oficial o contáctanos directamente.</p>
-      <a href="https://www.lachuspaanuncios.com/" id="linkWebOficial" style="background:#dc2626; color:#fff; text-decoration:none; padding:8px 14px; border-radius:8px; font-weight:bold; font-size:12px; display:inline-block;">
-        Ir a la Página Web Oficial
-      </a>
-    </div>
+    <p class="desc-txt">
+      Completa tus datos para agendar tu mesa familiar, grupo turístico o evento.
+    </p>
 
-    <form id="formReservaPrincipal" onsubmit="procesarReservaEnNube(event)">
-      <label>Tipo de Evento:</label>
-      <select id="resTipo" required>
-        <option value="Cena Navideña / Fin de Año">🎄 Cena Navideña / Fin de Año</option>
-        <option value="Grupo Familiar (4 a 12 personas)">👨‍👩‍👧‍👦 Grupo Familiar (4 a 12 personas)</option>
-        <option value="Parejas (Cena Romántica)">❤️ Parejas (Cena Romántica)</option>
-        <option value="Evento Corporativo / Empresa">🏢 Evento Corporativo / Empresa</option>
-      </select>
-
-      <label>Titular de la Reserva:</label>
-      <input type="text" id="resNombre" placeholder="Tu nombre completo" required>
-
-      <label>Teléfono WhatsApp:</label>
-      <input type="tel" id="resTelefono" placeholder="984123456" required>
-
-      <div class="grid-dos">
-        <div>
-          <label>Fecha:</label>
-          <input type="date" id="resFecha" required>
-        </div>
-        <div>
-          <label>Hora:</label>
-          <input type="time" id="resHora" required>
-        </div>
+    <form onsubmit="guardarReservaWeb(event)" style="display:flex; flex-direction:column; gap:9px;">
+      <input type="text" id="resNombre" class="custom-input-white" placeholder="Nombre completo" required>
+      <input type="tel" id="resWhatsApp" class="custom-input-white" placeholder="WhatsApp de contacto (+51...)" required>
+      
+      <div class="grid-duo">
+        <input type="date" id="resFecha" class="custom-input-white" required>
+        <input type="time" id="resHora" class="custom-input-white" required>
       </div>
 
-      <div class="grid-dos">
-        <div>
-          <label>N° Personas:</label>
-          <input type="number" id="resPersonas" min="1" max="50" value="4" required>
-        </div>
-        <div>
-          <label>Preferencia:</label>
-          <select id="resMesaPreferencia">
-            <option value="Salón Principal">Salón Principal</option>
-            <option value="Terraza 1">Terraza 1</option>
-            <option value="Terraza 2">Terraza 2</option>
-          </select>
-        </div>
+      <div class="grid-duo">
+        <input type="number" id="resPersonas" class="custom-input-white" placeholder="N° Personas" min="1" value="4" required>
+        <select id="resMesaSelect" class="custom-input-white" style="cursor:pointer;"></select>
       </div>
 
-      <label>Notas especiales:</label>
-      <input type="text" id="resNotas" placeholder="Requerimientos, alergias, etc.">
+      <textarea id="resNotas" class="custom-input-white" rows="2" placeholder="Notas (motivo, alergias, requerimientos)..."></textarea>
 
-      <button type="submit" class="btn-reservar" id="btnEnviarReserva">
-        <i class="fa-brands fa-whatsapp"></i> <span>Solicitar Reserva y Abono</span>
+      <button type="submit" class="btn-submit-reserva" id="btnSubmitRes">
+        <i class="fa-solid fa-calendar-check"></i> Confirmar y Agendar Reserva
+      </button>
+
+      <button type="button" class="btn-compartir-whatsapp" onclick="compartirPorWhatsApp()">
+        <i class="fa-brands fa-whatsapp"></i> Compartir este link a mi WhatsApp para reservar después
       </button>
     </form>
+
+    <!-- CONTACTO Y REDES SOCIALES -->
+    <div style="text-align:center; border-top:1px dashed rgba(255,255,255,0.15); padding-top:10px; margin-top:4px;">
+      <span style="font-size:12px; color:#fde047; font-weight:800; display:block;">
+        <i class="fa-solid fa-phone"></i> Pedidos & Reservas: <span id="resTelefonoTxt">+51 969 773 064</span>
+      </span>
+      <div class="social-links-grid">
+        <a href="https://wa.me/51969773064" target="_blank" class="btn-social-icon btn-social-wa" id="linkWa"><i class="fa-brands fa-whatsapp"></i></a>
+        <a href="#" target="_blank" class="btn-social-icon btn-social-fb" id="linkFb"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="#" target="_blank" class="btn-social-icon btn-social-ig" id="linkIg"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#" target="_blank" class="btn-social-icon btn-social-tk" id="linkTk"><i class="fa-brands fa-tiktok"></i></a>
+      </div>
+    </div>
+
+    <!-- SELLO LA CHUSPA TECH -->
+    <a href="https://www.lachuspaanuncios.com/" target="_blank" class="chuspa-tech-footer">
+      <div class="chuspa-tech-left">
+        <img src="CHUSPITA-circulo.png" alt="La Chuspa" class="chuspa-tech-img" onerror="this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png'">
+        <div>
+          <div style="font-size:11px; font-weight:900; color:#fde047;">Tecnología La Chuspa Tech</div>
+          <div style="font-size:9.5px; color:#fed7aa;">Digitalización de restaurantes en Cusco</div>
+        </div>
+      </div>
+      <i class="fa-solid fa-arrow-up-right-from-square" style="color:#fde047; font-size:13px;"></i>
+    </a>
+
+    <a href="index.html" class="btn-volver-carta">
+      <i class="fa-solid fa-utensils"></i> Volver a la Carta Digital
+    </a>
   </div>
 
   <script>
     const FIREBASE_DB_URL = "https://restaurante1-695f7-default-rtdb.firebaseio.com/";
 
-    let configNegocio = {
+    let CONFIG = {
       nombre: "La Cusqueñita",
       whatsapp: "51969773064",
-      estadoReservas: "habilitadas",
-      urlWebRedireccion: "https://www.lachuspaanuncios.com/"
+      facebook: "",
+      instagram: "",
+      tiktok: ""
     };
 
-    async function verificarEstadoYSistema() {
+    let listaMesas = [
+      "Mesa 01", "Mesa 02", "Mesa 03", "Mesa 04", "Mesa 05",
+      "Mesa 06", "Mesa 07", "Mesa 08", "Mesa 09", "Mesa 010",
+      "Mesa 11", "Mesa 12", "Barra", "Terraza 1", "Terraza 2"
+    ];
+
+    async function cargarDatosReserva() {
+      document.getElementById('resFecha').value = new Date().toISOString().split('T')[0];
+
+      // 1. Cargar Identidad y Redes Sociales
       try {
         const res = await fetch(`${FIREBASE_DB_URL}config/identidad.json?_t=${Date.now()}`);
         if (res.ok) {
-          const conf = await res.json();
-          if (conf) {
-            configNegocio = Object.assign(configNegocio, conf);
-            document.getElementById('lblNombreLocal').innerText = configNegocio.nombre;
+          const d = await res.json();
+          if (d) {
+            CONFIG = Object.assign(CONFIG, d);
+            document.getElementById('resTituloLocal').innerText = CONFIG.nombre || "La Cusqueñita";
+            const wa = CONFIG.whatsapp || "51969773064";
+            document.getElementById('resTelefonoTxt').innerText = wa;
 
-            // Si el administrador bloqueó las reservas en el panel, redirigir
-            if (configNegocio.estadoReservas === 'bloqueadas') {
-              document.getElementById('formReservaPrincipal').style.display = 'none';
-              document.getElementById('bannerBloqueoWeb').style.display = 'block';
-              document.getElementById('linkWebOficial').href = configNegocio.urlWebRedireccion || "https://www.lachuspaanuncios.com/";
-              // Redirección suave automática tras 3 segundos
-              setTimeout(() => {
-                window.location.href = configNegocio.urlWebRedireccion || "https://www.lachuspaanuncios.com/";
-              }, 3000);
+            const cleanWa = wa.replace(/\D/g, '');
+            document.getElementById('linkWa').href = `https://wa.me/${cleanWa}`;
+            if (CONFIG.facebook) document.getElementById('linkFb').href = CONFIG.facebook;
+            if (CONFIG.instagram) document.getElementById('linkIg').href = CONFIG.instagram;
+            if (CONFIG.tiktok) document.getElementById('linkTk').href = CONFIG.tiktok;
+
+            const logoWrap = document.getElementById('resLogoWrap');
+            if (CONFIG.logo && CONFIG.logo.startsWith('data:image')) {
+              logoWrap.innerHTML = `<img src="${CONFIG.logo}" alt="Logo">`;
+            } else {
+              logoWrap.innerText = CONFIG.logo || "🍽️";
             }
           }
         }
       } catch (e) {}
 
-      const hoy = new Date().toISOString().split('T')[0];
-      document.getElementById('resFecha').min = hoy;
-      document.getElementById('resFecha').value = hoy;
+      // 2. Cargar Mesas Dinámicas desde Firebase
+      try {
+        const resMesas = await fetch(`${FIREBASE_DB_URL}config/mesas.json?_t=${Date.now()}`);
+        if (resMesas.ok) {
+          const dMesas = await resMesas.json();
+          if (Array.isArray(dMesas) && dMesas.length > 0) {
+            listaMesas = dMesas;
+          }
+        }
+      } catch (e) {}
+
+      const sel = document.getElementById('resMesaSelect');
+      sel.innerHTML = listaMesas.map(m => `<option value="${m}">${m}</option>`).join('');
     }
 
-    async function procesarReservaEnNube(e) {
+    function compartirPorWhatsApp() {
+      const url = window.location.href;
+      const msg = encodeURIComponent(`🍽️ ¡Hola! Te comparto el enlace oficial para agendar nuestra mesa o evento en *${CONFIG.nombre}*:\n${url}`);
+      window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
+    }
+
+    async function guardarReservaWeb(e) {
       e.preventDefault();
-
-      const btn = document.getElementById('btnEnviarReserva');
+      const btn = document.getElementById('btnSubmitRes');
       btn.disabled = true;
-      btn.innerText = "Guardando solicitud...";
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registrando...';
 
-      const reservaId = "RES-" + Date.now();
-      const tipo = document.getElementById('resTipo').value;
-      const nombre = document.getElementById('resNombre').value.trim();
-      const telefono = document.getElementById('resTelefono').value.trim();
-      const fecha = document.getElementById('resFecha').value;
-      const hora = document.getElementById('resHora').value;
-      const personas = document.getElementById('resPersonas').value;
-      const mesa = document.getElementById('resMesaPreferencia').value;
-      const notas = document.getElementById('resNotas').value.trim();
-
-      const objetoReserva = {
-        id: reservaId,
-        fechaCreacion: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }),
-        tipo: tipo,
-        cliente: nombre,
-        telefono: telefono,
-        fechaReserva: fecha,
-        horaReserva: hora,
-        personas: personas,
-        preferenciaMesa: mesa,
-        notas: notas || "Ninguna",
-        estado: "pendiente_abono"
+      const id = "RES-" + Date.now();
+      const data = {
+        id: id,
+        cliente: document.getElementById('resNombre').value.trim(),
+        telefono: document.getElementById('resWhatsApp').value.trim(),
+        fechaReserva: document.getElementById('resFecha').value,
+        horaReserva: document.getElementById('resHora').value,
+        personas: document.getElementById('resPersonas').value,
+        mesaAsignada: document.getElementById('resMesaSelect').value,
+        notas: document.getElementById('resNotas').value.trim() || 'Sin notas',
+        fechaCreacion: new Date().toLocaleDateString()
       };
 
-      // Guardar en Firebase para que el administrador la vea en el panel
       try {
-        await fetch(`${FIREBASE_DB_URL}reservas/${reservaId}.json`, {
+        await fetch(`${FIREBASE_DB_URL}reservas/${id}.json`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(objetoReserva)
+          body: JSON.stringify(data)
         });
-      } catch (err) {}
-
-      // Redirigir a WhatsApp
-      const numeroWsp = configNegocio.whatsapp || "51969773064";
-      const textoWhatsApp = 
-        `¡Hola *${configNegocio.nombre}*! 👋%0A` +
-        `Deseo solicitar la reserva para *${tipo}*:%0A%0A` +
-        `📌 *ID Reserva:* ${reservaId}%0A` +
-        `👤 *Titular:* ${nombre}%0A` +
-        `📅 *Fecha:* ${fecha}%0A` +
-        `⏰ *Hora:* ${hora}%0A` +
-        `👥 *Personas:* ${personas}%0A` +
-        (notas ? `📝 *Notas:* ${notas}%0A%0A` : `%0A`) +
-        `¿Podrían confirmarme las cuentas de Yape/Plin para el abono de reserva? Gracias.`;
-
-      window.location.href = `https://wa.me/${numeroWsp}?text=${textoWhatsApp}`;
+        alert(`✔ ¡Reserva agendada exitosamente para ${data.cliente}! Nos comunicaremos al WhatsApp ${data.telefono} para confirmar.`);
+        e.target.reset();
+        document.getElementById('resFecha').value = new Date().toISOString().split('T')[0];
+      } catch (err) {
+        alert("Error al registrar reserva: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-calendar-check"></i> Confirmar y Agendar Reserva';
+      }
     }
 
-    window.addEventListener('DOMContentLoaded', verificarEstadoYSistema);
+    window.addEventListener('DOMContentLoaded', cargarDatosReserva);
   </script>
 </body>
 </html>
