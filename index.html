@@ -173,40 +173,58 @@
     .video-player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
     .slide-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(24,17,14,0.4) 0%, transparent 50%, rgba(24,17,14,0.92) 100%); }
 
-    /* GUÍA GESTUAL: DISCRETA, COMPACTA Y SIN ESTORBAR LOS BOTONES */
+    /* DEDO GESTUAL: CENTRADO EN PANTALLA, DE GRAN TAMAÑO Y LLAMATIVO */
     .gesture-hint-overlay {
       position: fixed;
-      bottom: 22px;
-      left: 16px;
-      z-index: 90;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 100;
       pointer-events: none;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 6px;
-      animation: swipeHandPermanent 2s infinite ease-in-out;
+      justify-content: center;
+      gap: 12px;
+      animation: swipeHandCenterAnimation 2.2s infinite ease-in-out;
     }
     .gesture-hand-icon {
-      font-size: 18px;
+      font-size: 54px;
       color: #fde047;
-      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.8));
+      filter: drop-shadow(0 4px 16px rgba(0,0,0,0.95)) drop-shadow(0 0 18px rgba(245, 158, 11, 0.75));
     }
     .gesture-hint-txt {
-      background: rgba(18, 12, 10, 0.85);
-      color: #fed7aa;
-      padding: 4px 9px;
-      border-radius: 12px;
-      font-size: 10px;
-      font-weight: 800;
-      border: 1px solid rgba(245, 158, 11, 0.35);
-      backdrop-filter: blur(4px);
+      background: rgba(18, 12, 10, 0.88);
+      color: #fffdfa;
+      padding: 7px 16px;
+      border-radius: 22px;
+      font-size: 13px;
+      font-weight: 900;
+      border: 1.5px solid var(--accent);
+      letter-spacing: 0.5px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px);
+      text-transform: uppercase;
     }
-    @keyframes swipeHandPermanent {
-      0% { transform: translateY(0); opacity: 0.75; }
-      50% { transform: translateY(-5px); opacity: 1; }
-      100% { transform: translateY(0); opacity: 0.75; }
+    @keyframes swipeHandCenterAnimation {
+      0% {
+        transform: translate(-50%, -40%);
+        opacity: 0.2;
+      }
+      35% {
+        opacity: 0.95;
+      }
+      70% {
+        transform: translate(-50%, -68%);
+        opacity: 0.95;
+      }
+      100% {
+        transform: translate(-50%, -75%);
+        opacity: 0;
+      }
     }
 
-    /* BOTÓN DE AGREGAR PLATO */
+    /* INFORMACIÓN DEL PLATO */
     .dish-info { position: relative; z-index: 10; padding: 0 75px 85px 16px; width: 100%; }
     .dish-title { font-size: 21px; font-weight: 800; line-height: 1.2; margin-bottom: 4px; }
     .dish-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; margin-bottom: 8px; }
@@ -573,7 +591,7 @@
       </div>
 
       <a href="https://www.lachuspaanuncios.com/" target="_blank" rel="noopener noreferrer" class="chuspa-nav-badge">
-        <img src="CHUSPITA-circulo.png" alt="La Chuspa" class="chuspa-nav-img" onerror="this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png'">
+        <img src="CHUSPITA-circulo.png" alt="La Chuspa" onerror="this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png'">
         <div class="chuspa-nav-info">
           <span class="chuspa-nav-title">La Chuspa Tech</span>
           <span class="chuspa-nav-sub">by La Chuspa</span>
@@ -660,7 +678,7 @@
     <div class="category-chips" id="categoryChips"></div>
   </div>
 
-  <!-- DEDO GESTUAL: REUBICADO ABAJO A LA IZQUIERDA SIN ESTORBAR LOS BOTONES -->
+  <!-- DEDO GESTUAL: CENTRADO EN PANTALLA, DE GRAN TAMAÑO Y LLAMATIVO -->
   <div class="gesture-hint-overlay" id="hintManoGestual">
     <i class="fa-solid fa-hand-pointer gesture-hand-icon"></i>
     <span class="gesture-hint-txt" id="lblSwipeUpHint">Desliza hacia arriba 👆</span>
