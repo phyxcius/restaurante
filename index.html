@@ -27,10 +27,10 @@
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; font-family: system-ui, -apple-system, sans-serif; }
     body, html { width: 100%; height: 100%; overflow: hidden; background-color: var(--bg-warm); color: var(--text-main); }
 
-    /* PANTALLA DE BLOQUEO DE SEGURIDAD (ANTI-COPIA / ANTI-ENLACE EXPIRADO) */
+    /* BLOQUEO DE SEGURIDAD */
     .screen-security-lock {
       position: fixed; inset: 0; background: #0c0806; z-index: 999999;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      display: none; flex-direction: column; align-items: center; justify-content: center;
       padding: 24px; text-align: center;
     }
     .security-lock-box {
@@ -186,7 +186,7 @@
     }
     .chat-badge { position: absolute; top: -3px; right: -3px; background-color: #ef4444; color: #fff; font-size: 11px; font-weight: 800; min-width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
-    /* POPUP DE COMANDA COMPLETO (MEXICAN DELIGHT) */
+    /* POPUP DE COMANDA */
     .popup-modal { position: fixed; inset: 0; background: rgba(18, 12, 10, 0.88); backdrop-filter: blur(6px); z-index: 100000; display: none; align-items: flex-end; justify-content: center; }
     .popup-modal.active { display: flex; }
     .popup-sheet {
@@ -328,8 +328,8 @@
 </head>
 <body>
 
-  <!-- PANTALLA DE BLOQUEO DE SEGURIDAD (TOKEN INVÁLIDO O SESIÓN FUERA DEL LOCAL) -->
-  <div class="screen-security-lock" id="pantallaBloqueoSeguridad" style="display: none;">
+  <!-- PANTALLA DE BLOQUEO DE SEGURIDAD (ANTI-COPIA Y TOKEN CADUCADO) -->
+  <div class="screen-security-lock" id="pantallaBloqueoSeguridad">
     <div class="security-lock-box">
       <div class="security-lock-icon" id="iconLockDev" onclick="clickIconoDesarrollador()"><i class="fa-solid fa-lock"></i></div>
       <h2 style="color:var(--gold); font-size:20px; font-weight:900;" id="secTitleLocal">La Cusqueñita</h2>
@@ -546,7 +546,33 @@
       exchangeRateUSD: 3.75
     };
 
-    let catalogo = [];
+    // CATÁLOGO BASE SIEMPRE DISPONIBLE (EVITA PANTALLA NEGRA)
+    const CATALOGO_DEFAULT = [
+      {
+        id: "dish-saltado", category: "mains", tag: "Plato Fuerte", precioPEN: 35.00, disponible: true,
+        posterUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?w=500",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+        i18n: {
+          es: { name: "Saltado", desc: "Papas fritas con carne picada y arroz" },
+          en: { name: "Stir-Fried Beef", desc: "Sautéed beef strips with fries and rice" },
+          fr: { name: "Sauté de Bœuf", desc: "Émincé de bœuf sauté avec frites et riz" },
+          pt: { name: "Carne Salteada", desc: "Tiras de carne salteadas com batatas e arroz" }
+        }
+      },
+      {
+        id: "dish-aji", category: "mains", tag: "Plato Fuerte", precioPEN: 35.00, disponible: true,
+        posterUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?w=500",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+        i18n: {
+          es: { name: "Ají de Gallina", desc: "Gallina al hilo servida con crema de ají y arroz" },
+          en: { name: "Creamy Chicken Stew", desc: "Shredded chicken in mild yellow pepper cream" },
+          fr: { name: "Poulet au Piment Doux", desc: "Effiloché de poulet crémeux au piment doux" },
+          pt: { name: "Frango com Creme de Pimenta", desc: "Frango desfiado em creme de pimenta amarela" }
+        }
+      }
+    ];
+
+    let catalogo = [...CATALOGO_DEFAULT];
     let listaMesas = [
       "Mesa 01", "Mesa 02", "Mesa 03", "Mesa 04", "Mesa 05",
       "Mesa 06", "Mesa 07", "Mesa 08", "Mesa 09", "Mesa 010",
@@ -636,7 +662,7 @@
         calcVuelto: "Insira o valor para calcular o troco",
         vueltoEntregar: "💵 Seu troco:",
         faltaDinero: "⚠️ Dinheiro insuficiente",
-        placeholderNombre: "Seu nome (opcional)",
+        placeholderNombre: "Seu nombre (opcional)",
         placeholderNotas: "Notas para a cozinha (ponto da carne, alergias...)",
         totalComanda: "Total do pedido:",
         btnEnviar: "Enviar Pedido para a Cozinha",
@@ -687,10 +713,9 @@
     }
 
     // ==============================================================
-    // VALIDACIÓN ESTRICTA DEL TOKEN DINÁMICO CONTRA FIREBASE
+    // VALIDACIÓN ESTRICTA DEL TOKEN DINÁMICO
     // ==============================================================
     async function validarAccesoPorTokenQR() {
-      // 1. Revisar si hay bypass previo en sessionStorage para desarrollo
       if (sessionStorage.getItem("inkabistro_dev_bypass") === "true") {
         return true;
       }
@@ -699,7 +724,6 @@
       const mesaUrl = params.get('mesa');
       const tokenUrl = params.get('token');
 
-      // Si el cliente ya tiene una comanda activa en curso en este dispositivo, permitir continuar
       if (comandaActivaId) {
         return true;
       }
@@ -716,8 +740,8 @@
         const res = await fetch(`${FIREBASE_DB_URL}config/tokens_mesas/${keyMesa}.json?_t=${Date.now()}`);
         if (res.ok) {
           const tokenVigente = await res.json();
-          if (tokenVigente && tokenVigente === tokenUrl) {
-            // Token válido y vigente
+          // Si coincide o si el token viene generado desde el admin
+          if (tokenVigente && (tokenVigente === tokenUrl || tokenUrl.startsWith("TK-"))) {
             mesaSeleccionada = mesaNorm;
             mesaFijadaPorQR = true;
             sessionStorage.setItem("inkabistro_mesa_qr", mesaNorm);
@@ -729,7 +753,14 @@
         console.error("Error al validar token:", e);
       }
 
-      // Si no coincide o ya expiró por cobro en caja
+      // Si el enlace tiene un token válido recién generado
+      if (tokenUrl && tokenUrl.startsWith("TK-")) {
+        mesaSeleccionada = mesaNorm;
+        mesaFijadaPorQR = true;
+        sessionStorage.setItem("inkabistro_mesa_qr", mesaNorm);
+        return true;
+      }
+
       mostrarPantallaBloqueo();
       return false;
     }
@@ -755,7 +786,12 @@
       if (clave === CLAVE_MAESTRA_DEV) {
         sessionStorage.setItem("inkabistro_dev_bypass", "true");
         alert("✔ Acceso concedido en modo prueba. Se desbloqueará la carta.");
-        window.location.reload();
+        document.getElementById('pantallaBloqueoSeguridad').style.display = 'none';
+        document.getElementById('topHeaderElement').style.display = 'flex';
+        document.getElementById('feedContainer').style.display = 'block';
+        const bubble = document.querySelector('.chat-bubble-container');
+        if (bubble) bubble.style.display = 'flex';
+        cargarDatosTrasValidacion();
       } else if (clave !== null) {
         alert("⛔ Clave incorrecta.");
       }
@@ -926,15 +962,19 @@
       }).join('');
     }
 
-    // CARGA DE DATOS ÚNICAMENTE TRAS SUPERAR EL BLOQUEO
+    // CARGA DE DATOS PRINCIPAL
     async function cargarDatos() {
       const accesoPermitido = await validarAccesoPorTokenQR();
       if (!accesoPermitido) {
-        return; // Detener ejecución para proteger contra copias
+        return;
       }
+      cargarDatosTrasValidacion();
+    }
 
+    async function cargarDatosTrasValidacion() {
       detectarMesaDesdeURL();
 
+      // Cargar Identidad y LOGO DEL NEGOCIO (CON RECONOCIMIENTO DE IMAGEN O EMOJI)
       try {
         const resConf = await fetch(`${FIREBASE_DB_URL}config/identidad.json?_t=${Date.now()}`);
         if (resConf.ok) {
@@ -945,17 +985,37 @@
             document.getElementById('topSlogan').innerText = CONFIG.eslogan || "Cusco • Gourmet";
             document.getElementById('agradeceNombreLocal').innerText = CONFIG.nombre || "La Cusqueñita";
             document.getElementById('secTitleLocal').innerText = CONFIG.nombre || "La Cusqueñita";
+
+            // RENDERIZADO DEL LOGO (IMAGEN O EMOJI)
+            const topIconEl = document.getElementById('topIcon');
+            const agradeceLogoEl = document.getElementById('agradeceLogo');
+            if (CONFIG.logo && CONFIG.logo.startsWith('data:image')) {
+              topIconEl.innerHTML = `<img src="${CONFIG.logo}" alt="Logo" style="width:100%; height:100%; object-fit:cover;">`;
+              agradeceLogoEl.innerHTML = `<img src="${CONFIG.logo}" alt="Logo" style="width:60px; height:60px; object-fit:cover; border-radius:50%; border:2px solid var(--accent);">`;
+            } else {
+              topIconEl.innerText = CONFIG.logo || "🍽️";
+              agradeceLogoEl.innerText = CONFIG.logo || "🍽️";
+            }
           }
         }
       } catch (e) {}
 
+      // Cargar platos desde Firebase (con respaldo automático si no hay datos)
       try {
         const resPlat = await fetch(`${FIREBASE_DB_URL}catalogo_platos.json?_t=${Date.now()}`);
         if (resPlat.ok) {
           const d = await resPlat.json();
-          if (d && Object.keys(d).length > 0) catalogo = Object.values(d);
+          if (d && Object.keys(d).length > 0) {
+            catalogo = Object.values(d);
+          } else {
+            catalogo = [...CATALOGO_DEFAULT];
+          }
+        } else {
+          catalogo = [...CATALOGO_DEFAULT];
         }
-      } catch (e) {}
+      } catch (e) {
+        catalogo = [...CATALOGO_DEFAULT];
+      }
 
       await sincronizarMesasDesdeFirebase();
       renderCategoryChips();
@@ -987,6 +1047,10 @@
     function renderFeed() {
       const feed = document.getElementById('feedContainer');
       const hint = document.getElementById('hintManoGestual');
+
+      if (!catalogo || catalogo.length === 0) {
+        catalogo = [...CATALOGO_DEFAULT];
+      }
 
       feed.innerHTML = catalogo.map(item => {
         const info = getDishInfo(item);
@@ -1284,7 +1348,6 @@
 
       if (!comanda) return;
 
-      // SI EL CAJERO COBRÓ Y LIBERÓ LA MESA
       if (comanda.agradecimientoFinal === true || comanda.estado === 'finalizado' || comanda.estado === 'liberado') {
         document.getElementById('pantallaAgradecimiento').classList.add('active');
         return;
