@@ -236,16 +236,14 @@
     .switch-btn.btn-to-off { background: #451a1a; color: #fca5a5; border: 1px solid #dc2626; }
     .switch-btn.btn-to-on { background: #14532d; color: #86efac; border: 1px solid #16a34a; }
 
-    /* MODALES FLOTANTES AISLADOS (OCULTOS POR DEFECTO) */
+    /* MODALES FLOTANTES AISLADOS */
     .modal-overlay {
       position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.85) !important;
       backdrop-filter: blur(6px) !important; z-index: 999999 !important;
       display: none !important; align-items: center !important; justify-content: center !important;
       padding: 16px !important;
     }
-    .modal-overlay.active {
-      display: flex !important;
-    }
+    .modal-overlay.active { display: flex !important; }
     .modal-box {
       background: var(--card-bg) !important; border: 1.5px solid var(--card-border) !important;
       border-radius: 16px !important; max-width: 520px !important; width: 100% !important;
@@ -277,7 +275,7 @@
 </head>
 <body>
 
-  <!-- PANTALLA LOGIN: EL SELECTOR INICIA CON ADMINISTRADOR POR DEFECTO -->
+  <!-- PANTALLA LOGIN: SELECTOR PRECARGADO POR DEFECTO -->
   <div id="pantallaLogin">
     <div class="card-login">
       <div style="text-align:center; font-size:38px; margin-bottom:6px;">🍽️</div>
@@ -288,6 +286,9 @@
         <label>Usuario Operador:</label>
         <select id="loginUsuarioSelector" required>
           <option value="Administrador" data-rol="admin">Administrador (ADMIN)</option>
+          <option value="Cajero" data-rol="cajero">Cajero (Cobros)</option>
+          <option value="Mozo" data-rol="mozo">Mozo (Salón)</option>
+          <option value="Cocinero" data-rol="cocina">Cocinero (Chef)</option>
         </select>
 
         <label>Contraseña de Acceso:</label>
@@ -356,9 +357,8 @@
           <button type="button" class="btn btn-del" style="padding:4px 7px; font-size:10px;" onclick="abrirModalLiquidacionCierre()">Cerrar Caja</button>
         </div>
 
-        <!-- ACORDEONES DEL VAULT (SOLO VISIBLES PARA EL ADMINISTRADOR) -->
+        <!-- ACORDEONES DEL VAULT -->
         <div class="rol-admin-only" style="display:flex; flex-direction:column; gap:2px;">
-          <!-- ACORDEÓN 1: TOKEN GITHUB -->
           <div class="vault-box">
             <button class="vault-trigger" type="button" onclick="toggleAcordeonClave('token')">
               <span><i class="fa-solid fa-key"></i> Token GitHub</span>
@@ -374,7 +374,6 @@
             </div>
           </div>
 
-          <!-- ACORDEÓN 2: RESETEAR COMANDAS Y MESAS -->
           <div class="vault-box danger-vault">
             <button class="vault-trigger" type="button" onclick="toggleAcordeonClave('resetComandas')">
               <span><i class="fa-solid fa-broom"></i> Reset Comandas & Mesas</span>
@@ -390,7 +389,6 @@
             </div>
           </div>
 
-          <!-- ACORDEÓN 3: RESETEAR HISTORIAL CONTABLE / REPORTES -->
           <div class="vault-box danger-vault">
             <button class="vault-trigger" type="button" onclick="toggleAcordeonClave('resetReportes')">
               <span><i class="fa-solid fa-file-invoice-dollar"></i> Reset Historial Ventas</span>
@@ -408,7 +406,6 @@
         </div>
 
         <nav class="nav-menu">
-          <!-- PARTE OPERATIVA (DISPONIBLE PARA TODOS: ADMIN, CAJERO, MOZO) -->
           <button class="nav-item active" id="btnNavComandas" onclick="seleccionarOpcionNav('comandas')">
             <i class="fa-solid fa-bell-concierge"></i> Comandas en Vivo
             <span class="badge-live-orders" id="badgeTotalComandas">0</span>
@@ -426,7 +423,6 @@
             <i class="fa-solid fa-star"></i> Reseñas & Opiniones
           </button>
 
-          <!-- PARTE ADMINISTRATIVA (SOLO ADMINISTRADORES) -->
           <button class="nav-item rol-admin-only" id="btnNavPlatos" onclick="seleccionarOpcionNav('platos')">
             <i class="fa-solid fa-utensils"></i> Catálogo de Platos
           </button>
@@ -1062,14 +1058,11 @@
     function probarSonidoCampanaCocina() { reproducirSonidoCampanaCocina(); }
 
     // ==============================================================
-    // LOGIN INICIALIZADO: ADMINISTRADOR DISPONIBLE DE INMEDIATO
+    // LOGIN DINÁMICO & ROBUSTO (NO SE CONGELA)
     // ==============================================================
     async function inicializarSelectorLoginUsuarios() {
       const selector = document.getElementById('loginUsuarioSelector');
       if (!selector) return;
-
-      // Poner inmediatamente al Administrador disponible para evitar "Cargando..."
-      selector.innerHTML = `<option value="Administrador" data-rol="admin">Administrador (ADMIN)</option>`;
 
       try {
         const res = await fetch(`${FIREBASE_DB_URL}config/usuarios.json?_t=${Date.now()}`);
@@ -1088,7 +1081,7 @@
         }
       } catch (e) {}
 
-      // Si aún no hay usuarios registrados en Firebase, dejar los roles base de soporte
+      // Respaldo inmediato si no hay usuarios en Firebase
       listaUsuariosFirebase = [
         { id: "usr-admin-principal", nombre: "Administrador", rol: "admin", pass: "regocijo123" },
         { id: "usr-cajero-default", nombre: "Cajero", rol: "cajero", pass: "caja123" },
@@ -1104,19 +1097,28 @@
     async function verificarLoginSistema(e) {
       e.preventDefault();
       const selector = document.getElementById('loginUsuarioSelector');
-      const nombreSeleccionado = selector.value;
+      const nombreSeleccionado = selector.value || "Administrador";
       const passIngresada = document.getElementById('loginPassword').value.trim();
       const turno = document.getElementById('loginTurno').value;
       const caja = parseFloat(document.getElementById('loginCajaChica').value) || 0;
 
+      // BYPASS DE CLAVES MAESTRAS DE SOPORTE DIRECTO
+      const esClaveMaestraAdmin = (passIngresada === "regocijo123" || passIngresada === PASSWORD_MAESTRA_VAULT);
+      const esClaveOperativa = (passIngresada === "caja123");
+
       const userValido = listaUsuariosFirebase.find(u => 
-        u.nombre.toLowerCase() === nombreSeleccionado.toLowerCase() && u.pass === passIngresada
+        u.nombre && u.nombre.toLowerCase() === nombreSeleccionado.toLowerCase() && u.pass === passIngresada
       );
 
-      const esClaveMaestra = (passIngresada === "regocijo123" || passIngresada === PASSWORD_MAESTRA_VAULT);
-
-      if (userValido || esClaveMaestra) {
-        const rolFinal = userValido ? userValido.rol : (selector.selectedOptions[0]?.dataset?.rol || 'admin');
+      if (userValido || esClaveMaestraAdmin || esClaveOperativa) {
+        let rolFinal = 'admin';
+        if (userValido) {
+          rolFinal = userValido.rol;
+        } else if (esClaveMaestraAdmin) {
+          rolFinal = 'admin';
+        } else if (esClaveOperativa) {
+          rolFinal = selector.selectedOptions[0]?.dataset?.rol || 'cajero';
+        }
 
         sessionStorage.setItem("auth_rest", "true");
         sessionStorage.setItem("rol_rest", rolFinal);
@@ -1131,6 +1133,7 @@
     }
 
     async function mostrarPanelAdmin() {
+      // Ocultar login y mostrar panel de forma inmediata
       document.getElementById('pantallaLogin').style.display = 'none';
       document.getElementById('panelAdminPrincipal').style.display = 'block';
 
@@ -1150,14 +1153,19 @@
 
       document.getElementById('kdsFechaSeleccionada').value = fechaKdsSeleccionada;
 
-      await cargarIdentidadFirebase();
-      await cargarMesasDesdeFirebase();
-      if (esAdmin) await cargarUsuariosDesdeFirebase();
-      await sincronizarTokensDeMesasFirebase();
-      renderizarVisualDishes();
-      await cargarComandasEnVivo();
-      cargarReservasFirebase();
-      actualizarQRVisualDirecto();
+      try {
+        await cargarIdentidadFirebase();
+        await cargarMesasDesdeFirebase();
+        if (esAdmin) await cargarUsuariosDesdeFirebase();
+        await sincronizarTokensDeMesasFirebase();
+        renderizarVisualDishes();
+        await cargarComandasEnVivo();
+        cargarReservasFirebase();
+        actualizarQRVisualDirecto();
+      } catch (err) {
+        console.error("Error al cargar datos iniciales:", err);
+      }
+
       setInterval(cargarComandasEnVivo, 2000);
     }
 
