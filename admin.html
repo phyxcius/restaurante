@@ -41,17 +41,32 @@
       padding: 12px; margin-top: 10px;
     }
 
+    /* TOP BAR CON SELLO LA CHUSPA TECH Y ANIMACIÓN DE NUEVA COMANDA */
     .top-admin-bar {
       display: flex; background: #190f0c; border-bottom: 1.5px solid var(--card-border);
-      padding: 10px 14px; align-items: center; justify-content: space-between;
-      position: sticky; top: 0; z-index: 150; width: 100%;
+      padding: 8px 14px; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 150; width: 100%; transition: background-color 0.4s ease;
     }
+    .top-admin-bar.alerta-nueva-orden {
+      background-color: #854d0e !important;
+      animation: alertFlash 1s infinite alternate;
+    }
+    @keyframes alertFlash { 0% { border-bottom-color: #ef4444; } 100% { border-bottom-color: #fde047; } }
+
     .btn-toggle-global {
       background: linear-gradient(135deg, var(--primary), var(--accent));
       color: #fff; border: 1px solid var(--gold); border-radius: 8px;
       padding: 7px 12px; font-size: 13px; font-weight: 800; cursor: pointer;
       display: inline-flex; align-items: center; gap: 6px;
     }
+
+    .top-brand-center { display: flex; align-items: center; gap: 10px; }
+    .top-chuspa-badge {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(254, 252, 232, 0.12); border: 1px solid rgba(234, 179, 8, 0.45);
+      padding: 3px 8px 3px 5px; border-radius: 20px; text-decoration: none;
+    }
+    .top-chuspa-badge img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; background: #fff; }
 
     .admin-layout {
       display: grid; grid-template-columns: 290px 1fr; min-height: calc(100vh - 54px); width: 100%;
@@ -191,6 +206,12 @@
     .badge-servido { background: #16a34a; color: #fff; }
     .badge-finalizado { background: #4b5563; color: #e5e7eb; }
 
+    /* ORDEN DE LLEGADA / N° DE COMANDA PARA EL CHEF */
+    .chef-order-priority-badge {
+      background: #78350f; color: #fde047; border: 1.5px solid #f59e0b;
+      font-size: 11px; font-weight: 900; padding: 3px 8px; border-radius: 8px; display: inline-flex; align-items: center; gap: 4px;
+    }
+
     .order-items-box { font-size: 14px; font-weight: 800; color: #fde047; line-height: 1.4; padding: 4px 0; }
     .order-notes-tag { font-size: 12px; color: #fca5a5; background: rgba(0,0,0,0.3); padding: 5px 8px; border-radius: 6px; border-left: 3px solid #f87171; }
     .order-bottom-bar { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 8px; font-size: 12.5px; }
@@ -296,12 +317,21 @@
 
   <!-- DASHBOARD PRINCIPAL -->
   <div id="panelAdminPrincipal" style="display: none;">
-    <header class="top-admin-bar no-print">
+    <header class="top-admin-bar no-print" id="mainAdminHeaderBar">
       <button type="button" class="btn-toggle-global" onclick="toggleSidebarMenu()">
         <i class="fa-solid fa-bars"></i> <span>Menú</span>
       </button>
-      <div style="font-weight:900; font-size:14px; color:var(--gold);" id="topBarTitle">La Cusqueñita</div>
-      <button type="button" onclick="probarSonidoUber()" style="background:none; border:none; color:var(--gold); font-size:17px; cursor:pointer;" title="Alerta Sonora"><i class="fa-solid fa-volume-high"></i></button>
+
+      <div class="top-brand-center">
+        <div style="font-weight:900; font-size:14px; color:var(--gold);" id="topBarTitle">La Cusqueñita</div>
+        <!-- LOGO Y ENLACE DE LA CHUSPA TECH AL LADO DEL NOMBRE DEL NEGOCIO -->
+        <a href="https://www.lachuspaanuncios.com/" target="_blank" class="top-chuspa-badge" title="Desarrollado con La Chuspa Tech">
+          <img src="CHUSPITA-circulo.png" alt="La Chuspa" onerror="this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png'">
+          <span style="font-size:10px; font-weight:900; color:#fde047;">La Chuspa Tech</span>
+        </a>
+      </div>
+
+      <button type="button" onclick="probarSonidoCampanaCocina()" style="background:none; border:none; color:var(--gold); font-size:17px; cursor:pointer;" title="Probar Campana de Cocina"><i class="fa-solid fa-bell"></i></button>
     </header>
 
     <div class="admin-layout" id="adminLayoutWrapper">
@@ -375,7 +405,7 @@
           </button>
           
           <button class="nav-item rol-admin-only" id="btnNavIdentidad" onclick="seleccionarOpcionNav('identidad')">
-            <i class="fa-solid fa-store"></i> Identidad & SUNAT
+            <i class="fa-solid fa-store"></i> Identidad & Redes Sociales
           </button>
           
           <button class="nav-item rol-admin-only" id="btnNavReportes" onclick="seleccionarOpcionNav('reportes')">
@@ -405,7 +435,7 @@
           <div class="view-header">
             <div>
               <h1>🛎️ Pantalla KDS: Control de Comandas</h1>
-              <p>Monitoreo diario. Al empezar el día, el tablero inicia en limpio.</p>
+              <p>Orden de llegada por turno (#01, #02...) para el despacho del chef.</p>
             </div>
             <button class="btn btn-add" onclick="cargarComandasEnVivo()"><i class="fa-solid fa-rotate"></i> Actualizar</button>
           </div>
@@ -517,9 +547,9 @@
           <div class="dishes-grid" id="dishesVisualGrid"></div>
         </section>
 
-        <!-- 4. IDENTIDAD Y SUNAT (CON LOGO) -->
+        <!-- 4. IDENTIDAD, SUNAT Y REDES SOCIALES -->
         <section id="viewIdentidad" style="display:none;">
-          <div class="view-header"><h1>🏪 Identidad del Negocio & Logo</h1></div>
+          <div class="view-header"><h1>🏪 Identidad del Negocio & Redes Sociales</h1></div>
           <div class="card">
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
               <div>
@@ -546,14 +576,38 @@
               </div>
             </div>
 
-            <label>Subir Nuevo Logo (PNG o JPG):</label>
+            <!-- REDES SOCIALES Y CONTACTO -->
+            <div style="border-top:1px dashed rgba(255,255,255,0.15); margin-top:14px; padding-top:10px;">
+              <strong style="color:var(--gold); font-size:13px;"><i class="fa-solid fa-share-nodes"></i> Redes Sociales & Contacto (Se mostrarán al cliente):</strong>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px;">
+                <div>
+                  <label>WhatsApp Oficial:</label>
+                  <input type="text" id="cfgWhatsapp" placeholder="51969773064">
+                </div>
+                <div>
+                  <label>Enlace Facebook:</label>
+                  <input type="text" id="cfgFacebook" placeholder="https://facebook.com/tupagina">
+                </div>
+                <div>
+                  <label>Enlace Instagram:</label>
+                  <input type="text" id="cfgInstagram" placeholder="https://instagram.com/tuperfil">
+                </div>
+                <div>
+                  <label>Enlace TikTok:</label>
+                  <input type="text" id="cfgTiktok" placeholder="https://tiktok.com/@tuusuario">
+                </div>
+              </div>
+            </div>
+
+            <!-- LOGO DEL NEGOCIO -->
+            <label style="margin-top:14px;">Subir Nuevo Logo (PNG o JPG):</label>
             <input type="file" id="cfgLogoFileInput" accept="image/*" onchange="convertirLogoABase64(event)">
             <div style="margin-top:8px; display:flex; align-items:center; gap:10px;">
               <span style="font-size:12px; color:#aaa;">Logo Actual:</span>
               <div id="previewCurrentLogo" class="brand-avatar" style="width:46px; height:46px;">🍽️</div>
             </div>
 
-            <button class="btn btn-save" style="margin-top:16px; width:100%;" onclick="guardarIdentidadFirebase()"><i class="fa-solid fa-floppy-disk"></i> Guardar Identidad & Logo</button>
+            <button class="btn btn-save" style="margin-top:16px; width:100%;" onclick="guardarIdentidadFirebase()"><i class="fa-solid fa-floppy-disk"></i> Guardar Identidad, Logo & Redes</button>
           </div>
         </section>
 
@@ -656,7 +710,7 @@
           </div>
         </section>
 
-        <!-- 6. QR MESAS CON ENLACES PROTEGIDOS POR TOKEN -->
+        <!-- 6. QR MESAS CON TOKENS DINÁMICOS -->
         <section id="viewMesas" style="display:none;">
           <div class="view-header">
             <div>
@@ -676,7 +730,6 @@
               </div>
             </div>
 
-            <!-- BOTONES DE PRUEBA Y ENLACE SEGURO -->
             <div style="display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;">
               <button type="button" class="btn btn-save" style="flex:1;" onclick="abrirMenuConTokenActivo()">
                 <i class="fa-solid fa-arrow-up-right-from-square"></i> 🔗 Probar Menú con Token Activo
@@ -770,7 +823,7 @@
     </div>
   </div>
 
-  <!-- MODAL DE COBRO -->
+  <!-- MODAL DE COBRO DE MESA (SOLO COBRAR HA SIDO ANULADO) -->
   <div class="modal-overlay" id="modalCobroMesa">
     <div class="modal-box">
       <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -817,11 +870,9 @@
 
       <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;">
         <button class="btn btn-del" onclick="cerrarModalCobro()">Cancelar</button>
-        <button class="btn btn-save" style="background:linear-gradient(135deg, #15803d, #22c55e);" onclick="confirmarCobroFinalizado(true)">
-          <i class="fa-solid fa-print"></i> Cobrar e Imprimir
-        </button>
-        <button class="btn btn-save" onclick="confirmarCobroFinalizado(false)">
-          <i class="fa-solid fa-check"></i> Solo Cobrar
+        <!-- ÚNICA OPCIÓN: COBRAR E IMPRIMIR COMPROBANTE -->
+        <button class="btn btn-save" style="background:linear-gradient(135deg, #15803d, #22c55e); width:100%;" onclick="confirmarCobroFinalizado()">
+          <i class="fa-solid fa-print"></i> Cobrar e Imprimir Comprobante Fiscal
         </button>
       </div>
     </div>
@@ -854,6 +905,9 @@
       igv: 18,
       logo: "🍽️",
       whatsapp: "51969773064",
+      facebook: "https://facebook.com",
+      instagram: "https://instagram.com",
+      tiktok: "https://tiktok.com",
       yapePhone: "+51 987 654 321"
     };
 
@@ -876,7 +930,7 @@
     let vaultTokenDesbloqueado = false;
     let vaultResetDesbloqueado = false;
 
-    // AUDIO
+    // SONIDO CAMPANA DE COCINA (ALERTA VISUAL Y SONORA)
     let audioCtx = null;
     function asegurarAudioCtx() {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -884,35 +938,36 @@
     }
     window.addEventListener('click', asegurarAudioCtx, { once: true });
 
-    function reproducirSonidoUberInDriver() {
+    function reproducirSonidoCampanaCocina() {
       try {
         asegurarAudioCtx();
         if (!audioCtx) return;
-        const osc1 = audioCtx.createOscillator();
-        const gain1 = audioCtx.createGain();
-        osc1.type = "sine";
-        osc1.frequency.setValueAtTime(587.33, audioCtx.currentTime);
-        osc1.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
-        gain1.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        gain1.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-        osc1.connect(gain1);
-        gain1.connect(audioCtx.destination);
-        osc1.start(audioCtx.currentTime);
-        osc1.stop(audioCtx.currentTime + 0.22);
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
 
-        const osc2 = audioCtx.createOscillator();
-        const gain2 = audioCtx.createGain();
-        osc2.type = "triangle";
-        osc2.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.12);
-        gain2.gain.setValueAtTime(0.35, audioCtx.currentTime + 0.12);
-        gain2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.45);
-        osc2.connect(gain2);
-        gain2.connect(audioCtx.destination);
-        osc2.start(audioCtx.currentTime + 0.12);
-        osc2.stop(audioCtx.currentTime + 0.48);
+        // Tono agudo y brillante de campana de cocina (1760Hz -> La6)
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(1760, now);
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.8);
+
+        gain.gain.setValueAtTime(0.4, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.85);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.9);
+
+        // Alerta visual en la barra superior
+        const bar = document.getElementById('mainAdminHeaderBar');
+        if (bar) {
+          bar.classList.add('alerta-nueva-orden');
+          setTimeout(() => bar.classList.remove('alerta-nueva-orden'), 3500);
+        }
       } catch (e) {}
     }
-    function probarSonidoUber() { reproducirSonidoUberInDriver(); }
+    function probarSonidoCampanaCocina() { reproducirSonidoCampanaCocina(); }
 
     function verificarLoginSistema(e) {
       e.preventDefault();
@@ -1007,9 +1062,7 @@
       if (s === 'resenas') cargarResenasFirebase();
     }
 
-    // ==============================================================
-    // GENERACIÓN Y SINCRONIZACIÓN DE TOKENS DINÁMICOS POR MESA
-    // ==============================================================
+    // TOKENS DINÁMICOS POR MESA
     function generarTokenAleatorio() {
       return "TK-" + Math.random().toString(36).substring(2, 8).toUpperCase() + "-" + Date.now().toString(36).toUpperCase();
     }
@@ -1264,6 +1317,11 @@
       document.getElementById('cfgRuc').value = configRestaurante.ruc || "20601234567";
       document.getElementById('cfgDireccion').value = configRestaurante.direccion || "";
       document.getElementById('cfgIgvTasa').value = configRestaurante.igv || 18;
+      document.getElementById('cfgWhatsapp').value = configRestaurante.whatsapp || "51969773064";
+      document.getElementById('cfgFacebook').value = configRestaurante.facebook || "";
+      document.getElementById('cfgInstagram').value = configRestaurante.instagram || "";
+      document.getElementById('cfgTiktok').value = configRestaurante.tiktok || "";
+
       document.getElementById('headerBusinessName').innerText = configRestaurante.nombre;
       document.getElementById('topBarTitle').innerText = configRestaurante.nombre;
       document.getElementById('repLocalRazonSocial').innerText = configRestaurante.nombre;
@@ -1300,13 +1358,17 @@
       configRestaurante.ruc = document.getElementById('cfgRuc').value.trim();
       configRestaurante.direccion = document.getElementById('cfgDireccion').value.trim();
       configRestaurante.igv = parseFloat(document.getElementById('cfgIgvTasa').value) || 18;
+      configRestaurante.whatsapp = document.getElementById('cfgWhatsapp').value.trim();
+      configRestaurante.facebook = document.getElementById('cfgFacebook').value.trim();
+      configRestaurante.instagram = document.getElementById('cfgInstagram').value.trim();
+      configRestaurante.tiktok = document.getElementById('cfgTiktok').value.trim();
 
       await fetch(`${FIREBASE_DB_URL}config/identidad.json`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(configRestaurante)
       });
-      alert("✔ Identidad y Logo guardados con éxito. Se actualizará en index.html.");
+      alert("✔ Identidad, Logo y Redes Sociales guardadas con éxito.");
       cargarIdentidadFirebase();
     }
 
@@ -1430,7 +1492,7 @@
       renderizarListaKDSFiltrada();
     }
 
-    // COMANDAS EN VIVO
+    // COMANDAS EN VIVO Y CONTROL DE ALERTA DE CAMPANA
     async function cargarComandasEnVivo() {
       const grid = document.getElementById('liveOrdersGrid');
       const monitorGrid = document.getElementById('tablesMonitorGrid');
@@ -1451,16 +1513,20 @@
         }
       } catch (e) {}
 
-      comandas.sort((a, b) => String(b.id || "").localeCompare(String(a.id || "")));
+      // Ordenar por orden de llegada (timestamp o número de turno)
+      comandas.sort((a, b) => (a.timestampOrden || 0) - (b.timestampOrden || 0));
       todasLasComandasCache = comandas;
 
       const activasSinCobro = comandas.filter(c => String(c.estado || "").toLowerCase() !== 'finalizado');
+      
+      // ALERTA SONORA DE CAMPANA CUANDO ENTRA NUEVA COMANDA
       if (activasSinCobro.length > totalComandasPrevias && totalComandasPrevias !== 0) {
-        reproducirSonidoUberInDriver();
+        reproducirSonidoCampanaCocina();
       }
       totalComandasPrevias = activasSinCobro.length;
       document.getElementById('badgeTotalComandas').innerText = activasSinCobro.length;
 
+      // PINTAR MONITOR DE MESAS
       const mesasOcupadas = activasSinCobro.map(c => normalizarNombreMesa(c.mesa || ''));
       monitorGrid.innerHTML = listaMesasDinamicas.map(m => {
         const estaOcupada = mesasOcupadas.includes(normalizarNombreMesa(m));
@@ -1489,6 +1555,7 @@
       renderizarListaKDSFiltrada();
     }
 
+    // RENDERIZADO KDS CON NÚMERO DE ORDEN PARA EL CHEF
     function renderizarListaKDSFiltrada() {
       const grid = document.getElementById('liveOrdersGrid');
       if (!grid) return;
@@ -1553,7 +1620,7 @@
         return;
       }
 
-      grid.innerHTML = filtradas.map(c => {
+      grid.innerHTML = filtradas.map((c, index) => {
         let estado = String(c.estado || 'iniciado').toLowerCase();
         if (estado === 'por_confirmar') estado = 'iniciado';
 
@@ -1566,15 +1633,21 @@
         let badgeTexto = "Iniciado";
         let badgeClase = "badge-iniciado";
 
-        if (estado === 'cocina') { badgeTexto = "🍳 En Proceso"; badgeClase = "badge-cocina"; }
+        if (estado === 'cocina') { badgeTexto = "🍳 En Proceso (Cocina)"; badgeClase = "badge-cocina"; }
         else if (estado === 'servido') { badgeTexto = "✅ Recibido en Mesa"; badgeClase = "badge-servido"; }
         else if (estado === 'finalizado') { badgeTexto = "🏁 Finalizado"; badgeClase = "badge-finalizado"; }
+
+        // Número de comanda / orden de llegada para el chef
+        const numTurno = c.numeroTurno || (index + 1);
 
         return `
           <div class="order-card estado-${estado} ${pagandoClass}">
             <div class="order-card-header">
               <div>
-                <strong style="font-size:16px; color:#fff;">${cliente}</strong>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span class="chef-order-priority-badge"><i class="fa-solid fa-list-ol"></i> Orden #${numTurno < 10 ? '0' + numTurno : numTurno}</span>
+                  <strong style="font-size:16px; color:#fff;">${cliente}</strong>
+                </div>
                 <div style="font-size:11px; color:#aaa; margin-top:2px;">${c.id} • ${c.fecha || ''}</div>
               </div>
               <span class="order-status-badge ${badgeClase}">${badgeTexto}</span>
@@ -1597,7 +1670,7 @@
             <div class="order-actions-container">
               ${(estado === 'iniciado') ? `
                 <button type="button" class="btn-action-confirm" onclick="cambiarEstadoFirebase('${c.id}', 'cocina')">
-                  <i class="fa-solid fa-utensils"></i> En Proceso
+                  <i class="fa-solid fa-utensils"></i> En Proceso (Cocina)
                 </button>
               ` : ''}
 
@@ -1644,7 +1717,7 @@
       alert("✔ Notificación enviada al cliente en index.");
     }
 
-    // COBRO Y REGENERACIÓN DE TOKEN
+    // MODAL DE COBRO DE MESA
     async function abrirModalCobroComanda(idComanda) {
       let comanda = todasLasComandasCache.find(c => c.id === idComanda);
       if (!comanda) {
@@ -1669,7 +1742,8 @@
       document.getElementById('cajaDatosFactura').style.display = (tipo === 'Factura') ? 'block' : 'none';
     }
 
-    async function confirmarCobroFinalizado(imprimirComprobante = false) {
+    // COBRO FINALIZADO CON IMPRESIÓN OBLIGATORIA
+    async function confirmarCobroFinalizado() {
       if (!comandaCobrandoActual) return;
 
       const operador = sessionStorage.getItem("nombre_operador") || "Cajero";
@@ -1715,10 +1789,7 @@
       await regenerarTokenMesa(comandaCobrandoActual.mesa);
 
       cerrarModalCobro();
-
-      if (imprimirComprobante) {
-        imprimirComprobanteFiscalDirecto(venta);
-      }
+      imprimirComprobanteFiscalDirecto(venta);
 
       alert("✔ Venta cobrada y pasada a FINALIZADO. La mesa quedó libre y su token fue renovado.");
       await cargarComandasEnVivo();
