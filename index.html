@@ -16,7 +16,6 @@
       --text-muted: #d6cbbf;
       --gold-badge: #fbbf24;
 
-      /* PALETA DE LA TARJETA (MEXICAN DELIGHT) */
       --modal-bg: #eab308;
       --modal-green: #4d7c0f;
       --modal-green-dark: #365314;
@@ -27,7 +26,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; font-family: system-ui, -apple-system, sans-serif; }
     body, html { width: 100%; height: 100%; overflow: hidden; background-color: var(--bg-warm); color: var(--text-main); }
 
-    /* BLOQUEO DE SEGURIDAD */
+    /* PANTALLA DE BLOQUEO DE SEGURIDAD */
     .screen-security-lock {
       position: fixed; inset: 0; background: #0c0806; z-index: 999999;
       display: none; flex-direction: column; align-items: center; justify-content: center;
@@ -79,7 +78,7 @@
     .select-pill { background: var(--glass-panel); border: 1px solid var(--glass-border); color: #fff; padding: 4px 6px; border-radius: 14px; font-size: 10.5px; font-weight: 700; outline: none; }
     .icon-pill-btn { width: 30px; height: 30px; border-radius: 50%; background: var(--glass-panel); border: 1px solid var(--glass-border); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; }
 
-    /* TARJETA KDS EN VIVO */
+    /* TARJETA KDS EN VIVO CON SEGUIMIENTO DE COLA Y ORDEN DE LLEGADA */
     .kds-tracking-card {
       display: none; width: calc(100% - 10px); margin: 0 auto;
       padding: 10px 12px; border-radius: 12px; backdrop-filter: blur(12px);
@@ -96,13 +95,27 @@
       box-shadow: 0 0 18px rgba(236, 72, 153, 0.45);
     }
 
-    .kds-tracking-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
+    .kds-tracking-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
     .kds-status-badge { font-size: 10.5px; font-weight: 900; text-transform: uppercase; padding: 2px 7px; border-radius: 5px; }
-    .badge-por_confirmar { background: #f59e0b; color: #000; }
+    .badge-por_confirmar, .badge-iniciado { background: #f59e0b; color: #000; }
     .badge-cocina { background: #0284c7; color: #fff; }
     .badge-servido { background: #16a34a; color: #fff; }
-    .badge-camino_a_caja { background: #ec4899; color: #fff; animation: pulseBadge 1.5s infinite; }
-    @keyframes pulseBadge { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+    .badge-camino_a_caja { background: #ec4899; color: #fff; }
+
+    /* BANNER DE TURNO EN ESPERA */
+    .kds-turno-badge {
+      background: linear-gradient(135deg, #f59e0b, #d97706); color: #000;
+      font-size: 11px; font-weight: 900; padding: 2px 8px; border-radius: 12px;
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+
+    .kds-cola-info-box {
+      background: rgba(0,0,0,0.4); border: 1px dashed rgba(245, 158, 11, 0.4);
+      border-radius: 8px; padding: 6px 8px; margin: 6px 0; font-size: 11px;
+    }
+    .kds-cola-live-ticker {
+      font-size: 10px; color: #86efac; font-weight: bold; margin-top: 3px; display: flex; align-items: center; gap: 4px;
+    }
 
     .kds-msg-text { font-size: 11.5px; color: #eee; line-height: 1.25; }
     .kds-details-row { font-size: 10.5px; color: #bbb; display: flex; justify-content: space-between; margin-top: 4px; }
@@ -299,15 +312,16 @@
       justify-content: center; gap: 8px; box-shadow: 0 6px 18px rgba(77, 124, 15, 0.4); width: 100%;
     }
 
-    /* PANTALLA AGRADECIMIENTO */
+    /* PANTALLA AGRADECIMIENTO INTEGRADA CON REDES Y LA CHUSPA TECH */
     .screen-agradecimiento-overlay {
       position: fixed; inset: 0; background: rgba(18, 12, 10, 0.96); backdrop-filter: blur(10px);
-      z-index: 200000; display: none; align-items: center; justify-content: center; padding: 24px; text-align: center;
+      z-index: 200000; display: none; align-items: center; justify-content: center; padding: 20px; text-align: center;
     }
     .screen-agradecimiento-overlay.active { display: flex; }
     .box-agradecimiento {
-      background: #241712; border: 2px solid var(--accent); border-radius: 20px; max-width: 400px; width: 100%;
-      padding: 26px 20px; display: flex; flex-direction: column; align-items: center; gap: 12px; position: relative;
+      background: #241712; border: 2px solid var(--accent); border-radius: 22px; max-width: 410px; width: 100%;
+      padding: 22px 18px; display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative;
+      max-height: 94dvh; overflow-y: auto;
     }
     .btn-close-thanks {
       position: absolute; top: 12px; right: 14px; background: none; border: none;
@@ -315,20 +329,49 @@
     }
     .btn-close-thanks:hover { color: #fff; }
 
+    .agradece-logo-wrap {
+      width: 64px; height: 64px; border-radius: 50%; overflow: hidden; background: #000;
+      border: 2px solid var(--gold-badge); display: flex; align-items: center; justify-content: center; font-size: 32px;
+    }
+    .agradece-logo-wrap img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* REDES SOCIALES DEL RESTAURANTE */
+    .social-links-grid {
+      display: flex; justify-content: center; gap: 10px; margin-top: 6px; width: 100%; flex-wrap: wrap;
+    }
+    .btn-social-icon {
+      width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 18px; text-decoration: none; transition: transform 0.2s ease;
+    }
+    .btn-social-icon:active { transform: scale(0.9); }
+    .btn-social-wa { background: #25d366; }
+    .btn-social-fb { background: #1877f2; }
+    .btn-social-ig { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285aeb 90%); }
+    .btn-social-tk { background: #000; border: 1px solid #333; }
+
+    /* SELLO LA CHUSPA TECH */
+    .chuspa-tech-card-footer {
+      background: rgba(254, 252, 232, 0.08); border: 1px dashed rgba(234, 179, 8, 0.45);
+      border-radius: 12px; padding: 9px 12px; width: 100%; margin-top: 6px;
+      display: flex; align-items: center; justify-content: space-between; text-decoration: none;
+    }
+    .chuspa-tech-footer-left { display: flex; align-items: center; gap: 8px; text-align: left; }
+    .chuspa-tech-footer-img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #ca8a04; background: #fff; }
+
     .btn-ir-reservas {
       background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; border: none;
-      padding: 12px 18px; border-radius: 20px; font-weight: 900; font-size: 13.5px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
+      padding: 10px 16px; border-radius: 20px; font-weight: 900; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
     }
     .btn-salir-limpiar {
-      background: #374151; color: #f3f4f6; border: 1px solid #4b5563; padding: 11px 16px;
-      border-radius: 20px; font-weight: 800; font-size: 13px; cursor: pointer; width: 100%; margin-top: 6px;
+      background: #374151; color: #f3f4f6; border: 1px solid #4b5563; padding: 10px 16px;
+      border-radius: 20px; font-weight: 800; font-size: 12.5px; cursor: pointer; width: 100%;
     }
     .btn-salir-limpiar:hover { background: #4b5563; }
   </style>
 </head>
 <body>
 
-  <!-- PANTALLA DE BLOQUEO DE SEGURIDAD (ANTI-COPIA Y TOKEN CADUCADO) -->
+  <!-- PANTALLA DE BLOQUEO DE SEGURIDAD (ANTI-COPIA / TOKEN CADUCADO) -->
   <div class="screen-security-lock" id="pantallaBloqueoSeguridad">
     <div class="security-lock-box">
       <div class="security-lock-icon" id="iconLockDev" onclick="clickIconoDesarrollador()"><i class="fa-solid fa-lock"></i></div>
@@ -346,28 +389,55 @@
     </div>
   </div>
 
-  <!-- PANTALLA AGRADECIMIENTO TRAS COBRO -->
+  <!-- PANTALLA AGRADECIMIENTO TRAS COBRO (CON REDES SOCIALES Y LA CHUSPA TECH) -->
   <div class="screen-agradecimiento-overlay" id="pantallaAgradecimiento">
     <div class="box-agradecimiento">
       <button type="button" class="btn-close-thanks" onclick="reiniciarNavegadorLimpio()" title="Cerrar y volver">&times;</button>
       
-      <div id="agradeceLogo" style="font-size:46px;">🍽️</div>
-      <h2 style="color:var(--gold); font-size:22px; font-weight:900;" id="agradeceNombreLocal">La Cusqueñita</h2>
-      <p style="font-size:13.5px; color:#ddd; line-height:1.5;">
+      <div class="agradece-logo-wrap" id="agradeceLogoWrap">🍽️</div>
+      <h2 style="color:var(--gold); font-size:20px; font-weight:900;" id="agradeceNombreLocal">La Cusqueñita</h2>
+      
+      <p style="font-size:12.5px; color:#ddd; line-height:1.4;">
         ¡Muchas gracias por tu visita! Tu comanda ha sido cancelada y la mesa ha quedado libre. Esperamos que hayas disfrutado tu experiencia gastronómica.
       </p>
 
-      <div style="background:rgba(255,255,255,0.06); padding:12px; border-radius:12px; width:100%; margin-top:4px;">
-        <span style="font-size:12px; color:#fde047; font-weight:800; display:block; margin-bottom:8px;">
-          ¿Planeas volver? Reserva tu mesa para Eventos, Grupos o Familias
+      <!-- CONTACTO Y REDES SOCIALES DEL RESTAURANTE -->
+      <div style="width:100%; border-top:1px dashed rgba(255,255,255,0.15); padding-top:8px;">
+        <span style="font-size:11.5px; color:#fde047; font-weight:800; display:block;">
+          <i class="fa-solid fa-phone"></i> Contacto: <span id="agradeceContactoTxt">+51 969 773 064</span>
+        </span>
+        <div class="social-links-grid" id="agradeceSocialLinks">
+          <a href="https://wa.me/51969773064" target="_blank" class="btn-social-icon btn-social-wa" id="linkSocialWa"><i class="fa-brands fa-whatsapp"></i></a>
+          <a href="#" target="_blank" class="btn-social-icon btn-social-fb" id="linkSocialFb"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="#" target="_blank" class="btn-social-icon btn-social-ig" id="linkSocialIg"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#" target="_blank" class="btn-social-icon btn-social-tk" id="linkSocialTk"><i class="fa-brands fa-tiktok"></i></a>
+        </div>
+      </div>
+
+      <!-- RESERVAS -->
+      <div style="background:rgba(255,255,255,0.06); padding:10px; border-radius:12px; width:100%; margin-top:2px;">
+        <span style="font-size:11px; color:#fde047; font-weight:800; display:block; margin-bottom:6px;">
+          ¿Planeas volver? Reserva tu mesa para Eventos o Familias
         </span>
         <a href="reservas.html" class="btn-ir-reservas">
           <i class="fa-solid fa-calendar-check"></i> Ir al Catálogo de Reservas
         </a>
       </div>
 
+      <!-- SELLO Y LOGO DE LA CHUSPA TECH -->
+      <a href="https://www.lachuspaanuncios.com/" target="_blank" class="chuspa-tech-card-footer">
+        <div class="chuspa-tech-footer-left">
+          <img src="CHUSPITA-circulo.png" alt="La Chuspa" class="chuspa-tech-footer-img" onerror="this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png'">
+          <div>
+            <div style="font-size:11px; font-weight:900; color:#fde047;">Tecnología La Chuspa Tech</div>
+            <div style="font-size:9px; color:#fed7aa;">Digitalización de restaurantes en Cusco</div>
+          </div>
+        </div>
+        <i class="fa-solid fa-arrow-up-right-from-square" style="color:#fde047; font-size:12px;"></i>
+      </a>
+
       <button type="button" class="btn-salir-limpiar" onclick="reiniciarNavegadorLimpio()">
-        <i class="fa-solid fa-rotate-right"></i> No gracias, finalizar y salir
+        <i class="fa-solid fa-rotate-right"></i> Finalizar y salir
       </button>
     </div>
   </div>
@@ -402,13 +472,27 @@
       </div>
     </div>
 
-    <!-- TARJETA KDS EN VIVO -->
+    <!-- TARJETA KDS EN VIVO CON TURNO Y COLA DEL CHEF -->
     <div class="kds-tracking-card" id="kdsTrackingCard">
       <div class="kds-tracking-header">
-        <span class="kds-status-badge" id="kdsBadge">🟡 1. Iniciado</span>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span class="kds-status-badge badge-por_confirmar" id="kdsBadge">🟡 1. Iniciado</span>
+          <span class="kds-turno-badge" id="kdsNumeroTurnoBadge"><i class="fa-solid fa-hashtag"></i> Turno #--</span>
+        </div>
         <button style="background:none; border:none; color:#aaa; font-size:12px; cursor:pointer;" onclick="cerrarSeguimiento()">✕</button>
       </div>
-      <p class="kds-msg-text" id="kdsMsg">Esperando que el mozo o caja acepte tu comanda...</p>
+
+      <div class="kds-cola-info-box" id="kdsColaBox">
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:#ddd;">Comandas por delante en cocina:</span>
+          <b style="color:#fde047;" id="kdsComandasDelanteTxt">0 orden(es)</b>
+        </div>
+        <div class="kds-cola-live-ticker" id="kdsTickerTexto">
+          <i class="fa-solid fa-fire-burner"></i> Cocina preparando pedidos...
+        </div>
+      </div>
+
+      <p class="kds-msg-text" id="kdsMsg">Esperando que el mozo o cocina confirme tu comanda...</p>
       
       <div class="reminder-caja-box" id="reminderCajaBox">
         <div class="reminder-caja-row">
@@ -543,10 +627,12 @@
       eslogan: "Cusco • Gourmet",
       logo: "🍽️",
       whatsapp: "51969773064",
+      facebook: "https://facebook.com",
+      instagram: "https://instagram.com",
+      tiktok: "https://tiktok.com",
       exchangeRateUSD: 3.75
     };
 
-    // CATÁLOGO BASE SIEMPRE DISPONIBLE (EVITA PANTALLA NEGRA)
     const CATALOGO_DEFAULT = [
       {
         id: "dish-saltado", category: "mains", tag: "Plato Fuerte", precioPEN: 35.00, disponible: true,
@@ -662,7 +748,7 @@
         calcVuelto: "Insira o valor para calcular o troco",
         vueltoEntregar: "💵 Seu troco:",
         faltaDinero: "⚠️ Dinheiro insuficiente",
-        placeholderNombre: "Seu nombre (opcional)",
+        placeholderNombre: "Seu nome (opcional)",
         placeholderNotas: "Notas para a cozinha (ponto da carne, alergias...)",
         totalComanda: "Total do pedido:",
         btnEnviar: "Enviar Pedido para a Cozinha",
@@ -712,9 +798,7 @@
       return String(m || '').toLowerCase().replace(/[^a-z0-9]/g, '_');
     }
 
-    // ==============================================================
-    // VALIDACIÓN ESTRICTA DEL TOKEN DINÁMICO
-    // ==============================================================
+    // VALIDACIÓN DE SEGURIDAD POR TOKEN QR
     async function validarAccesoPorTokenQR() {
       if (sessionStorage.getItem("inkabistro_dev_bypass") === "true") {
         return true;
@@ -740,7 +824,6 @@
         const res = await fetch(`${FIREBASE_DB_URL}config/tokens_mesas/${keyMesa}.json?_t=${Date.now()}`);
         if (res.ok) {
           const tokenVigente = await res.json();
-          // Si coincide o si el token viene generado desde el admin
           if (tokenVigente && (tokenVigente === tokenUrl || tokenUrl.startsWith("TK-"))) {
             mesaSeleccionada = mesaNorm;
             mesaFijadaPorQR = true;
@@ -753,7 +836,6 @@
         console.error("Error al validar token:", e);
       }
 
-      // Si el enlace tiene un token válido recién generado
       if (tokenUrl && tokenUrl.startsWith("TK-")) {
         mesaSeleccionada = mesaNorm;
         mesaFijadaPorQR = true;
@@ -962,7 +1044,6 @@
       }).join('');
     }
 
-    // CARGA DE DATOS PRINCIPAL
     async function cargarDatos() {
       const accesoPermitido = await validarAccesoPorTokenQR();
       if (!accesoPermitido) {
@@ -974,7 +1055,7 @@
     async function cargarDatosTrasValidacion() {
       detectarMesaDesdeURL();
 
-      // Cargar Identidad y LOGO DEL NEGOCIO (CON RECONOCIMIENTO DE IMAGEN O EMOJI)
+      // Cargar Identidad, Logo y Redes Sociales del negocio
       try {
         const resConf = await fetch(`${FIREBASE_DB_URL}config/identidad.json?_t=${Date.now()}`);
         if (resConf.ok) {
@@ -985,13 +1066,20 @@
             document.getElementById('topSlogan').innerText = CONFIG.eslogan || "Cusco • Gourmet";
             document.getElementById('agradeceNombreLocal').innerText = CONFIG.nombre || "La Cusqueñita";
             document.getElementById('secTitleLocal').innerText = CONFIG.nombre || "La Cusqueñita";
+            document.getElementById('agradeceContactoTxt').innerText = CONFIG.whatsapp || "+51 969 773 064";
 
-            // RENDERIZADO DEL LOGO (IMAGEN O EMOJI)
+            // Enlaces de redes sociales
+            document.getElementById('linkSocialWa').href = `https://wa.me/${(CONFIG.whatsapp||'51969773064').replace(/\D/g,'')}`;
+            if (CONFIG.facebook) document.getElementById('linkSocialFb').href = CONFIG.facebook;
+            if (CONFIG.instagram) document.getElementById('linkSocialIg').href = CONFIG.instagram;
+            if (CONFIG.tiktok) document.getElementById('linkSocialTk').href = CONFIG.tiktok;
+
+            // Renderizar logo del negocio (imagen o emoji)
             const topIconEl = document.getElementById('topIcon');
-            const agradeceLogoEl = document.getElementById('agradeceLogo');
+            const agradeceLogoEl = document.getElementById('agradeceLogoWrap');
             if (CONFIG.logo && CONFIG.logo.startsWith('data:image')) {
-              topIconEl.innerHTML = `<img src="${CONFIG.logo}" alt="Logo" style="width:100%; height:100%; object-fit:cover;">`;
-              agradeceLogoEl.innerHTML = `<img src="${CONFIG.logo}" alt="Logo" style="width:60px; height:60px; object-fit:cover; border-radius:50%; border:2px solid var(--accent);">`;
+              topIconEl.innerHTML = `<img src="${CONFIG.logo}" alt="Logo">`;
+              agradeceLogoEl.innerHTML = `<img src="${CONFIG.logo}" alt="Logo">`;
             } else {
               topIconEl.innerText = CONFIG.logo || "🍽️";
               agradeceLogoEl.innerText = CONFIG.logo || "🍽️";
@@ -1000,7 +1088,7 @@
         }
       } catch (e) {}
 
-      // Cargar platos desde Firebase (con respaldo automático si no hay datos)
+      // Cargar platos
       try {
         const resPlat = await fetch(`${FIREBASE_DB_URL}catalogo_platos.json?_t=${Date.now()}`);
         if (resPlat.ok) {
@@ -1197,6 +1285,7 @@
       openOrdersPopup();
     }
 
+    // TRANSMISIÓN DE COMANDA CON ASIGNACIÓN DE N° DE TURNO Y ORDEN
     async function enviarComandaDirectaAlPanel() {
       const itemIds = Object.keys(pedido);
       if (itemIds.length === 0) return alert("Por favor añade al menos un plato a la comanda.");
@@ -1220,6 +1309,7 @@
         platosComanda.push({ id, nombre: info.name, cantidad: cant, precio: dish.precioPEN || dish.precio });
       });
 
+      // Si el cliente ya tenía una comanda activa
       if (comandaActivaId) {
         try {
           const res = await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`);
@@ -1257,8 +1347,23 @@
         } catch (e) {}
       }
 
+      // Calcular número correlativo de turno para el chef
+      let numeroTurnoChef = 1;
+      try {
+        const resAll = await fetch(`${FIREBASE_DB_URL}comandas.json?_t=${Date.now()}`);
+        if (resAll.ok) {
+          const dataAll = await resAll.json();
+          if (dataAll && typeof dataAll === 'object') {
+            numeroTurnoChef = Object.keys(dataAll).length + 1;
+          }
+        }
+      } catch (e) {}
+
+      const timestampActual = Date.now();
       const nuevaComanda = {
-        id: "CMD-" + Date.now(),
+        id: "CMD-" + timestampActual,
+        timestampOrden: timestampActual,
+        numeroTurno: numeroTurnoChef,
         fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }),
         cliente: `${mesaNorm} (${cliente})`,
         mesa: mesaNorm,
@@ -1304,8 +1409,6 @@
     async function solicitarCuentaEnCaja() {
       if (!comandaActivaId) return;
 
-      const dic = DICCIONARIO[currentLang] || DICCIONARIO.es;
-
       await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -1337,18 +1440,27 @@
       reproducirSonidoCampanaExito();
     }
 
+    // VERIFICACIÓN KDS EN VIVO CON ESTADO DE COLA DEL CHEF
     async function verificarEstadoComandaEnVivo() {
       if (!comandaActivaId) return;
 
-      let comanda = null;
+      let todasLasComandas = [];
+      let miComanda = null;
+
       try {
-        const resFB = await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json?_t=${Date.now()}`);
-        if (resFB.ok) comanda = await resFB.json();
+        const resFB = await fetch(`${FIREBASE_DB_URL}comandas.json?_t=${Date.now()}`);
+        if (resFB.ok) {
+          const dataFB = await resFB.json();
+          if (dataFB && typeof dataFB === 'object') {
+            todasLasComandas = Object.values(dataFB).filter(c => c && typeof c === 'object');
+            miComanda = dataFB[comandaActivaId] || null;
+          }
+        }
       } catch (e) {}
 
-      if (!comanda) return;
+      if (!miComanda) return;
 
-      if (comanda.agradecimientoFinal === true || comanda.estado === 'finalizado' || comanda.estado === 'liberado') {
+      if (miComanda.agradecimientoFinal === true || miComanda.estado === 'finalizado' || miComanda.estado === 'liberado') {
         document.getElementById('pantallaAgradecimiento').classList.add('active');
         return;
       }
@@ -1359,18 +1471,41 @@
       const reminderBox = document.getElementById('reminderCajaBox');
       const btn = document.getElementById('btnPedirCuentaCliente');
 
-      document.getElementById('kdsMesaTxt').innerText = comanda.mesa || "Mesa";
-      const totalTxt = `S/ ${(comanda.totalPEN || comanda.total || 0).toFixed(2)}`;
+      document.getElementById('kdsMesaTxt').innerText = miComanda.mesa || "Mesa";
+      const totalTxt = `S/ ${(miComanda.totalPEN || miComanda.total || 0).toFixed(2)}`;
       document.getElementById('kdsTotalTxt').innerText = totalTxt;
 
-      if (comanda.estado === 'camino_a_caja' || comanda.clientePidiendoCuenta === true) {
+      // Actualizar número de turno
+      const numTurno = miComanda.numeroTurno || "01";
+      document.getElementById('kdsNumeroTurnoBadge').innerHTML = `<i class="fa-solid fa-hashtag"></i> Turno #${numTurno < 10 ? '0' + numTurno : numTurno}`;
+
+      // Calcular cuántas comandas están por delante en cocina
+      const activasEnCocina = todasLasComandas.filter(c => {
+        const est = String(c.estado || "").toLowerCase();
+        return (est === 'iniciado' || est === 'por_confirmar' || est === 'cocina') && c.id !== comandaActivaId;
+      });
+
+      const miTimestamp = miComanda.timestampOrden || 0;
+      const comandasPorDelante = activasEnCocina.filter(c => (c.timestampOrden || 0) < miTimestamp);
+
+      document.getElementById('kdsComandasDelanteTxt').innerText = `${comandasPorDelante.length} orden(es)`;
+
+      // Ticker de notificaciones de preparación en vivo
+      const enCocinaActual = todasLasComandas.find(c => String(c.estado || "").toLowerCase() === 'cocina');
+      if (enCocinaActual) {
+        document.getElementById('kdsTickerTexto').innerHTML = `<i class="fa-solid fa-bell"></i> <b>${enCocinaActual.mesa}</b> en proceso de elaboración por el chef...`;
+      } else {
+        document.getElementById('kdsTickerTexto').innerHTML = `<i class="fa-solid fa-check"></i> Cocina al día. Atendiendo pedidos por orden de llegada.`;
+      }
+
+      if (miComanda.estado === 'camino_a_caja' || miComanda.clientePidiendoCuenta === true) {
         card.className = "kds-tracking-card camino_a_caja";
         badge.className = "kds-status-badge badge-camino_a_caja";
         badge.innerHTML = "🚶‍♂️ Voy en camino a caja";
         msg.innerHTML = `<b>¡Aviso recibido en caja!</b> Dirígete a la recepción para cancelar tu cuenta.`;
 
         document.getElementById('remindTotalPagar').innerText = totalTxt;
-        document.getElementById('remindMetodoPago').innerText = comanda.pago || metodoPago;
+        document.getElementById('remindMetodoPago').innerText = miComanda.pago || metodoPago;
         reminderBox.style.display = 'block';
 
         btn.classList.add('en-camino');
@@ -1382,25 +1517,25 @@
         btn.disabled = false;
         btn.innerHTML = `<i class="fa-solid fa-person-walking"></i> <span>💵 Pedir Cuenta y Pagar en Caja</span>`;
 
-        card.className = "kds-tracking-card " + comanda.estado;
+        card.className = "kds-tracking-card " + miComanda.estado;
 
-        if (comanda.estado === 'iniciado' || comanda.estado === 'por_confirmar') {
+        if (miComanda.estado === 'iniciado' || miComanda.estado === 'por_confirmar') {
           badge.className = "kds-status-badge badge-por_confirmar";
           badge.innerText = "🟡 1. Iniciado";
-          msg.innerText = "Esperando que caja o mozo confirme tu comanda...";
-        } else if (comanda.estado === 'cocina') {
+          msg.innerText = "Esperando que el mozo o cocina confirme tu comanda...";
+        } else if (miComanda.estado === 'cocina') {
           badge.className = "kds-status-badge badge-cocina";
           badge.innerText = "🔵 2. En Proceso (Cocina)";
-          msg.innerText = "¡Tu pedido está en cocina! El chef lo está preparando 🍳";
-        } else if (comanda.estado === 'servido') {
+          msg.innerText = "¡Tu pedido está siendo elaborado por el chef en este momento! 🍳";
+        } else if (miComanda.estado === 'servido') {
           badge.className = "kds-status-badge badge-servido";
           badge.innerText = "🟢 3. Recibido en Mesa";
-          msg.innerText = "¡Buen provecho! Tu pedido ya está en tu mesa.";
+          msg.innerText = "¡Buen provecho! Tu pedido ya está servido en tu mesa.";
         }
       }
 
-      document.getElementById('mozoPromptBanner').style.display = (comanda.mozoPregunta === true) ? 'block' : 'none';
-      document.getElementById('clientReviewBox').style.display = (comanda.estado === 'servido' && !comanda.resenaEnviada) ? 'block' : 'none';
+      document.getElementById('mozoPromptBanner').style.display = (miComanda.mozoPregunta === true) ? 'block' : 'none';
+      document.getElementById('clientReviewBox').style.display = (miComanda.estado === 'servido' && !miComanda.resenaEnviada) ? 'block' : 'none';
     }
 
     function reiniciarNavegadorLimpio() {
