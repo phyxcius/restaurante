@@ -23,7 +23,7 @@
       --modal-dark: #1c1917;
       --modal-card-bg: #fef08a;
 
-      /* COLOR DISTINTIVO PARA PEDIR CUENTA (PÚRPURA / VIOLETA NEÓN) */
+      /* COLOR PÚRPURA / VIOLETA NEÓN PARA PEDIR CUENTA */
       --color-cuenta: #7c3aed;
       --color-cuenta-hover: #9333ea;
       --color-cuenta-glow: rgba(124, 58, 237, 0.65);
@@ -137,7 +137,6 @@
     .reminder-caja-monto { font-size: 15px; font-weight: 900; color: #fde047; }
     .reminder-caja-pago { font-size: 12px; font-weight: 800; color: #86efac; }
 
-    /* BOTÓN PEDIR CUENTA: PÚRPURA / VIOLETA NEÓN */
     .btn-pedir-cuenta {
       background: linear-gradient(135deg, var(--color-cuenta), var(--color-cuenta-hover)) !important;
       color: #fff !important; border: 1.5px solid #d8b4fe !important;
@@ -174,41 +173,40 @@
     .video-player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
     .slide-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(24,17,14,0.4) 0%, transparent 50%, rgba(24,17,14,0.92) 100%); }
 
-    /* GUÍA GESTUAL PERMANENTE: FIJA EN PANTALLA EN TODOS LOS PLATOS */
+    /* GUÍA GESTUAL: DISCRETA, COMPACTA Y SIN ESTORBAR LOS BOTONES */
     .gesture-hint-overlay {
       position: fixed;
-      bottom: 84px;
+      bottom: 22px;
       left: 16px;
-      z-index: 95;
+      z-index: 90;
       pointer-events: none;
       display: flex;
       align-items: center;
-      gap: 7px;
+      gap: 6px;
       animation: swipeHandPermanent 2s infinite ease-in-out;
     }
     .gesture-hand-icon {
-      font-size: 24px;
+      font-size: 18px;
       color: #fde047;
-      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.9));
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.8));
     }
     .gesture-hint-txt {
-      background: rgba(0, 0, 0, 0.82);
-      color: #fff;
-      padding: 5px 11px;
-      border-radius: 14px;
-      font-size: 11px;
+      background: rgba(18, 12, 10, 0.85);
+      color: #fed7aa;
+      padding: 4px 9px;
+      border-radius: 12px;
+      font-size: 10px;
       font-weight: 800;
-      border: 1px solid var(--accent);
-      letter-spacing: 0.3px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      backdrop-filter: blur(4px);
     }
     @keyframes swipeHandPermanent {
-      0% { transform: translateY(0); opacity: 0.8; }
-      50% { transform: translateY(-7px); opacity: 1; }
-      100% { transform: translateY(0); opacity: 0.8; }
+      0% { transform: translateY(0); opacity: 0.75; }
+      50% { transform: translateY(-5px); opacity: 1; }
+      100% { transform: translateY(0); opacity: 0.75; }
     }
 
-    /* BOTÓN DE AGREGAR PLATO CON DEDO GESTUAL INTERACTIVO */
+    /* BOTÓN DE AGREGAR PLATO */
     .dish-info { position: relative; z-index: 10; padding: 0 75px 85px 16px; width: 100%; }
     .dish-title { font-size: 21px; font-weight: 800; line-height: 1.2; margin-bottom: 4px; }
     .dish-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; margin-bottom: 8px; }
@@ -416,7 +414,7 @@
       border-radius: 20px; font-weight: 800; font-size: 12.5px; cursor: pointer; width: 100%;
     }
 
-    /* MODAL DE RESERVAS INTEGRADO CON TEXTBOX BLANCO */
+    /* MODAL DE RESERVAS CON TEXTBOX BLANCO */
     .screen-reservas-modal-overlay {
       position: fixed; inset: 0; background: rgba(10, 6, 4, 0.98); backdrop-filter: blur(12px);
       z-index: 250000; display: none; align-items: center; justify-content: center; padding: 16px;
@@ -427,8 +425,6 @@
       max-width: 440px; width: 100%; padding: 22px 18px; max-height: 94dvh; overflow-y: auto;
       display: flex; flex-direction: column; gap: 12px; position: relative; color: #fff;
     }
-
-    /* CAMPOS TEXTBOX BLANCOS */
     .custom-input-white {
       width: 100%; background: #ffffff !important; color: #1c1917 !important;
       border: 1.5px solid #d1d5db; border-radius: 12px; padding: 11px 14px;
@@ -439,7 +435,7 @@
 </head>
 <body>
 
-  <!-- PANTALLA DE BLOQUEO DE SEGURIDAD (ANTI-COPIA / TOKEN CADUCADO) -->
+  <!-- PANTALLA DE BLOQUEO DE SEGURIDAD -->
   <div class="screen-security-lock" id="pantallaBloqueoSeguridad">
     <div class="security-lock-box">
       <div class="security-lock-icon" id="iconLockDev" onclick="clickIconoDesarrollador()"><i class="fa-solid fa-lock"></i></div>
@@ -457,7 +453,7 @@
     </div>
   </div>
 
-  <!-- PANTALLA AGRADECIMIENTO TRAS COBRO (CON REDES SOCIALES, COMPARTIR Y LA CHUSPA TECH) -->
+  <!-- PANTALLA AGRADECIMIENTO TRAS COBRO -->
   <div class="screen-agradecimiento-overlay" id="pantallaAgradecimiento">
     <div class="box-agradecimiento">
       <button type="button" class="btn-close-modal" onclick="reiniciarNavegadorLimpio()" title="Cerrar">&times;</button>
@@ -469,7 +465,6 @@
         ¡Muchas gracias por tu visita! Tu comanda ha sido cancelada y la mesa ha quedado libre. Esperamos que hayas disfrutado tu experiencia gastronómica.
       </p>
 
-      <!-- CONTACTO Y REDES SOCIALES DEL NEGOCIO -->
       <div style="width:100%; border-top:1px dashed rgba(255,255,255,0.15); padding-top:8px;">
         <span style="font-size:11.5px; color:#fde047; font-weight:800; display:block;">
           <i class="fa-solid fa-phone"></i> <span id="lblAgradeceContacto">Contacto:</span> <span id="agradeceContactoTxt">+51 969 773 064</span>
@@ -482,7 +477,6 @@
         </div>
       </div>
 
-      <!-- SECCIÓN DE RESERVAS CON COMPARTIR LINK A WHATSAPP -->
       <div style="background:rgba(255,255,255,0.06); padding:10px; border-radius:12px; width:100%; margin-top:2px;">
         <span style="font-size:11px; color:#fde047; font-weight:800; display:block; margin-bottom:6px;" id="lblVolverReservarTxt">
           ¿Planeas volver? Reserva tu mesa para Eventos o Familias
@@ -495,7 +489,6 @@
         </button>
       </div>
 
-      <!-- SELLO Y LOGO DE LA CHUSPA TECH -->
       <a href="https://www.lachuspaanuncios.com/" target="_blank" class="chuspa-tech-card-footer">
         <div class="chuspa-tech-footer-left">
           <img src="CHUSPITA-circulo.png" alt="La Chuspa" class="chuspa-tech-footer-img" onerror="this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png'">
@@ -513,7 +506,7 @@
     </div>
   </div>
 
-  <!-- VENTANA MODAL DE GENERACIÓN DE RESERVAS HABILITADA PARA CLIENTES (TEXTBOX BLANCOS) -->
+  <!-- VENTANA MODAL DE RESERVAS -->
   <div class="screen-reservas-modal-overlay" id="modalReservasCliente">
     <div class="box-reservas-modal">
       <button type="button" class="btn-close-modal" onclick="cerrarModalReservasCliente()" title="Cerrar ventana">&times;</button>
@@ -637,7 +630,6 @@
         </div>
       </div>
 
-      <!-- BOTÓN PEDIR CUENTA: PÚRPURA / VIOLETA NEÓN -->
       <button type="button" class="btn-pedir-cuenta" id="btnPedirCuentaCliente" onclick="solicitarCuentaEnCaja()">
         <i class="fa-solid fa-person-walking"></i> <span id="lblPedirCuentaTxt">💵 Pedir Cuenta y Pagar en Caja</span>
       </button>
@@ -668,10 +660,10 @@
     <div class="category-chips" id="categoryChips"></div>
   </div>
 
-  <!-- DEDO GESTUAL PERMANENTE: FIJO EN PANTALLA EN TODOS LOS PLATOS -->
+  <!-- DEDO GESTUAL: REUBICADO ABAJO A LA IZQUIERDA SIN ESTORBAR LOS BOTONES -->
   <div class="gesture-hint-overlay" id="hintManoGestual">
     <i class="fa-solid fa-hand-pointer gesture-hand-icon"></i>
-    <span class="gesture-hint-txt" id="lblSwipeUpHint">Desliza tu dedo hacia arriba 👆</span>
+    <span class="gesture-hint-txt" id="lblSwipeUpHint">Desliza hacia arriba 👆</span>
   </div>
 
   <!-- FEED TIKTOK -->
@@ -767,7 +759,6 @@
       exchangeRateUSD: 3.75
     };
 
-    // CATÁLOGO BASE CON TRADUCCIÓN EN 9 IDIOMAS
     const CATALOGO_DEFAULT = [
       {
         id: "dish-saltado", category: "mains", tag: "Plato Fuerte", precioPEN: 35.00, disponible: true,
@@ -822,7 +813,6 @@
     let comandaActivaId = localStorage.getItem("inkabistro_mi_comanda_id") || null;
     let clicksIconoDev = 0;
 
-    // DICCIONARIO MULTILINGÜE
     const DICCIONARIO = {
       es: {
         pedidosBurbuja: "🔥 Pedidos",
@@ -842,7 +832,7 @@
         btnEnviar: "Enviar Comanda a Cocina",
         btnEnviarAdd: "Añadir a mi Comanda en Curso",
         pedirCuenta: "💵 Pedir Cuenta y Pagar en Caja",
-        swipeUp: "Desliza tu dedo hacia arriba 👆",
+        swipeUp: "Desliza hacia arriba 👆",
         btnPedirPlato: "👆 Añadir Plato",
         catTodos: "Todos",
         catMains: "Platos Fuertes",
@@ -882,7 +872,7 @@
         btnEnviar: "Send Order to Kitchen",
         btnEnviarAdd: "Add to Active Table Order",
         pedirCuenta: "💵 Request Bill & Pay at Cashier",
-        swipeUp: "Swipe up with your finger 👆",
+        swipeUp: "Swipe up 👆",
         btnPedirPlato: "👆 Add Dish",
         catTodos: "All",
         catMains: "Main Courses",
@@ -922,7 +912,7 @@
         btnEnviar: "Bestellung an Küche senden",
         btnEnviarAdd: "Zur aktiven Bestellung hinzufügen",
         pedirCuenta: "💵 Rechnung anfordern & an Kasse zahlen",
-        swipeUp: "Mit dem Finger nach oben wischen 👆",
+        swipeUp: "Nach oben wischen 👆",
         btnPedirPlato: "👆 Gericht bestellen",
         catTodos: "Alle",
         catMains: "Hauptgerichte",
@@ -962,7 +952,7 @@
         btnEnviar: "Invia Ordine in Cucina",
         btnEnviarAdd: "Aggiungi all'Ordine Attivo",
         pedirCuenta: "💵 Chiedi il Conto e Paga in Cassa",
-        swipeUp: "Scorri verso l'alto con il dito 👆",
+        swipeUp: "Scorri verso l'alto 👆",
         btnPedirPlato: "👆 Aggiungi Piatto",
         catTodos: "Tutti",
         catMains: "Secondi Piatti",
@@ -1002,7 +992,7 @@
         btnEnviar: "Envoyer la commande en cuisine",
         btnEnviarAdd: "Ajouter à la commande en cours",
         pedirCuenta: "💵 Demander l'addition & Payer en caisse",
-        swipeUp: "Glissez votre doigt vers le haut 👆",
+        swipeUp: "Glissez vers le haut 👆",
         btnPedirPlato: "👆 Commander Plat",
         catTodos: "Tous",
         catMains: "Plats Principaux",
@@ -1042,7 +1032,7 @@
         btnEnviar: "Enviar Pedido para a Cozinha",
         btnEnviarAdd: "Adicionar ao Pedido em Andamento",
         pedirCuenta: "💵 Pedir a Conta & Pagar no Caixa",
-        swipeUp: "Deslize o dedo para cima 👆",
+        swipeUp: "Deslize para cima 👆",
         btnPedirPlato: "👆 Adicionar Prato",
         catTodos: "Todos",
         catMains: "Pratos Principais",
@@ -1082,7 +1072,7 @@
         btnEnviar: "发送点单至后厨",
         btnEnviarAdd: "追加菜品至当前订单",
         pedirCuenta: "💵 请求账单并在收银台结账",
-        swipeUp: "用手指向上滑动屏幕 👆",
+        swipeUp: "向上滑动 👆",
         btnPedirPlato: "👆 选点此菜",
         catTodos: "全部",
         catMains: "特色主菜",
@@ -1122,7 +1112,7 @@
         btnEnviar: "厨房へ注文を送信",
         btnEnviarAdd: "現在の注文に追加する",
         pedirCuenta: "💵 お会計を依頼してレジで支払う",
-        swipeUp: "指で上にスワイプしてください 👆",
+        swipeUp: "上にスワイプ 👆",
         btnPedirPlato: "👆 この料理を注文",
         catTodos: "すべて",
         catMains: "メイン料理",
@@ -1162,7 +1152,7 @@
         btnEnviar: "주방으로 주문 전송",
         btnEnviarAdd: "진행 중인 주문에 메뉴 추가",
         pedirCuenta: "💵 계산서 요청 후 카운터에서 결제",
-        swipeUp: "손가락으로 화면을 위로 올리세요 👆",
+        swipeUp: "화면을 위로 넘기세요 👆",
         btnPedirPlato: "👆 메뉴 담기",
         catTodos: "전체",
         catMains: "메인 요리",
@@ -1194,24 +1184,6 @@
     window.addEventListener('click', asegurarAudioCtx, { once: true });
     window.addEventListener('touchstart', asegurarAudioCtx, { once: true });
 
-    function reproducirSonidoCampanaExito() {
-      try {
-        asegurarAudioCtx();
-        if (!audioCtx) return;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(783.99, audioCtx.currentTime + 0.15);
-        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(audioCtx.currentTime);
-        osc.stop(audioCtx.currentTime + 0.38);
-      } catch (e) {}
-    }
-
     function normalizarNombreMesa(m) {
       if (!m) return "";
       let s = String(m).trim();
@@ -1227,7 +1199,6 @@
       return String(m || '').toLowerCase().replace(/[^a-z0-9]/g, '_');
     }
 
-    // VALIDACIÓN ESTRICTA DEL TOKEN QR
     async function validarAccesoPorTokenQR() {
       if (sessionStorage.getItem("inkabistro_dev_bypass") === "true") {
         return true;
@@ -1530,7 +1501,6 @@
     async function cargarDatosTrasValidacion() {
       detectarMesaDesdeURL();
 
-      // Cargar Identidad, Logo y Redes Sociales del negocio
       try {
         const resConf = await fetch(`${FIREBASE_DB_URL}config/identidad.json?_t=${Date.now()}`);
         if (resConf.ok) {
@@ -1564,7 +1534,6 @@
               document.getElementById('linkSocialTk2').href = CONFIG.tiktok;
             }
 
-            // Renderizado de Logo
             const topIconEl = document.getElementById('topIcon');
             const agradeceLogoEl = document.getElementById('agradeceLogoWrap');
             const resLogoEl = document.getElementById('reservasLogoLocal');
@@ -1582,7 +1551,6 @@
         }
       } catch (e) {}
 
-      // Cargar platos
       try {
         const resPlat = await fetch(`${FIREBASE_DB_URL}catalogo_platos.json?_t=${Date.now()}`);
         if (resPlat.ok) {
@@ -1607,7 +1575,6 @@
       setInterval(verificarEstadoComandaEnVivo, 2000);
       setInterval(renderizarCuadriculaMesas, 3500);
 
-      // INDICADOR GESTUAL PERMANENTE: Se asegura visible en pantalla en todo momento
       const hint = document.getElementById('hintManoGestual');
       if (hint) hint.style.display = 'flex';
     }
@@ -1623,7 +1590,6 @@
       `).join('');
     }
 
-    // RENDERIZADO DEL REEL: DEDO GESTUAL EN CADA BOTÓN Y EN PANTALLA
     function renderFeed() {
       const feed = document.getElementById('feedContainer');
       const dic = DICCIONARIO[currentLang] || DICCIONARIO.es;
@@ -1778,7 +1744,6 @@
       openOrdersPopup();
     }
 
-    // TRANSMISIÓN DE COMANDA
     async function enviarComandaDirectaAlPanel() {
       const itemIds = Object.keys(pedido);
       if (itemIds.length === 0) return alert("Por favor añade al menos un plato a la comanda.");
@@ -1831,7 +1796,6 @@
               btn.disabled = false;
               btn.innerHTML = '<i class="fa-solid fa-bell-concierge"></i> ' + (DICCIONARIO[currentLang]||DICCIONARIO.es).btnEnviar;
               closeOrdersPopup();
-              reproducirSonidoCampanaExito();
               verificarEstadoComandaEnVivo();
               return;
             }
@@ -1891,7 +1855,6 @@
         btn.disabled = false;
         btn.innerHTML = '<i class="fa-solid fa-bell-concierge"></i> ' + (DICCIONARIO[currentLang]||DICCIONARIO.es).btnEnviar;
         closeOrdersPopup();
-        reproducirSonidoCampanaExito();
         verificarEstadoComandaEnVivo();
         renderizarCuadriculaMesas();
       }, 400);
@@ -1927,11 +1890,8 @@
       btn.classList.add('en-camino');
       btn.disabled = true;
       btn.innerHTML = `<i class="fa-solid fa-check-circle"></i> <span>Aviso enviado - Dirígete a caja</span>`;
-
-      reproducirSonidoCampanaExito();
     }
 
-    // SEGUIMIENTO KDS
     async function verificarEstadoComandaEnVivo() {
       if (!comandaActivaId) return;
 
@@ -2025,7 +1985,6 @@
       document.getElementById('clientReviewBox').style.display = (miComanda.estado === 'servido' && !miComanda.resenaEnviada) ? 'block' : 'none';
     }
 
-    // MODAL DE RESERVAS CLIENTE
     function abrirModalReservasCliente() {
       document.getElementById('modalReservasCliente').classList.add('active');
       document.getElementById('resCliFecha').value = new Date().toISOString().split('T')[0];
