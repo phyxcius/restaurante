@@ -270,7 +270,7 @@
 </head>
 <body>
 
-  <!-- PANTALLA LOGIN: LIMPIA Y SIN CAMPOS DE CAJA CHICA -->
+  <!-- PANTALLA LOGIN: SIN CAMPOS DE CAJA CHICA -->
   <div id="pantallaLogin">
     <div class="card-login">
       <div style="text-align:center; font-size:38px; margin-bottom:6px;">🍽️</div>
@@ -289,7 +289,7 @@
         <label>Contraseña de Acceso:</label>
         <input type="password" id="loginPassword" placeholder="••••••••" required>
 
-        <button type="submit" class="btn btn-save" style="margin-top:20px; width:100%;">
+        <button type="submit" class="btn btn-save" style="margin-top:20px; width:100%; height:44px;">
           <i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión
         </button>
       </form>
@@ -335,7 +335,6 @@
             <span style="font-size:9.5px; color:#aaa; display:block;" id="lblSesionTurno">Turno Mañana</span>
             <span style="font-size:9.5px; color:#86efac; display:block;" id="lblSesionCajaChica">Caja: S/ 100.00</span>
           </div>
-          <!-- BOTÓN CERRAR CAJA: DESPLIEGA LA LIQUIDACIÓN DEL TURNO -->
           <button type="button" class="btn btn-del" style="padding:4px 7px; font-size:10px;" onclick="abrirModalLiquidacionCierre()">Cerrar Caja</button>
         </div>
 
@@ -1100,7 +1099,9 @@
       `).join('');
     }
 
+    // ==============================================================
     // 1. INICIO DE SESIÓN LIMPIO (SIN APERTURA DE CAJA)
+    // ==============================================================
     function verificarLoginSistema(e) {
       if (e) e.preventDefault();
       const selector = document.getElementById('loginUsuarioSelector');
@@ -1135,7 +1136,9 @@
       }
     }
 
-    // APERTURA DE CAJA CHICA EN NOTIFICACIÓN MODAL
+    // ==============================================================
+    // 2. APERTURA DE CAJA CHICA EN NOTIFICACIÓN MODAL
+    // ==============================================================
     function abrirModalAperturaCaja() {
       document.getElementById('modalAperturaCaja').classList.add('active');
     }
@@ -1611,7 +1614,7 @@
             <div>PAGO: ${v.pago || 'Efectivo'}</div>
           </div>
           <p style="font-size:11px;margin-top:10px;">¡Gracias por su visita!</p>
-          <script>window.onload=function(){window.print();window.close(); }<\/script>
+          <script>window.onload = function(){ window.print(); window.close(); }<\/script>
         </body></html>
       `);
       ventana.document.close();
@@ -2290,8 +2293,8 @@
       const av = document.getElementById('headerAvatar');
       const prev = document.getElementById('previewCurrentLogo');
       if (configRestaurante.logo && configRestaurante.logo.startsWith('data:image')) {
-        av.innerHTML = `<img src="${configRestaurante.logo}" alt="Logo">`;
-        prev.innerHTML = `<img src="${configRestaurante.logo}" alt="Logo">`;
+        av.innerHTML = `<img src="${configRestaurante.logo}" alt="Logo" style="width:100%; height:100%; object-fit:cover;">`;
+        prev.innerHTML = `<img src="${configRestaurante.logo}" alt="Logo" style="width:100%; height:100%; object-fit:cover;">`;
       } else {
         av.innerText = configRestaurante.logo || "🍽️";
         prev.innerText = configRestaurante.logo || "🍽️";
