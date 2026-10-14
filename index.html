@@ -27,6 +27,26 @@
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; font-family: system-ui, -apple-system, sans-serif; }
     body, html { width: 100%; height: 100%; overflow: hidden; background-color: var(--bg-warm); color: var(--text-main); }
 
+    /* PANTALLA DE BLOQUEO DE SEGURIDAD (ANTI-COPIA / ANTI-ENLACE EXPIRADO) */
+    .screen-security-lock {
+      position: fixed; inset: 0; background: #0c0806; z-index: 999999;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 24px; text-align: center;
+    }
+    .security-lock-box {
+      max-width: 380px; width: 100%; background: #1a100d; border: 2px solid var(--accent);
+      border-radius: 24px; padding: 32px 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+      display: flex; flex-direction: column; align-items: center; gap: 14px;
+    }
+    .security-lock-icon {
+      font-size: 50px; color: var(--gold); filter: drop-shadow(0 4px 15px rgba(245, 158, 11, 0.5));
+      cursor: pointer;
+    }
+    .btn-bypass-dev {
+      background: none; border: 1px solid rgba(255,255,255,0.15); color: #888;
+      padding: 6px 12px; border-radius: 12px; font-size: 11px; cursor: pointer; margin-top: 8px;
+    }
+
     .app-container { width: 100%; max-width: 480px; height: 100dvh; margin: 0 auto; position: relative; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
     .app-container::-webkit-scrollbar { display: none; }
 
@@ -125,6 +145,7 @@
     .video-player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
     .slide-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(24,17,14,0.4) 0%, transparent 50%, rgba(24,17,14,0.92) 100%); }
 
+    /* GUÍA GESTUAL */
     .gesture-hint-overlay {
       position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
       z-index: 40; pointer-events: none; display: flex; flex-direction: column; align-items: center; gap: 8px;
@@ -212,7 +233,6 @@
       font-size: 11px; font-weight: 800; text-align: left; cursor: pointer; display: flex; justify-content: space-between;
     }
 
-    /* SELECTOR DINÁMICO DE MESAS CON SCROLL Y BLOQUEO */
     .table-selector-label {
       font-size: 11px; font-weight: 900; text-transform: uppercase; color: var(--modal-dark);
       letter-spacing: 0.5px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;
@@ -308,6 +328,24 @@
 </head>
 <body>
 
+  <!-- PANTALLA DE BLOQUEO DE SEGURIDAD (TOKEN INVÁLIDO O SESIÓN FUERA DEL LOCAL) -->
+  <div class="screen-security-lock" id="pantallaBloqueoSeguridad" style="display: none;">
+    <div class="security-lock-box">
+      <div class="security-lock-icon" id="iconLockDev" onclick="clickIconoDesarrollador()"><i class="fa-solid fa-lock"></i></div>
+      <h2 style="color:var(--gold); font-size:20px; font-weight:900;" id="secTitleLocal">La Cusqueñita</h2>
+      <h3 style="color:#ef4444; font-size:15px; font-weight:800;">Acceso Restringido a la Carta</h3>
+      <p style="font-size:13px; color:#ddd; line-height:1.5;">
+        Por tu seguridad y exclusividad del servicio, este menú solo está disponible escaneando el <b>código QR físico</b> vigente en tu mesa dentro del restaurante.
+      </p>
+      <div style="background:rgba(255,255,255,0.05); padding:10px 14px; border-radius:10px; font-size:11.5px; color:#aaa;">
+        Si ya pagaste tu cuenta o estás fuera del local, esta sesión ha expirado automáticamente.
+      </div>
+      <button type="button" class="btn-bypass-dev" onclick="ingresarClaveBypassDesarrollador()">
+        <i class="fa-solid fa-code"></i> Modo Desarrollador / Probar en Casa
+      </button>
+    </div>
+  </div>
+
   <!-- PANTALLA AGRADECIMIENTO TRAS COBRO -->
   <div class="screen-agradecimiento-overlay" id="pantallaAgradecimiento">
     <div class="box-agradecimiento">
@@ -335,7 +373,7 @@
   </div>
 
   <!-- CABECERA -->
-  <div class="top-header">
+  <div class="top-header" id="topHeaderElement">
     <div class="top-bar-row">
       <div class="brand-section">
         <div class="brand-icon" id="topIcon">🍽️</div>
@@ -498,6 +536,7 @@
 
   <script>
     const FIREBASE_DB_URL = "https://restaurante1-695f7-default-rtdb.firebaseio.com/";
+    const CLAVE_MAESTRA_DEV = "42423549";
 
     let CONFIG = {
       nombre: "La Cusqueñita",
@@ -507,32 +546,7 @@
       exchangeRateUSD: 3.75
     };
 
-    let catalogo = [
-      {
-        id: "dish-saltado", category: "mains", tag: "Plato Fuerte", precioPEN: 35.00, disponible: true,
-        posterUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?w=500",
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-        i18n: {
-          es: { name: "Saltado", desc: "Papas fritas con carne picada y arroz" },
-          en: { name: "Stir-Fried Beef", desc: "Sautéed beef strips with fries and rice" },
-          fr: { name: "Sauté de Bœuf", desc: "Émincé de bœuf sauté avec frites et riz" },
-          pt: { name: "Carne Salteada", desc: "Tiras de carne salteadas com batatas e arroz" }
-        }
-      },
-      {
-        id: "dish-aji", category: "mains", tag: "Plato Fuerte", precioPEN: 35.00, disponible: true,
-        posterUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?w=500",
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-        i18n: {
-          es: { name: "Ají de Gallina", desc: "Gallina al hilo servida con crema de ají y arroz" },
-          en: { name: "Creamy Chicken Stew", desc: "Shredded chicken in mild yellow pepper cream" },
-          fr: { name: "Poulet au Piment Doux", desc: "Effiloché de poulet crémeux au piment doux" },
-          pt: { name: "Frango com Creme de Pimenta", desc: "Frango desfiado em creme de pimenta amarela" }
-        }
-      }
-    ];
-
-    // LISTA DE MESAS DINÁMICAS (SINCRONIZADAS CON ADMIN Y FIREBASE)
+    let catalogo = [];
     let listaMesas = [
       "Mesa 01", "Mesa 02", "Mesa 03", "Mesa 04", "Mesa 05",
       "Mesa 06", "Mesa 07", "Mesa 08", "Mesa 09", "Mesa 010",
@@ -549,6 +563,8 @@
     let mesaFijadaPorQR = false;
     let mesaSeleccionada = sessionStorage.getItem("inkabistro_mesa_qr") || "Mesa 01";
     let comandaActivaId = localStorage.getItem("inkabistro_mi_comanda_id") || null;
+
+    let clicksIconoDev = 0;
 
     const DICCIONARIO = {
       es: {
@@ -666,6 +682,85 @@
       return s;
     }
 
+    function normalizarClaveMesa(m) {
+      return String(m || '').toLowerCase().replace(/[^a-z0-9]/g, '_');
+    }
+
+    // ==============================================================
+    // VALIDACIÓN ESTRICTA DEL TOKEN DINÁMICO CONTRA FIREBASE
+    // ==============================================================
+    async function validarAccesoPorTokenQR() {
+      // 1. Revisar si hay bypass previo en sessionStorage para desarrollo
+      if (sessionStorage.getItem("inkabistro_dev_bypass") === "true") {
+        return true;
+      }
+
+      const params = new URLSearchParams(window.location.search);
+      const mesaUrl = params.get('mesa');
+      const tokenUrl = params.get('token');
+
+      // Si el cliente ya tiene una comanda activa en curso en este dispositivo, permitir continuar
+      if (comandaActivaId) {
+        return true;
+      }
+
+      if (!mesaUrl || !tokenUrl) {
+        mostrarPantallaBloqueo();
+        return false;
+      }
+
+      const mesaNorm = normalizarNombreMesa(decodeURIComponent(mesaUrl));
+      const keyMesa = normalizarClaveMesa(mesaNorm);
+
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}config/tokens_mesas/${keyMesa}.json?_t=${Date.now()}`);
+        if (res.ok) {
+          const tokenVigente = await res.json();
+          if (tokenVigente && tokenVigente === tokenUrl) {
+            // Token válido y vigente
+            mesaSeleccionada = mesaNorm;
+            mesaFijadaPorQR = true;
+            sessionStorage.setItem("inkabistro_mesa_qr", mesaNorm);
+            sessionStorage.setItem("inkabistro_token_validado", tokenUrl);
+            return true;
+          }
+        }
+      } catch (e) {
+        console.error("Error al validar token:", e);
+      }
+
+      // Si no coincide o ya expiró por cobro en caja
+      mostrarPantallaBloqueo();
+      return false;
+    }
+
+    function mostrarPantallaBloqueo() {
+      document.getElementById('pantallaBloqueoSeguridad').style.display = 'flex';
+      document.getElementById('topHeaderElement').style.display = 'none';
+      document.getElementById('feedContainer').style.display = 'none';
+      const bubble = document.querySelector('.chat-bubble-container');
+      if (bubble) bubble.style.display = 'none';
+    }
+
+    function clickIconoDesarrollador() {
+      clicksIconoDev++;
+      if (clicksIconoDev >= 3) {
+        ingresarClaveBypassDesarrollador();
+        clicksIconoDev = 0;
+      }
+    }
+
+    function ingresarClaveBypassDesarrollador() {
+      const clave = prompt("🔐 MODO DESARROLLADOR / PRUEBA EN CASA:\nIngresa la clave maestra para omitir el bloqueo y probar la carta:");
+      if (clave === CLAVE_MAESTRA_DEV) {
+        sessionStorage.setItem("inkabistro_dev_bypass", "true");
+        alert("✔ Acceso concedido en modo prueba. Se desbloqueará la carta.");
+        window.location.reload();
+      } else if (clave !== null) {
+        alert("⛔ Clave incorrecta.");
+      }
+    }
+
     function detectarMesaDesdeURL() {
       const params = new URLSearchParams(window.location.search);
       const mesaUrl = params.get('mesa');
@@ -695,7 +790,6 @@
       }
     }
 
-    // DESCARGAR MESAS DINÁMICAS DESDE FIREBASE
     async function sincronizarMesasDesdeFirebase() {
       try {
         const res = await fetch(`${FIREBASE_DB_URL}config/mesas.json?_t=${Date.now()}`);
@@ -832,7 +926,13 @@
       }).join('');
     }
 
+    // CARGA DE DATOS ÚNICAMENTE TRAS SUPERAR EL BLOQUEO
     async function cargarDatos() {
+      const accesoPermitido = await validarAccesoPorTokenQR();
+      if (!accesoPermitido) {
+        return; // Detener ejecución para proteger contra copias
+      }
+
       detectarMesaDesdeURL();
 
       try {
@@ -844,6 +944,7 @@
             document.getElementById('topTitle').innerText = CONFIG.nombre || "La Cusqueñita";
             document.getElementById('topSlogan').innerText = CONFIG.eslogan || "Cusco • Gourmet";
             document.getElementById('agradeceNombreLocal').innerText = CONFIG.nombre || "La Cusqueñita";
+            document.getElementById('secTitleLocal').innerText = CONFIG.nombre || "La Cusqueñita";
           }
         }
       } catch (e) {}
@@ -1032,7 +1133,6 @@
       openOrdersPopup();
     }
 
-    // TRANSMISIÓN CENTRALIZADA EN SU PROPIA COMANDA
     async function enviarComandaDirectaAlPanel() {
       const itemIds = Object.keys(pedido);
       if (itemIds.length === 0) return alert("Por favor añade al menos un plato a la comanda.");
@@ -1140,6 +1240,8 @@
     async function solicitarCuentaEnCaja() {
       if (!comandaActivaId) return;
 
+      const dic = DICCIONARIO[currentLang] || DICCIONARIO.es;
+
       await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -1182,6 +1284,7 @@
 
       if (!comanda) return;
 
+      // SI EL CAJERO COBRÓ Y LIBERÓ LA MESA
       if (comanda.agradecimientoFinal === true || comanda.estado === 'finalizado' || comanda.estado === 'liberado') {
         document.getElementById('pantallaAgradecimiento').classList.add('active');
         return;
@@ -1240,6 +1343,8 @@
     function reiniciarNavegadorLimpio() {
       localStorage.removeItem("inkabistro_mi_comanda_id");
       sessionStorage.removeItem("inkabistro_mesa_qr");
+      sessionStorage.removeItem("inkabistro_token_validado");
+      sessionStorage.removeItem("inkabistro_dev_bypass");
       comandaActivaId = null;
       mesaFijadaPorQR = false;
       document.getElementById('pantallaAgradecimiento').classList.remove('active');
