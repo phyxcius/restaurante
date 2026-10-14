@@ -435,7 +435,7 @@
             <button class="kds-filter-btn" id="btnFiltroCocina" onclick="aplicarFiltroEstadoKDS('cocina')">En Cocina</button>
           </div>
 
-          <!-- MONITOR MESAS AVANZADO (DESBLOQUEO Y GESTIÓN RÁPIDA) -->
+          <!-- MONITOR MESAS AVANZADO -->
           <div class="tables-monitor-bar">
             <div class="tables-monitor-header">
               <span>📍 Monitor de Mesas (Rojo = Ocupada | Verde = Libre):</span>
@@ -1059,24 +1059,27 @@
       return nuevoToken;
     }
 
-    function obtenerEnlaceCompletoMesa(mesa) {
+    async function obtenerEnlaceCompletoMesa(mesa) {
       const u = "https://phyxcius.github.io/restaurante/";
       const key = normalizarClaveMesa(mesa);
-      const tk = tokensMesasActivos[key] || "TK-DEV";
+      if (!tokensMesasActivos[key]) {
+        await regenerarTokenMesa(mesa);
+      }
+      const tk = tokensMesasActivos[key];
       return `${u}?mesa=${encodeURIComponent(mesa)}&token=${encodeURIComponent(tk)}`;
     }
 
-    function abrirMenuConTokenActivo() {
+    async function abrirMenuConTokenActivo() {
       const selector = document.getElementById('qrMesaSelectorDinamico');
       const mesa = selector ? selector.value : (listaMesasDinamicas[0] || "Mesa 01");
-      const urlCompleta = obtenerEnlaceCompletoMesa(mesa);
+      const urlCompleta = await obtenerEnlaceCompletoMesa(mesa);
       window.open(urlCompleta, '_blank');
     }
 
-    function copiarEnlaceMesaToken() {
+    async function copiarEnlaceMesaToken() {
       const selector = document.getElementById('qrMesaSelectorDinamico');
       const mesa = selector ? selector.value : (listaMesasDinamicas[0] || "Mesa 01");
-      const urlCompleta = obtenerEnlaceCompletoMesa(mesa);
+      const urlCompleta = await obtenerEnlaceCompletoMesa(mesa);
       navigator.clipboard.writeText(urlCompleta).then(() => {
         alert(`✔ Enlace con Token Activo copiado para ${mesa}:\n${urlCompleta}\n\nPégalo en WhatsApp o ábrelo en tu celular.`);
       }).catch(() => {
@@ -1246,7 +1249,7 @@
       return s;
     }
 
-    // IDENTIDAD Y LOGO
+    // IDENTIDAD Y LOGO (GUARDADO DIRECTO EN FIREBASE)
     async function cargarIdentidadFirebase() {
       try {
         const res = await fetch(`${FIREBASE_DB_URL}config/identidad.json?_t=${Date.now()}`);
@@ -1271,11 +1274,11 @@
       const av = document.getElementById('headerAvatar');
       const prev = document.getElementById('previewCurrentLogo');
       if (configRestaurante.logo && configRestaurante.logo.startsWith('data:image')) {
-        av.innerHTML = `<img src="${configRestaurante.logo}" alt="Logo">`;
-        prev.innerHTML = `<img src="${configRestaurante.logo}" alt="Logo">`;
+        av.innerHTML = `<img src="${configRestaurante.logo}" alt="Logo" style="width:100%; height:100%; object-fit:cover;">`;
+        prev.innerHTML = `<img src="${configRestaurante.logo}" alt="Logo" style="width:100%; height:100%; object-fit:cover;">`;
       } else {
-        av.innerText = "🍽️";
-        prev.innerText = "🍽️";
+        av.innerText = configRestaurante.logo || "🍽️";
+        prev.innerText = configRestaurante.logo || "🍽️";
       }
     }
 
@@ -1303,7 +1306,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(configRestaurante)
       });
-      alert("✔ Identidad y Logo guardados.");
+      alert("✔ Identidad y Logo guardados con éxito. Se actualizará en index.html.");
       cargarIdentidadFirebase();
     }
 
@@ -1458,7 +1461,6 @@
       totalComandasPrevias = activasSinCobro.length;
       document.getElementById('badgeTotalComandas').innerText = activasSinCobro.length;
 
-      // PINTAR MONITOR DE MESAS
       const mesasOcupadas = activasSinCobro.map(c => normalizarNombreMesa(c.mesa || ''));
       monitorGrid.innerHTML = listaMesasDinamicas.map(m => {
         const estaOcupada = mesasOcupadas.includes(normalizarNombreMesa(m));
@@ -1698,7 +1700,6 @@
         body: JSON.stringify(venta)
       });
 
-      // Pasar comanda a FINALIZADO
       await fetch(`${FIREBASE_DB_URL}comandas/${comandaCobrandoActual.id}.json`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -1711,7 +1712,6 @@
         })
       });
 
-      // SEGURIDAD: Regenerar token de la mesa para invalidar la sesión anterior del cliente
       await regenerarTokenMesa(comandaCobrandoActual.mesa);
 
       cerrarModalCobro();
@@ -1914,22 +1914,22 @@
     }
 
     // QR MESAS
-    function actualizarQRVisualDirecto(mesaManual = null) {
+    async function actualizarQRVisualDirecto(mesaManual = null) {
       const selector = document.getElementById('qrMesaSelectorDinamico');
       const mesa = mesaManual || (selector ? selector.value : (listaMesasDinamicas[0] || "Mesa 01"));
       const tel = document.getElementById('qrTelefonoInput').value.trim() || "+51969773064";
-      const link = obtenerEnlaceCompletoMesa(mesa);
+      const link = await obtenerEnlaceCompletoMesa(mesa);
 
       document.getElementById('qrPrintNumeroMesa').innerText = mesa.toUpperCase();
       document.getElementById('qrPrintTelefonoContacto').innerText = `Pedidos: ${tel}`;
       document.getElementById('imgQRVisualCentrado').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(link)}`;
     }
 
-    function imprimirTarjetaMesaQR() {
+    async function imprimirTarjetaMesaQR() {
       const selector = document.getElementById('qrMesaSelectorDinamico');
       const mesa = selector ? selector.value : (listaMesasDinamicas[0] || "Mesa 01");
       const tel = document.getElementById('qrTelefonoInput').value.trim() || "+51969773064";
-      const link = obtenerEnlaceCompletoMesa(mesa);
+      const link = await obtenerEnlaceCompletoMesa(mesa);
       const qrImgSrc = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodeURIComponent(link)}`;
       
       const ventana = window.open('', '_blank');
