@@ -25,6 +25,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
     body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
 
+    /* PANTALLA LOGIN */
     #pantallaLogin {
       display: flex; justify-content: center; align-items: center; min-height: 100vh;
       padding: 16px; background: radial-gradient(circle at center, #241611 0%, #0d0806 100%);
@@ -41,6 +42,7 @@
       padding: 12px; margin-top: 10px;
     }
 
+    /* BARRA SUPERIOR */
     .top-admin-bar {
       display: flex; background: #190f0c; border-bottom: 1.5px solid var(--card-border);
       padding: 8px 14px; align-items: center; justify-content: space-between;
@@ -97,6 +99,7 @@
       display: flex; justify-content: space-between; align-items: center;
     }
 
+    /* ACORDEONES DEL VAULT */
     .vault-box { background: #251a15; border: 1.5px dashed var(--accent); border-radius: 10px; overflow: hidden; margin-bottom: 4px; }
     .vault-box.danger-vault { border-color: #ef4444; background: #221212; }
     .vault-trigger { width: 100%; background: none; border: none; padding: 9px 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 800; color: var(--gold); font-size: 11px; }
@@ -233,6 +236,7 @@
     .switch-btn.btn-to-off { background: #451a1a; color: #fca5a5; border: 1px solid #dc2626; }
     .switch-btn.btn-to-on { background: #14532d; color: #86efac; border: 1px solid #16a34a; }
 
+    /* MODALES FLOTANTES AISLADOS */
     .modal-overlay {
       position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.85) !important;
       backdrop-filter: blur(6px) !important; z-index: 999999 !important;
@@ -350,7 +354,6 @@
             <span style="font-size:9.5px; color:#aaa; display:block;" id="lblSesionTurno">Turno Mañana</span>
             <span style="font-size:9.5px; color:#86efac; display:block;" id="lblSesionCajaChica">Caja: S/ 100.00</span>
           </div>
-          <!-- BOTÓN CERRAR CAJA: ABRE LA LIQUIDACIÓN DEL DÍA DIRECTAMENTE -->
           <button type="button" class="btn btn-del" style="padding:4px 7px; font-size:10px;" onclick="abrirModalLiquidacionCierre()">Cerrar Caja</button>
         </div>
 
@@ -1054,7 +1057,7 @@
     }
     function probarSonidoCampanaCocina() { reproducirSonidoCampanaCocina(); }
 
-    // LOGIN DINÁMICO
+    // LOGIN DINÁMICO & ASINCRÓNICO
     async function inicializarSelectorLoginUsuarios() {
       const selector = document.getElementById('loginUsuarioSelector');
       if (!selector) return;
@@ -1088,25 +1091,27 @@
       `).join('');
     }
 
-    async function verificarLoginSistema(e) {
-      e.preventDefault();
+    // ACCESO INMEDIATO (SIN ESPERAS DE RED)
+    function verificarLoginSistema(e) {
+      if (e) e.preventDefault();
       const selector = document.getElementById('loginUsuarioSelector');
-      const nombreSeleccionado = selector.value || "Administrador";
+      const nombreSeleccionado = (selector ? selector.value : "") || "Administrador";
       const passIngresada = document.getElementById('loginPassword').value.trim();
       const turno = document.getElementById('loginTurno').value;
       const caja = parseFloat(document.getElementById('loginCajaChica').value) || 0;
 
+      // BYPASS DE CLAVES MAESTRAS DE ACCESO DIRECTO
       const esClaveMaestraAdmin = (passIngresada === "regocijo123" || passIngresada === PASSWORD_MAESTRA_VAULT);
       const esClaveOperativa = (passIngresada === "caja123");
 
       const userValido = listaUsuariosFirebase.find(u => 
-        u.nombre && u.nombre.toLowerCase() === nombreSeleccionado.toLowerCase() && u.pass === passIngresada
+        u.nombre && u.nombre.toLowerCase().trim() === nombreSeleccionado.toLowerCase().trim() && u.pass === passIngresada
       );
 
-      if (userValido || esClaveMaestraAdmin || esClaveOperativa) {
+      if (esClaveMaestraAdmin || esClaveOperativa || userValido) {
         let rolFinal = 'admin';
-        if (userValido) rolFinal = userValido.rol;
-        else if (esClaveMaestraAdmin) rolFinal = 'admin';
+        if (esClaveMaestraAdmin) rolFinal = 'admin';
+        else if (userValido) rolFinal = userValido.rol;
         else if (esClaveOperativa) rolFinal = selector.selectedOptions[0]?.dataset?.rol || 'cajero';
 
         sessionStorage.setItem("auth_rest", "true");
@@ -1121,7 +1126,8 @@
       }
     }
 
-    async function mostrarPanelAdmin() {
+    function mostrarPanelAdmin() {
+      // 1. Ocultar Login y Mostrar Panel inmediatamente en pantalla
       document.getElementById('pantallaLogin').style.display = 'none';
       document.getElementById('panelAdminPrincipal').style.display = 'block';
 
@@ -1141,18 +1147,18 @@
 
       document.getElementById('kdsFechaSeleccionada').value = fechaKdsSeleccionada;
 
-      try {
-        await cargarIdentidadFirebase();
-        await cargarMesasDesdeFirebase();
-        if (esAdmin) await cargarUsuariosDesdeFirebase();
-        await sincronizarTokensDeMesasFirebase();
+      // 2. Cargar datos en segundo plano de forma protegida con try/catch individual
+      Promise.allSettled([
+        cargarIdentidadFirebase(),
+        cargarMesasDesdeFirebase(),
+        esAdmin ? cargarUsuariosDesdeFirebase() : Promise.resolve(),
+        sincronizarTokensDeMesasFirebase(),
+        cargarComandasEnVivo(),
+        cargarReservasFirebase()
+      ]).then(() => {
         renderizarVisualDishes();
-        await cargarComandasEnVivo();
-        cargarReservasFirebase();
         actualizarQRVisualDirecto();
-      } catch (err) {
-        console.error("Error al cargar datos iniciales:", err);
-      }
+      });
 
       setInterval(cargarComandasEnVivo, 2000);
     }
@@ -2050,6 +2056,257 @@
       } catch (e) {}
 
       cont.innerHTML = '<p style="color:#aaa; font-size:13px;">No hay opiniones registradas aún.</p>';
+    }
+
+    // GESTIÓN DE MESAS Y CARGAS GENERALES
+    async function cargarMesasDesdeFirebase() {
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}config/mesas.json?_t=${Date.now()}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) listaMesasDinamicas = data;
+        }
+      } catch (e) {}
+      actualizarSelectoresDeMesas();
+    }
+
+    function actualizarSelectoresDeMesas() {
+      const qrSelect = document.getElementById('qrMesaSelectorDinamico');
+      if (qrSelect) {
+        const val = qrSelect.value;
+        qrSelect.innerHTML = listaMesasDinamicas.map(m => `<option value="${m}" ${m === val ? 'selected' : ''}>${m}</option>`).join('');
+      }
+
+      const resSelect = document.getElementById('resAdminMesaSelectorDinamico');
+      if (resSelect) {
+        resSelect.innerHTML = listaMesasDinamicas.map(m => `<option value="${m}">${m}</option>`).join('');
+      }
+    }
+
+    function generarTokenAleatorio() {
+      return "TK-" + Math.random().toString(36).substring(2, 8).toUpperCase() + "-" + Date.now().toString(36).toUpperCase();
+    }
+
+    function normalizarClaveMesa(m) {
+      return String(m || '').toLowerCase().replace(/[^a-z0-9]/g, '_');
+    }
+
+    async function regenerarTokenMesa(m) {
+      const key = normalizarClaveMesa(m);
+      const nuevoToken = generarTokenAleatorio();
+      tokensMesasActivos[key] = nuevoToken;
+      await fetch(`${FIREBASE_DB_URL}config/tokens_mesas/${key}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(nuevoToken)
+      });
+      return nuevoToken;
+    }
+
+    async function sincronizarTokensDeMesasFirebase() {
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}config/tokens_mesas.json?_t=${Date.now()}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && typeof data === 'object') tokensMesasActivos = data;
+        }
+      } catch (e) {}
+
+      let cambios = false;
+      for (const m of listaMesasDinamicas) {
+        const key = normalizarClaveMesa(m);
+        if (!tokensMesasActivos[key]) {
+          tokensMesasActivos[key] = generarTokenAleatorio();
+          cambios = true;
+        }
+      }
+      if (cambios) {
+        await fetch(`${FIREBASE_DB_URL}config/tokens_mesas.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(tokensMesasActivos)
+        });
+      }
+    }
+
+    async function obtenerEnlaceCompletoMesa(mesa) {
+      const u = "https://phyxcius.github.io/restaurante/";
+      const key = normalizarClaveMesa(mesa);
+      if (!tokensMesasActivos[key]) await regenerarTokenMesa(mesa);
+      const tk = tokensMesasActivos[key];
+      return `${u}?mesa=${encodeURIComponent(mesa)}&token=${encodeURIComponent(tk)}`;
+    }
+
+    async function abrirMenuConTokenActivo() {
+      const selector = document.getElementById('qrMesaSelectorDinamico');
+      const mesa = selector ? selector.value : (listaMesasDinamicas[0] || "Mesa 01");
+      const urlCompleta = await obtenerEnlaceCompletoMesa(mesa);
+      window.open(urlCompleta, '_blank');
+    }
+
+    async function copiarEnlaceMesaToken() {
+      const selector = document.getElementById('qrMesaSelectorDinamico');
+      const mesa = selector ? selector.value : (listaMesasDinamicas[0] || "Mesa 01");
+      const urlCompleta = await obtenerEnlaceCompletoMesa(mesa);
+      navigator.clipboard.writeText(urlCompleta).then(() => {
+        alert(`✔ Enlace copiado para ${mesa}:\n${urlCompleta}`);
+      }).catch(() => { prompt("Copia el enlace:", urlCompleta); });
+    }
+
+    async function abrirPromptAgregarMesa() {
+      const nombre = prompt("🪑 Ingresa nombre de la nueva mesa (Ej: Mesa 13, Mesa 25, VIP 2):");
+      if (!nombre || !nombre.trim()) return;
+      const m = nombre.trim();
+      if (listaMesasDinamicas.includes(m)) return alert("Esa mesa ya existe.");
+
+      listaMesasDinamicas.push(m);
+      await fetch(`${FIREBASE_DB_URL}config/mesas.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(listaMesasDinamicas)
+      });
+      await regenerarTokenMesa(m);
+      actualizarSelectoresDeMesas();
+      cargarComandasEnVivo();
+    }
+
+    function toggleModoEliminarMesas() {
+      modoEliminarMesasActivo = !modoEliminarMesasActivo;
+      document.getElementById('lblBtnModoEliminar').innerText = modoEliminarMesasActivo ? "✅ Finalizar Edición" : "🗑️ Modo Eliminar";
+      cargarComandasEnVivo();
+    }
+
+    async function eliminarMesaDirectaMonitor(m, event) {
+      if (event) event.stopPropagation();
+      if (confirm(`¿Eliminar la ${m}?`)) {
+        listaMesasDinamicas = listaMesasDinamicas.filter(item => item !== m);
+        await fetch(`${FIREBASE_DB_URL}config/mesas.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(listaMesasDinamicas)
+        });
+        actualizarSelectoresDeMesas();
+        cargarComandasEnVivo();
+      }
+    }
+
+    async function abrirPromptDesbloquearMesaManual() {
+      const num = prompt("🔓 Ingresa el nombre o número de la mesa a desbloquear:");
+      if (!num || !num.trim()) return;
+      const mesaNorm = normalizarNombreMesa(num.trim());
+      await forzarLiberacionMesa(mesaNorm);
+    }
+
+    function normalizarNombreMesa(m) {
+      if (!m) return "";
+      let s = String(m).trim();
+      const match = s.match(/\d+/);
+      if (match && s.toLowerCase().includes("mesa")) {
+        const num = parseInt(match[0]); return "Mesa " + (num < 10 ? "0" + num : num);
+      }
+      return s;
+    }
+
+    async function forzarLiberacionMesa(mesaNorm) {
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}comandas.json`);
+        if (res.ok) {
+          const data = await res.json();
+          for (let k in data) {
+            if (data[k] && normalizarNombreMesa(data[k].mesa || '') === mesaNorm) {
+              await fetch(`${FIREBASE_DB_URL}comandas/${k}.json`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ estado: 'liberado', agradecimientoFinal: true })
+              });
+            }
+          }
+        }
+      } catch (e) {}
+
+      await regenerarTokenMesa(mesaNorm);
+      alert(`✔ Mesa "${mesaNorm}" desbloqueada y liberada.`);
+      cargarComandasEnVivo();
+      actualizarQRVisualDirecto();
+    }
+
+    function clickPildoraMesaMonitor(m, estaOcupada) {
+      if (modoEliminarMesasActivo) return;
+      if (estaOcupada) {
+        if (confirm(`La ${m} figura OCUPADA.\n¿Deseas desbloquearla ahora?`)) {
+          forzarLiberacionMesa(normalizarNombreMesa(m));
+        }
+      } else alert(`La ${m} está LIBRE.`);
+    }
+
+    // IDENTIDAD Y LOGO
+    async function cargarIdentidadFirebase() {
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}config/identidad.json?_t=${Date.now()}`);
+        if (res.ok) {
+          const conf = await res.json();
+          if (conf) configRestaurante = Object.assign(configRestaurante, conf);
+        }
+      } catch (e) {}
+
+      document.getElementById('cfgBusinessName').value = configRestaurante.nombre || "La Cusqueñita";
+      document.getElementById('cfgBusinessSlogan').value = configRestaurante.eslogan || "";
+      document.getElementById('cfgRuc').value = configRestaurante.ruc || "20601234567";
+      document.getElementById('cfgDireccion').value = configRestaurante.direccion || "";
+      document.getElementById('cfgIgvTasa').value = configRestaurante.igv || 18;
+      document.getElementById('cfgWhatsapp').value = configRestaurante.whatsapp || "51969773064";
+      document.getElementById('cfgFacebook').value = configRestaurante.facebook || "";
+      document.getElementById('cfgInstagram').value = configRestaurante.instagram || "";
+      document.getElementById('cfgTiktok').value = configRestaurante.tiktok || "";
+
+      document.getElementById('headerBusinessName').innerText = configRestaurante.nombre;
+      document.getElementById('topBarTitle').innerText = configRestaurante.nombre;
+      document.getElementById('repLocalRazonSocial').innerText = configRestaurante.nombre;
+      document.getElementById('repLocalRuc').innerText = "RUC: " + configRestaurante.ruc;
+      document.getElementById('repLocalDireccion').innerText = configRestaurante.direccion;
+      document.getElementById('repFechaHoy').innerText = new Date().toLocaleDateString();
+
+      const av = document.getElementById('headerAvatar');
+      const prev = document.getElementById('previewCurrentLogo');
+      if (configRestaurante.logo && configRestaurante.logo.startsWith('data:image')) {
+        av.innerHTML = `<img src="${configRestaurante.logo}" alt="Logo" style="width:100%; height:100%; object-fit:cover;">`;
+        prev.innerHTML = `<img src="${configRestaurante.logo}" alt="Logo" style="width:100%; height:100%; object-fit:cover;">`;
+      } else {
+        av.innerText = configRestaurante.logo || "🍽️";
+        prev.innerText = configRestaurante.logo || "🍽️";
+      }
+    }
+
+    function convertirLogoABase64(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        configRestaurante.logo = e.target.result;
+        document.getElementById('previewCurrentLogo').innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;">`;
+        document.getElementById('headerAvatar').innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;">`;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function guardarIdentidadFirebase() {
+      configRestaurante.nombre = document.getElementById('cfgBusinessName').value.trim() || configRestaurante.nombre;
+      configRestaurante.eslogan = document.getElementById('cfgBusinessSlogan').value.trim();
+      configRestaurante.ruc = document.getElementById('cfgRuc').value.trim();
+      configRestaurante.direccion = document.getElementById('cfgDireccion').value.trim();
+      configRestaurante.igv = parseFloat(document.getElementById('cfgIgvTasa').value) || 18;
+      configRestaurante.whatsapp = document.getElementById('cfgWhatsapp').value.trim();
+      configRestaurante.facebook = document.getElementById('cfgFacebook').value.trim();
+      configRestaurante.instagram = document.getElementById('cfgInstagram').value.trim();
+      configRestaurante.tiktok = document.getElementById('cfgTiktok').value.trim();
+
+      await fetch(`${FIREBASE_DB_URL}config/identidad.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(configRestaurante)
+      });
+      alert("✔ Identidad y Redes guardadas.");
+      cargarIdentidadFirebase();
     }
 
     function cerrarSesionAdmin() {
