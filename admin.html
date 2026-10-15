@@ -25,6 +25,19 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
     body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
 
+    /* PANTALLA LOGIN */
+    #pantallaLogin {
+      display: flex; justify-content: center; align-items: center; min-height: 100vh;
+      padding: 16px; background: radial-gradient(circle at center, #241611 0%, #0d0806 100%);
+    }
+    .card-login {
+      background: var(--card-bg); border: 1.5px solid var(--accent); border-radius: 18px;
+      max-width: 360px; width: 100%; padding: 30px 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+      text-align: center;
+    }
+    .card-login h3 { color: var(--gold); margin-bottom: 4px; font-size: 20px; font-weight: 900; }
+    .card-login p.sub { font-size: 12px; color: var(--text-muted); margin-bottom: 18px; }
+
     /* BARRA SUPERIOR */
     .top-admin-bar {
       display: flex; background: #190f0c; border-bottom: 1.5px solid var(--card-border);
@@ -272,8 +285,26 @@
 </head>
 <body>
 
+  <!-- PANTALLA LOGIN FÁCIL -->
+  <div id="pantallaLogin">
+    <div class="card-login">
+      <div style="font-size:38px; margin-bottom:8px;">🍽️</div>
+      <h3>La Cusqueñita</h3>
+      <p class="sub">Acceso Administrador</p>
+      
+      <form onsubmit="verificarLoginAdminFacil(event)">
+        <label style="text-align:left;">Contraseña de Acceso:</label>
+        <input type="password" id="loginAdminPassword" placeholder="••••••••" autofocus required style="margin-top:6px; font-size:16px; text-align:center;">
+
+        <button type="submit" class="btn btn-save" style="margin-top:18px; width:100%; height:44px; font-size:14px;">
+          <i class="fa-solid fa-right-to-bracket"></i> Entrar al Panel
+        </button>
+      </form>
+    </div>
+  </div>
+
   <!-- DASHBOARD PRINCIPAL -->
-  <div id="panelAdminPrincipal">
+  <div id="panelAdminPrincipal" style="display: none;">
     <header class="top-admin-bar no-print" id="mainAdminHeaderBar">
       <button type="button" class="btn-toggle-global" onclick="toggleSidebarMenu()">
         <i class="fa-solid fa-bars"></i> <span>Menú</span>
@@ -383,10 +414,6 @@
           <button class="nav-item" id="btnNavPlatos" onclick="seleccionarOpcionNav('platos')">
             <i class="fa-solid fa-utensils"></i> Catálogo de Platos
           </button>
-
-          <button class="nav-item" id="btnNavUsuarios" onclick="seleccionarOpcionNav('usuarios')">
-            <i class="fa-solid fa-users-gear"></i> Gestión de Usuarios
-          </button>
           
           <button class="nav-item" id="btnNavIdentidad" onclick="seleccionarOpcionNav('identidad')">
             <i class="fa-solid fa-store"></i> Identidad & Redes Sociales
@@ -398,8 +425,8 @@
         </nav>
 
         <div style="margin-top:auto; display:flex; flex-direction:column; gap:8px;">
-          <button class="btn btn-del" style="width:100%;" onclick="abrirModalLiquidacionCierre()">
-            <i class="fa-solid fa-cash-register"></i> Arqueo y Cierre de Caja
+          <button class="btn btn-del" style="width:100%;" onclick="cerrarSesionAdmin()">
+            <i class="fa-solid fa-right-from-bracket"></i> Salir del Sistema
           </button>
         </div>
       </aside>
@@ -462,76 +489,7 @@
           <div class="live-orders-grid" id="liveOrdersGrid"></div>
         </section>
 
-        <!-- 2. GESTIÓN DE USUARIOS -->
-        <section id="viewUsuarios" style="display:none;">
-          <div class="view-header">
-            <div>
-              <h1>👥 Gestión de Usuarios y Permisos</h1>
-              <p>Crea cuentas para tu personal operativo.</p>
-            </div>
-            <button class="btn btn-add" onclick="cargarUsuariosDesdeFirebase()"><i class="fa-solid fa-rotate"></i> Actualizar</button>
-          </div>
-
-          <div class="card">
-            <strong style="color:var(--gold); font-size:14px;">
-              <i class="fa-solid fa-user-plus"></i> <span id="lblFormUsuarioTitulo">Registrar Nuevo Usuario</span>
-            </strong>
-            <form onsubmit="guardarUsuarioSistema(event)" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-top:10px;">
-              <input type="hidden" id="usuarioEditandoId" value="">
-              
-              <div>
-                <label>Nombre y Apellido del Operador:</label>
-                <input type="text" id="userInputNombre" placeholder="Ej: Carlos Salón" required>
-              </div>
-
-              <div>
-                <label>Rol / Nivel de Acceso:</label>
-                <select id="userInputRol" required>
-                  <option value="admin">Administrador (Acceso total)</option>
-                  <option value="cajero" selected>Cajero (Cobros y KDS)</option>
-                  <option value="mozo">Mozo (Salón y pedidos)</option>
-                  <option value="cocina">Cocinero (Solo KDS cocina)</option>
-                </select>
-              </div>
-
-              <div>
-                <label>Contraseña de Acceso:</label>
-                <input type="password" id="userInputPass" placeholder="••••••••" required>
-              </div>
-
-              <div style="display:flex; align-items:flex-end; gap:8px;">
-                <button type="submit" class="btn btn-save" style="flex:1; height:42px;">
-                  <i class="fa-solid fa-floppy-disk"></i> <span id="btnGuardarUserTxt">Guardar Usuario</span>
-                </button>
-                <button type="button" class="btn btn-del" id="btnCancelarEdicionUser" style="display:none; height:42px;" onclick="cancelarEdicionUsuario()">
-                  Cancelar
-                </button>
-              </div>
-            </form>
-          </div>
-
-          <div class="card">
-            <strong style="color:var(--gold); font-size:14px; margin-bottom:8px; display:block;">
-              Usuarios Registrados en el Sistema (<span id="totalUsuariosTxt">0</span>):
-            </strong>
-            <table class="custom-table">
-              <thead>
-                <tr>
-                  <th>Operador / Nombre</th>
-                  <th>Rol Asignado</th>
-                  <th>Contraseña</th>
-                  <th>Fecha de Alta</th>
-                  <th style="text-align:center;">Acciones</th>
-                </tr>
-              </thead>
-              <tbody id="tablaUsuariosBody">
-                <tr><td colspan="5" style="text-align:center; color:#aaa;">Cargando usuarios...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <!-- 3. CATÁLOGO DE PLATOS -->
+        <!-- 2. CATÁLOGO DE PLATOS -->
         <section id="viewPlatos" style="display:none;">
           <div class="view-header">
             <div>
@@ -543,7 +501,7 @@
           <div class="dishes-grid" id="dishesVisualGrid"></div>
         </section>
 
-        <!-- 4. GENERACIÓN DE RESERVAS -->
+        <!-- 3. GENERACIÓN DE RESERVAS -->
         <section id="viewReservas" style="display:none;">
           <div class="view-header">
             <div>
@@ -591,7 +549,7 @@
           <div id="contenedorReservasAdminList" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:14px;"></div>
         </section>
 
-        <!-- 5. IDENTIDAD, SUNAT Y REDES SOCIALES -->
+        <!-- 4. IDENTIDAD, SUNAT Y REDES SOCIALES -->
         <section id="viewIdentidad" style="display:none;">
           <div class="view-header"><h1>🏪 Identidad del Negocio & Redes Sociales</h1></div>
           <div class="card">
@@ -653,7 +611,7 @@
           </div>
         </section>
 
-        <!-- 6. REPORTE CONTABLE -->
+        <!-- 5. REPORTE CONTABLE -->
         <section id="viewReportes" style="display:none;">
           <div class="view-header">
             <div>
@@ -679,7 +637,7 @@
                 <tr>
                   <th>Fecha/Hora</th>
                   <th>Mesa / Cliente</th>
-                  <th>Operador</th>
+                  <th>DNI Socio</th>
                   <th>Platos Consumidos</th>
                   <th>Pago</th>
                   <th>Base Imp.</th>
@@ -692,7 +650,7 @@
           </div>
         </section>
 
-        <!-- 7. QR MESAS -->
+        <!-- 6. QR MESAS -->
         <section id="viewMesas" style="display:none;">
           <div class="view-header">
             <div>
@@ -736,7 +694,7 @@
           </div>
         </section>
 
-        <!-- 8. RESEÑAS -->
+        <!-- 7. RESEÑAS -->
         <section id="viewResenas" style="display:none;">
           <div class="view-header">
             <div>
@@ -752,7 +710,7 @@
     </div>
   </div>
 
-  <!-- MODAL FLOTANTE 1: EDICIÓN DE PLATOS -->
+  <!-- MODAL: EDICIÓN DE PLATOS -->
   <div class="modal-overlay" id="dishModal" onclick="cerrarModalPlato()">
     <div class="modal-box" onclick="event.stopPropagation()">
       <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -800,7 +758,7 @@
     </div>
   </div>
 
-  <!-- MODAL FLOTANTE 2: COBRO DE MESA CON DNI FIDELIDAD -->
+  <!-- MODAL: COBRO CON CASILLA DNI FIDELIDAD -->
   <div class="modal-overlay" id="modalCobroMesa" onclick="cerrarModalCobro()">
     <div class="modal-box" onclick="event.stopPropagation()">
       <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -865,7 +823,7 @@
     </div>
   </div>
 
-  <!-- MODAL FLOTANTE 3: LIQUIDACIÓN Y ARQUEO DE CAJA DEL TURNO -->
+  <!-- MODAL: LIQUIDACIÓN Y ARQUEO -->
   <div class="modal-overlay" id="modalLiquidacionCierre" onclick="cerrarModalLiquidacion()">
     <div class="modal-box" onclick="event.stopPropagation()" style="max-width: 600px;">
       <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.15); padding-bottom:8px;">
@@ -972,9 +930,6 @@
       "Mesa 11", "Mesa 12", "Barra", "Terraza 1", "Terraza 2"
     ];
 
-    let listaUsuariosFirebase = [
-      { id: "usr-admin-principal", nombre: "Administrador", rol: "admin", pass: "regocijo123" }
-    ];
     let tokensMesasActivos = {};
     let platoEditandoId = null;
     let comandaCobrandoActual = null;
@@ -982,7 +937,7 @@
     let filtroEstadoKDSActual = "todos";
     let totalComandasPrevias = 0;
     
-    // Asignación segura de fecha actual
+    // Fecha actual formateada
     let fechaKdsSeleccionada = new Date().toISOString().split('T')[0];
     let modoEliminarMesasActivo = false;
 
@@ -1029,6 +984,22 @@
     }
     function probarSonidoCampanaCocina() { reproducirSonidoCampanaCocina(); }
 
+    // LOGIN FÁCIL DIRECTO
+    function verificarLoginAdminFacil(e) {
+      if (e) e.preventDefault();
+      const pass = document.getElementById('loginAdminPassword').value.trim();
+
+      if (pass === "regocijo123" || pass === PASSWORD_MAESTRA_VAULT) {
+        sessionStorage.setItem("auth_admin_ok", "true");
+        document.getElementById('pantallaLogin').style.display = 'none';
+        document.getElementById('panelAdminPrincipal').style.display = 'block';
+        iniciarCargasGenerales();
+      } else {
+        alert("⛔ Contraseña incorrecta. (Prueba con regocijo123)");
+        document.getElementById('loginAdminPassword').value = "";
+      }
+    }
+
     function toggleSidebarMenu() {
       const layout = document.getElementById('adminLayoutWrapper');
       if (window.innerWidth <= 860) layout.classList.toggle('sidebar-open');
@@ -1041,11 +1012,11 @@
       if (window.innerWidth <= 860) cerrarMenuMovil();
     }
 
-    // NAVEGACIÓN TOTALMENTE AISLADA Y SEGURA
+    // NAVEGACIÓN TOTALMENTE AISLADA (Sin Gestión de Usuarios)
     function mostrarSeccion(s) {
       try {
         document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-        ['comandas','platos','usuarios','reservas','identidad','reportes','mesas','resenas'].forEach(id => {
+        ['comandas','platos','reservas','identidad','reportes','mesas','resenas'].forEach(id => {
           const el = document.getElementById('view' + id.charAt(0).toUpperCase() + id.slice(1));
           if (el) el.style.display = 'none';
         });
@@ -1056,7 +1027,6 @@
 
         if (s === 'comandas') cargarComandasEnVivo();
         if (s === 'platos') renderizarVisualDishes();
-        if (s === 'usuarios') cargarUsuariosDesdeFirebase();
         if (s === 'reservas') cargarReservasFirebase();
         if (s === 'mesas') actualizarQRVisualDirecto();
         if (s === 'resenas') cargarResenasFirebase();
@@ -1124,130 +1094,6 @@
         await fetch(`${FIREBASE_DB_URL}ventas.json`, { method: 'DELETE' });
         alert("✔ Historial contable de ventas reseteado.");
         document.getElementById('tablaVentasBody').innerHTML = '<tr><td colspan="8" style="text-align:center; color:#888;">Historial en limpio.</td></tr>';
-      }
-    }
-
-    // USUARIOS
-    async function cargarUsuariosDesdeFirebase() {
-      const tbody = document.getElementById('tablaUsuariosBody');
-      const totalTxt = document.getElementById('totalUsuariosTxt');
-
-      try {
-        const res = await fetch(`${FIREBASE_DB_URL}config/usuarios.json?_t=${Date.now()}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data && typeof data === 'object') {
-            listaUsuariosFirebase = Object.keys(data).map(k => Object.assign({ id: k }, data[k]));
-          }
-        }
-      } catch (e) {}
-
-      if (totalTxt) totalTxt.innerText = listaUsuariosFirebase.length;
-      renderizarTablaUsuarios();
-    }
-
-    function renderizarTablaUsuarios() {
-      const tbody = document.getElementById('tablaUsuariosBody');
-      if (!tbody) return;
-
-      tbody.innerHTML = listaUsuariosFirebase.map(u => {
-        const esCreador = (u.id === "usr-admin-principal" || u.nombre.toLowerCase() === "administrador");
-        let badgeColor = "#0284c7";
-        if (u.rol === 'admin') badgeColor = "#ef4444";
-        else if (u.rol === 'mozo') badgeColor = "#16a34a";
-        else if (u.rol === 'cocina') badgeColor = "#f59e0b";
-
-        return `
-          <tr>
-            <td><b style="color:#fff;">${u.nombre}</b></td>
-            <td>
-              <span style="background:${badgeColor}; color:#fff; padding:3px 8px; border-radius:6px; font-weight:bold; font-size:11px; text-transform:uppercase;">
-                ${u.rol}
-              </span>
-            </td>
-            <td><span style="font-family:monospace; color:#aaa;">••••••••</span></td>
-            <td>${u.fecha || 'Activo'}</td>
-            <td style="text-align:center; white-space:nowrap;">
-              <button class="btn btn-save" style="padding:4px 8px; font-size:11px;" onclick="cargarDatosParaEditarUsuario('${u.id}')" title="Editar">
-                <i class="fa-solid fa-pen"></i> Editar
-              </button>
-              ${!esCreador ? `
-                <button class="btn btn-del" style="padding:4px 8px; font-size:11px; margin-left:4px;" onclick="eliminarUsuarioFirebase('${u.id}', '${u.nombre}')" title="Eliminar">
-                  <i class="fa-solid fa-trash"></i> Eliminar
-                </button>
-              ` : '<span style="font-size:11px; color:#fbbf24; font-weight:bold; margin-left:6px;">🔒 Creador Protegido</span>'}
-            </td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    async function guardarUsuarioSistema(e) {
-      e.preventDefault();
-      const idEditando = document.getElementById('usuarioEditandoId').value;
-      const nombre = document.getElementById('userInputNombre').value.trim();
-      const rol = document.getElementById('userInputRol').value;
-      const pass = document.getElementById('userInputPass').value.trim();
-
-      if (!nombre || !pass) return alert("Completa todos los campos.");
-
-      const idFinal = idEditando || ("usr-" + Date.now());
-      const usuarioData = {
-        id: idFinal,
-        nombre: nombre,
-        rol: rol,
-        pass: pass,
-        fecha: new Date().toLocaleDateString()
-      };
-
-      try {
-        await fetch(`${FIREBASE_DB_URL}config/usuarios/${idFinal}.json`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(usuarioData)
-        });
-
-        alert(`✔ Usuario "${nombre}" guardado con éxito.`);
-        cancelarEdicionUsuario();
-        cargarUsuariosDesdeFirebase();
-      } catch (err) { alert("Error al guardar: " + err.message); }
-    }
-
-    function cargarDatosParaEditarUsuario(id) {
-      const u = listaUsuariosFirebase.find(user => user.id === id);
-      if (!u) return;
-
-      document.getElementById('usuarioEditandoId').value = u.id;
-      document.getElementById('userInputNombre').value = u.nombre;
-      document.getElementById('userInputRol').value = u.rol;
-      document.getElementById('userInputPass').value = u.pass;
-
-      document.getElementById('lblFormUsuarioTitulo').innerText = `Editar Usuario: ${u.nombre}`;
-      document.getElementById('btnGuardarUserTxt').innerText = "Actualizar Usuario";
-      document.getElementById('btnCancelarEdicionUser').style.display = "inline-flex";
-    }
-
-    function cancelarEdicionUsuario() {
-      document.getElementById('usuarioEditandoId').value = "";
-      document.getElementById('userInputNombre').value = "";
-      document.getElementById('userInputPass').value = "";
-      document.getElementById('userInputRol').value = "cajero";
-
-      document.getElementById('lblFormUsuarioTitulo').innerText = "Registrar Nuevo Usuario";
-      document.getElementById('btnGuardarUserTxt').innerText = "Guardar Usuario";
-      document.getElementById('btnCancelarEdicionUser').style.display = "none";
-    }
-
-    async function eliminarUsuarioFirebase(id, nombre) {
-      if (id === "usr-admin-principal" || nombre.toLowerCase() === "administrador") {
-        return alert("⛔ Acción denegada: No se puede eliminar el usuario creador / administrador principal.");
-      }
-      if (confirm(`¿Estás seguro de eliminar al usuario "${nombre}"?`)) {
-        try {
-          await fetch(`${FIREBASE_DB_URL}config/usuarios/${id}.json`, { method: 'DELETE' });
-          alert(`✔ Usuario "${nombre}" eliminado.`);
-          cargarUsuariosDesdeFirebase();
-        } catch (e) { alert("Error al eliminar: " + e.message); }
       }
     }
 
@@ -1328,7 +1174,7 @@
       renderizarVisualDishes();
     }
 
-    // MODAL COBRO (CON DNI PARA FIDELIZACIÓN)
+    // MODAL COBRO (CON DNI PARA FIDELIZACIÓN CLUB.HTML)
     async function abrirModalCobroComanda(idComanda) {
       let comanda = todasLasComandasCache.find(c => c.id === idComanda);
       if (!comanda) {
@@ -1658,7 +1504,7 @@
           <hr>
           <div class="left" style="font-size:10px;">
             <b>VENTAS DETALLADAS (${d.ventasTurno.length}):</b><br>
-            ${d.ventasTurno.map(v => `${v.fecha.split(' ')[1] || ''} - ${v.mesa}: S/ ${(v.totalPEN||0).toFixed(2)} (${v.pago})`).join('<br>')}
+            ${d.ventasTurno.map(v => `${v.fecha.split(' ')[1] \vert{}\vert{} ''} -${v.mesa}: S/ ${(v.totalPEN\vert{}\vert{}0).toFixed(2)} (${v.pago})`).join('<br>')}
           </div>
           <hr>
           <p style="font-size:11px; margin-top:14px;">Firma del Responsable: ____________________</p>
@@ -1672,7 +1518,7 @@
       }, 500);
     }
 
-    // RENDERIZADO KDS (PROTEGIDO)
+    // RENDERIZADO KDS PROTEGIDO
     function renderizarListaKDSFiltrada() {
       const grid = document.getElementById('liveOrdersGrid');
       if (!grid) return;
@@ -1837,7 +1683,7 @@
       } catch (e) {}
     }
 
-    // CARGA DE COMANDAS ROBUSTA
+    // CARGA DE COMANDAS EN VIVO
     async function cargarComandasEnVivo() {
       const grid = document.getElementById('liveOrdersGrid');
       const monitorGrid = document.getElementById('tablesMonitorGrid');
@@ -1917,6 +1763,165 @@
       }
       document.getElementById('kdsFechaSeleccionada').value = fechaKdsSeleccionada;
       renderizarListaKDSFiltrada();
+    }
+
+    // CATÁLOGO
+    function renderizarVisualDishes() {
+      const grid = document.getElementById('dishesVisualGrid');
+      if (!grid) return;
+
+      grid.innerHTML = catalogo.map((dish, idx) => {
+        const es = dish.i18n?.es || { name: dish.nombre || "Plato", desc: dish.descripcion || "" };
+        const disp = dish.disponible !== false;
+
+        return `
+          <div class="dish-card-visual ${disp ? '' : 'agotado'}">
+            <div class="dish-media">
+              <img src="${dish.posterUrl || 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500'}" alt="${es.name}">
+            </div>
+            <div style="padding:14px; display:flex; flex-direction:column; gap:6px;">
+              <strong style="font-size:16px;">${es.name}</strong>
+              <span style="font-size:12px; color:#aaa;">${es.desc}</span>
+              <div style="font-size:18px; font-weight:900; color:#fde047; margin-top:4px;">S/ ${(dish.precioPEN || dish.precio || 0).toFixed(2)}</div>
+              
+              <div style="display:flex; justify-content:space-between; align-items:center; background:#18100c; padding:6px 10px; border-radius:6px; margin-top:8px;">
+                <span style="font-size:11px; font-weight:bold; color:${disp ? '#86efac' : '#fca5a5'};">${disp ? '🟢 Disponible' : '🔴 Agotado'}</span>
+                <button class="switch-btn ${disp ? 'btn-to-off' : 'btn-to-on'}" onclick="toggleStock(${idx})">${disp ? 'Agotar' : 'Activar'}</button>
+              </div>
+
+              <button type="button" class="btn btn-save" style="margin-top:8px; padding:7px; font-size:12px;" onclick="abrirModalPlato('${dish.id}')">
+                <i class="fa-solid fa-pen-to-square"></i> ✏️ Editar Plato
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleStock(idx) {
+      catalogo[idx].disponible = (catalogo[idx].disponible === false);
+      renderizarVisualDishes();
+    }
+
+    // QR
+    async function actualizarQRVisualDirecto(mesaManual = null) {
+      const selector = document.getElementById('qrMesaSelectorDinamico');
+      const mesa = mesaManual || (selector ? selector.value : (listaMesasDinamicas[0] || "Mesa 01"));
+      const tel = document.getElementById('qrTelefonoInput').value.trim() || "+51969773064";
+      const link = await obtenerEnlaceCompletoMesa(mesa);
+
+      document.getElementById('qrPrintNumeroMesa').innerText = mesa.toUpperCase();
+      document.getElementById('qrPrintTelefonoContacto').innerText = `Pedidos: ${tel}`;
+      document.getElementById('imgQRVisualCentrado').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(link)}`;
+    }
+
+    async function imprimirTarjetaMesaQR() {
+      const selector = document.getElementById('qrMesaSelectorDinamico');
+      const mesa = selector ? selector.value : (listaMesasDinamicas[0] || "Mesa 01");
+      const tel = document.getElementById('qrTelefonoInput').value.trim() || "+51969773064";
+      const link = await obtenerEnlaceCompletoMesa(mesa);
+      const qrImgSrc = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodeURIComponent(link)}`;
+      
+      const ventana = window.open('', '_blank');
+      ventana.document.write(`
+        <!DOCTYPE html><html><head><title>QR ${mesa}</title>
+        <style>body{font-family:sans-serif;margin:0;padding:40px 20px;display:flex;justify-content:center;background:#fff;}
+        .card{border:2px dashed #000;border-radius:26px;padding:35px 28px;width:330px;text-align:center;}
+        img{width:230px;height:230px;margin:0 auto;display:block;}h1{margin:16px 0 4px;font-size:28px;}
+        </style></head><body>
+          <div class="card">
+            <h2>${configRestaurante.nombre.toUpperCase()}</h2>
+            <img src="${qrImgSrc}">
+            <h1>${mesa.toUpperCase()}</h1>
+            <p>Escanea con tu celular para ver la carta</p>
+            <p><b>Pedidos: ${tel}</b></p>
+          </div>
+          <script>window.onload = function(){ window.print(); window.close(); }<\/script>
+        </body></html>
+      `);
+      ventana.document.close();
+    }
+
+    // RESERVAS
+    async function crearNuevaReservaAdmin(e) {
+      e.preventDefault();
+      const id = "RES-" + Date.now();
+      const res = {
+        id: id,
+        cliente: document.getElementById('resAdminTitular').value.trim(),
+        telefono: document.getElementById('resAdminTel').value.trim(),
+        fechaReserva: document.getElementById('resAdminFecha').value,
+        horaReserva: document.getElementById('resAdminHora').value,
+        personas: document.getElementById('resAdminPersonas').value,
+        mesaAsignada: document.getElementById('resAdminMesaSelectorDinamico').value,
+        notas: document.getElementById('resAdminNotas').value.trim() || 'Sin notas',
+        fechaCreacion: new Date().toLocaleDateString()
+      };
+
+      await fetch(`${FIREBASE_DB_URL}reservas/${id}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(res)
+      });
+
+      alert("✔ Reserva generada.");
+      e.target.reset();
+      cargarReservasFirebase();
+    }
+
+    async function cargarReservasFirebase() {
+      const cont = document.getElementById('contenedorReservasAdminList');
+      if (!cont) return;
+      let reservas = [];
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}reservas.json?_t=${Date.now()}`);
+        if (res.ok) {
+          const d = await res.json();
+          if (d) reservas = Object.keys(d).map(k => Object.assign({ id: k }, d[k]));
+        }
+      } catch (e) {}
+
+      if (reservas.length === 0) { cont.innerHTML = '<p style="color:#aaa; font-size:13px;">No hay reservas registradas.</p>'; return; }
+      cont.innerHTML = reservas.map(r => `
+        <div style="background:#1e1410; border:1.5px solid var(--accent); border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:6px;">
+          <div style="display:flex; justify-content:space-between;">
+            <strong style="color:#fff;">${r.cliente}</strong>
+            <span style="background:var(--primary); color:#fff; font-size:10px; padding:2px 6px; border-radius:4px;">${r.mesaAsignada || 'Mesa'}</span>
+          </div>
+          <div style="font-size:12px; color:#fde047;">📅 ${r.fechaReserva} • ⏰ ${r.horaReserva} • 👥 ${r.personas} Personas</div>
+          <div style="font-size:11px; color:#aaa;">📞 ${r.telefono} | Notas: ${r.notas}</div>
+        </div>
+      `).join('');
+    }
+
+    // RESEÑAS
+    async function cargarResenasFirebase() {
+      const cont = document.getElementById('contenedorResenasAdmin');
+      if (!cont) return;
+      cont.innerHTML = '<p style="color:#aaa; font-size:13px;">Cargando opiniones...</p>';
+
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}resenas.json?_t=${Date.now()}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && typeof data === 'object') {
+            const list = Object.values(data);
+            cont.innerHTML = list.map(r => `
+              <div style="background:#1a120f; padding:10px 12px; border-radius:10px; margin-bottom:8px; border:1px solid rgba(255,255,255,0.08);">
+                <div style="display:flex; justify-content:space-between;">
+                  <strong style="color:#fde047;">${r.autor || 'Cliente'} (${'⭐'.repeat(r.rating || 5)})</strong>
+                  <span style="font-size:11px; color:#aaa;">${r.fecha || ''}</span>
+                </div>
+                ${r.plato ? `<div style="font-size:11.5px; color:#86efac; margin-top:2px;"><b>Plato:</b> ${r.plato}</div>` : ''}
+                <p style="font-size:12.5px; color:#eee; margin-top:4px;">"${r.texto || ''}"</p>
+              </div>
+            `).join('');
+            return;
+          }
+        }
+      } catch (e) {}
+
+      cont.innerHTML = '<p style="color:#aaa; font-size:13px;">No hay opiniones registradas aún.</p>';
     }
 
     // MESAS
@@ -2072,6 +2077,16 @@
       await forzarLiberacionMesa(mesaNorm);
     }
 
+    function normalizarNombreMesa(m) {
+      if (!m) return "";
+      let s = String(m).trim();
+      const match = s.match(/\d+/);
+      if (match && s.toLowerCase().includes("mesa")) {
+        const num = parseInt(match[0]); return "Mesa " + (num < 10 ? "0" + num : num);
+      }
+      return s;
+    }
+
     async function forzarLiberacionMesa(mesaNorm) {
       try {
         const res = await fetch(`${FIREBASE_DB_URL}comandas.json`);
@@ -2174,8 +2189,12 @@
       cargarIdentidadFirebase();
     }
 
-    // ARRANQUE BLINDADO (Sin bloqueos)
-    window.addEventListener('DOMContentLoaded', () => {
+    function cerrarSesionAdmin() {
+      sessionStorage.removeItem("auth_admin_ok");
+      window.location.reload();
+    }
+
+    function iniciarCargasGenerales() {
       const dateInput = document.getElementById('kdsFechaSeleccionada');
       if (dateInput) {
         dateInput.value = fechaKdsSeleccionada;
@@ -2185,12 +2204,23 @@
 
       cargarIdentidadFirebase().catch(()=>{});
       cargarMesasDesdeFirebase().catch(()=>{});
-      cargarUsuariosDesdeFirebase().catch(()=>{});
       sincronizarTokensDeMesasFirebase().catch(()=>{});
       cargarComandasEnVivo().catch(()=>{});
       cargarReservasFirebase().catch(()=>{});
 
       setInterval(cargarComandasEnVivo, 2500);
+    }
+
+    // INICIALIZACIÓN CON VERIFICACIÓN DE SESIÓN ACTIVA
+    window.addEventListener('DOMContentLoaded', () => {
+      if (sessionStorage.getItem("auth_admin_ok") === "true") {
+        document.getElementById('pantallaLogin').style.display = 'none';
+        document.getElementById('panelAdminPrincipal').style.display = 'block';
+        iniciarCargasGenerales();
+      } else {
+        document.getElementById('pantallaLogin').style.display = 'flex';
+        document.getElementById('panelAdminPrincipal').style.display = 'none';
+      }
     });
   </script>
 </body>
