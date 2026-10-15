@@ -32,11 +32,15 @@
     }
     .card-login {
       background: var(--card-bg); border: 1.5px solid var(--accent); border-radius: 18px;
-      max-width: 360px; width: 100%; padding: 30px 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
-      text-align: center;
+      max-width: 430px; width: 100%; padding: 26px 22px; box-shadow: 0 10px 35px rgba(0,0,0,0.8);
     }
-    .card-login h3 { color: var(--gold); margin-bottom: 4px; font-size: 20px; font-weight: 900; }
-    .card-login p.sub { font-size: 12px; color: var(--text-muted); margin-bottom: 18px; }
+    .card-login h3 { color: var(--gold); text-align: center; margin-bottom: 4px; font-size: 20px; font-weight: 900; }
+    .card-login p.sub { font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 16px; }
+
+    .caja-chica-box {
+      background: #180e0a; border: 1.5px dashed var(--accent); border-radius: 10px;
+      padding: 12px; margin-top: 10px;
+    }
 
     /* BARRA SUPERIOR */
     .top-admin-bar {
@@ -209,20 +213,6 @@
       font-size: 11px; font-weight: 900; padding: 3px 8px; border-radius: 8px; display: inline-flex; align-items: center; gap: 4px;
     }
 
-    .badge-dni-socio {
-      background: rgba(34, 197, 94, 0.2);
-      border: 1px dashed #22c55e;
-      color: #86efac;
-      font-size: 11px;
-      font-weight: 800;
-      padding: 3px 8px;
-      border-radius: 6px;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      margin-top: 3px;
-    }
-
     .order-items-box { font-size: 14px; font-weight: 800; color: #fde047; line-height: 1.4; padding: 4px 0; }
     .order-notes-tag { font-size: 12px; color: #fca5a5; background: rgba(0,0,0,0.3); padding: 5px 8px; border-radius: 6px; border-left: 3px solid #f87171; }
     .order-bottom-bar { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 8px; font-size: 12.5px; }
@@ -246,14 +236,16 @@
     .switch-btn.btn-to-off { background: #451a1a; color: #fca5a5; border: 1px solid #dc2626; }
     .switch-btn.btn-to-on { background: #14532d; color: #86efac; border: 1px solid #16a34a; }
 
-    /* MODALES FLOTANTES */
+    /* MODALES FLOTANTES AISLADOS (CORREGIDO: SIEMPRE OCULTOS HASTA QUE SE ACTIVEN) */
     .modal-overlay {
       position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.85) !important;
       backdrop-filter: blur(6px) !important; z-index: 999999 !important;
       display: none !important; align-items: center !important; justify-content: center !important;
       padding: 16px !important;
     }
-    .modal-overlay.active { display: flex !important; }
+    .modal-overlay.active {
+      display: flex !important;
+    }
     .modal-box {
       background: var(--card-bg) !important; border: 1.5px solid var(--card-border) !important;
       border-radius: 16px !important; max-width: 520px !important; width: 100% !important;
@@ -285,19 +277,44 @@
 </head>
 <body>
 
-  <!-- PANTALLA LOGIN FÁCIL -->
+  <!-- PANTALLA LOGIN DINÁMICO -->
   <div id="pantallaLogin">
     <div class="card-login">
-      <div style="font-size:38px; margin-bottom:8px;">🍽️</div>
-      <h3>La Cusqueñita</h3>
-      <p class="sub">Acceso Administrador</p>
+      <div style="text-align:center; font-size:38px; margin-bottom:6px;">🍽️</div>
+      <h3 id="loginTitlePreview">La Cusqueñita</h3>
+      <p class="sub">Inicio de Sesión & Apertura de Turno</p>
       
-      <form onsubmit="verificarLoginAdminFacil(event)">
-        <label style="text-align:left;">Contraseña de Acceso:</label>
-        <input type="password" id="loginAdminPassword" placeholder="••••••••" autofocus required style="margin-top:6px; font-size:16px; text-align:center;">
+      <form onsubmit="verificarLoginSistema(event)">
+        <label>Usuario / Rol:</label>
+        <select id="loginUsuarioSelector">
+          <option value="admin">Administrador (Gerencia)</option>
+          <option value="cajero">Cajero / Cobranzas</option>
+          <option value="mozo">Mozo / Salón</option>
+          <option value="cocina">Cocinero</option>
+        </select>
 
-        <button type="submit" class="btn btn-save" style="margin-top:18px; width:100%; height:44px; font-size:14px;">
-          <i class="fa-solid fa-right-to-bracket"></i> Entrar al Panel
+        <label>Nombre del Operador:</label>
+        <input type="text" id="loginUsuarioNombre" value="Administrador" required>
+
+        <label>Contraseña:</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" required>
+
+        <div class="caja-chica-box">
+          <div style="font-size:12px; font-weight:900; color:var(--gold); margin-bottom:6px;">
+            <i class="fa-solid fa-cash-register"></i> APERTURA DE CAJA CHICA
+          </div>
+          <label style="margin-top:0;">Turno:</label>
+          <select id="loginTurno">
+            <option value="Mañana (07:00 - 15:00)">Turno Mañana (07:00 - 15:00)</option>
+            <option value="Tarde (15:00 - 23:00)">Turno Tarde (15:00 - 23:00)</option>
+            <option value="Noche (23:00 - 07:00)">Turno Noche (23:00 - 07:00)</option>
+          </select>
+          <label>Monto Inicial de Caja (S/):</label>
+          <input type="number" step="0.5" id="loginCajaChica" value="100.00" required>
+        </div>
+
+        <button type="submit" class="btn btn-save" style="margin-top:16px; width:100%;">
+          <i class="fa-solid fa-right-to-bracket"></i> Abrir Caja & Entrar al Sistema
         </button>
       </form>
     </div>
@@ -313,7 +330,7 @@
       <div class="top-brand-center">
         <div style="font-weight:900; font-size:14px; color:var(--gold);" id="topBarTitle">La Cusqueñita</div>
         <a href="https://www.lachuspaanuncios.com/" target="_blank" class="top-chuspa-badge" title="La Chuspa Tech">
-          <img src="CHUSPITA-circulo.png" alt="La Chuspa" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
+          <img src="CHUSPITA-circulo.png" alt="La Chuspa" onerror="this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png'">
           <span style="font-size:10px; font-weight:900; color:#fde047;">La Chuspa Tech</span>
         </a>
       </div>
@@ -338,15 +355,16 @@
 
         <div class="user-session-badge">
           <div>
-            <b id="lblSesionUsuario">Administrador</b>
-            <span style="font-size:9.5px; color:#aaa; display:block;" id="lblSesionTurno">Turno General</span>
+            <b id="lblSesionUsuario">Admin</b>
+            <span style="font-size:9.5px; color:#aaa; display:block;" id="lblSesionTurno">Turno Mañana</span>
             <span style="font-size:9.5px; color:#86efac; display:block;" id="lblSesionCajaChica">Caja: S/ 100.00</span>
           </div>
-          <button type="button" class="btn btn-del" style="padding:4px 7px; font-size:10px;" onclick="abrirModalLiquidacionCierre()">Cerrar Caja</button>
+          <button type="button" class="btn btn-del" style="padding:4px 7px; font-size:10px;" onclick="cerrarTurno()">Cerrar Caja</button>
         </div>
 
-        <!-- ACORDEONES DEL VAULT -->
-        <div style="display:flex; flex-direction:column; gap:2px;">
+        <!-- ACORDEONES DEL VAULT (SOLO VISIBLES PARA EL ADMINISTRADOR) -->
+        <div class="rol-admin-only" style="display:flex; flex-direction:column; gap:2px;">
+          <!-- ACORDEÓN 1: TOKEN GITHUB -->
           <div class="vault-box">
             <button class="vault-trigger" type="button" onclick="toggleAcordeonClave('token')">
               <span><i class="fa-solid fa-key"></i> Token GitHub</span>
@@ -362,6 +380,7 @@
             </div>
           </div>
 
+          <!-- ACORDEÓN 2: RESETEAR COMANDAS Y MESAS -->
           <div class="vault-box danger-vault">
             <button class="vault-trigger" type="button" onclick="toggleAcordeonClave('resetComandas')">
               <span><i class="fa-solid fa-broom"></i> Reset Comandas & Mesas</span>
@@ -377,6 +396,7 @@
             </div>
           </div>
 
+          <!-- ACORDEÓN 3: RESETEAR HISTORIAL CONTABLE / REPORTES -->
           <div class="vault-box danger-vault">
             <button class="vault-trigger" type="button" onclick="toggleAcordeonClave('resetReportes')">
               <span><i class="fa-solid fa-file-invoice-dollar"></i> Reset Historial Ventas</span>
@@ -394,6 +414,7 @@
         </div>
 
         <nav class="nav-menu">
+          <!-- PARTE OPERATIVA (DISPONIBLE PARA TODOS: ADMIN, CAJERO, MOZO) -->
           <button class="nav-item active" id="btnNavComandas" onclick="seleccionarOpcionNav('comandas')">
             <i class="fa-solid fa-bell-concierge"></i> Comandas en Vivo
             <span class="badge-live-orders" id="badgeTotalComandas">0</span>
@@ -411,15 +432,20 @@
             <i class="fa-solid fa-star"></i> Reseñas & Opiniones
           </button>
 
-          <button class="nav-item" id="btnNavPlatos" onclick="seleccionarOpcionNav('platos')">
+          <!-- PARTE ADMINISTRATIVA (SOLO ADMINISTRADORES) -->
+          <button class="nav-item rol-admin-only" id="btnNavPlatos" onclick="seleccionarOpcionNav('platos')">
             <i class="fa-solid fa-utensils"></i> Catálogo de Platos
           </button>
+
+          <button class="nav-item rol-admin-only" id="btnNavUsuarios" onclick="seleccionarOpcionNav('usuarios')">
+            <i class="fa-solid fa-users-gear"></i> Gestión de Usuarios
+          </button>
           
-          <button class="nav-item" id="btnNavIdentidad" onclick="seleccionarOpcionNav('identidad')">
+          <button class="nav-item rol-admin-only" id="btnNavIdentidad" onclick="seleccionarOpcionNav('identidad')">
             <i class="fa-solid fa-store"></i> Identidad & Redes Sociales
           </button>
           
-          <button class="nav-item" id="btnNavReportes" onclick="seleccionarOpcionNav('reportes')">
+          <button class="nav-item rol-admin-only" id="btnNavReportes" onclick="seleccionarOpcionNav('reportes')">
             <i class="fa-solid fa-chart-line"></i> Reporte Contable & SUNAT
           </button>
         </nav>
@@ -433,7 +459,7 @@
 
       <main class="main-view" id="mainArea">
 
-        <!-- 1. COMANDAS KDS -->
+        <!-- 1. COMANDAS KDS (SECCIÓN AISLADA) -->
         <section id="viewComandas">
           <div class="view-header">
             <div>
@@ -461,7 +487,7 @@
           </div>
 
           <div class="kds-search-bar">
-            <input type="text" id="kdsFiltroBusqueda" placeholder="🔍 Buscar por mesa, cliente o DNI..." oninput="filtrarComandasKDS()">
+            <input type="text" id="kdsFiltroBusqueda" placeholder="🔍 Buscar por mesa o nombre de cliente..." oninput="filtrarComandasKDS()">
             <button class="kds-filter-btn active" id="btnFiltroTodos" onclick="aplicarFiltroEstadoKDS('todos')">Todas</button>
             <button class="kds-filter-btn" id="btnFiltroCobrar" onclick="aplicarFiltroEstadoKDS('cobrar')">🔔 Solo a Cobrar</button>
             <button class="kds-filter-btn" id="btnFiltroIniciado" onclick="aplicarFiltroEstadoKDS('iniciado')">Iniciadas</button>
@@ -489,7 +515,76 @@
           <div class="live-orders-grid" id="liveOrdersGrid"></div>
         </section>
 
-        <!-- 2. CATÁLOGO DE PLATOS -->
+        <!-- 2. GESTIÓN DE USUARIOS (SECCIÓN AISLADA) -->
+        <section id="viewUsuarios" style="display:none;">
+          <div class="view-header">
+            <div>
+              <h1>👥 Gestión de Usuarios y Permisos</h1>
+              <p>Crea cuentas para tu personal. El administrador principal queda protegido contra borrado.</p>
+            </div>
+            <button class="btn btn-add" onclick="cargarUsuariosDesdeFirebase()"><i class="fa-solid fa-rotate"></i> Actualizar</button>
+          </div>
+
+          <div class="card">
+            <strong style="color:var(--gold); font-size:14px;">
+              <i class="fa-solid fa-user-plus"></i> <span id="lblFormUsuarioTitulo">Registrar Nuevo Usuario</span>
+            </strong>
+            <form onsubmit="guardarUsuarioSistema(event)" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-top:10px;">
+              <input type="hidden" id="usuarioEditandoId" value="">
+              
+              <div>
+                <label>Nombre y Apellido del Operador:</label>
+                <input type="text" id="userInputNombre" placeholder="Ej: Carlos Salón" required>
+              </div>
+
+              <div>
+                <label>Rol / Nivel de Acceso:</label>
+                <select id="userInputRol" required>
+                  <option value="admin">Administrador (Acceso total)</option>
+                  <option value="cajero" selected>Cajero (Cobros y KDS)</option>
+                  <option value="mozo">Mozo (Salón y pedidos)</option>
+                  <option value="cocina">Cocinero (Solo KDS cocina)</option>
+                </select>
+              </div>
+
+              <div>
+                <label>Contraseña de Acceso:</label>
+                <input type="password" id="userInputPass" placeholder="••••••••" required>
+              </div>
+
+              <div style="display:flex; align-items:flex-end; gap:8px;">
+                <button type="submit" class="btn btn-save" style="flex:1; height:42px;">
+                  <i class="fa-solid fa-floppy-disk"></i> <span id="btnGuardarUserTxt">Guardar Usuario</span>
+                </button>
+                <button type="button" class="btn btn-del" id="btnCancelarEdicionUser" style="display:none; height:42px;" onclick="cancelarEdicionUsuario()">
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card">
+            <strong style="color:var(--gold); font-size:14px; margin-bottom:8px; display:block;">
+              Usuarios Registrados en el Sistema (<span id="totalUsuariosTxt">0</span>):
+            </strong>
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>Operador / Nombre</th>
+                  <th>Rol Asignado</th>
+                  <th>Contraseña</th>
+                  <th>Fecha de Alta</th>
+                  <th style="text-align:center;">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="tablaUsuariosBody">
+                <tr><td colspan="5" style="text-align:center; color:#aaa;">Cargando usuarios...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- 3. CATÁLOGO DE PLATOS (SECCIÓN AISLADA) -->
         <section id="viewPlatos" style="display:none;">
           <div class="view-header">
             <div>
@@ -501,7 +596,7 @@
           <div class="dishes-grid" id="dishesVisualGrid"></div>
         </section>
 
-        <!-- 3. GENERACIÓN DE RESERVAS -->
+        <!-- 4. GENERACIÓN DE RESERVAS (SECCIÓN AISLADA) -->
         <section id="viewReservas" style="display:none;">
           <div class="view-header">
             <div>
@@ -549,7 +644,7 @@
           <div id="contenedorReservasAdminList" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:14px;"></div>
         </section>
 
-        <!-- 4. IDENTIDAD, SUNAT Y REDES SOCIALES -->
+        <!-- 5. IDENTIDAD, SUNAT Y REDES SOCIALES (SECCIÓN AISLADA) -->
         <section id="viewIdentidad" style="display:none;">
           <div class="view-header"><h1>🏪 Identidad del Negocio & Redes Sociales</h1></div>
           <div class="card">
@@ -611,7 +706,7 @@
           </div>
         </section>
 
-        <!-- 5. REPORTE CONTABLE -->
+        <!-- 6. REPORTE CONTABLE (SECCIÓN AISLADA) -->
         <section id="viewReportes" style="display:none;">
           <div class="view-header">
             <div>
@@ -637,7 +732,7 @@
                 <tr>
                   <th>Fecha/Hora</th>
                   <th>Mesa / Cliente</th>
-                  <th>DNI Socio</th>
+                  <th>Operador</th>
                   <th>Platos Consumidos</th>
                   <th>Pago</th>
                   <th>Base Imp.</th>
@@ -650,7 +745,7 @@
           </div>
         </section>
 
-        <!-- 6. QR MESAS -->
+        <!-- 7. QR MESAS (SECCIÓN AISLADA) -->
         <section id="viewMesas" style="display:none;">
           <div class="view-header">
             <div>
@@ -694,7 +789,7 @@
           </div>
         </section>
 
-        <!-- 7. RESEÑAS -->
+        <!-- 8. RESEÑAS (SECCIÓN AISLADA) -->
         <section id="viewResenas" style="display:none;">
           <div class="view-header">
             <div>
@@ -710,7 +805,7 @@
     </div>
   </div>
 
-  <!-- MODAL: EDICIÓN DE PLATOS -->
+  <!-- MODAL FLOTANTE 1: EDICIÓN DE PLATOS (AISLADO EN CAPA SUPERIOR FIXED) -->
   <div class="modal-overlay" id="dishModal" onclick="cerrarModalPlato()">
     <div class="modal-box" onclick="event.stopPropagation()">
       <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -758,7 +853,7 @@
     </div>
   </div>
 
-  <!-- MODAL: COBRO CON CASILLA DNI FIDELIDAD -->
+  <!-- MODAL FLOTANTE 2: COBRO DE MESA (AISLADO EN CAPA SUPERIOR FIXED) -->
   <div class="modal-overlay" id="modalCobroMesa" onclick="cerrarModalCobro()">
     <div class="modal-box" onclick="event.stopPropagation()">
       <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -775,17 +870,6 @@
           <span>Total Acumulado a Pagar:</span>
           <span id="cobroTotalTxt">S/ 0.00</span>
         </div>
-      </div>
-
-      <!-- CASILLA DE FIDELIZACIÓN POR DNI -->
-      <div style="background: rgba(34, 197, 94, 0.12); border: 1.5px dashed #16a34a; border-radius: 10px; padding: 10px; margin: 4px 0;">
-        <label style="color:#86efac; margin-top:0; font-size:11px; display:flex; align-items:center; gap:6px;">
-          <i class="fa-solid fa-gift"></i> DNI DEL CLIENTE (ACUMULAR SELLO / CLUB DE PUNTOS):
-        </label>
-        <input type="tel" id="cobroDniCliente" placeholder="Número de DNI (opcional para sellos)" maxlength="10" style="background:#000; border-color:#22c55e; color:#fff; font-weight:bold; font-size:14px; margin-top:4px;">
-        <span style="font-size:10px; color:#ddd; display:block; margin-top:3px;">
-          Al cobrar se acreditará automáticamente +1 sello en el club de recompensas.
-        </span>
       </div>
 
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
@@ -817,76 +901,7 @@
       <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;">
         <button type="button" class="btn btn-del" onclick="cerrarModalCobro()">Cancelar</button>
         <button type="button" class="btn btn-save" style="background:linear-gradient(135deg, #15803d, #22c55e); width:100%;" onclick="confirmarCobroFinalizado()">
-          <i class="fa-solid fa-print"></i> Cobrar, Sellar & Imprimir Ticket
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: LIQUIDACIÓN Y ARQUEO -->
-  <div class="modal-overlay" id="modalLiquidacionCierre" onclick="cerrarModalLiquidacion()">
-    <div class="modal-box" onclick="event.stopPropagation()" style="max-width: 600px;">
-      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.15); padding-bottom:8px;">
-        <h3 style="color:var(--gold);"><i class="fa-solid fa-cash-register"></i> Arqueo & Liquidación de Caja</h3>
-        <button type="button" style="background:none; border:none; color:#ccc; font-size:24px; font-weight:bold; cursor:pointer;" onclick="cerrarModalLiquidacion()">&times;</button>
-      </div>
-
-      <div id="areaImpresionLiquidacion" style="background:#150d0a; border:1px dashed var(--accent); border-radius:12px; padding:16px;">
-        <div style="text-align:center; border-bottom:1px dashed #555; padding-bottom:8px; margin-bottom:10px;">
-          <h2 style="color:var(--gold); font-size:17px;" id="liqLocalNombre">LA CUSQUEÑITA</h2>
-          <span style="font-size:11.5px; color:#aaa;">COMPROBANTE DE ARQUEO Y CIERRE DE CAJA</span>
-          <div style="font-size:11px; color:#ddd; margin-top:4px;">
-            <b>Operador:</b> <span id="liqUsuarioTxt">Administrador</span> | <b>Turno:</b> <span id="liqTurnoTxt">General</span>
-          </div>
-          <div style="font-size:10.5px; color:#888;"><b>Fecha y Hora:</b> <span id="liqFechaHoraTxt">--</span></div>
-        </div>
-
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:12px; margin-bottom:10px;">
-          <div style="background:#1e1410; padding:8px; border-radius:8px;">
-            <span>Fondo Inicial Caja Chica:</span>
-            <b style="display:block; color:#fde047; font-size:14px;" id="liqMontoInicialTxt">S/ 100.00</b>
-          </div>
-          <div style="background:#1e1410; padding:8px; border-radius:8px;">
-            <span>Total Ventas Turno:</span>
-            <b style="display:block; color:#86efac; font-size:14px;" id="liqMontoVentasTxt">S/ 0.00</b>
-          </div>
-        </div>
-
-        <div style="font-size:11.5px; margin-bottom:8px;">
-          <b>Desglose por Método de Pago:</b>
-          <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; margin-top:4px; text-align:center;">
-            <div style="background:#110907; padding:6px; border-radius:6px;">Efectivo:<br><b id="liqPagoEfectivo">S/ 0.00</b></div>
-            <div style="background:#110907; padding:6px; border-radius:6px;">Yape:<br><b id="liqPagoYape">S/ 0.00</b></div>
-            <div style="background:#110907; padding:6px; border-radius:6px;">Plin:<br><b id="liqPagoPlin">S/ 0.00</b></div>
-            <div style="background:#110907; padding:6px; border-radius:6px;">Tarjeta:<br><b id="liqPagoTarjeta">S/ 0.00</b></div>
-          </div>
-        </div>
-
-        <div style="background:#281812; border:1px solid var(--accent); padding:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; font-size:14px; margin-bottom:12px;">
-          <span><b>TOTAL EN CAJA (Inicial + Efectivo):</b></span>
-          <b style="font-size:18px; color:#86efac;" id="liqGranTotalCajaTxt">S/ 100.00</b>
-        </div>
-
-        <div style="font-size:11.5px; font-weight:bold; margin-bottom:4px;">Detalle de Ventas del Turno:</div>
-        <div style="max-height:160px; overflow-y:auto; border:1px solid rgba(255,255,255,0.1); border-radius:6px;">
-          <table class="custom-table" style="font-size:11px;">
-            <thead>
-              <tr>
-                <th>Hora</th>
-                <th>Mesa / Cliente</th>
-                <th>Pago</th>
-                <th>Total</th>
-              </tr>
-            </thead>
-            <tbody id="liqTablaVentasTurnoBody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div style="display:flex; gap:8px; margin-top:6px;">
-        <button type="button" class="btn btn-del" style="flex:1;" onclick="cerrarModalLiquidacion()">Volver al Panel</button>
-        <button type="button" class="btn btn-print" style="flex:2;" onclick="imprimirLiquidacionYSalir()">
-          <i class="fa-solid fa-print"></i> 🖨️ Imprimir Liquidación y Cerrar Turno
+          <i class="fa-solid fa-print"></i> Cobrar e Imprimir Comprobante Fiscal
         </button>
       </div>
     </div>
@@ -930,17 +945,17 @@
       "Mesa 11", "Mesa 12", "Barra", "Terraza 1", "Terraza 2"
     ];
 
+    let listaUsuariosFirebase = [];
     let tokensMesasActivos = {};
     let platoEditandoId = null;
     let comandaCobrandoActual = null;
     let todasLasComandasCache = [];
     let filtroEstadoKDSActual = "todos";
     let totalComandasPrevias = 0;
-    
-    // Fecha actual formateada
     let fechaKdsSeleccionada = new Date().toISOString().split('T')[0];
     let modoEliminarMesasActivo = false;
 
+    // ESTADO DE DESBLOQUEO DE LOS TRES ACORDEONES
     let vaultTokenDesbloqueado = false;
     let vaultResetComandasDesbloqueado = false;
     let vaultResetReportesDesbloqueado = false;
@@ -948,10 +963,8 @@
     // AUDIO CAMPANA
     let audioCtx = null;
     function asegurarAudioCtx() {
-      try {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-      } catch (e) {}
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
     }
     window.addEventListener('click', asegurarAudioCtx, { once: true });
 
@@ -984,20 +997,75 @@
     }
     function probarSonidoCampanaCocina() { reproducirSonidoCampanaCocina(); }
 
-    // LOGIN FÁCIL DIRECTO
-    function verificarLoginAdminFacil(e) {
-      if (e) e.preventDefault();
-      const pass = document.getElementById('loginAdminPassword').value.trim();
+    // LOGIN DINÁMICO & CONTROL DE PERMISOS
+    async function verificarLoginSistema(e) {
+      e.preventDefault();
+      const rolSeleccionado = document.getElementById('loginUsuarioSelector').value;
+      const nombreIngresado = document.getElementById('loginUsuarioNombre').value.trim();
+      const passIngresada = document.getElementById('loginPassword').value.trim();
+      const turno = document.getElementById('loginTurno').value;
+      const caja = parseFloat(document.getElementById('loginCajaChica').value) || 0;
 
-      if (pass === "regocijo123" || pass === PASSWORD_MAESTRA_VAULT) {
-        sessionStorage.setItem("auth_admin_ok", "true");
-        document.getElementById('pantallaLogin').style.display = 'none';
-        document.getElementById('panelAdminPrincipal').style.display = 'block';
-        iniciarCargasGenerales();
+      let usuarios = [];
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}config/usuarios.json`);
+        if (res.ok) {
+          const dataU = await res.json();
+          if (dataU && typeof dataU === 'object') usuarios = Object.values(dataU);
+        }
+      } catch (err) {}
+
+      const usuarioEncontrado = usuarios.find(u => 
+        u.nombre && u.nombre.toLowerCase() === nombreIngresado.toLowerCase() && u.pass === passIngresada
+      );
+
+      const esClaveMaestra = (passIngresada === "regocijo123" || passIngresada === PASSWORD_MAESTRA_VAULT);
+
+      if (usuarioEncontrado || esClaveMaestra) {
+        const rolFinal = usuarioEncontrado ? usuarioEncontrado.rol : rolSeleccionado;
+        const nombreFinal = usuarioEncontrado ? usuarioEncontrado.nombre : nombreIngresado;
+
+        sessionStorage.setItem("auth_rest", "true");
+        sessionStorage.setItem("rol_rest", rolFinal);
+        sessionStorage.setItem("nombre_operador", nombreFinal);
+        sessionStorage.setItem("turno_rest", turno);
+        sessionStorage.setItem("caja_chica_monto", caja.toFixed(2));
+
+        mostrarPanelAdmin();
       } else {
-        alert("⛔ Contraseña incorrecta. (Prueba con regocijo123)");
-        document.getElementById('loginAdminPassword').value = "";
+        alert("⛔ Nombre de operador o contraseña incorrectos.");
       }
+    }
+
+    async function mostrarPanelAdmin() {
+      document.getElementById('pantallaLogin').style.display = 'none';
+      document.getElementById('panelAdminPrincipal').style.display = 'block';
+
+      const rol = (sessionStorage.getItem("rol_rest") || 'admin').toLowerCase();
+      const operador = sessionStorage.getItem("nombre_operador") || 'Usuario';
+      const turno = sessionStorage.getItem("turno_rest") || 'Turno Mañana';
+      const caja = sessionStorage.getItem("caja_chica_monto") || '0.00';
+
+      document.getElementById('lblSesionUsuario').innerText = `${operador} (${rol.toUpperCase()})`;
+      document.getElementById('lblSesionTurno').innerText = turno;
+      document.getElementById('lblSesionCajaChica').innerText = `Caja Inicial: S/ ${caja}`;
+
+      const esAdmin = (rol === 'admin');
+      document.querySelectorAll('.rol-admin-only').forEach(el => {
+        el.style.display = esAdmin ? (el.tagName === 'BUTTON' ? 'flex' : 'block') : 'none';
+      });
+
+      document.getElementById('kdsFechaSeleccionada').value = fechaKdsSeleccionada;
+
+      await cargarIdentidadFirebase();
+      await cargarMesasDesdeFirebase();
+      if (esAdmin) await cargarUsuariosDesdeFirebase();
+      await sincronizarTokensDeMesasFirebase();
+      renderizarVisualDishes();
+      await cargarComandasEnVivo();
+      cargarReservasFirebase();
+      actualizarQRVisualDirecto();
+      setInterval(cargarComandasEnVivo, 2000);
     }
 
     function toggleSidebarMenu() {
@@ -1006,33 +1074,28 @@
       else layout.classList.toggle('sidebar-collapsed');
     }
     function cerrarMenuMovil() { document.getElementById('adminLayoutWrapper').classList.remove('sidebar-open'); }
-    
     function seleccionarOpcionNav(sec) {
       mostrarSeccion(sec);
       if (window.innerWidth <= 860) cerrarMenuMovil();
     }
 
-    // NAVEGACIÓN TOTALMENTE AISLADA (Sin Gestión de Usuarios)
     function mostrarSeccion(s) {
-      try {
-        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-        ['comandas','platos','reservas','identidad','reportes','mesas','resenas'].forEach(id => {
-          const el = document.getElementById('view' + id.charAt(0).toUpperCase() + id.slice(1));
-          if (el) el.style.display = 'none';
-        });
-        const btn = document.getElementById('btnNav' + s.charAt(0).toUpperCase() + s.slice(1));
-        if (btn) btn.classList.add('active');
-        const target = document.getElementById('view' + s.charAt(0).toUpperCase() + s.slice(1));
-        if (target) target.style.display = 'block';
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+      ['comandas','platos','usuarios','reservas','identidad','reportes','mesas','resenas'].forEach(id => {
+        const el = document.getElementById('view' + id.charAt(0).toUpperCase() + id.slice(1));
+        if (el) el.style.display = 'none';
+      });
+      const btn = document.getElementById('btnNav' + s.charAt(0).toUpperCase() + s.slice(1));
+      if (btn) btn.classList.add('active');
+      const target = document.getElementById('view' + s.charAt(0).toUpperCase() + s.slice(1));
+      if (target) target.style.display = 'block';
 
-        if (s === 'comandas') cargarComandasEnVivo();
-        if (s === 'platos') renderizarVisualDishes();
-        if (s === 'reservas') cargarReservasFirebase();
-        if (s === 'mesas') actualizarQRVisualDirecto();
-        if (s === 'resenas') cargarResenasFirebase();
-      } catch (err) {
-        console.error("Error al cambiar sección:", err);
-      }
+      if (s === 'comandas') cargarComandasEnVivo();
+      if (s === 'platos') renderizarVisualDishes();
+      if (s === 'usuarios') cargarUsuariosDesdeFirebase();
+      if (s === 'reservas') cargarReservasFirebase();
+      if (s === 'mesas') actualizarQRVisualDirecto();
+      if (s === 'resenas') cargarResenasFirebase();
     }
 
     // ACORDEONES DEL VAULT
@@ -1097,6 +1160,144 @@
       }
     }
 
+    // USUARIOS
+    async function cargarUsuariosDesdeFirebase() {
+      const tbody = document.getElementById('tablaUsuariosBody');
+      const totalTxt = document.getElementById('totalUsuariosTxt');
+
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}config/usuarios.json?_t=${Date.now()}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && typeof data === 'object') {
+            listaUsuariosFirebase = Object.keys(data).map(k => Object.assign({ id: k }, data[k]));
+          } else {
+            listaUsuariosFirebase = [
+              { id: "usr-admin-principal", nombre: "Administrador", rol: "admin", pass: "regocijo123", fecha: new Date().toLocaleDateString() }
+            ];
+            await fetch(`${FIREBASE_DB_URL}config/usuarios/usr-admin-principal.json`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(listaUsuariosFirebase[0])
+            });
+          }
+        }
+      } catch (e) { console.error("Error usuarios:", e); }
+
+      if (totalTxt) totalTxt.innerText = listaUsuariosFirebase.length;
+      renderizarTablaUsuarios();
+    }
+
+    function renderizarTablaUsuarios() {
+      const tbody = document.getElementById('tablaUsuariosBody');
+      if (!tbody) return;
+
+      if (listaUsuariosFirebase.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888;">No hay usuarios registrados.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = listaUsuariosFirebase.map(u => {
+        const esCreadorOAdminPrincipal = (u.id === "usr-admin-principal" || u.nombre.toLowerCase() === "administrador");
+        let badgeColor = "#0284c7";
+        if (u.rol === 'admin') badgeColor = "#ef4444";
+        else if (u.rol === 'mozo') badgeColor = "#16a34a";
+        else if (u.rol === 'cocina') badgeColor = "#f59e0b";
+
+        return `
+          <tr>
+            <td><b style="color:#fff;">${u.nombre}</b></td>
+            <td>
+              <span style="background:${badgeColor}; color:#fff; padding:3px 8px; border-radius:6px; font-weight:bold; font-size:11px; text-transform:uppercase;">
+                ${u.rol}
+              </span>
+            </td>
+            <td><span style="font-family:monospace; color:#aaa;">••••••••</span></td>
+            <td>${u.fecha || 'Activo'}</td>
+            <td style="text-align:center; white-space:nowrap;">
+              <button class="btn btn-save" style="padding:4px 8px; font-size:11px;" onclick="cargarDatosParaEditarUsuario('${u.id}')" title="Editar">
+                <i class="fa-solid fa-pen"></i> Editar
+              </button>
+              ${!esCreadorOAdminPrincipal ? `
+                <button class="btn btn-del" style="padding:4px 8px; font-size:11px; margin-left:4px;" onclick="eliminarUsuarioFirebase('${u.id}', '${u.nombre}')" title="Eliminar">
+                  <i class="fa-solid fa-trash"></i> Eliminar
+                </button>
+              ` : '<span style="font-size:11px; color:#fbbf24; font-weight:bold; margin-left:6px;">🔒 Creador Protegido</span>'}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function guardarUsuarioSistema(e) {
+      e.preventDefault();
+      const idEditando = document.getElementById('usuarioEditandoId').value;
+      const nombre = document.getElementById('userInputNombre').value.trim();
+      const rol = document.getElementById('userInputRol').value;
+      const pass = document.getElementById('userInputPass').value.trim();
+
+      if (!nombre || !pass) return alert("Completa todos los campos.");
+
+      const idFinal = idEditando || ("usr-" + Date.now());
+      const usuarioData = {
+        id: idFinal,
+        nombre: nombre,
+        rol: rol,
+        pass: pass,
+        fecha: new Date().toLocaleDateString()
+      };
+
+      try {
+        await fetch(`${FIREBASE_DB_URL}config/usuarios/${idFinal}.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(usuarioData)
+        });
+
+        alert(`✔ Usuario "${nombre}" guardado con éxito.`);
+        cancelarEdicionUsuario();
+        cargarUsuariosDesdeFirebase();
+      } catch (err) { alert("Error al guardar: " + err.message); }
+    }
+
+    function cargarDatosParaEditarUsuario(id) {
+      const u = listaUsuariosFirebase.find(user => user.id === id);
+      if (!u) return;
+
+      document.getElementById('usuarioEditandoId').value = u.id;
+      document.getElementById('userInputNombre').value = u.nombre;
+      document.getElementById('userInputRol').value = u.rol;
+      document.getElementById('userInputPass').value = u.pass;
+
+      document.getElementById('lblFormUsuarioTitulo').innerText = `Editar Usuario: ${u.nombre}`;
+      document.getElementById('btnGuardarUserTxt').innerText = "Actualizar Usuario";
+      document.getElementById('btnCancelarEdicionUser').style.display = "inline-flex";
+    }
+
+    function cancelarEdicionUsuario() {
+      document.getElementById('usuarioEditandoId').value = "";
+      document.getElementById('userInputNombre').value = "";
+      document.getElementById('userInputPass').value = "";
+      document.getElementById('userInputRol').value = "cajero";
+
+      document.getElementById('lblFormUsuarioTitulo').innerText = "Registrar Nuevo Usuario";
+      document.getElementById('btnGuardarUserTxt').innerText = "Guardar Usuario";
+      document.getElementById('btnCancelarEdicionUser').style.display = "none";
+    }
+
+    async function eliminarUsuarioFirebase(id, nombre) {
+      if (id === "usr-admin-principal" || nombre.toLowerCase() === "administrador") {
+        return alert("⛔ Acción denegada: No se puede eliminar el usuario creador / administrador principal.");
+      }
+      if (confirm(`¿Estás seguro de eliminar al usuario "${nombre}"? Ya no podrá acceder al sistema.`)) {
+        try {
+          await fetch(`${FIREBASE_DB_URL}config/usuarios/${id}.json`, { method: 'DELETE' });
+          alert(`✔ Usuario "${nombre}" eliminado.`);
+          cargarUsuariosDesdeFirebase();
+        } catch (e) { alert("Error al eliminar: " + e.message); }
+      }
+    }
+
     // MULTIMEDIA FOTO / VIDEO
     function convertirFotoPlato(event) {
       const file = event.target.files[0];
@@ -1114,7 +1315,7 @@
       reader.readAsDataURL(file);
     }
 
-    // MODAL EDICIÓN PLATOS
+    // MODAL EDICIÓN PLATOS (CONTROL ESTRICTO DE APERTURA / CIERRE)
     function abrirModalPlato(id = null) {
       platoEditandoId = id;
       if (id) {
@@ -1174,7 +1375,7 @@
       renderizarVisualDishes();
     }
 
-    // MODAL COBRO (CON DNI PARA FIDELIZACIÓN CLUB.HTML)
+    // MODAL COBRO (CONTROL ESTRICTO DE APERTURA / CIERRE)
     async function abrirModalCobroComanda(idComanda) {
       let comanda = todasLasComandasCache.find(c => c.id === idComanda);
       if (!comanda) {
@@ -1190,8 +1391,6 @@
       document.getElementById('cobroTituloMesa').innerText = `Cobro de ${comanda.mesa || 'Mesa'}`;
       document.getElementById('cobroClienteTxt').innerText = `${comanda.cliente || comanda.mesa}`;
       document.getElementById('cobroTotalTxt').innerText = `S/ ${(comanda.totalPEN || comanda.total || 0).toFixed(2)}`;
-      document.getElementById('cobroDniCliente').value = comanda.dniCliente || "";
-
       document.getElementById('modalCobroMesa').classList.add('active');
     }
     function cerrarModalCobro() {
@@ -1202,57 +1401,20 @@
       document.getElementById('cajaDatosFactura').style.display = (tipo === 'Factura') ? 'block' : 'none';
     }
 
-    // CONFIRMACIÓN DE COBRO CON ACREDITACIÓN DE SELLO
     async function confirmarCobroFinalizado() {
       if (!comandaCobrandoActual) return;
 
-      const operador = "Administrador";
-      const turno = "General";
+      const operador = sessionStorage.getItem("nombre_operador") || "Cajero";
+      const turno = sessionStorage.getItem("turno_rest") || "General";
       const total = parseFloat(comandaCobrandoActual.totalPEN || comandaCobrandoActual.total || 0);
       const metodo = document.getElementById('cobroMetodoPago').value;
       const tipoComp = document.getElementById('cobroTipoComprobante').value;
-      const dniCliente = document.getElementById('cobroDniCliente').value.trim();
 
-      // 1. ACREDITAR SELLO EN EL CLUB DE FIDELIDAD EN FIREBASE
-      if (dniCliente) {
-        try {
-          const resFiel = await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${dniCliente}.json?_t=${Date.now()}`);
-          let socio = await resFiel.json();
-          if (!socio) {
-            socio = {
-              dni: dniCliente,
-              nombre: comandaCobrandoActual.cliente || "Socio Frecuente",
-              sellos: 1,
-              totalVisitas: 1,
-              fechaUltimaVisita: new Date().toLocaleDateString()
-            };
-          } else {
-            socio.sellos = (socio.sellos || 0) + 1;
-            socio.totalVisitas = (socio.totalVisitas || 0) + 1;
-            socio.fechaUltimaVisita = new Date().toLocaleDateString();
-          }
-
-          await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${dniCliente}.json`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(socio)
-          });
-
-          if (socio.sellos >= 10 && (socio.sellos % 10 === 0)) {
-            alert(`🎉 ¡PREMIO DEL CLUB DE BENEFICIOS!\nEl DNI ${dniCliente} ha completado 10 visitas acumuladas.\nCorresponde entregarle su plato o postre gratis de cortesía.`);
-          }
-        } catch (e) {
-          console.error("Error al actualizar sellos:", e);
-        }
-      }
-
-      // 2. REGISTRAR VENTA CONTABLE
       const venta = {
         id: comandaCobrandoActual.id,
         fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }),
         mesa: comandaCobrandoActual.mesa,
         cliente: comandaCobrandoActual.cliente || comandaCobrandoActual.mesa,
-        dniCliente: dniCliente,
         productos: comandaCobrandoActual.productos || "",
         baseImponible: total / 1.18,
         igv: total - (total / 1.18),
@@ -1270,7 +1432,6 @@
         body: JSON.stringify(venta)
       });
 
-      // 3. FINALIZAR COMANDA
       await fetch(`${FIREBASE_DB_URL}comandas/${comandaCobrandoActual.id}.json`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -1278,7 +1439,6 @@
           estado: 'finalizado',
           pago: metodo,
           tipoComprobante: tipoComp,
-          dniCliente: dniCliente,
           agradecimientoFinal: true,
           clientePidiendoCuenta: false
         })
@@ -1288,7 +1448,7 @@
       cerrarModalCobro();
       imprimirComprobanteFiscalDirecto(venta);
 
-      alert(`✔ Venta cobrada.${dniCliente ? ' ¡Sello acreditado al DNI ' + dniCliente + '!' : ''}`);
+      alert("✔ Venta cobrada y finalizada.");
       await cargarComandasEnVivo();
       actualizarQRVisualDirecto();
     }
@@ -1304,7 +1464,6 @@
         totalPEN: total,
         tipoComprobante: c.tipoComprobante || "Boleta",
         pago: c.pago || "Efectivo",
-        dniCliente: c.dniCliente || "",
         baseImponible: total / 1.18,
         igv: total - (total / 1.18)
       };
@@ -1323,7 +1482,6 @@
           <hr>
           <h3>*** ${v.tipoComprobante ? v.tipoComprobante.toUpperCase() : 'BOLETA DE VENTA'} ***</h3>
           <p>${v.mesa} • ${v.fecha}</p>
-          ${v.dniCliente ? `<p style="text-align:left;"><b>DNI Socio:</b> ${v.dniCliente} (Visita Sellada)</p>` : ''}
           ${v.rucCliente ? `<p style="text-align:left;"><b>RUC:</b> ${v.rucCliente}<br><b>Razón:</b> ${v.razonSocialCliente}</p>` : ''}
           <hr>
           <div style="text-align:left;font-size:13px;margin:8px 0;">
@@ -1336,18 +1494,19 @@
             <div style="font-size:15px;font-weight:bold;margin-top:4px;">TOTAL: S/ ${(v.totalPEN||0).toFixed(2)}</div>
             <div>PAGO: ${v.pago || 'Efectivo'}</div>
           </div>
-          <p style="font-size:11px;margin-top:10px;">¡Gracias por acumular sellos en nuestro Club!</p>
-          <script>window.onload=function(){window.print();window.close(); }<\/script>
+          <p style="font-size:11px;margin-top:10px;">¡Gracias por su visita!</p>
+          <script>window.onload=function(){window.print();window.close();}<\/script>
         </body></html>
       `);
       ventana.document.close();
     }
 
+    // IMPRIMIR COMANDA CHEF
     function imprimirComandaChef(idComanda) {
       const c = todasLasComandasCache.find(item => item.id === idComanda);
       if (!c) return alert("Comanda no encontrada.");
 
-      const operadorActual = "Administrador";
+      const operadorActual = sessionStorage.getItem("nombre_operador") || "Cajero/Mozo";
       const ventana = window.open('', '_blank');
       ventana.document.write(`
         <!DOCTYPE html><html><head><title>COMANDA CHEF #${c.numeroTurno || '01'}</title>
@@ -1378,147 +1537,20 @@
     }
 
     async function cambiarEstadoCocinaConOperador(idComanda) {
+      const operadorActual = sessionStorage.getItem("nombre_operador") || "Personal Salón";
       await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           estado: 'cocina',
-          operador: 'Administrador',
+          operador: operadorActual,
           clientePidiendoCuenta: false
         })
       });
       await cargarComandasEnVivo();
     }
 
-    // LIQUIDACIÓN Y ARQUEO DE CAJA
-    let liquidacionDatosActuales = null;
-
-    async function abrirModalLiquidacionCierre() {
-      const operador = "Administrador";
-      const turno = "General";
-      const montoInicial = 100.00;
-
-      let ventas = [];
-      try {
-        const res = await fetch(`${FIREBASE_DB_URL}ventas.json?_t=${Date.now()}`);
-        if (res.ok) {
-          const d = await res.json();
-          if (d && typeof d === 'object') ventas = Object.values(d).filter(v => v && typeof v === 'object');
-        }
-      } catch (e) {}
-
-      let totalVentas = 0;
-      let efectivo = 0, yape = 0, plin = 0, tarjeta = 0;
-
-      const tbody = document.getElementById('liqTablaVentasTurnoBody');
-      tbody.innerHTML = '';
-
-      ventas.forEach(v => {
-        const t = parseFloat(v.totalPEN || 0);
-        const p = (v.pago || 'Efectivo').toLowerCase();
-        totalVentas += t;
-
-        if (p.includes('efectivo')) efectivo += t;
-        else if (p.includes('yape')) yape += t;
-        else if (p.includes('plin')) plin += t;
-        else tarjeta += t;
-
-        tbody.innerHTML += `
-          <tr>
-            <td>${v.fecha.split(' ')[1] || v.fecha}</td>
-            <td><b>${v.cliente || v.mesa}</b></td>
-            <td>${v.pago || 'Efectivo'}</td>
-            <td><b>S/ ${t.toFixed(2)}</b></td>
-          </tr>
-        `;
-      });
-
-      if (ventas.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#888;">No se registraron ventas aún.</td></tr>';
-      }
-
-      const totalEnCajaFisica = montoInicial + efectivo;
-
-      document.getElementById('liqLocalNombre').innerText = configRestaurante.nombre.toUpperCase();
-      document.getElementById('liqUsuarioTxt').innerText = operador;
-      document.getElementById('liqTurnoTxt').innerText = turno;
-      document.getElementById('liqFechaHoraTxt').innerText = new Date().toLocaleString();
-      document.getElementById('liqMontoInicialTxt').innerText = `S/ ${montoInicial.toFixed(2)}`;
-      document.getElementById('liqMontoVentasTxt').innerText = `S/ ${totalVentas.toFixed(2)}`;
-      document.getElementById('liqPagoEfectivo').innerText = `S/ ${efectivo.toFixed(2)}`;
-      document.getElementById('liqPagoYape').innerText = `S/ ${yape.toFixed(2)}`;
-      document.getElementById('liqPagoPlin').innerText = `S/ ${plin.toFixed(2)}`;
-      document.getElementById('liqPagoTarjeta').innerText = `S/ ${tarjeta.toFixed(2)}`;
-      document.getElementById('liqGranTotalCajaTxt').innerText = `S/ ${totalEnCajaFisica.toFixed(2)}`;
-
-      liquidacionDatosActuales = {
-        operador, turno, montoInicial, totalVentas, efectivo, yape, plin, tarjeta, totalEnCajaFisica,
-        ventasTurno: ventas
-      };
-
-      document.getElementById('modalLiquidacionCierre').classList.add('active');
-    }
-
-    function cerrarModalLiquidacion() {
-      document.getElementById('modalLiquidacionCierre').classList.remove('active');
-    }
-
-    function imprimirLiquidacionYSalir() {
-      if (!liquidacionDatosActuales) return;
-      const d = liquidacionDatosActuales;
-
-      const ventana = window.open('', '_blank');
-      ventana.document.write(`
-        <!DOCTYPE html><html><head><title>LIQUIDACIÓN CAJA</title>
-        <style>
-          body { font-family: monospace; width: 75mm; margin: 0 auto; padding: 10px; font-size: 12px; text-align: center; }
-          h2, h3 { margin: 3px 0; }
-          hr { border: 1px dashed #000; margin: 6px 0; }
-          .left { text-align: left; }
-          .right { text-align: right; }
-          .row { display: flex; justify-content: space-between; margin: 3px 0; }
-        </style>
-        </head><body>
-          <h2>${configRestaurante.nombre.toUpperCase()}</h2>
-          <h3>LIQUIDACIÓN DE CIERRE DE CAJA</h3>
-          <p>${new Date().toLocaleString()}</p>
-          <hr>
-          <div class="left">
-            <div><b>OPERADOR:</b> ${d.operador}</div>
-            <div><b>TURNO:</b> ${d.turno}</div>
-          </div>
-          <hr>
-          <div class="row"><span>FONDO INICIAL:</span><b>S/ ${d.montoInicial.toFixed(2)}</b></div>
-          <div class="row"><span>TOTAL VENDIDO:</span><b>S/ ${d.totalVentas.toFixed(2)}</b></div>
-          <hr>
-          <div class="left"><b>DESGLOSE POR PAGOS:</b></div>
-          <div class="row"><span>• Efectivo:</span><span>S/ ${d.efectivo.toFixed(2)}</span></div>
-          <div class="row"><span>• Yape:</span><span>S/ ${d.yape.toFixed(2)}</span></div>
-          <div class="row"><span>• Plin:</span><span>S/ ${d.plin.toFixed(2)}</span></div>
-          <div class="row"><span>• Tarjeta / POS:</span><span>S/ ${d.tarjeta.toFixed(2)}</span></div>
-          <hr>
-          <div class="row" style="font-size:14px;">
-            <span><b>TOTAL EN CAJA:</b></span>
-            <b>S/ ${d.totalEnCajaFisica.toFixed(2)}</b>
-          </div>
-          <hr>
-          <div class="left" style="font-size:10px;">
-            <b>VENTAS DETALLADAS (${d.ventasTurno.length}):</b><br>
-            ${d.ventasTurno.map(v => `${v.fecha.split(' ')[1] \vert{}\vert{} ''} -${v.mesa}: S/ ${(v.totalPEN\vert{}\vert{}0).toFixed(2)} (${v.pago})`).join('<br>')}
-          </div>
-          <hr>
-          <p style="font-size:11px; margin-top:14px;">Firma del Responsable: ____________________</p>
-          <script>window.onload = function(){ window.print(); window.close(); }<\/script>
-        </body></html>
-      `);
-      ventana.document.close();
-
-      setTimeout(() => {
-        cerrarModalLiquidacion();
-      }, 500);
-    }
-
-    // RENDERIZADO KDS PROTEGIDO
+    // RENDERIZADO KDS
     function renderizarListaKDSFiltrada() {
       const grid = document.getElementById('liveOrdersGrid');
       if (!grid) return;
@@ -1526,11 +1558,9 @@
       const query = (document.getElementById('kdsFiltroBusqueda').value || '').toLowerCase().trim();
 
       let diaFiltroDDMMYYYY = "";
-      if (fechaKdsSeleccionada && typeof fechaKdsSeleccionada === 'string') {
+      if (fechaKdsSeleccionada) {
         const partes = fechaKdsSeleccionada.split('-');
-        if (partes.length === 3) {
-          diaFiltroDDMMYYYY = `${parseInt(partes[2])}/${parseInt(partes[1])}/${partes[0]}`;
-        }
+        if (partes.length === 3) diaFiltroDDMMYYYY = `${parseInt(partes[2])}/${parseInt(partes[1])}/${partes[0]}`;
       }
 
       let comandasPorFecha = todasLasComandasCache.filter(c => {
@@ -1566,8 +1596,7 @@
         filtradas = filtradas.filter(c => {
           const m = String(c.mesa || '').toLowerCase();
           const cl = String(c.cliente || '').toLowerCase();
-          const dni = String(c.dniCliente || '').toLowerCase();
-          return m.includes(query) || cl.includes(query) || dni.includes(query);
+          return m.includes(query) || cl.includes(query);
         });
       }
 
@@ -1601,13 +1630,8 @@
                   <strong style="font-size:16px; color:#fff;">${cliente}</strong>
                 </div>
                 <div style="font-size:11px; color:#aaa; margin-top:2px;">
-                  ${c.id} • ${c.fecha || ''}
+                  ${c.id} • ${c.fecha || ''} ${c.operador ? `• <b style="color:#86efac;">Op: ${c.operador}</b>` : ''}
                 </div>
-                ${c.dniCliente ? `
-                  <div class="badge-dni-socio">
-                    <i class="fa-solid fa-id-card"></i> Socio DNI: ${c.dniCliente} (+1 Sello)
-                  </div>
-                ` : ''}
               </div>
               <span class="order-status-badge ${badgeClase}">${badgeTexto}</span>
             </div>
@@ -1662,107 +1686,21 @@
     }
 
     async function cambiarEstadoFirebase(idComanda, nuevoEstado) {
-      try {
-        await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ estado: nuevoEstado, clientePidiendoCuenta: false })
-        });
-        await cargarComandasEnVivo();
-      } catch (e) {}
+      await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ estado: nuevoEstado, clientePidiendoCuenta: false })
+      });
+      await cargarComandasEnVivo();
     }
 
     async function enviarMensajeAgregarMas(idComanda) {
-      try {
-        await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mozoPregunta: true })
-        });
-        alert("✔ Notificación enviada al cliente.");
-      } catch (e) {}
-    }
-
-    // CARGA DE COMANDAS EN VIVO
-    async function cargarComandasEnVivo() {
-      const grid = document.getElementById('liveOrdersGrid');
-      const monitorGrid = document.getElementById('tablesMonitorGrid');
-      if (!grid || !monitorGrid) return;
-
-      let comandas = [];
-      try {
-        const resFB = await fetch(`${FIREBASE_DB_URL}comandas.json?_t=${Date.now()}`);
-        if (resFB.ok) {
-          const dataFB = await resFB.json();
-          if (dataFB && typeof dataFB === 'object') {
-            comandas = Object.keys(dataFB).map(k => {
-              const item = dataFB[k];
-              if (!item || typeof item !== 'object') return null;
-              return Object.assign({ id: k }, item);
-            }).filter(Boolean);
-          }
-        }
-      } catch (e) {}
-
-      comandas.sort((a, b) => (a.timestampOrden || 0) - (b.timestampOrden || 0));
-      todasLasComandasCache = comandas;
-
-      const activasSinCobro = comandas.filter(c => String(c.estado || "").toLowerCase() !== 'finalizado');
-      if (activasSinCobro.length > totalComandasPrevias && totalComandasPrevias !== 0) {
-        reproducirSonidoCampanaCocina();
-      }
-      totalComandasPrevias = activasSinCobro.length;
-      document.getElementById('badgeTotalComandas').innerText = activasSinCobro.length;
-
-      const mesasOcupadas = activasSinCobro.map(c => normalizarNombreMesa(c.mesa || ''));
-      monitorGrid.innerHTML = listaMesasDinamicas.map(m => {
-        const estaOcupada = mesasOcupadas.includes(normalizarNombreMesa(m));
-        return `
-          <div class="table-pill ${estaOcupada ? 'ocupada' : 'libre'}" onclick="clickPildoraMesaMonitor('${m}', ${estaOcupada})">
-            <span>${m.replace('Mesa ', 'M-')} ${estaOcupada ? '🔒' : '✔'}</span>
-            ${modoEliminarMesasActivo ? `<button type="button" class="btn-remove-pill" onclick="eliminarMesaDirectaMonitor('${m}', event)">✕</button>` : ''}
-          </div>
-        `;
-      }).join('');
-
-      renderizarListaKDSFiltrada();
-    }
-
-    function aplicarFiltroEstadoKDS(filtro) {
-      filtroEstadoKDSActual = filtro;
-      document.querySelectorAll('.kds-filter-btn').forEach(b => b.classList.remove('active'));
-      if (filtro === 'todos') document.getElementById('btnFiltroTodos').classList.add('active');
-      if (filtro === 'cobrar') document.getElementById('btnFiltroCobrar').classList.add('active');
-      if (filtro === 'iniciado') document.getElementById('btnFiltroIniciado').classList.add('active');
-      if (filtro === 'cocina') document.getElementById('btnFiltroCocina').classList.add('active');
-      renderizarListaKDSFiltrada();
-    }
-
-    function filtrarComandasKDS() { renderizarListaKDSFiltrada(); }
-
-    function cambiarFechaKDS(val) {
-      fechaKdsSeleccionada = val;
-      document.querySelectorAll('.kds-date-quick-btn').forEach(b => b.classList.remove('active'));
-      renderizarListaKDSFiltrada();
-    }
-
-    function setKdsFechaRapida(modo) {
-      document.querySelectorAll('.kds-date-quick-btn').forEach(b => b.classList.remove('active'));
-      const hoy = new Date();
-      if (modo === 'hoy') {
-        fechaKdsSeleccionada = hoy.toISOString().split('T')[0];
-        document.getElementById('btnKdsHoy').classList.add('active');
-      } else if (modo === 'ayer') {
-        const ayer = new Date(hoy);
-        ayer.setDate(ayer.getDate() - 1);
-        fechaKdsSeleccionada = ayer.toISOString().split('T')[0];
-        document.getElementById('btnKdsAyer').classList.add('active');
-      } else if (modo === 'todas') {
-        fechaKdsSeleccionada = "";
-        document.getElementById('btnKdsTodas').classList.add('active');
-      }
-      document.getElementById('kdsFechaSeleccionada').value = fechaKdsSeleccionada;
-      renderizarListaKDSFiltrada();
+      await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mozoPregunta: true })
+      });
+      alert("✔ Notificación enviada al cliente.");
     }
 
     // CATÁLOGO
@@ -1803,128 +1741,7 @@
       renderizarVisualDishes();
     }
 
-    // QR
-    async function actualizarQRVisualDirecto(mesaManual = null) {
-      const selector = document.getElementById('qrMesaSelectorDinamico');
-      const mesa = mesaManual || (selector ? selector.value : (listaMesasDinamicas[0] || "Mesa 01"));
-      const tel = document.getElementById('qrTelefonoInput').value.trim() || "+51969773064";
-      const link = await obtenerEnlaceCompletoMesa(mesa);
-
-      document.getElementById('qrPrintNumeroMesa').innerText = mesa.toUpperCase();
-      document.getElementById('qrPrintTelefonoContacto').innerText = `Pedidos: ${tel}`;
-      document.getElementById('imgQRVisualCentrado').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(link)}`;
-    }
-
-    async function imprimirTarjetaMesaQR() {
-      const selector = document.getElementById('qrMesaSelectorDinamico');
-      const mesa = selector ? selector.value : (listaMesasDinamicas[0] || "Mesa 01");
-      const tel = document.getElementById('qrTelefonoInput').value.trim() || "+51969773064";
-      const link = await obtenerEnlaceCompletoMesa(mesa);
-      const qrImgSrc = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodeURIComponent(link)}`;
-      
-      const ventana = window.open('', '_blank');
-      ventana.document.write(`
-        <!DOCTYPE html><html><head><title>QR ${mesa}</title>
-        <style>body{font-family:sans-serif;margin:0;padding:40px 20px;display:flex;justify-content:center;background:#fff;}
-        .card{border:2px dashed #000;border-radius:26px;padding:35px 28px;width:330px;text-align:center;}
-        img{width:230px;height:230px;margin:0 auto;display:block;}h1{margin:16px 0 4px;font-size:28px;}
-        </style></head><body>
-          <div class="card">
-            <h2>${configRestaurante.nombre.toUpperCase()}</h2>
-            <img src="${qrImgSrc}">
-            <h1>${mesa.toUpperCase()}</h1>
-            <p>Escanea con tu celular para ver la carta</p>
-            <p><b>Pedidos: ${tel}</b></p>
-          </div>
-          <script>window.onload = function(){ window.print(); window.close(); }<\/script>
-        </body></html>
-      `);
-      ventana.document.close();
-    }
-
-    // RESERVAS
-    async function crearNuevaReservaAdmin(e) {
-      e.preventDefault();
-      const id = "RES-" + Date.now();
-      const res = {
-        id: id,
-        cliente: document.getElementById('resAdminTitular').value.trim(),
-        telefono: document.getElementById('resAdminTel').value.trim(),
-        fechaReserva: document.getElementById('resAdminFecha').value,
-        horaReserva: document.getElementById('resAdminHora').value,
-        personas: document.getElementById('resAdminPersonas').value,
-        mesaAsignada: document.getElementById('resAdminMesaSelectorDinamico').value,
-        notas: document.getElementById('resAdminNotas').value.trim() || 'Sin notas',
-        fechaCreacion: new Date().toLocaleDateString()
-      };
-
-      await fetch(`${FIREBASE_DB_URL}reservas/${id}.json`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(res)
-      });
-
-      alert("✔ Reserva generada.");
-      e.target.reset();
-      cargarReservasFirebase();
-    }
-
-    async function cargarReservasFirebase() {
-      const cont = document.getElementById('contenedorReservasAdminList');
-      if (!cont) return;
-      let reservas = [];
-      try {
-        const res = await fetch(`${FIREBASE_DB_URL}reservas.json?_t=${Date.now()}`);
-        if (res.ok) {
-          const d = await res.json();
-          if (d) reservas = Object.keys(d).map(k => Object.assign({ id: k }, d[k]));
-        }
-      } catch (e) {}
-
-      if (reservas.length === 0) { cont.innerHTML = '<p style="color:#aaa; font-size:13px;">No hay reservas registradas.</p>'; return; }
-      cont.innerHTML = reservas.map(r => `
-        <div style="background:#1e1410; border:1.5px solid var(--accent); border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:6px;">
-          <div style="display:flex; justify-content:space-between;">
-            <strong style="color:#fff;">${r.cliente}</strong>
-            <span style="background:var(--primary); color:#fff; font-size:10px; padding:2px 6px; border-radius:4px;">${r.mesaAsignada || 'Mesa'}</span>
-          </div>
-          <div style="font-size:12px; color:#fde047;">📅 ${r.fechaReserva} • ⏰ ${r.horaReserva} • 👥 ${r.personas} Personas</div>
-          <div style="font-size:11px; color:#aaa;">📞 ${r.telefono} | Notas: ${r.notas}</div>
-        </div>
-      `).join('');
-    }
-
-    // RESEÑAS
-    async function cargarResenasFirebase() {
-      const cont = document.getElementById('contenedorResenasAdmin');
-      if (!cont) return;
-      cont.innerHTML = '<p style="color:#aaa; font-size:13px;">Cargando opiniones...</p>';
-
-      try {
-        const res = await fetch(`${FIREBASE_DB_URL}resenas.json?_t=${Date.now()}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data && typeof data === 'object') {
-            const list = Object.values(data);
-            cont.innerHTML = list.map(r => `
-              <div style="background:#1a120f; padding:10px 12px; border-radius:10px; margin-bottom:8px; border:1px solid rgba(255,255,255,0.08);">
-                <div style="display:flex; justify-content:space-between;">
-                  <strong style="color:#fde047;">${r.autor || 'Cliente'} (${'⭐'.repeat(r.rating || 5)})</strong>
-                  <span style="font-size:11px; color:#aaa;">${r.fecha || ''}</span>
-                </div>
-                ${r.plato ? `<div style="font-size:11.5px; color:#86efac; margin-top:2px;"><b>Plato:</b> ${r.plato}</div>` : ''}
-                <p style="font-size:12.5px; color:#eee; margin-top:4px;">"${r.texto || ''}"</p>
-              </div>
-            `).join('');
-            return;
-          }
-        }
-      } catch (e) {}
-
-      cont.innerHTML = '<p style="color:#aaa; font-size:13px;">No hay opiniones registradas aún.</p>';
-    }
-
-    // MESAS
+    // CARGA DE MESAS Y TOKENS
     async function cargarMesasDesdeFirebase() {
       try {
         const res = await fetch(`${FIREBASE_DB_URL}config/mesas.json?_t=${Date.now()}`);
@@ -1953,16 +1770,6 @@
       return "TK-" + Math.random().toString(36).substring(2, 8).toUpperCase() + "-" + Date.now().toString(36).toUpperCase();
     }
 
-    function normalizarNombreMesa(m) {
-      if (!m) return "";
-      let s = String(m).trim();
-      const match = s.match(/\d+/);
-      if (match && s.toLowerCase().includes("mesa")) {
-        const num = parseInt(match[0]); return "Mesa " + (num < 10 ? "0" + num : num);
-      }
-      return s;
-    }
-
     function normalizarClaveMesa(m) {
       return String(m || '').toLowerCase().replace(/[^a-z0-9]/g, '_');
     }
@@ -1971,13 +1778,11 @@
       const key = normalizarClaveMesa(m);
       const nuevoToken = generarTokenAleatorio();
       tokensMesasActivos[key] = nuevoToken;
-      try {
-        await fetch(`${FIREBASE_DB_URL}config/tokens_mesas/${key}.json`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(nuevoToken)
-        });
-      } catch (e) {}
+      await fetch(`${FIREBASE_DB_URL}config/tokens_mesas/${key}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(nuevoToken)
+      });
       return nuevoToken;
     }
 
@@ -1999,13 +1804,11 @@
         }
       }
       if (cambios) {
-        try {
-          await fetch(`${FIREBASE_DB_URL}config/tokens_mesas.json`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(tokensMesasActivos)
-          });
-        } catch (e) {}
+        await fetch(`${FIREBASE_DB_URL}config/tokens_mesas.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(tokensMesasActivos)
+        });
       }
     }
 
@@ -2149,8 +1952,8 @@
       const av = document.getElementById('headerAvatar');
       const prev = document.getElementById('previewCurrentLogo');
       if (configRestaurante.logo && configRestaurante.logo.startsWith('data:image')) {
-        av.innerHTML = `<img src="${configRestaurante.logo}" alt="Logo">`;
-        prev.innerHTML = `<img src="${configRestaurante.logo}" alt="Logo">`;
+        av.innerHTML = `<img src="${configRestaurante.logo}" alt="Logo" style="width:100%; height:100%; object-fit:cover;">`;
+        prev.innerHTML = `<img src="${configRestaurante.logo}" alt="Logo" style="width:100%; height:100%; object-fit:cover;">`;
       } else {
         av.innerText = configRestaurante.logo || "🍽️";
         prev.innerText = configRestaurante.logo || "🍽️";
@@ -2189,39 +1992,224 @@
       cargarIdentidadFirebase();
     }
 
-    function cerrarSesionAdmin() {
-      sessionStorage.removeItem("auth_admin_ok");
-      window.location.reload();
+    // CALENDARIO Y CARGA KDS
+    function cambiarFechaKDS(val) {
+      fechaKdsSeleccionada = val;
+      document.querySelectorAll('.kds-date-quick-btn').forEach(b => b.classList.remove('active'));
+      renderizarListaKDSFiltrada();
     }
 
-    function iniciarCargasGenerales() {
-      const dateInput = document.getElementById('kdsFechaSeleccionada');
-      if (dateInput) {
-        dateInput.value = fechaKdsSeleccionada;
+    function setKdsFechaRapida(modo) {
+      document.querySelectorAll('.kds-date-quick-btn').forEach(b => b.classList.remove('active'));
+      const hoy = new Date();
+      if (modo === 'hoy') {
+        fechaKdsSeleccionada = hoy.toISOString().split('T')[0];
+        document.getElementById('btnKdsHoy').classList.add('active');
+      } else if (modo === 'ayer') {
+        const ayer = new Date(hoy);
+        ayer.setDate(ayer.getDate() - 1);
+        fechaKdsSeleccionada = ayer.toISOString().split('T')[0];
+        document.getElementById('btnKdsAyer').classList.add('active');
+      } else if (modo === 'todas') {
+        fechaKdsSeleccionada = "";
+        document.getElementById('btnKdsTodas').classList.add('active');
       }
-
-      renderizarVisualDishes();
-
-      cargarIdentidadFirebase().catch(()=>{});
-      cargarMesasDesdeFirebase().catch(()=>{});
-      sincronizarTokensDeMesasFirebase().catch(()=>{});
-      cargarComandasEnVivo().catch(()=>{});
-      cargarReservasFirebase().catch(()=>{});
-
-      setInterval(cargarComandasEnVivo, 2500);
+      document.getElementById('kdsFechaSeleccionada').value = fechaKdsSeleccionada;
+      renderizarListaKDSFiltrada();
     }
 
-    // INICIALIZACIÓN CON VERIFICACIÓN DE SESIÓN ACTIVA
-    window.addEventListener('DOMContentLoaded', () => {
-      if (sessionStorage.getItem("auth_admin_ok") === "true") {
-        document.getElementById('pantallaLogin').style.display = 'none';
-        document.getElementById('panelAdminPrincipal').style.display = 'block';
-        iniciarCargasGenerales();
-      } else {
+    async function cargarComandasEnVivo() {
+      const grid = document.getElementById('liveOrdersGrid');
+      const monitorGrid = document.getElementById('tablesMonitorGrid');
+      if (!grid || !monitorGrid) return;
+
+      let comandas = [];
+      try {
+        const resFB = await fetch(`${FIREBASE_DB_URL}comandas.json?_t=${Date.now()}`);
+        if (resFB.ok) {
+          const dataFB = await resFB.json();
+          if (dataFB && typeof dataFB === 'object') {
+            comandas = Object.keys(dataFB).map(k => {
+              const item = dataFB[k];
+              if (!item || typeof item !== 'object') return null;
+              return Object.assign({ id: k }, item);
+            }).filter(Boolean);
+          }
+        }
+      } catch (e) {}
+
+      comandas.sort((a, b) => (a.timestampOrden || 0) - (b.timestampOrden || 0));
+      todasLasComandasCache = comandas;
+
+      const activasSinCobro = comandas.filter(c => String(c.estado || "").toLowerCase() !== 'finalizado');
+      if (activasSinCobro.length > totalComandasPrevias && totalComandasPrevias !== 0) {
+        reproducirSonidoCampanaCocina();
+      }
+      totalComandasPrevias = activasSinCobro.length;
+      document.getElementById('badgeTotalComandas').innerText = activasSinCobro.length;
+
+      const mesasOcupadas = activasSinCobro.map(c => normalizarNombreMesa(c.mesa || ''));
+      monitorGrid.innerHTML = listaMesasDinamicas.map(m => {
+        const estaOcupada = mesasOcupadas.includes(normalizarNombreMesa(m));
+        return `
+          <div class="table-pill ${estaOcupada ? 'ocupada' : 'libre'}" onclick="clickPildoraMesaMonitor('${m}', ${estaOcupada})">
+            <span>${m.replace('Mesa ', 'M-')} ${estaOcupada ? '🔒' : '✔'}</span>
+            ${modoEliminarMesasActivo ? `<button type="button" class="btn-remove-pill" onclick="eliminarMesaDirectaMonitor('${m}', event)">✕</button>` : ''}
+          </div>
+        `;
+      }).join('');
+
+      renderizarListaKDSFiltrada();
+    }
+
+    function aplicarFiltroEstadoKDS(filtro) {
+      filtroEstadoKDSActual = filtro;
+      document.querySelectorAll('.kds-filter-btn').forEach(b => b.classList.remove('active'));
+      if (filtro === 'todos') document.getElementById('btnFiltroTodos').classList.add('active');
+      if (filtro === 'cobrar') document.getElementById('btnFiltroCobrar').classList.add('active');
+      if (filtro === 'iniciado') document.getElementById('btnFiltroIniciado').classList.add('active');
+      if (filtro === 'cocina') document.getElementById('btnFiltroCocina').classList.add('active');
+      renderizarListaKDSFiltrada();
+    }
+
+    function filtrarComandasKDS() { renderizarListaKDSFiltrada(); }
+
+    // QR
+    async function actualizarQRVisualDirecto(mesaManual = null) {
+      const selector = document.getElementById('qrMesaSelectorDinamico');
+      const mesa = mesaManual || (selector ? selector.value : (listaMesasDinamicas[0] || "Mesa 01"));
+      const tel = document.getElementById('qrTelefonoInput').value.trim() || "+51969773064";
+      const link = await obtenerEnlaceCompletoMesa(mesa);
+
+      document.getElementById('qrPrintNumeroMesa').innerText = mesa.toUpperCase();
+      document.getElementById('qrPrintTelefonoContacto').innerText = `Pedidos: ${tel}`;
+      document.getElementById('imgQRVisualCentrado').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(link)}`;
+    }
+
+    async function imprimirTarjetaMesaQR() {
+      const selector = document.getElementById('qrMesaSelectorDinamico');
+      const mesa = selector ? selector.value : (listaMesasDinamicas[0] || "Mesa 01");
+      const tel = document.getElementById('qrTelefonoInput').value.trim() || "+51969773064";
+      const link = await obtenerEnlaceCompletoMesa(mesa);
+      const qrImgSrc = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodeURIComponent(link)}`;
+      
+      const ventana = window.open('', '_blank');
+      ventana.document.write(`
+        <!DOCTYPE html><html><head><title>QR ${mesa}</title>
+        <style>body{font-family:sans-serif;margin:0;padding:40px 20px;display:flex;justify-content:center;background:#fff;}
+        .card{border:2px dashed #000;border-radius:26px;padding:35px 28px;width:330px;text-align:center;}
+        img{width:230px;height:230px;margin:0 auto;display:block;}h1{margin:16px 0 4px;font-size:28px;}
+        </style></head><body>
+          <div class="card">
+            <h2>${configRestaurante.nombre.toUpperCase()}</h2>
+            <img src="${qrImgSrc}">
+            <h1>${mesa.toUpperCase()}</h1>
+            <p>Escanea con tu celular para ver la carta</p>
+            <p><b>Pedidos: ${tel}</b></p>
+          </div>
+          <script>window.onload = function(){ window.print(); window.close(); }<\/script>
+        </body></html>
+      `);
+      ventana.document.close();
+    }
+
+    // RESERVAS
+    async function crearNuevaReservaAdmin(e) {
+      e.preventDefault();
+      const id = "RES-" + Date.now();
+      const res = {
+        id: id,
+        cliente: document.getElementById('resAdminTitular').value.trim(),
+        telefono: document.getElementById('resAdminTel').value.trim(),
+        fechaReserva: document.getElementById('resAdminFecha').value,
+        horaReserva: document.getElementById('resAdminHora').value,
+        personas: document.getElementById('resAdminPersonas').value,
+        mesaAsignada: document.getElementById('resAdminMesaSelectorDinamico').value,
+        notas: document.getElementById('resAdminNotas').value.trim() || 'Sin notas',
+        fechaCreacion: new Date().toLocaleDateString()
+      };
+
+      await fetch(`${FIREBASE_DB_URL}reservas/${id}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(res)
+      });
+
+      alert("✔ Reserva generada.");
+      e.target.reset();
+      cargarReservasFirebase();
+    }
+
+    async function cargarReservasFirebase() {
+      const cont = document.getElementById('contenedorReservasAdminList');
+      if (!cont) return;
+      let reservas = [];
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}reservas.json?_t=${Date.now()}`);
+        if (res.ok) {
+          const d = await res.json();
+          if (d) reservas = Object.keys(d).map(k => Object.assign({ id: k }, d[k]));
+        }
+      } catch (e) {}
+
+      if (reservas.length === 0) { cont.innerHTML = '<p style="color:#aaa; font-size:13px;">No hay reservas registradas.</p>'; return; }
+      cont.innerHTML = reservas.map(r => `
+        <div style="background:#1e1410; border:1.5px solid var(--accent); border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:6px;">
+          <div style="display:flex; justify-content:space-between;">
+            <strong style="color:#fff;">${r.cliente}</strong>
+            <span style="background:var(--primary); color:#fff; font-size:10px; padding:2px 6px; border-radius:4px;">${r.mesaAsignada || 'Mesa'}</span>
+          </div>
+          <div style="font-size:12px; color:#fde047;">📅 ${r.fechaReserva} • ⏰ ${r.horaReserva} • 👥 ${r.personas} Personas</div>
+          <div style="font-size:11px; color:#aaa;">📞 ${r.telefono} | Notas: ${r.notas}</div>
+        </div>
+      `).join('');
+    }
+
+    // RESEÑAS
+    async function cargarResenasFirebase() {
+      const cont = document.getElementById('contenedorResenasAdmin');
+      if (!cont) return;
+      cont.innerHTML = '<p style="color:#aaa; font-size:13px;">Cargando opiniones...</p>';
+
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}resenas.json?_t=${Date.now()}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && typeof data === 'object') {
+            const list = Object.values(data);
+            cont.innerHTML = list.map(r => `
+              <div style="background:#1a120f; padding:10px 12px; border-radius:10px; margin-bottom:8px; border:1px solid rgba(255,255,255,0.08);">
+                <div style="display:flex; justify-content:space-between;">
+                  <strong style="color:#fde047;">${r.autor || 'Cliente'} (${'⭐'.repeat(r.rating || 5)})</strong>
+                  <span style="font-size:11px; color:#aaa;">${r.fecha || ''}</span>
+                </div>
+                ${r.plato ? `<div style="font-size:11.5px; color:#86efac; margin-top:2px;"><b>Plato:</b> ${r.plato}</div>` : ''}
+                <p style="font-size:12.5px; color:#eee; margin-top:4px;">"${r.texto || ''}"</p>
+              </div>
+            `).join('');
+            return;
+          }
+        }
+      } catch (e) {}
+
+      cont.innerHTML = '<p style="color:#aaa; font-size:13px;">No hay opiniones registradas aún.</p>';
+    }
+
+    function cerrarTurno() {
+      if (confirm("¿Cerrar sesión y turno?")) {
+        sessionStorage.clear();
+        window.location.reload();
+      }
+    }
+    function cerrarSesionAdmin() { sessionStorage.clear(); window.location.reload(); }
+
+    window.onload = () => {
+      if (sessionStorage.getItem("auth_rest") === "true") mostrarPanelAdmin();
+      else {
         document.getElementById('pantallaLogin').style.display = 'flex';
         document.getElementById('panelAdminPrincipal').style.display = 'none';
       }
-    });
+    };
   </script>
 </body>
 </html>
