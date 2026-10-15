@@ -236,16 +236,14 @@
     .switch-btn.btn-to-off { background: #451a1a; color: #fca5a5; border: 1px solid #dc2626; }
     .switch-btn.btn-to-on { background: #14532d; color: #86efac; border: 1px solid #16a34a; }
 
-    /* MODALES FLOTANTES AISLADOS (CORREGIDO: SIEMPRE OCULTOS HASTA QUE SE ACTIVEN) */
+    /* MODALES FLOTANTES AISLADOS */
     .modal-overlay {
       position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.85) !important;
       backdrop-filter: blur(6px) !important; z-index: 999999 !important;
       display: none !important; align-items: center !important; justify-content: center !important;
       padding: 16px !important;
     }
-    .modal-overlay.active {
-      display: flex !important;
-    }
+    .modal-overlay.active { display: flex !important; }
     .modal-box {
       background: var(--card-bg) !important; border: 1.5px solid var(--card-border) !important;
       border-radius: 16px !important; max-width: 520px !important; width: 100% !important;
@@ -277,12 +275,14 @@
 </head>
 <body>
 
-  <!-- PANTALLA LOGIN DINÁMICO -->
+  <!-- PANTALLA LOGIN DINÁMICO (LOGO Y TÍTULO SINCRONIZADOS) -->
   <div id="pantallaLogin">
     <div class="card-login">
-      <div style="text-align:center; font-size:38px; margin-bottom:6px;">🍽️</div>
+      <div id="loginLogoPreview" style="display:flex; justify-content:center; align-items:center; margin-bottom:12px;">
+        <div class="brand-avatar" style="width:72px; height:72px; border-radius:18px; font-size:36px; box-shadow:0 4px 15px rgba(0,0,0,0.5);">🍽️</div>
+      </div>
       <h3 id="loginTitlePreview">La Cusqueñita</h3>
-      <p class="sub">Inicio de Sesión & Apertura de Turno</p>
+      <p class="sub" id="loginSloganPreview">Inicio de Sesión & Apertura de Turno</p>
       
       <form onsubmit="verificarLoginSistema(event)">
         <label>Usuario / Rol:</label>
@@ -362,9 +362,8 @@
           <button type="button" class="btn btn-del" style="padding:4px 7px; font-size:10px;" onclick="cerrarTurno()">Cerrar Caja</button>
         </div>
 
-        <!-- ACORDEONES DEL VAULT (SOLO VISIBLES PARA EL ADMINISTRADOR) -->
+        <!-- ACORDEONES DEL VAULT (SOLO ADMINISTRADOR) -->
         <div class="rol-admin-only" style="display:flex; flex-direction:column; gap:2px;">
-          <!-- ACORDEÓN 1: TOKEN GITHUB -->
           <div class="vault-box">
             <button class="vault-trigger" type="button" onclick="toggleAcordeonClave('token')">
               <span><i class="fa-solid fa-key"></i> Token GitHub</span>
@@ -380,7 +379,6 @@
             </div>
           </div>
 
-          <!-- ACORDEÓN 2: RESETEAR COMANDAS Y MESAS -->
           <div class="vault-box danger-vault">
             <button class="vault-trigger" type="button" onclick="toggleAcordeonClave('resetComandas')">
               <span><i class="fa-solid fa-broom"></i> Reset Comandas & Mesas</span>
@@ -396,7 +394,6 @@
             </div>
           </div>
 
-          <!-- ACORDEÓN 3: RESETEAR HISTORIAL CONTABLE / REPORTES -->
           <div class="vault-box danger-vault">
             <button class="vault-trigger" type="button" onclick="toggleAcordeonClave('resetReportes')">
               <span><i class="fa-solid fa-file-invoice-dollar"></i> Reset Historial Ventas</span>
@@ -414,37 +411,29 @@
         </div>
 
         <nav class="nav-menu">
-          <!-- PARTE OPERATIVA (DISPONIBLE PARA TODOS: ADMIN, CAJERO, MOZO) -->
           <button class="nav-item active" id="btnNavComandas" onclick="seleccionarOpcionNav('comandas')">
             <i class="fa-solid fa-bell-concierge"></i> Comandas en Vivo
             <span class="badge-live-orders" id="badgeTotalComandas">0</span>
           </button>
-
           <button class="nav-item" id="btnNavReservas" onclick="seleccionarOpcionNav('reservas')">
             <i class="fa-solid fa-calendar-check"></i> Generación de Reservas
           </button>
-
           <button class="nav-item" id="btnNavMesas" onclick="seleccionarOpcionNav('mesas')">
             <i class="fa-solid fa-qrcode"></i> Códigos QR & Tokens
           </button>
-
           <button class="nav-item" id="btnNavResenas" onclick="seleccionarOpcionNav('resenas')">
             <i class="fa-solid fa-star"></i> Reseñas & Opiniones
           </button>
 
-          <!-- PARTE ADMINISTRATIVA (SOLO ADMINISTRADORES) -->
           <button class="nav-item rol-admin-only" id="btnNavPlatos" onclick="seleccionarOpcionNav('platos')">
             <i class="fa-solid fa-utensils"></i> Catálogo de Platos
           </button>
-
           <button class="nav-item rol-admin-only" id="btnNavUsuarios" onclick="seleccionarOpcionNav('usuarios')">
             <i class="fa-solid fa-users-gear"></i> Gestión de Usuarios
           </button>
-          
           <button class="nav-item rol-admin-only" id="btnNavIdentidad" onclick="seleccionarOpcionNav('identidad')">
             <i class="fa-solid fa-store"></i> Identidad & Redes Sociales
           </button>
-          
           <button class="nav-item rol-admin-only" id="btnNavReportes" onclick="seleccionarOpcionNav('reportes')">
             <i class="fa-solid fa-chart-line"></i> Reporte Contable & SUNAT
           </button>
@@ -458,8 +447,7 @@
       </aside>
 
       <main class="main-view" id="mainArea">
-
-        <!-- 1. COMANDAS KDS (SECCIÓN AISLADA) -->
+        <!-- 1. COMANDAS KDS -->
         <section id="viewComandas">
           <div class="view-header">
             <div>
@@ -515,7 +503,7 @@
           <div class="live-orders-grid" id="liveOrdersGrid"></div>
         </section>
 
-        <!-- 2. GESTIÓN DE USUARIOS (SECCIÓN AISLADA) -->
+        <!-- 2. GESTIÓN DE USUARIOS -->
         <section id="viewUsuarios" style="display:none;">
           <div class="view-header">
             <div>
@@ -531,12 +519,10 @@
             </strong>
             <form onsubmit="guardarUsuarioSistema(event)" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-top:10px;">
               <input type="hidden" id="usuarioEditandoId" value="">
-              
               <div>
                 <label>Nombre y Apellido del Operador:</label>
                 <input type="text" id="userInputNombre" placeholder="Ej: Carlos Salón" required>
               </div>
-
               <div>
                 <label>Rol / Nivel de Acceso:</label>
                 <select id="userInputRol" required>
@@ -546,12 +532,10 @@
                   <option value="cocina">Cocinero (Solo KDS cocina)</option>
                 </select>
               </div>
-
               <div>
                 <label>Contraseña de Acceso:</label>
                 <input type="password" id="userInputPass" placeholder="••••••••" required>
               </div>
-
               <div style="display:flex; align-items:flex-end; gap:8px;">
                 <button type="submit" class="btn btn-save" style="flex:1; height:42px;">
                   <i class="fa-solid fa-floppy-disk"></i> <span id="btnGuardarUserTxt">Guardar Usuario</span>
@@ -584,7 +568,7 @@
           </div>
         </section>
 
-        <!-- 3. CATÁLOGO DE PLATOS (SECCIÓN AISLADA) -->
+        <!-- 3. CATÁLOGO DE PLATOS -->
         <section id="viewPlatos" style="display:none;">
           <div class="view-header">
             <div>
@@ -596,7 +580,7 @@
           <div class="dishes-grid" id="dishesVisualGrid"></div>
         </section>
 
-        <!-- 4. GENERACIÓN DE RESERVAS (SECCIÓN AISLADA) -->
+        <!-- 4. GENERACIÓN DE RESERVAS -->
         <section id="viewReservas" style="display:none;">
           <div class="view-header">
             <div>
@@ -644,7 +628,7 @@
           <div id="contenedorReservasAdminList" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:14px;"></div>
         </section>
 
-        <!-- 5. IDENTIDAD, SUNAT Y REDES SOCIALES (SECCIÓN AISLADA) -->
+        <!-- 5. IDENTIDAD, SUNAT Y REDES SOCIALES -->
         <section id="viewIdentidad" style="display:none;">
           <div class="view-header"><h1>🏪 Identidad del Negocio & Redes Sociales</h1></div>
           <div class="card">
@@ -706,7 +690,7 @@
           </div>
         </section>
 
-        <!-- 6. REPORTE CONTABLE (SECCIÓN AISLADA) -->
+        <!-- 6. REPORTE CONTABLE -->
         <section id="viewReportes" style="display:none;">
           <div class="view-header">
             <div>
@@ -745,7 +729,7 @@
           </div>
         </section>
 
-        <!-- 7. QR MESAS (SECCIÓN AISLADA) -->
+        <!-- 7. QR MESAS -->
         <section id="viewMesas" style="display:none;">
           <div class="view-header">
             <div>
@@ -789,7 +773,7 @@
           </div>
         </section>
 
-        <!-- 8. RESEÑAS (SECCIÓN AISLADA) -->
+        <!-- 8. RESEÑAS -->
         <section id="viewResenas" style="display:none;">
           <div class="view-header">
             <div>
@@ -800,12 +784,11 @@
           </div>
           <div class="card"><div id="contenedorResenasAdmin">Presiona Actualizar para ver opiniones...</div></div>
         </section>
-
       </main>
     </div>
   </div>
 
-  <!-- MODAL FLOTANTE 1: EDICIÓN DE PLATOS (AISLADO EN CAPA SUPERIOR FIXED) -->
+  <!-- MODAL FLOTANTE 1: EDICIÓN DE PLATOS -->
   <div class="modal-overlay" id="dishModal" onclick="cerrarModalPlato()">
     <div class="modal-box" onclick="event.stopPropagation()">
       <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -853,7 +836,7 @@
     </div>
   </div>
 
-  <!-- MODAL FLOTANTE 2: COBRO DE MESA (AISLADO EN CAPA SUPERIOR FIXED) -->
+  <!-- MODAL FLOTANTE 2: COBRO DE MESA -->
   <div class="modal-overlay" id="modalCobroMesa" onclick="cerrarModalCobro()">
     <div class="modal-box" onclick="event.stopPropagation()">
       <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -955,7 +938,6 @@
     let fechaKdsSeleccionada = new Date().toISOString().split('T')[0];
     let modoEliminarMesasActivo = false;
 
-    // ESTADO DE DESBLOQUEO DE LOS TRES ACORDEONES
     let vaultTokenDesbloqueado = false;
     let vaultResetComandasDesbloqueado = false;
     let vaultResetReportesDesbloqueado = false;
@@ -1098,7 +1080,7 @@
       if (s === 'resenas') cargarResenasFirebase();
     }
 
-    // ACORDEONES DEL VAULT
+    // VAULT
     function toggleAcordeonClave(tipo) {
       if (tipo === 'token') {
         const box = document.getElementById('contentVaultToken');
@@ -1315,7 +1297,7 @@
       reader.readAsDataURL(file);
     }
 
-    // MODAL EDICIÓN PLATOS (CONTROL ESTRICTO DE APERTURA / CIERRE)
+    // MODAL EDICIÓN PLATOS
     function abrirModalPlato(id = null) {
       platoEditandoId = id;
       if (id) {
@@ -1375,7 +1357,7 @@
       renderizarVisualDishes();
     }
 
-    // MODAL COBRO (CONTROL ESTRICTO DE APERTURA / CIERRE)
+    // MODAL COBRO
     async function abrirModalCobroComanda(idComanda) {
       let comanda = todasLasComandasCache.find(c => c.id === idComanda);
       if (!comanda) {
@@ -1922,41 +1904,102 @@
       } else alert(`La ${m} está LIBRE.`);
     }
 
-    // IDENTIDAD Y LOGO
+    // APLICAR IDENTIDAD Y LOGO A TODO EL DOM
+    function aplicarIdentidadEnInterfaz(conf) {
+      const nombre = conf.nombre || "La Cusqueñita";
+      const eslogan = conf.eslogan || "Cusco • Gourmet";
+      const logo = conf.logo || "🍽️";
+
+      // Actualizar Login
+      const loginTitle = document.getElementById('loginTitlePreview');
+      if (loginTitle) loginTitle.innerText = nombre;
+      const loginSlogan = document.getElementById('loginSloganPreview');
+      if (loginSlogan && eslogan) loginSlogan.innerText = eslogan;
+      
+      const loginLogoBox = document.getElementById('loginLogoPreview');
+      if (loginLogoBox) {
+        if (logo && (logo.startsWith('data:image') || logo.startsWith('http'))) {
+          loginLogoBox.innerHTML = `<img src="${logo}" alt="${nombre}" style="width:78px; height:78px; border-radius:18px; object-fit:cover; border:2px solid var(--accent); box-shadow:0 6px 20px rgba(0,0,0,0.5);">`;
+        } else {
+          loginLogoBox.innerHTML = `<div class="brand-avatar" style="width:72px; height:72px; border-radius:18px; font-size:36px;">${logo}</div>`;
+        }
+      }
+
+      // Actualizar Top Bar y Sidebar
+      const topTitle = document.getElementById('topBarTitle');
+      if (topTitle) topTitle.innerText = nombre;
+      const headName = document.getElementById('headerBusinessName');
+      if (headName) headName.innerText = nombre;
+      const headSlogan = document.getElementById('headerBusinessSlogan');
+      if (headSlogan) headSlogan.innerText = eslogan;
+
+      const av = document.getElementById('headerAvatar');
+      const prev = document.getElementById('previewCurrentLogo');
+      if (logo && (logo.startsWith('data:image') || logo.startsWith('http'))) {
+        const imgTag = `<img src="${logo}" alt="Logo" style="width:100%; height:100%; object-fit:cover;">`;
+        if (av) av.innerHTML = imgTag;
+        if (prev) prev.innerHTML = imgTag;
+      } else {
+        if (av) av.innerText = logo;
+        if (prev) prev.innerText = logo;
+      }
+
+      // Datos fiscales
+      const repRazon = document.getElementById('repLocalRazonSocial');
+      if (repRazon) repRazon.innerText = nombre;
+      const repRuc = document.getElementById('repLocalRuc');
+      if (repRuc) repRuc.innerText = "RUC: " + (conf.ruc || "20601234567");
+      const repDir = document.getElementById('repLocalDireccion');
+      if (repDir) repDir.innerText = conf.direccion || "";
+      const repFecha = document.getElementById('repFechaHoy');
+      if (repFecha) repFecha.innerText = new Date().toLocaleDateString();
+
+      // Inputs de formulario de Identidad
+      const inputNom = document.getElementById('cfgBusinessName');
+      if (inputNom && !inputNom.value) inputNom.value = nombre;
+      const inputSlog = document.getElementById('cfgBusinessSlogan');
+      if (inputSlog && !inputSlog.value) inputSlog.value = eslogan;
+      const inputRuc = document.getElementById('cfgRuc');
+      if (inputRuc && !inputRuc.value) inputRuc.value = conf.ruc || "20601234567";
+      const inputDir = document.getElementById('cfgDireccion');
+      if (inputDir && !inputDir.value) inputDir.value = conf.direccion || "";
+      const inputIgv = document.getElementById('cfgIgvTasa');
+      if (inputIgv && !inputIgv.value) inputIgv.value = conf.igv || 18;
+      const inputWsp = document.getElementById('cfgWhatsapp');
+      if (inputWsp && !inputWsp.value) inputWsp.value = conf.whatsapp || "51969773064";
+      const inputFb = document.getElementById('cfgFacebook');
+      if (inputFb && !inputFb.value) inputFb.value = conf.facebook || "";
+      const inputIg = document.getElementById('cfgInstagram');
+      if (inputIg && !inputIg.value) inputIg.value = conf.instagram || "";
+      const inputTk = document.getElementById('cfgTiktok');
+      if (inputTk && !inputTk.value) inputTk.value = conf.tiktok || "";
+    }
+
+    // CARGA DE IDENTIDAD DESDE CACHÉ Y FIREBASE
     async function cargarIdentidadFirebase() {
+      // 1. Cargar caché inmediato para que no parpadee
+      const cached = localStorage.getItem("restaurante_identidad_global");
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          configRestaurante = Object.assign(configRestaurante, parsed);
+          aplicarIdentidadEnInterfaz(configRestaurante);
+        } catch(e) {}
+      }
+
+      // 2. Traer la última versión de Firebase
       try {
         const res = await fetch(`${FIREBASE_DB_URL}config/identidad.json?_t=${Date.now()}`);
         if (res.ok) {
           const conf = await res.json();
-          if (conf) configRestaurante = Object.assign(configRestaurante, conf);
+          if (conf && typeof conf === 'object') {
+            configRestaurante = Object.assign(configRestaurante, conf);
+            localStorage.setItem("restaurante_identidad_global", JSON.stringify(configRestaurante));
+            aplicarIdentidadEnInterfaz(configRestaurante);
+          }
         }
-      } catch (e) {}
-
-      document.getElementById('cfgBusinessName').value = configRestaurante.nombre || "La Cusqueñita";
-      document.getElementById('cfgBusinessSlogan').value = configRestaurante.eslogan || "";
-      document.getElementById('cfgRuc').value = configRestaurante.ruc || "20601234567";
-      document.getElementById('cfgDireccion').value = configRestaurante.direccion || "";
-      document.getElementById('cfgIgvTasa').value = configRestaurante.igv || 18;
-      document.getElementById('cfgWhatsapp').value = configRestaurante.whatsapp || "51969773064";
-      document.getElementById('cfgFacebook').value = configRestaurante.facebook || "";
-      document.getElementById('cfgInstagram').value = configRestaurante.instagram || "";
-      document.getElementById('cfgTiktok').value = configRestaurante.tiktok || "";
-
-      document.getElementById('headerBusinessName').innerText = configRestaurante.nombre;
-      document.getElementById('topBarTitle').innerText = configRestaurante.nombre;
-      document.getElementById('repLocalRazonSocial').innerText = configRestaurante.nombre;
-      document.getElementById('repLocalRuc').innerText = "RUC: " + configRestaurante.ruc;
-      document.getElementById('repLocalDireccion').innerText = configRestaurante.direccion;
-      document.getElementById('repFechaHoy').innerText = new Date().toLocaleDateString();
-
-      const av = document.getElementById('headerAvatar');
-      const prev = document.getElementById('previewCurrentLogo');
-      if (configRestaurante.logo && configRestaurante.logo.startsWith('data:image')) {
-        av.innerHTML = `<img src="${configRestaurante.logo}" alt="Logo" style="width:100%; height:100%; object-fit:cover;">`;
-        prev.innerHTML = `<img src="${configRestaurante.logo}" alt="Logo" style="width:100%; height:100%; object-fit:cover;">`;
-      } else {
-        av.innerText = configRestaurante.logo || "🍽️";
-        prev.innerText = configRestaurante.logo || "🍽️";
+      } catch (e) {
+        console.warn("No se pudo cargar la identidad desde Firebase:", e);
       }
     }
 
@@ -1966,8 +2009,7 @@
       const reader = new FileReader();
       reader.onload = (e) => {
         configRestaurante.logo = e.target.result;
-        document.getElementById('previewCurrentLogo').innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;">`;
-        document.getElementById('headerAvatar').innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;">`;
+        aplicarIdentidadEnInterfaz(configRestaurante);
       };
       reader.readAsDataURL(file);
     }
@@ -1983,13 +2025,22 @@
       configRestaurante.instagram = document.getElementById('cfgInstagram').value.trim();
       configRestaurante.tiktok = document.getElementById('cfgTiktok').value.trim();
 
-      await fetch(`${FIREBASE_DB_URL}config/identidad.json`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(configRestaurante)
-      });
-      alert("✔ Identidad y Redes guardadas.");
-      cargarIdentidadFirebase();
+      // Guardado simultáneo en Firebase y LocalStorage global
+      localStorage.setItem("restaurante_identidad_global", JSON.stringify(configRestaurante));
+      localStorage.setItem("restaurante_identidad_actualizada", Date.now().toString());
+
+      try {
+        await fetch(`${FIREBASE_DB_URL}config/identidad.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(configRestaurante)
+        });
+        alert("✔ Identidad y Logo sincronizados para todo el sistema.");
+      } catch (err) {
+        alert("Error al sincronizar con Firebase: " + err.message);
+      }
+
+      aplicarIdentidadEnInterfaz(configRestaurante);
     }
 
     // CALENDARIO Y CARGA KDS
@@ -2203,9 +2254,15 @@
     }
     function cerrarSesionAdmin() { sessionStorage.clear(); window.location.reload(); }
 
-    window.onload = () => {
-      if (sessionStorage.getItem("auth_rest") === "true") mostrarPanelAdmin();
-      else {
+    // INICIALIZACIÓN CON SINCRONIZACIÓN PRIORITARIA
+    window.onload = async () => {
+      // 1. Cargar el logo e identidad comercial inmediatamente (antes del login)
+      await cargarIdentidadFirebase();
+
+      // 2. Verificar estado de sesión
+      if (sessionStorage.getItem("auth_rest") === "true") {
+        mostrarPanelAdmin();
+      } else {
         document.getElementById('pantallaLogin').style.display = 'flex';
         document.getElementById('panelAdminPrincipal').style.display = 'none';
       }
