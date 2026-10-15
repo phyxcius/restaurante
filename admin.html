@@ -1047,7 +1047,7 @@
       await cargarComandasEnVivo();
       cargarReservasFirebase();
       actualizarQRVisualDirecto();
-      setInterval(cargarComandasEnVivo, 2000);
+      setInterval(cargarComandasEnVivo, 2500);
     }
 
     function toggleSidebarMenu() {
@@ -1532,23 +1532,91 @@
       await cargarComandasEnVivo();
     }
 
-    // RENDERIZADO KDS
+    // CARGA DE COMANDAS ROBUSTA (NORMALIZANDO CAMPOS Y ARREGLOS)
+    async function cargarComandasEnVivo() {
+      const grid = document.getElementById('liveOrdersGrid');
+      const monitorGrid = document.getElementById('tablesMonitorGrid');
+      if (!grid || !monitorGrid) return;
+
+      let comandas = [];
+      try {
+        const resFB = await fetch(`${FIREBASE_DB_URL}comandas.json?_t=${Date.now()}`);
+        if (resFB.ok) {
+          const dataFB = await resFB.json();
+          if (dataFB && typeof dataFB === 'object') {
+            comandas = Object.keys(dataFB).map(k => {
+              const item = dataFB[k];
+              if (!item || typeof item !== 'object') return null;
+
+              let detalleProductos = item.productos || "";
+              if (!detalleProductos && Array.isArray(item.items)) {
+                detalleProductos = item.items.map(it => `${it.cantidad || 1}x ${it.nombre || it.name || 'Plato'}`).join(', ');
+              } else if (!detalleProductos && Array.isArray(item.platos)) {
+                detalleProductos = item.platos.map(it => `${it.cantidad || 1}x ${it.nombre || 'Plato'}`).join(', ');
+              }
+
+              const totalCalculado = parseFloat(item.totalPEN || item.total || item.monto || 0);
+
+              return Object.assign({ id: k }, item, {
+                productos: detalleProductos || "Pedido sin detalle de platos",
+                totalPEN: totalCalculado
+              });
+            }).filter(Boolean);
+          }
+        }
+      } catch (e) {
+        console.error("Error al obtener comandas de Firebase:", e);
+      }
+
+      comandas.sort((a, b) => (b.timestampOrden || 0) - (a.timestampOrden || 0));
+      todasLasComandasCache = comandas;
+
+      const activasSinCobro = comandas.filter(c => {
+        const est = String(c.estado || "").toLowerCase();
+        return est !== 'finalizado' && est !== 'liberado';
+      });
+
+      if (activasSinCobro.length > totalComandasPrevias && totalComandasPrevias !== 0) {
+        reproducirSonidoCampanaCocina();
+      }
+      totalComandasPrevias = activasSinCobro.length;
+      document.getElementById('badgeTotalComandas').innerText = activasSinCobro.length;
+
+      const mesasOcupadas = activasSinCobro.map(c => normalizarNombreMesa(c.mesa || ''));
+      monitorGrid.innerHTML = listaMesasDinamicas.map(m => {
+        const estaOcupada = mesasOcupadas.includes(normalizarNombreMesa(m));
+        return `
+          <div class="table-pill ${estaOcupada ? 'ocupada' : 'libre'}" onclick="clickPildoraMesaMonitor('${m}', ${estaOcupada})">
+            <span>${m.replace('Mesa ', 'M-')} ${estaOcupada ? '🔒' : '✔'}</span>
+            ${modoEliminarMesasActivo ? `<button type="button" class="btn-remove-pill" onclick="eliminarMesaDirectaMonitor('${m}', event)">✕</button>` : ''}
+          </div>
+        `;
+      }).join('');
+
+      renderizarListaKDSFiltrada();
+    }
+
+    // RENDERIZADO KDS FLEXIBLE
     function renderizarListaKDSFiltrada() {
       const grid = document.getElementById('liveOrdersGrid');
       if (!grid) return;
 
       const query = (document.getElementById('kdsFiltroBusqueda').value || '').toLowerCase().trim();
 
-      let diaFiltroDDMMYYYY = "";
-      if (fechaKdsSeleccionada) {
-        const partes = fechaKdsSeleccionada.split('-');
-        if (partes.length === 3) diaFiltroDDMMYYYY = `${parseInt(partes[2])}/${parseInt(partes[1])}/${partes[0]}`;
-      }
-
       let comandasPorFecha = todasLasComandasCache.filter(c => {
         if (!fechaKdsSeleccionada) return true;
+
         const fec = String(c.fecha || "");
-        return fec.includes(diaFiltroDDMMYYYY) || fec.includes(fechaKdsSeleccionada);
+        const timestamp = c.timestampOrden ? new Date(c.timestampOrden).toISOString().split('T')[0] : "";
+
+        const partes = fechaKdsSeleccionada.split('-');
+        if (partes.length === 3) {
+          const formatoLocal = `${parseInt(partes[2])}/${parseInt(partes[1])}/${partes[0]}`;
+          const formatoConCeros = `${partes[2].padStart(2, '0')}/${partes[1].padStart(2, '0')}/${partes[0]}`;
+          if (fec.includes(formatoLocal) || fec.includes(formatoConCeros)) return true;
+        }
+
+        return fec.includes(fechaKdsSeleccionada) || timestamp === fechaKdsSeleccionada;
       });
 
       let totDia = comandasPorFecha.length;
@@ -1578,12 +1646,19 @@
         filtradas = filtradas.filter(c => {
           const m = String(c.mesa || '').toLowerCase();
           const cl = String(c.cliente || '').toLowerCase();
-          return m.includes(query) || cl.includes(query);
+          const pr = String(c.productos || '').toLowerCase();
+          return m.includes(query) || cl.includes(query) || pr.includes(query);
         });
       }
 
       if (filtradas.length === 0) {
-        grid.innerHTML = `<p style="color:#aaa; font-size:14px; padding:24px 0; text-align:center;">No hay comandas registradas para la fecha seleccionada.</p>`;
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align:center; padding: 30px; background:#18100c; border:1px dashed var(--card-border); border-radius:12px;">
+            <p style="color:#aaa; font-size:14px; margin-bottom:10px;">No hay comandas que coincidan con la fecha o filtro actual.</p>
+            <button type="button" class="btn btn-save" style="font-size:12px;" onclick="setKdsFechaRapida('todas')">
+              <i class="fa-solid fa-list"></i> Ver Todas las Fechas
+            </button>
+          </div>`;
         return;
       }
 
@@ -1592,27 +1667,27 @@
         if (estado === 'por_confirmar') estado = 'iniciado';
 
         const pagandoClass = (c.clientePidiendoCuenta === true && estado !== 'finalizado') ? "cliente-pagando" : "";
-        const detalle = c.productos || "Sin platos especificados";
-        const total = parseFloat(c.totalPEN || c.total || 0).toFixed(2);
-        const mesa = c.mesa || "Mesa";
+        const detalle = c.productos;
+        const total = parseFloat(c.totalPEN || 0).toFixed(2);
+        const mesa = c.mesa || "Mesa Sin Asignar";
         const cliente = c.cliente || mesa;
-        const numTurno = c.numeroTurno || (index + 1);
+        const numTurno = c.numeroTurno || (filtradas.length - index);
 
         let badgeTexto = "Iniciado", badgeClase = "badge-iniciado";
-        if (estado === 'cocina') { badgeTexto = "🍳 En Proceso (Cocina)"; badgeClase = "badge-cocina"; }
-        else if (estado === 'servido') { badgeTexto = "✅ Recibido en Mesa"; badgeClase = "badge-servido"; }
-        else if (estado === 'finalizado') { badgeTexto = "🏁 Finalizado"; badgeClase = "badge-finalizado"; }
+        if (estado === 'cocina') { badgeTexto = "🍳 En Cocina"; badgeClase = "badge-cocina"; }
+        else if (estado === 'servido') { badgeTexto = "✅ Servido"; badgeClase = "badge-servido"; }
+        else if (estado === 'finalizado') { badgeTexto = "🏁 Cobrado"; badgeClase = "badge-finalizado"; }
 
         return `
           <div class="order-card estado-${estado} ${pagandoClass}">
             <div class="order-card-header">
               <div>
                 <div style="display:flex; align-items:center; gap:8px;">
-                  <span class="chef-order-priority-badge"><i class="fa-solid fa-list-ol"></i> Orden #${numTurno < 10 ? '0' + numTurno : numTurno}</span>
+                  <span class="chef-order-priority-badge"><i class="fa-solid fa-list-ol"></i> #${numTurno < 10 ? '0' + numTurno : numTurno}</span>
                   <strong style="font-size:16px; color:#fff;">${cliente}</strong>
                 </div>
                 <div style="font-size:11px; color:#aaa; margin-top:2px;">
-                  ${c.id} • ${c.fecha || ''} ${c.operador ? `• <b style="color:#86efac;">Op: ${c.operador}</b>` : ''}
+                  ${c.mesa || ''} • ${c.fecha || 'Reciente'} ${c.operador ? `• <b style="color:#86efac;">Op: ${c.operador}</b>` : ''}
                 </div>
               </div>
               <span class="order-status-badge ${badgeClase}">${badgeTexto}</span>
@@ -1628,7 +1703,7 @@
             ${c.notas ? `<div class="order-notes-tag">📝 ${c.notas}</div>` : ''}
 
             <div class="order-bottom-bar">
-              <span>Pago: <b>${c.pago || 'Efectivo'}</b></span>
+              <span>Pago: <b>${c.pago || 'Pendiente'}</b></span>
               <span style="font-size:16px; font-weight:900; color:#86efac;">S/ ${total}</span>
             </div>
 
@@ -1646,19 +1721,19 @@
               ` : ''}
 
               <button type="button" class="btn-action-print-chef" onclick="imprimirComandaChef('${c.id}')">
-                <i class="fa-solid fa-print"></i> 🖨️ Imprimir Ticket Cocina
+                <i class="fa-solid fa-print"></i> 🖨️ Ticket Cocina
               </button>
 
               ${(estado !== 'finalizado') ? `
                 <button type="button" class="btn-action-cobrar" onclick="abrirModalCobroComanda('${c.id}')">
-                  <i class="fa-solid fa-cash-register"></i> 💳 Cobrar Total (S/ ${total})
+                  <i class="fa-solid fa-cash-register"></i> 💳 Cobrar (S/ ${total})
                 </button>
                 <button type="button" class="btn-action-ask-more" onclick="enviarMensajeAgregarMas('${c.id}')">
-                  <i class="fa-solid fa-bell"></i> 💬 ¿Desea agregar algo más?
+                  <i class="fa-solid fa-bell"></i> 💬 Consultar al cliente
                 </button>
               ` : `
                 <button type="button" class="btn btn-print" style="width:100%;" onclick="reimprimirComprobanteFinalizado('${c.id}')">
-                  <i class="fa-solid fa-print"></i> 🧾 Reimprimir Boleta / Factura
+                  <i class="fa-solid fa-print"></i> 🧾 Reimprimir Comprobante
                 </button>
               `}
             </div>
@@ -1910,7 +1985,6 @@
       const eslogan = conf.eslogan || "Cusco • Gourmet";
       const logo = conf.logo || "🍽️";
 
-      // Actualizar Login
       const loginTitle = document.getElementById('loginTitlePreview');
       if (loginTitle) loginTitle.innerText = nombre;
       const loginSlogan = document.getElementById('loginSloganPreview');
@@ -1925,7 +1999,6 @@
         }
       }
 
-      // Actualizar Top Bar y Sidebar
       const topTitle = document.getElementById('topBarTitle');
       if (topTitle) topTitle.innerText = nombre;
       const headName = document.getElementById('headerBusinessName');
@@ -1944,7 +2017,6 @@
         if (prev) prev.innerText = logo;
       }
 
-      // Datos fiscales
       const repRazon = document.getElementById('repLocalRazonSocial');
       if (repRazon) repRazon.innerText = nombre;
       const repRuc = document.getElementById('repLocalRuc');
@@ -1954,7 +2026,6 @@
       const repFecha = document.getElementById('repFechaHoy');
       if (repFecha) repFecha.innerText = new Date().toLocaleDateString();
 
-      // Inputs de formulario de Identidad
       const inputNom = document.getElementById('cfgBusinessName');
       if (inputNom && !inputNom.value) inputNom.value = nombre;
       const inputSlog = document.getElementById('cfgBusinessSlogan');
@@ -1977,7 +2048,6 @@
 
     // CARGA DE IDENTIDAD DESDE CACHÉ Y FIREBASE
     async function cargarIdentidadFirebase() {
-      // 1. Cargar caché inmediato para que no parpadee
       const cached = localStorage.getItem("restaurante_identidad_global");
       if (cached) {
         try {
@@ -1987,7 +2057,6 @@
         } catch(e) {}
       }
 
-      // 2. Traer la última versión de Firebase
       try {
         const res = await fetch(`${FIREBASE_DB_URL}config/identidad.json?_t=${Date.now()}`);
         if (res.ok) {
@@ -2025,7 +2094,6 @@
       configRestaurante.instagram = document.getElementById('cfgInstagram').value.trim();
       configRestaurante.tiktok = document.getElementById('cfgTiktok').value.trim();
 
-      // Guardado simultáneo en Firebase y LocalStorage global
       localStorage.setItem("restaurante_identidad_global", JSON.stringify(configRestaurante));
       localStorage.setItem("restaurante_identidad_actualizada", Date.now().toString());
 
@@ -2066,50 +2134,6 @@
         document.getElementById('btnKdsTodas').classList.add('active');
       }
       document.getElementById('kdsFechaSeleccionada').value = fechaKdsSeleccionada;
-      renderizarListaKDSFiltrada();
-    }
-
-    async function cargarComandasEnVivo() {
-      const grid = document.getElementById('liveOrdersGrid');
-      const monitorGrid = document.getElementById('tablesMonitorGrid');
-      if (!grid || !monitorGrid) return;
-
-      let comandas = [];
-      try {
-        const resFB = await fetch(`${FIREBASE_DB_URL}comandas.json?_t=${Date.now()}`);
-        if (resFB.ok) {
-          const dataFB = await resFB.json();
-          if (dataFB && typeof dataFB === 'object') {
-            comandas = Object.keys(dataFB).map(k => {
-              const item = dataFB[k];
-              if (!item || typeof item !== 'object') return null;
-              return Object.assign({ id: k }, item);
-            }).filter(Boolean);
-          }
-        }
-      } catch (e) {}
-
-      comandas.sort((a, b) => (a.timestampOrden || 0) - (b.timestampOrden || 0));
-      todasLasComandasCache = comandas;
-
-      const activasSinCobro = comandas.filter(c => String(c.estado || "").toLowerCase() !== 'finalizado');
-      if (activasSinCobro.length > totalComandasPrevias && totalComandasPrevias !== 0) {
-        reproducirSonidoCampanaCocina();
-      }
-      totalComandasPrevias = activasSinCobro.length;
-      document.getElementById('badgeTotalComandas').innerText = activasSinCobro.length;
-
-      const mesasOcupadas = activasSinCobro.map(c => normalizarNombreMesa(c.mesa || ''));
-      monitorGrid.innerHTML = listaMesasDinamicas.map(m => {
-        const estaOcupada = mesasOcupadas.includes(normalizarNombreMesa(m));
-        return `
-          <div class="table-pill ${estaOcupada ? 'ocupada' : 'libre'}" onclick="clickPildoraMesaMonitor('${m}', ${estaOcupada})">
-            <span>${m.replace('Mesa ', 'M-')} ${estaOcupada ? '🔒' : '✔'}</span>
-            ${modoEliminarMesasActivo ? `<button type="button" class="btn-remove-pill" onclick="eliminarMesaDirectaMonitor('${m}', event)">✕</button>` : ''}
-          </div>
-        `;
-      }).join('');
-
       renderizarListaKDSFiltrada();
     }
 
@@ -2254,12 +2278,10 @@
     }
     function cerrarSesionAdmin() { sessionStorage.clear(); window.location.reload(); }
 
-    // INICIALIZACIÓN CON SINCRONIZACIÓN PRIORITARIA
+    // INICIALIZACIÓN
     window.onload = async () => {
-      // 1. Cargar el logo e identidad comercial inmediatamente (antes del login)
       await cargarIdentidadFirebase();
 
-      // 2. Verificar estado de sesión
       if (sessionStorage.getItem("auth_rest") === "true") {
         mostrarPanelAdmin();
       } else {
