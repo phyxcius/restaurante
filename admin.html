@@ -196,7 +196,6 @@
       font-size: 11px; font-weight: 900; padding: 3px 8px; border-radius: 8px; display: inline-flex; align-items: center; gap: 4px;
     }
 
-    /* BADGE DNI SOCIO */
     .badge-dni-socio {
       background: rgba(34, 197, 94, 0.2);
       border: 1px dashed #22c55e;
@@ -234,7 +233,7 @@
     .switch-btn.btn-to-off { background: #451a1a; color: #fca5a5; border: 1px solid #dc2626; }
     .switch-btn.btn-to-on { background: #14532d; color: #86efac; border: 1px solid #16a34a; }
 
-    /* MODALES FLOTANTES AISLADOS */
+    /* MODALES FLOTANTES */
     .modal-overlay {
       position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.85) !important;
       backdrop-filter: blur(6px) !important; z-index: 999999 !important;
@@ -273,7 +272,7 @@
 </head>
 <body>
 
-  <!-- DASHBOARD PRINCIPAL (ARRANQUE DIRECTO Y SEGURO) -->
+  <!-- DASHBOARD PRINCIPAL -->
   <div id="panelAdminPrincipal">
     <header class="top-admin-bar no-print" id="mainAdminHeaderBar">
       <button type="button" class="btn-toggle-global" onclick="toggleSidebarMenu()">
@@ -435,7 +434,7 @@
           </div>
 
           <div class="kds-search-bar">
-            <input type="text" id="kdsFiltroBusqueda" placeholder="🔍 Buscar por mesa o nombre de cliente..." oninput="filtrarComandasKDS()">
+            <input type="text" id="kdsFiltroBusqueda" placeholder="🔍 Buscar por mesa, cliente o DNI..." oninput="filtrarComandasKDS()">
             <button class="kds-filter-btn active" id="btnFiltroTodos" onclick="aplicarFiltroEstadoKDS('todos')">Todas</button>
             <button class="kds-filter-btn" id="btnFiltroCobrar" onclick="aplicarFiltroEstadoKDS('cobrar')">🔔 Solo a Cobrar</button>
             <button class="kds-filter-btn" id="btnFiltroIniciado" onclick="aplicarFiltroEstadoKDS('iniciado')">Iniciadas</button>
@@ -983,7 +982,7 @@
     let filtroEstadoKDSActual = "todos";
     let totalComandasPrevias = 0;
     
-    // FECHA INICIAL SEGURA (Evita que el campo aparezca en dd/mm/aaaa vacío)
+    // Asignación segura de fecha actual
     let fechaKdsSeleccionada = new Date().toISOString().split('T')[0];
     let modoEliminarMesasActivo = false;
 
@@ -1042,7 +1041,7 @@
       if (window.innerWidth <= 860) cerrarMenuMovil();
     }
 
-    // NAVEGACIÓN BLINDADA (Nunca se congela)
+    // NAVEGACIÓN TOTALMENTE AISLADA Y SEGURA
     function mostrarSeccion(s) {
       try {
         document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -1357,6 +1356,7 @@
       document.getElementById('cajaDatosFactura').style.display = (tipo === 'Factura') ? 'block' : 'none';
     }
 
+    // CONFIRMACIÓN DE COBRO CON ACREDITACIÓN DE SELLO
     async function confirmarCobroFinalizado() {
       if (!comandaCobrandoActual) return;
 
@@ -1367,6 +1367,7 @@
       const tipoComp = document.getElementById('cobroTipoComprobante').value;
       const dniCliente = document.getElementById('cobroDniCliente').value.trim();
 
+      // 1. ACREDITAR SELLO EN EL CLUB DE FIDELIDAD EN FIREBASE
       if (dniCliente) {
         try {
           const resFiel = await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${dniCliente}.json?_t=${Date.now()}`);
@@ -1399,6 +1400,7 @@
         }
       }
 
+      // 2. REGISTRAR VENTA CONTABLE
       const venta = {
         id: comandaCobrandoActual.id,
         fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }),
@@ -1422,6 +1424,7 @@
         body: JSON.stringify(venta)
       });
 
+      // 3. FINALIZAR COMANDA
       await fetch(`${FIREBASE_DB_URL}comandas/${comandaCobrandoActual.id}.json`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -1655,7 +1658,7 @@
           <hr>
           <div class="left" style="font-size:10px;">
             <b>VENTAS DETALLADAS (${d.ventasTurno.length}):</b><br>
-            ${d.ventasTurno.map(v => `${v.fecha.split(' ')[1] \vert{}\vert{} ''} -${v.mesa}: S/ ${(v.totalPEN\vert{}\vert{}0).toFixed(2)} (${v.pago})`).join('<br>')}
+            ${d.ventasTurno.map(v => `${v.fecha.split(' ')[1] || ''} - ${v.mesa}: S/ ${(v.totalPEN||0).toFixed(2)} (${v.pago})`).join('<br>')}
           </div>
           <hr>
           <p style="font-size:11px; margin-top:14px;">Firma del Responsable: ____________________</p>
@@ -1669,7 +1672,7 @@
       }, 500);
     }
 
-    // RENDERIZADO KDS (PROTEGIDO CONTRA NULL)
+    // RENDERIZADO KDS (PROTEGIDO)
     function renderizarListaKDSFiltrada() {
       const grid = document.getElementById('liveOrdersGrid');
       if (!grid) return;
@@ -1834,7 +1837,7 @@
       } catch (e) {}
     }
 
-    // CARGA DE COMANDAS ROBUSTA (A PRUEBA DE FALLOS)
+    // CARGA DE COMANDAS ROBUSTA
     async function cargarComandasEnVivo() {
       const grid = document.getElementById('liveOrdersGrid');
       const monitorGrid = document.getElementById('tablesMonitorGrid');
@@ -1914,165 +1917,6 @@
       }
       document.getElementById('kdsFechaSeleccionada').value = fechaKdsSeleccionada;
       renderizarListaKDSFiltrada();
-    }
-
-    // CATÁLOGO
-    function renderizarVisualDishes() {
-      const grid = document.getElementById('dishesVisualGrid');
-      if (!grid) return;
-
-      grid.innerHTML = catalogo.map((dish, idx) => {
-        const es = dish.i18n?.es || { name: dish.nombre || "Plato", desc: dish.descripcion || "" };
-        const disp = dish.disponible !== false;
-
-        return `
-          <div class="dish-card-visual ${disp ? '' : 'agotado'}">
-            <div class="dish-media">
-              <img src="${dish.posterUrl || 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500'}" alt="${es.name}">
-            </div>
-            <div style="padding:14px; display:flex; flex-direction:column; gap:6px;">
-              <strong style="font-size:16px;">${es.name}</strong>
-              <span style="font-size:12px; color:#aaa;">${es.desc}</span>
-              <div style="font-size:18px; font-weight:900; color:#fde047; margin-top:4px;">S/ ${(dish.precioPEN || dish.precio || 0).toFixed(2)}</div>
-              
-              <div style="display:flex; justify-content:space-between; align-items:center; background:#18100c; padding:6px 10px; border-radius:6px; margin-top:8px;">
-                <span style="font-size:11px; font-weight:bold; color:${disp ? '#86efac' : '#fca5a5'};">${disp ? '🟢 Disponible' : '🔴 Agotado'}</span>
-                <button class="switch-btn ${disp ? 'btn-to-off' : 'btn-to-on'}" onclick="toggleStock(${idx})">${disp ? 'Agotar' : 'Activar'}</button>
-              </div>
-
-              <button type="button" class="btn btn-save" style="margin-top:8px; padding:7px; font-size:12px;" onclick="abrirModalPlato('${dish.id}')">
-                <i class="fa-solid fa-pen-to-square"></i> ✏️ Editar Plato
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function toggleStock(idx) {
-      catalogo[idx].disponible = (catalogo[idx].disponible === false);
-      renderizarVisualDishes();
-    }
-
-    // QR
-    async function actualizarQRVisualDirecto(mesaManual = null) {
-      const selector = document.getElementById('qrMesaSelectorDinamico');
-      const mesa = mesaManual || (selector ? selector.value : (listaMesasDinamicas[0] || "Mesa 01"));
-      const tel = document.getElementById('qrTelefonoInput').value.trim() || "+51969773064";
-      const link = await obtenerEnlaceCompletoMesa(mesa);
-
-      document.getElementById('qrPrintNumeroMesa').innerText = mesa.toUpperCase();
-      document.getElementById('qrPrintTelefonoContacto').innerText = `Pedidos: ${tel}`;
-      document.getElementById('imgQRVisualCentrado').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(link)}`;
-    }
-
-    async function imprimirTarjetaMesaQR() {
-      const selector = document.getElementById('qrMesaSelectorDinamico');
-      const mesa = selector ? selector.value : (listaMesasDinamicas[0] || "Mesa 01");
-      const tel = document.getElementById('qrTelefonoInput').value.trim() || "+51969773064";
-      const link = await obtenerEnlaceCompletoMesa(mesa);
-      const qrImgSrc = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodeURIComponent(link)}`;
-      
-      const ventana = window.open('', '_blank');
-      ventana.document.write(`
-        <!DOCTYPE html><html><head><title>QR ${mesa}</title>
-        <style>body{font-family:sans-serif;margin:0;padding:40px 20px;display:flex;justify-content:center;background:#fff;}
-        .card{border:2px dashed #000;border-radius:26px;padding:35px 28px;width:330px;text-align:center;}
-        img{width:230px;height:230px;margin:0 auto;display:block;}h1{margin:16px 0 4px;font-size:28px;}
-        </style></head><body>
-          <div class="card">
-            <h2>${configRestaurante.nombre.toUpperCase()}</h2>
-            <img src="${qrImgSrc}">
-            <h1>${mesa.toUpperCase()}</h1>
-            <p>Escanea con tu celular para ver la carta</p>
-            <p><b>Pedidos: ${tel}</b></p>
-          </div>
-          <script>window.onload = function(){ window.print(); window.close(); }<\/script>
-        </body></html>
-      `);
-      ventana.document.close();
-    }
-
-    // RESERVAS
-    async function crearNuevaReservaAdmin(e) {
-      e.preventDefault();
-      const id = "RES-" + Date.now();
-      const res = {
-        id: id,
-        cliente: document.getElementById('resAdminTitular').value.trim(),
-        telefono: document.getElementById('resAdminTel').value.trim(),
-        fechaReserva: document.getElementById('resAdminFecha').value,
-        horaReserva: document.getElementById('resAdminHora').value,
-        personas: document.getElementById('resAdminPersonas').value,
-        mesaAsignada: document.getElementById('resAdminMesaSelectorDinamico').value,
-        notas: document.getElementById('resAdminNotas').value.trim() || 'Sin notas',
-        fechaCreacion: new Date().toLocaleDateString()
-      };
-
-      await fetch(`${FIREBASE_DB_URL}reservas/${id}.json`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(res)
-      });
-
-      alert("✔ Reserva generada.");
-      e.target.reset();
-      cargarReservasFirebase();
-    }
-
-    async function cargarReservasFirebase() {
-      const cont = document.getElementById('contenedorReservasAdminList');
-      if (!cont) return;
-      let reservas = [];
-      try {
-        const res = await fetch(`${FIREBASE_DB_URL}reservas.json?_t=${Date.now()}`);
-        if (res.ok) {
-          const d = await res.json();
-          if (d) reservas = Object.keys(d).map(k => Object.assign({ id: k }, d[k]));
-        }
-      } catch (e) {}
-
-      if (reservas.length === 0) { cont.innerHTML = '<p style="color:#aaa; font-size:13px;">No hay reservas registradas.</p>'; return; }
-      cont.innerHTML = reservas.map(r => `
-        <div style="background:#1e1410; border:1.5px solid var(--accent); border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:6px;">
-          <div style="display:flex; justify-content:space-between;">
-            <strong style="color:#fff;">${r.cliente}</strong>
-            <span style="background:var(--primary); color:#fff; font-size:10px; padding:2px 6px; border-radius:4px;">${r.mesaAsignada || 'Mesa'}</span>
-          </div>
-          <div style="font-size:12px; color:#fde047;">📅 ${r.fechaReserva} • ⏰ ${r.horaReserva} • 👥 ${r.personas} Personas</div>
-          <div style="font-size:11px; color:#aaa;">📞 ${r.telefono} | Notas: ${r.notas}</div>
-        </div>
-      `).join('');
-    }
-
-    // RESEÑAS
-    async function cargarResenasFirebase() {
-      const cont = document.getElementById('contenedorResenasAdmin');
-      if (!cont) return;
-      cont.innerHTML = '<p style="color:#aaa; font-size:13px;">Cargando opiniones...</p>';
-
-      try {
-        const res = await fetch(`${FIREBASE_DB_URL}resenas.json?_t=${Date.now()}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data && typeof data === 'object') {
-            const list = Object.values(data);
-            cont.innerHTML = list.map(r => `
-              <div style="background:#1a120f; padding:10px 12px; border-radius:10px; margin-bottom:8px; border:1px solid rgba(255,255,255,0.08);">
-                <div style="display:flex; justify-content:space-between;">
-                  <strong style="color:#fde047;">${r.autor || 'Cliente'} (${'⭐'.repeat(r.rating || 5)})</strong>
-                  <span style="font-size:11px; color:#aaa;">${r.fecha || ''}</span>
-                </div>
-                ${r.plato ? `<div style="font-size:11.5px; color:#86efac; margin-top:2px;"><b>Plato:</b> ${r.plato}</div>` : ''}
-                <p style="font-size:12.5px; color:#eee; margin-top:4px;">"${r.texto || ''}"</p>
-              </div>
-            `).join('');
-            return;
-          }
-        }
-      } catch (e) {}
-
-      cont.innerHTML = '<p style="color:#aaa; font-size:13px;">No hay opiniones registradas aún.</p>';
     }
 
     // MESAS
@@ -2330,26 +2174,22 @@
       cargarIdentidadFirebase();
     }
 
-    // INICIALIZACIÓN DIRECTA, FLUIDA Y PROTEGIDA
+    // ARRANQUE BLINDADO (Sin bloqueos)
     window.addEventListener('DOMContentLoaded', () => {
-      // 1. Asignar de inmediato la fecha del día en el input
       const dateInput = document.getElementById('kdsFechaSeleccionada');
       if (dateInput) {
         dateInput.value = fechaKdsSeleccionada;
       }
 
-      // 2. Renderizar catálogo inicial sin esperar a la red
       renderizarVisualDishes();
 
-      // 3. Ejecutar cargas asíncronas independientes sin bloquear la interfaz
-      cargarIdentidadFirebase();
-      cargarMesasDesdeFirebase();
-      cargarUsuariosDesdeFirebase();
-      sincronizarTokensDeMesasFirebase();
-      cargarComandasEnVivo();
-      cargarReservasFirebase();
+      cargarIdentidadFirebase().catch(()=>{});
+      cargarMesasDesdeFirebase().catch(()=>{});
+      cargarUsuariosDesdeFirebase().catch(()=>{});
+      sincronizarTokensDeMesasFirebase().catch(()=>{});
+      cargarComandasEnVivo().catch(()=>{});
+      cargarReservasFirebase().catch(()=>{});
 
-      // 4. Actualización en vivo periódica
       setInterval(cargarComandasEnVivo, 2500);
     });
   </script>
