@@ -69,7 +69,7 @@
     .brand-text h1 { font-size: 14px; font-weight: 900; line-height: 1.1; text-transform: uppercase; }
     .brand-text span { font-size: 9.5px; text-transform: uppercase; color: var(--accent); font-weight: 700; }
 
-    /* CONTENEDOR RÍGIDO DE LA CHUSPA TECH */
+    /* CORRECCIÓN ESTRICTA DE LA CHUSPA TECH */
     .chuspa-nav-badge {
       display: flex; align-items: center; gap: 6px;
       background: rgba(254, 252, 232, 0.12); border: 1px solid rgba(234, 179, 8, 0.45);
@@ -482,7 +482,7 @@
     </div>
   </div>
 
-  <!-- PANTALLA AGRADECIMIENTO TRAS COBRO (CON BOTÓN A CLUB.HTML) -->
+  <!-- PANTALLA AGRADECIMIENTO TRAS COBRO -->
   <div class="screen-agradecimiento-overlay" id="pantallaAgradecimiento">
     <div class="box-agradecimiento">
       <button type="button" class="btn-close-modal" onclick="reiniciarNavegadorLimpio()" title="Cerrar">&times;</button>
@@ -493,11 +493,6 @@
       <p style="font-size:12.5px; color:#ddd; line-height:1.4;" id="agradeceMensajeTxt">
         ¡Muchas gracias por tu visita! Tu comanda ha sido cancelada y la mesa ha quedado libre. Esperamos que hayas disfrutado tu experiencia gastronómica.
       </p>
-
-      <!-- BOTÓN DIRECTO AL CLUB DE PUNTOS Y RECOMPENSAS -->
-      <a href="club.html" id="linkIrAClubFiel" class="btn-ir-reservas" style="background: linear-gradient(135deg, #16a34a, #22c55e); box-shadow: 0 4px 15px rgba(22, 163, 74, 0.45); text-decoration: none;">
-        <i class="fa-solid fa-gift"></i> Ver mis Sellos & Regalos Acumulados
-      </a>
 
       <div style="width:100%; border-top:1px dashed rgba(255,255,255,0.15); padding-top:8px;">
         <span style="font-size:11.5px; color:#fde047; font-weight:800; display:block;">
@@ -759,17 +754,8 @@
         </div>
       </div>
 
-      <!-- CAMPOS DEL CLIENTE -->
+      <!-- CAMPOS ADICIONALES -->
       <input type="text" id="clientNameInput" class="custom-input" placeholder="Nombre de quien pide (opcional)" />
-      
-      <!-- CASILLA DE FIDELIZACIÓN / DNI PARA CLUB DE PUNTOS -->
-      <div style="background: rgba(254, 240, 138, 0.28); border: 1.5px dashed var(--modal-green); border-radius: 10px; padding: 7px 10px; margin-bottom: 8px;">
-        <label style="font-size: 11px; font-weight: 900; color: var(--modal-dark); display: flex; align-items: center; gap: 5px; margin-bottom: 3px;">
-          <i class="fa-solid fa-gift" style="color: var(--modal-green);"></i> ¿Acumulas sellos? Ingresa tu DNI para tu premio:
-        </label>
-        <input type="tel" id="clientDniInput" class="custom-input" placeholder="Número de DNI (opcional)" style="margin-bottom:0;" maxlength="10" />
-      </div>
-
       <input type="text" id="notesInput" class="custom-input" placeholder="Notas para cocina (término de carne, alergias, etc.)" />
 
       <!-- TOTAL COMANDA -->
@@ -1002,7 +988,7 @@
         catMains: "Secondi Piatti",
         catTop: "🔥 Specialità",
         secHeading: "Accesso Riservato al Menu",
-        secDesc: "Questo menu è disponibile esclusivamente scansionando il <b>codice QR fisico</b> al tavolo nel restaurante.",
+        secDesc: "Questo menu è disponibile esclusivamente scansionando il <b>codice QR fisico</b> al tavolo nel ristorante.",
         secSubNote: "Se hai già pagato o sei fuori dal locale, la sessione è scaduta automaticamente.",
         btnDevBypass: "Modalità Sviluppatore / Prova a Casa",
         agradeceMensaje: "Grazie mille per la visita! Il conto è saldato e il tavolo è libero. Speriamo che l'esperienza gastronomica sia stata di tuo gradimento.",
@@ -1485,7 +1471,7 @@
 
       document.getElementById('lblComandasDelanteTitle').innerText = dic.comandasDelante;
       document.getElementById('btnSiAgregarMas').innerText = (currentLang === 'en') ? "Yes, add dishes" : "Sí, agregar platos";
-      document.getElementById('btnNoGracias').innerText = (currentLang === 'en') ? "No, gracias";
+      document.getElementById('btnNoGracias').innerText = (currentLang === 'en') ? "No, thanks" : "No, gracias";
 
       document.getElementById('agradeceMensajeTxt').innerText = dic.agradeceMensaje;
       document.getElementById('lblAgradeceContacto').innerText = dic.agradeceContacto;
@@ -1733,14 +1719,6 @@
       actualizarVistaPopup();
       renderizarCuadriculaMesas();
       renderQuickCatalogPopup();
-      
-      // Precargar DNI guardado si existe
-      const dniGuardado = localStorage.getItem('inkabistro_cliente_dni');
-      const inputDni = document.getElementById('clientDniInput');
-      if (dniGuardado && inputDni && !inputDni.value) {
-        inputDni.value = dniGuardado;
-      }
-      
       document.getElementById('ordersPopupModal').classList.add('active');
     }
     function closeOrdersPopup(event) {
@@ -1796,19 +1774,13 @@
       openOrdersPopup();
     }
 
-    // TRANSMISIÓN DE COMANDA CON DNI DE CLIENTE INTEGRADO
     async function enviarComandaDirectaAlPanel() {
       const itemIds = Object.keys(pedido);
       if (itemIds.length === 0) return alert("Por favor añade al menos un plato a la comanda.");
 
       const mesaNorm = normalizarNombreMesa(mesaSeleccionada);
       const cliente = document.getElementById('clientNameInput').value.trim() || "Comensal";
-      const dniCliente = document.getElementById('clientDniInput')?.value.trim() || "";
       const notas = document.getElementById('notesInput').value.trim();
-
-      if (dniCliente) {
-        localStorage.setItem('inkabistro_cliente_dni', dniCliente);
-      }
 
       const btn = document.getElementById('btnEnviarComanda');
       btn.disabled = true;
@@ -1844,7 +1816,6 @@
                   estado: 'cocina',
                   mozoPregunta: false,
                   clientePidiendoCuenta: false,
-                  dniCliente: dniCliente || (dataVieja.dniCliente || ""),
                   pago: metodoPago,
                   notas: notas ? ((dataVieja.notas || "") + " | Adición: " + notas) : (dataVieja.notas || "")
                 })
@@ -1880,7 +1851,6 @@
         numeroTurno: numeroTurnoChef,
         fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }),
         cliente: `${mesaNorm} (${cliente})`,
-        dniCliente: dniCliente, // DNI para fidelización
         mesa: mesaNorm,
         productos: detalleTexto.replace(/, $/, ""),
         items: platosComanda,
@@ -1972,12 +1942,6 @@
       if (!miComanda) return;
 
       if (miComanda.agradecimientoFinal === true || miComanda.estado === 'finalizado' || miComanda.estado === 'liberado') {
-        // Actualizar el enlace a club.html con el DNI si existe
-        const linkClub = document.getElementById('linkIrAClubFiel');
-        const dniFinal = miComanda.dniCliente || localStorage.getItem('inkabistro_cliente_dni');
-        if (linkClub && dniFinal) {
-          linkClub.href = `club.html?dni=${encodeURIComponent(dniFinal)}`;
-        }
         document.getElementById('pantallaAgradecimiento').classList.add('active');
         return;
       }
