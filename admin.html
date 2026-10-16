@@ -584,7 +584,7 @@
                 <input type="text" id="userInputNombre" placeholder="Ej: Carlos Salón" required> 
               </div> 
               <div> 
-                <label>Rol / Nivel de Acceso:</label> 
+                <label>Rol / Nivel de Accesso:</label> 
                 <select id="userInputRol" required> 
                   <option value="admin">Administrador (Acceso total)</option> 
                   <option value="cajero" selected>Cajero (Cobros y KDS)</option> 
@@ -640,7 +640,7 @@
           <div class="dishes-grid" id="dishesVisualGrid"></div> 
         </section> 
 
-        <!-- 4. GENERACIÓN DE RESERVAS (ESTABLE SIN CONFLICTOS) --> 
+        <!-- 4. GENERACIÓN DE RESERVAS --> 
         <section id="viewReservas" style="display:none;"> 
           <div class="view-header"> 
             <div> 
@@ -1680,6 +1680,16 @@
         }) 
       }); 
 
+      // NOTIFICAR AL CLIENTE QUE YA SE FINALIZÓ EL COBRO
+      try {
+        canalPedidos.postMessage({
+          tipo: 'ESTADO_ACTUALIZADO',
+          id: comandaCobrandoActual.id,
+          estado: 'finalizado',
+          agradecimientoFinal: true
+        });
+      } catch (e) {}
+
       // INTEGRACIÓN DE SELLOS DE FIDELIDAD AUTOMÁTICOS 
       const dniCliente = docCliente || (comandaCobrandoActual.dni || '').trim();
       if (dniCliente && dniCliente.length >= 8) { 
@@ -1788,6 +1798,7 @@
       ventana.document.close(); 
     } 
 
+    /* CAMBIAR A COCINA (SINCRONIZACIÓN INMEDIATA) */
     async function cambiarEstadoCocinaConOperador(idComanda) { 
       const operadorActual = sessionStorage.getItem("nombre_operador") || "Personal Salón"; 
       await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, { 
@@ -1799,7 +1810,54 @@
           clientePidiendoCuenta: false 
         }) 
       }); 
+
+      try {
+        canalPedidos.postMessage({
+          tipo: 'ESTADO_ACTUALIZADO',
+          id: idComanda,
+          estado: 'cocina'
+        });
+      } catch (e) {}
+
       await cargarComandasEnVivo(); 
+    } 
+
+    /* RECIBIDO EN MESA (SINCRONIZACIÓN INMEDIATA BIDIRECCIONAL CORREGIDA) */
+    async function cambiarEstadoFirebase(idComanda, nuevoEstado) { 
+      await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, { 
+        method: 'PATCH', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({ estado: nuevoEstado, clientePidiendoCuenta: false }) 
+      }); 
+
+      try {
+        canalPedidos.postMessage({
+          tipo: 'ESTADO_ACTUALIZADO',
+          id: idComanda,
+          estado: nuevoEstado
+        });
+      } catch (e) {}
+
+      await cargarComandasEnVivo(); 
+    } 
+
+    /* PREGUNTA DEL MOZO: ¿DESEA AGREGAR ALGO MÁS? (CORREGIDO) */
+    async function enviarMensajeAgregarMas(idComanda) { 
+      await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, { 
+        method: 'PATCH', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({ mozoPregunta: true }) 
+      }); 
+
+      try {
+        canalPedidos.postMessage({
+          tipo: 'ESTADO_ACTUALIZADO',
+          id: idComanda,
+          mozoPregunta: true
+        });
+      } catch (e) {}
+
+      alert("✔ Notificación enviada al celular del cliente: '¿Deseas agregar algo más?'"); 
     } 
 
     /* CARGA DE COMANDAS EN VIVO Y MONITOREO INTELIGENTE DE ALERTAS */ 
@@ -2004,6 +2062,12 @@
                 </button> 
               ` : ''} 
 
+              ${(estado === 'servido') ? ` 
+                <button type="button" class="btn-action-serve" style="background:#059669; opacity:0.85;" onclick="cambiarEstadoFirebase('${c.id}', 'servido')"> 
+                  <i class="fa-solid fa-circle-check"></i> Ya en Mesa 
+                </button> 
+              ` : ''} 
+
               <button type="button" class="btn-action-print-chef" onclick="imprimirComandaChef('${c.id}')"> 
                 <i class="fa-solid fa-print"></i> 🖨️ Imprimir Ticket Cocina 
               </button> 
@@ -2200,7 +2264,7 @@
       ventana.document.close(); 
     } 
 
-    /* 4. CONTROL NATIVO Y SIMPLE DE RESERVAS (SIN CRM) */ 
+    /* CONTROL DE RESERVAS */ 
     async function crearNuevaReservaAdmin(e) { 
       e.preventDefault(); 
       const id = "RES-" + Date.now(); 
@@ -2514,10 +2578,9 @@
     } 
 
     function cerrarTurno() { 
-      if (confirm("¿Cerrar sesión y turno?")) { 
+      if (confirm("¿Cerrar sesión y turno?")) 
         sessionStorage.clear(); 
         window.location.reload(); 
-      } 
     } 
     function cerrarSesionAdmin() { sessionStorage.clear(); window.location.reload(); } 
 
