@@ -141,47 +141,6 @@
     .btn-print { background: var(--blue); color: #fff; } 
     .btn-wa { background: #15803d; color: #fff; border: 1px solid #4ade80; }
 
-    /* ESTILOS DEL CRM MENSUAL DE RESERVAS */
-    .crm-calendar-wrapper {
-      background: #18100c; border: 1.5px solid var(--card-border);
-      border-radius: 16px; padding: 18px; margin-top: 10px;
-    }
-    .crm-calendar-header {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 14px; flex-wrap: wrap; gap: 10px;
-    }
-    .crm-calendar-grid {
-      display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;
-    }
-    .crm-day-head {
-      text-align: center; font-size: 11.5px; font-weight: 900; color: var(--gold);
-      padding: 8px 4px; background: #251a15; border-radius: 6px; text-transform: uppercase;
-    }
-    .crm-calendar-cell {
-      min-height: 110px; background: #221612; border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 10px; padding: 6px; display: flex; flex-direction: column; gap: 4px;
-      cursor: pointer; transition: background 0.15s ease;
-    }
-    .crm-calendar-cell:hover { background: #2f1d16; border-color: var(--accent); }
-    .crm-cell-number { font-size: 12px; font-weight: 900; color: #aaa; margin-bottom: 2px; }
-    .crm-cell-today { border: 2px solid var(--gold); }
-    .crm-reserva-badge {
-      font-size: 10px; font-weight: 800; padding: 3px 6px; border-radius: 6px;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer;
-    }
-    .res-pendiente { background: #d97706; color: #fff; }
-    .res-confirmada { background: #16a34a; color: #fff; }
-
-    /* RESEÑAS AGRUPADAS */
-    .review-item-card {
-      background: #1a120f; padding: 14px; border-radius: 12px; margin-bottom: 10px;
-      border: 1px solid var(--card-border); display: flex; flex-direction: column; gap: 6px;
-    }
-    .review-dish-tag {
-      display: inline-block; background: #3b2014; color: #fed7aa; border: 1px solid var(--accent);
-      padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 800;
-    }
-
     .kds-calendar-bar { 
       background: #180e0a; border: 1.5px solid var(--accent); border-radius: 14px; 
       padding: 12px 16px; margin-bottom: 14px; display: flex; flex-wrap: wrap; 
@@ -364,13 +323,12 @@
       .admin-layout.sidebar-open .sidebar-backdrop { display: block !important; } 
       .admin-layout.sidebar-collapsed { grid-template-columns: none !important; } 
       .main-view { padding: 16px 14px !important; max-height: none !important; } 
-      .crm-calendar-cell { min-height: 75px; }
     } 
   </style> 
 </head> 
 <body> 
 
-  <!-- PANTALLA LOGIN DINÁMICO CON LOGO LA CHUSPA TECH --> 
+  <!-- PANTALLA LOGIN DINÁMICO --> 
   <div id="pantallaLogin"> 
     <div class="card-login"> 
       <div class="login-chuspa-logo-wrap">
@@ -512,7 +470,7 @@
           </button> 
 
           <button class="nav-item" id="btnNavReservas" onclick="seleccionarOpcionNav('reservas')"> 
-            <i class="fa-solid fa-calendar-days"></i> Generación de Reservas 
+            <i class="fa-solid fa-calendar-check"></i> Generación de Reservas 
           </button> 
 
           <button class="nav-item" id="btnNavMesas" onclick="seleccionarOpcionNav('mesas')"> 
@@ -682,34 +640,55 @@
           <div class="dishes-grid" id="dishesVisualGrid"></div> 
         </section> 
 
-        <!-- 4. GENERACIÓN DE RESERVAS (CRM CALENDARIO MENSUAL) --> 
+        <!-- 4. GENERACIÓN DE RESERVAS (ESTABLE SIN CONFLICTOS) --> 
         <section id="viewReservas" style="display:none;"> 
           <div class="view-header"> 
             <div> 
-              <h1>📅 Generación de Reservas & CRM Calendario</h1> 
-              <p>Gestión mensual de reservas con control de prepago (Efectivo, Yape, Plin, Transferencia, Depósito) y confirmación por WhatsApp.</p> 
+              <h1>📅 Generación & Control de Reservas</h1> 
+              <p>Crea reservas bloqueando mesas para la fecha y datos del grupo.</p> 
             </div> 
-            <button class="btn btn-add" onclick="abrirModalReservaCRM()"><i class="fa-solid fa-plus"></i> Nueva Reserva CRM</button> 
+            <button class="btn btn-add" onclick="cargarReservasFirebase()"><i class="fa-solid fa-rotate"></i> Actualizar</button> 
           </div> 
 
-          <div class="crm-calendar-wrapper">
-            <div class="crm-calendar-header">
-              <div style="display:flex; align-items:center; gap:10px;">
-                <button class="btn btn-save" onclick="cambiarMesCRM(-1)"><i class="fa-solid fa-chevron-left"></i></button>
-                <h2 id="crmTituloMesAnio" style="color:var(--gold); font-size:18px; font-weight:900;">Octubre 2026</h2>
-                <button class="btn btn-save" onclick="cambiarMesCRM(1)"><i class="fa-solid fa-chevron-right"></i></button>
-              </div>
-              <div style="display:flex; gap:12px; font-size:12px; font-weight:800; flex-wrap:wrap;">
-                <span style="display:flex; align-items:center; gap:6px;"><span style="width:12px; height:12px; background:#d97706; border-radius:3px; display:inline-block;"></span> 🟡 Por Confirmar (Sin Prepago)</span>
-                <span style="display:flex; align-items:center; gap:6px;"><span style="width:12px; height:12px; background:#16a34a; border-radius:3px; display:inline-block;"></span> 🟢 Confirmada / Prepagada (Bloqueada)</span>
-              </div>
-            </div>
+          <div class="card" style="margin-bottom:16px;"> 
+            <strong style="color:var(--gold);"><i class="fa-solid fa-plus-circle"></i> Registrar Nueva Reserva de Grupo:</strong> 
+            <form onsubmit="crearNuevaReservaAdmin(event)" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:10px; margin-top:8px;"> 
+              <div> 
+                <label>Titular:</label> 
+                <input type="text" id="resAdminTitular" placeholder="Nombre completo" required> 
+              </div> 
+              <div> 
+                <label>Teléfono WhatsApp:</label> 
+                <input type="tel" id="resAdminTel" placeholder="984..." required> 
+              </div> 
+              <div> 
+                <label>Fecha:</label> 
+                <input type="date" id="resAdminFecha" required> 
+              </div> 
+              <div> 
+                <label>Hora:</label> 
+                <input type="time" id="resAdminHora" required> 
+              </div> 
+              <div> 
+                <label>Personas:</label> 
+                <input type="number" id="resAdminPersonas" min="1" value="4" required> 
+              </div> 
+              <div> 
+                <label>Mesa a Bloquear:</label> 
+                <select id="resAdminMesaSelectorDinamico"></select> 
+              </div> 
+              <div style="grid-column: 1 / -1;"> 
+                <label>Notas del Evento:</label> 
+                <input type="text" id="resAdminNotas" placeholder="Requerimientos especiales..."> 
+              </div> 
+              <button type="submit" class="btn btn-save" style="grid-column: 1 / -1;"><i class="fa-solid fa-calendar-plus"></i> Guardar y Bloquear Mesa</button> 
+            </form> 
+          </div> 
 
-            <div class="crm-calendar-grid" id="crmCalendarGrid"></div>
-          </div>
+          <div id="contenedorReservasAdminList" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:14px;"></div> 
         </section> 
 
-        <!-- 5. IDENTIDAD, SUNAT Y REDES SOCIALES (CAMBIO DE CUALQUIER LOGO) --> 
+        <!-- 5. IDENTIDAD, SUNAT Y REDES SOCIALES --> 
         <section id="viewIdentidad" style="display:none;"> 
           <div class="view-header"><h1>🏪 Identidad del Negocio & Redes Sociales</h1></div> 
           <div class="card"> 
@@ -760,7 +739,7 @@
               </div> 
             </div> 
 
-            <!-- SECCIÓN PARA CAMBIAR CUALQUIER LOGO (URL O ARCHIVO) -->
+            <!-- CARGA DE LOGOTIPO -->
             <div style="background:#180f0c; padding:14px; border-radius:12px; border:1px dashed var(--accent); margin-top:14px;">
               <strong style="color:var(--gold); font-size:12.5px; display:block; margin-bottom:8px;">
                 <i class="fa-solid fa-image"></i> Logotipo del Restaurante:
@@ -880,7 +859,7 @@
           <div class="view-header"> 
             <div> 
               <h1>⭐ Reseñas & Comentarios por Plato</h1> 
-              <p>Opiniones y calificaciones de los clientes agrupadas por plato.</p> 
+              <p>Opiniones y calificaciones de los clientes.</p> 
             </div> 
             <button class="btn btn-add" onclick="cargarResenasFirebase()"><i class="fa-solid fa-rotate"></i> Actualizar Opiniones</button> 
           </div> 
@@ -890,104 +869,6 @@
       </main> 
     </div> 
   </div> 
-
-  <!-- MODAL CRM: CREAR / CONFIRMAR / PREPAGAR RESERVA -->
-  <div class="modal-overlay" id="modalReservaCRM" onclick="cerrarModalReservaCRM()">
-    <div class="modal-box" onclick="event.stopPropagation()">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h3 id="crmModalTitulo" style="color:var(--gold);">Gestión de Reserva CRM</h3>
-        <button type="button" style="background:none; border:none; color:#ccc; font-size:24px; font-weight:bold; cursor:pointer;" onclick="cerrarModalReservaCRM()">&times;</button>
-      </div>
-
-      <form onsubmit="guardarReservaDesdeCRM(event)" style="display:flex; flex-direction:column; gap:10px;">
-        <input type="hidden" id="crmResId">
-        
-        <div>
-          <label>Nombre / Titular del Grupo:</label>
-          <input type="text" id="crmResTitular" required placeholder="Ej: Familia Morales o Tour Perú">
-        </div>
-
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-          <div>
-            <label>Teléfono WhatsApp del Cliente:</label>
-            <input type="tel" id="crmResTel" required placeholder="+51 984...">
-          </div>
-          <div>
-            <label>N° Personas:</label>
-            <input type="number" id="crmResPersonas" min="1" value="4" required>
-          </div>
-        </div>
-
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-          <div>
-            <label>Fecha de Reserva:</label>
-            <input type="date" id="crmResFecha" required>
-          </div>
-          <div>
-            <label>Hora:</label>
-            <input type="time" id="crmResHora" required>
-          </div>
-        </div>
-
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-          <div>
-            <label>Mesa Asignada / Bloqueada:</label>
-            <select id="crmResMesaSelect"></select>
-          </div>
-          <div>
-            <label>Estado de Reserva:</label>
-            <select id="crmResEstadoSelect" onchange="alternarCamposPrepago(this.value)">
-              <option value="pendiente">🟡 Por Confirmar (Sin prepago)</option>
-              <option value="confirmada">🟢 Confirmada (Prepagada y Bloqueada)</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- MÓDULO DE PREPAGO DE LA RESERVA -->
-        <div id="cajaDatosPrepago" style="background:rgba(22, 163, 74, 0.12); border:1.5px dashed #16a34a; border-radius:12px; padding:12px; margin-top:4px;">
-          <span style="font-size:12px; font-weight:900; color:#86efac; display:block; margin-bottom:6px;">
-            💳 DATOS DEL PREPAGO / PAGO ADELANTADO:
-          </span>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-            <div>
-              <label style="margin-top:0;">Método de Pago:</label>
-              <select id="crmResMetodoPago">
-                <option value="Efectivo">💵 Efectivo</option>
-                <option value="Yape">🟣 Yape</option>
-                <option value="Plin">🔵 Plin</option>
-                <option value="Transferencia">🏦 Transferencia Bancaria</option>
-                <option value="Depósito">📄 Depósito en Cuenta</option>
-              </select>
-            </div>
-            <div>
-              <label style="margin-top:0;">Monto Prepagado (S/):</label>
-              <input type="number" step="0.5" id="crmResMontoPrepago" placeholder="Ej: 50.00" value="50.00">
-            </div>
-          </div>
-          <div style="margin-top:6px;">
-            <label>N° de Operación / Constancia (Opcional):</label>
-            <input type="text" id="crmResOperacion" placeholder="Ej: Operación #984214">
-          </div>
-        </div>
-
-        <div>
-          <label>Notas / Requerimientos:</label>
-          <textarea id="crmResNotas" rows="2" placeholder="Motivo, requerimiento especial..."></textarea>
-        </div>
-
-        <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
-          <button type="button" class="btn btn-wa" id="btnEnviarWhatsAppReserva" onclick="enviarMensajeWhatsAppConfirmacion()" style="display:none; width:100%;">
-            <i class="fa-brands fa-whatsapp"></i> 📲 Responder y Confirmar por WhatsApp
-          </button>
-
-          <div style="display:flex; justify-content:flex-end; gap:8px;">
-            <button type="button" class="btn btn-del" onclick="cerrarModalReservaCRM()">Cancelar</button>
-            <button type="submit" class="btn btn-save"><i class="fa-solid fa-calendar-check"></i> Guardar en Calendario CRM</button>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
 
   <!-- MODAL DE ALERTA CENTRADO EN SEGUNDO PLANO --> 
   <div class="alerta-centro-overlay" id="alertaCentroOverlay" onclick="cerrarAlertaCentro()"> 
@@ -1163,10 +1044,9 @@
     let modoEliminarMesasActivo = false; 
     let estadosConocidosComandas = {}; 
 
-    let reservasCache = [];
-    let ventasCache = [];
-    let fechaCRM = new Date();
-    let totalReservasPrevias = 0;
+    let reservasCache = []; 
+    let ventasCache = []; 
+    let totalReservasPrevias = 0; 
 
     let vaultTokenDesbloqueado = false; 
     let vaultResetComandasDesbloqueado = false; 
@@ -1174,10 +1054,10 @@
 
     let audioCtx = null; 
     function asegurarAudioCtx() { 
-      try {
+      try { 
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
         if (audioCtx.state === 'suspended') audioCtx.resume(); 
-      } catch (e) {}
+      } catch (e) {} 
     } 
     window.addEventListener('click', asegurarAudioCtx); 
     window.addEventListener('touchstart', asegurarAudioCtx); 
@@ -1239,7 +1119,7 @@
 
     /* ESCUCHA EN TIEMPO REAL ENTRE PESTAÑAS (INDEX.HTML -> ADMIN.HTML) */ 
     canalPedidos.onmessage = (event) => { 
-      if (event.data?.tipo === 'RESPUESTA_CLIENTE') {
+      if (event.data && event.data.tipo === 'RESPUESTA_CLIENTE') { 
         const respuesta = event.data.respuesta || ''; 
         const mesa = event.data.mesa || 'Mesa del Cliente'; 
         const hora = event.data.hora || new Date().toLocaleTimeString(); 
@@ -1252,7 +1132,7 @@
             'fa-circle-xmark', 
             '#f87171' 
           ); 
-        } else if (respuesta.toLowerCase().includes('pagar') || respuesta.toLowerCase().includes('cuenta')) {
+        } else if (respuesta.toLowerCase().includes('pagar') || respuesta.toLowerCase().includes('cuenta')) { 
           dispararAlertaCentro( 
             "💵 ¡El Cliente va a Pagar en Caja!", 
             `El comensal de la <b>${mesa}</b> ha terminado de consumir y <b>viene a caja a pagar</b>.`, 
@@ -1273,7 +1153,7 @@
       } 
     }; 
 
-    /* INICIO DE SESIÓN COMPLETO */
+    /* INICIO DE SESIÓN COMPLETO */ 
     async function verificarLoginSistema(e) { 
       e.preventDefault(); 
       const rolSeleccionado = document.getElementById('loginUsuarioSelector').value; 
@@ -1340,11 +1220,11 @@
       await cargarCatalogoDesdeFirebase(); 
       await cargarComandasEnVivo(); 
       await cargarReservasFirebase(); 
-      await cargarVentasDesdeFirebase();
+      await cargarVentasDesdeFirebase(); 
       actualizarQRVisualDirecto(); 
       
       setInterval(cargarComandasEnVivo, 2000); 
-      setInterval(cargarReservasFirebase, 4000); 
+      setInterval(cargarReservasFirebase, 5000); 
     } 
 
     function toggleSidebarMenu() { 
@@ -1372,7 +1252,7 @@
       if (s === 'comandas') cargarComandasEnVivo(); 
       if (s === 'platos') renderizarVisualDishes(); 
       if (s === 'usuarios') cargarUsuariosDesdeFirebase(); 
-      if (s === 'reservas') renderizarCalendarioCRM(); 
+      if (s === 'reservas') cargarReservasFirebase(); 
       if (s === 'mesas') actualizarQRVisualDirecto(); 
       if (s === 'resenas') cargarResenasFirebase(); 
       if (s === 'reportes') cargarVentasDesdeFirebase(); 
@@ -1755,7 +1635,7 @@
       document.getElementById('cajaDatosFactura').style.display = (tipo === 'Factura') ? 'block' : 'none'; 
     } 
 
-    /* COBRO DE COMANDA CON REGISTRO DE VENTA Y SUMA DE SELLOS DE FIDELIDAD */
+    /* COBRO DE COMANDA */ 
     async function confirmarCobroFinalizado() { 
       if (!comandaCobrandoActual) return; 
 
@@ -1800,21 +1680,21 @@
         }) 
       }); 
 
-      // INTEGRACIÓN DE SELLOS DE FIDELIDAD AUTOMÁTICOS
+      // INTEGRACIÓN DE SELLOS DE FIDELIDAD AUTOMÁTICOS 
       const dniCliente = docCliente || (comandaCobrandoActual.dni || '').trim();
-      if (dniCliente && dniCliente.length >= 8) {
-        try {
-          const resSocio = await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${dniCliente}.json`);
-          let socio = await resSocio.json() || { dni: dniCliente, nombre: "Socio", sellos: 0, totalVisitas: 0 };
-          socio.sellos = (socio.sellos || 0) + 1;
-          socio.totalVisitas = (socio.totalVisitas || 0) + 1;
-          await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${dniCliente}.json`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(socio)
-          });
-        } catch (err) {}
-      }
+      if (dniCliente && dniCliente.length >= 8) { 
+        try { 
+          const resSocio = await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${dniCliente}.json`); 
+          let socio = await resSocio.json() || { dni: dniCliente, nombre: "Socio", sellos: 0, totalVisitas: 0 }; 
+          socio.sellos = (socio.sellos || 0) + 1; 
+          socio.totalVisitas = (socio.totalVisitas || 0) + 1; 
+          await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${dniCliente}.json`, { 
+            method: 'PUT', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify(socio) 
+          }); 
+        } catch (err) {} 
+      } 
 
       await regenerarTokenMesa(comandaCobrandoActual.mesa); 
       cerrarModalCobro(); 
@@ -1822,7 +1702,7 @@
 
       alert("✔ Venta cobrada y finalizada."); 
       await cargarComandasEnVivo(); 
-      await cargarVentasDesdeFirebase();
+      await cargarVentasDesdeFirebase(); 
       actualizarQRVisualDirecto(); 
     } 
 
@@ -1922,7 +1802,7 @@
       await cargarComandasEnVivo(); 
     } 
 
-    /* CARGA DE COMANDAS EN VIVO Y MONITOREO INTELIGENTE DE ALERTAS */
+    /* CARGA DE COMANDAS EN VIVO Y MONITOREO INTELIGENTE DE ALERTAS */ 
     async function cargarComandasEnVivo() { 
       const grid = document.getElementById('liveOrdersGrid'); 
       const monitorGrid = document.getElementById('tablesMonitorGrid'); 
@@ -1941,19 +1821,18 @@
             }).filter(Boolean); 
           } 
         } 
-      } catch (e) {
-        console.error("Error al cargar comandas:", e);
+      } catch (e) { 
+        console.error("Error al cargar comandas:", e); 
       } 
 
       comandas.sort((a, b) => (a.timestampOrden || 0) - (b.timestampOrden || 0)); 
       todasLasComandasCache = comandas; 
 
-      // DETECCIÓN DE ALERTAS EN TIEMPO REAL
+      // DETECCIÓN DE ALERTAS EN TIEMPO REAL 
       comandas.forEach(c => { 
         const previo = estadosConocidosComandas[c.id]; 
         const estadoActual = String(c.estado || '').toLowerCase(); 
 
-        // 1. Nueva Comanda ingresada
         if (!previo && estadoActual !== 'finalizado' && estadoActual !== 'liberado') { 
           if (Object.keys(estadosConocidosComandas).length > 0) { 
             dispararAlertaCentro( 
@@ -1966,7 +1845,6 @@
           } 
         } 
 
-        // 2. Cliente pide cuenta en caja
         if (c.clientePidiendoCuenta === true && (!previo || !previo.clientePidiendoCuenta) && estadoActual !== 'finalizado') { 
           dispararAlertaCentro( 
             "💵 ¡El Cliente va a Pagar en Caja!", 
@@ -1977,7 +1855,6 @@
           ); 
         } 
 
-        // 3. Respuesta del cliente al mozo
         if (c.clienteRespuestaMozo && (!previo || previo.clienteRespuestaMozo !== c.clienteRespuestaMozo)) { 
           if (c.clienteRespuestaMozo.toLowerCase().includes('no')) { 
             dispararAlertaCentro( 
@@ -2186,7 +2063,7 @@
       renderizarListaKDSFiltrada(); 
     } 
 
-    /* CARGA Y CONFIGURACIÓN DEL LOGO (SOPORTA CUALQUIER IMAGEN) */
+    /* CARGA Y CONFIGURACIÓN DEL LOGO */ 
     async function cargarIdentidadFirebase() { 
       try { 
         const res = await fetch(`${FIREBASE_DB_URL}config/identidad.json?_t=${Date.now()}`); 
@@ -2213,22 +2090,22 @@
       document.getElementById('repLocalDireccion').innerText = configRestaurante.direccion; 
       document.getElementById('repFechaHoy').innerText = new Date().toLocaleDateString(); 
 
-      actualizarRenderLogoVisual(configRestaurante.logo);
+      actualizarRenderLogoVisual(configRestaurante.logo); 
     } 
 
-    function actualizarRenderLogoVisual(logoData) {
+    function actualizarRenderLogoVisual(logoData) { 
       const av = document.getElementById('headerAvatar'); 
       const prev = document.getElementById('previewCurrentLogo'); 
-      const inpUrl = document.getElementById('cfgLogoUrlInput');
+      const inpUrl = document.getElementById('cfgLogoUrlInput'); 
       if (logoData && (logoData.startsWith('data:image') || logoData.startsWith('http'))) { 
         av.innerHTML = `<img src="${logoData}" alt="Logo">`; 
         prev.innerHTML = `<img src="${logoData}" alt="Logo">`; 
-        if (inpUrl && logoData.startsWith('http')) inpUrl.value = logoData;
+        if (inpUrl && logoData.startsWith('http')) inpUrl.value = logoData; 
       } else { 
         av.innerText = logoData || "🍽️"; 
         prev.innerText = logoData || "🍽️"; 
       } 
-    }
+    } 
 
     function convertirLogoABase64(event) { 
       const file = event.target.files[0]; 
@@ -2236,17 +2113,17 @@
       const reader = new FileReader(); 
       reader.onload = (e) => { 
         configRestaurante.logo = e.target.result; 
-        actualizarRenderLogoVisual(e.target.result);
+        actualizarRenderLogoVisual(e.target.result); 
       }; 
       reader.readAsDataURL(file); 
     } 
 
-    function actualizarLogoPorUrl(url) {
-      if (url.trim()) {
-        configRestaurante.logo = url.trim();
-        actualizarRenderLogoVisual(url.trim());
-      }
-    }
+    function actualizarLogoPorUrl(url) { 
+      if (url.trim()) { 
+        configRestaurante.logo = url.trim(); 
+        actualizarRenderLogoVisual(url.trim()); 
+      } 
+    } 
 
     async function guardarIdentidadFirebase() { 
       configRestaurante.nombre = document.getElementById('cfgBusinessName').value.trim() || configRestaurante.nombre; 
@@ -2268,7 +2145,7 @@
       cargarIdentidadFirebase(); 
     } 
 
-    /* IMPRESIÓN CORREGIDA DE CÓDIGOS QR */
+    /* IMPRESIÓN CORREGIDA DE CÓDIGOS QR */ 
     async function actualizarQRVisualDirecto(mesaManual = null) { 
       const selector = document.getElementById('qrMesaSelectorDinamico'); 
       const mesa = mesaManual || (selector ? selector.value : (listaMesasDinamicas[0] || "Mesa 01")); 
@@ -2290,329 +2167,367 @@
       const ventana = window.open('', '_blank'); 
       ventana.document.write(` 
         <!DOCTYPE html><html><head><title>QR ${mesa}</title> 
-        <style>
-          @page { margin: 0; size: auto; }
+        <style> 
+          @page { margin: 0; size: auto; } 
           body { font-family: -apple-system, system-ui, sans-serif; margin: 0; padding: 30px 20px; display: flex; justify-content: center; background: #fff; } 
           .card { border: 2.5px dashed #000; border-radius: 26px; padding: 30px 24px; width: 340px; text-align: center; } 
-          img { width: 230px; height: 230px; margin: 0 auto; display: block; }
-          h2 { margin: 0 0 4px; font-size: 22px; font-weight: 900; letter-spacing: 0.5px; }
-          h1 { margin: 14px 0 4px; font-size: 30px; font-weight: 900; }
-          p { margin: 4px 0; font-size: 13px; color: #333; }
+          img { width: 230px; height: 230px; margin: 0 auto; display: block; } 
+          h2 { margin: 0 0 4px; font-size: 22px; font-weight: 900; letter-spacing: 0.5px; } 
+          h1 { margin: 14px 0 4px; font-size: 30px; font-weight: 900; } 
+          p { margin: 4px 0; font-size: 13px; color: #333; } 
         </style></head><body> 
           <div class="card"> 
             <h2>${configRestaurante.nombre.toUpperCase()}</h2> 
-            <p style="color:#666; font-size:12px; margin-bottom:12px;">${configRestaurante.eslogan || 'Cusco • Gourmet'}</p>
+            <p style="color:#666; font-size:12px; margin-bottom:12px;">${configRestaurante.eslogan || 'Cusco • Gourmet'}</p> 
             <img id="qrPrintImg" src="${qrImgSrc}"> 
             <h1>${mesa.toUpperCase()}</h1> 
             <p>Escanea con tu celular para ver la carta y pedir</p> 
             <p style="font-weight:bold; margin-top:8px;">Pedidos: ${tel}</p> 
           </div> 
-          <script>
-            window.onload = function() {
-              const img = document.getElementById('qrPrintImg');
-              if (img.complete) {
-                window.print();
-                window.close();
-              } else {
-                img.onload = function() { window.print(); window.close(); }
-              }
-            }
+          <script> 
+            window.onload = function() { 
+              const img = document.getElementById('qrPrintImg'); 
+              if (img.complete) { 
+                window.print(); 
+                window.close(); 
+              } else { 
+                img.onload = function() { window.print(); window.close(); } 
+              } 
+            } 
           <\/script> 
         </body></html> 
       `); 
       ventana.document.close(); 
     } 
 
-    /* 4. CRM CALENDARIO MENSUAL DE RESERVAS CON PREPAGOS Y WHATSAPP */
-    async function cargarReservasFirebase() {
-      try {
-        const res = await fetch(`${FIREBASE_DB_URL}reservas.json?_t=${Date.now()}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data) {
-            const nuevasReservas = Object.keys(data).map(k => Object.assign({ id: k }, data[k]));
+    /* 4. CONTROL NATIVO Y SIMPLE DE RESERVAS (SIN CRM) */ 
+    async function crearNuevaReservaAdmin(e) { 
+      e.preventDefault(); 
+      const id = "RES-" + Date.now(); 
+      const res = { 
+        id: id, 
+        cliente: document.getElementById('resAdminTitular').value.trim(), 
+        telefono: document.getElementById('resAdminTel').value.trim(), 
+        fechaReserva: document.getElementById('resAdminFecha').value, 
+        horaReserva: document.getElementById('resAdminHora').value, 
+        personas: document.getElementById('resAdminPersonas').value, 
+        mesaAsignada: document.getElementById('resAdminMesaSelectorDinamico').value, 
+        notas: document.getElementById('resAdminNotas').value.trim() || 'Sin notas', 
+        fechaCreacion: new Date().toLocaleDateString() 
+      }; 
+
+      await fetch(`${FIREBASE_DB_URL}reservas/${id}.json`, { 
+        method: 'PUT', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify(res) 
+      }); 
+
+      alert("✔ Reserva generada y mesa bloqueada."); 
+      e.target.reset(); 
+      cargarReservasFirebase(); 
+    } 
+
+    async function cargarReservasFirebase() { 
+      const cont = document.getElementById('contenedorReservasAdminList'); 
+      if (!cont) return; 
+
+      try { 
+        const res = await fetch(`${FIREBASE_DB_URL}reservas.json?_t=${Date.now()}`); 
+        if (res.ok) { 
+          const d = await res.json(); 
+          if (d && typeof d === 'object') { 
+            const lista = Object.keys(d).map(k => Object.assign({ id: k }, d[k])); 
             
-            if (reservasCache.length > 0 && nuevasReservas.length > totalReservasPrevias) {
-              const ultima = nuevasReservas[nuevasReservas.length - 1];
-              dispararAlertaCentro(
-                "📅 ¡Nueva Reserva Recibida!",
-                `Se registró una reserva a nombre de <b>${ultima.cliente}</b> para ${ultima.personas} personas.`,
-                `Fecha: ${ultima.fechaReserva} • Hora: ${ultima.horaReserva} • Mesa: ${ultima.mesaAsignada || 'Mesa'} • Tel: ${ultima.telefono}`
-              );
-            }
-            totalReservasPrevias = nuevasReservas.length;
-            reservasCache = nuevasReservas;
-            renderizarCalendarioCRM();
-          }
-        }
-      } catch (e) {}
-    }
+            if (reservasCache.length > 0 && lista.length > totalReservasPrevias) { 
+              const ultima = lista[lista.length - 1]; 
+              dispararAlertaCentro( 
+                "📅 ¡Nueva Reserva Recibida!", 
+                `Se registró una reserva a nombre de <b>${ultima.cliente}</b> para ${ultima.personas} personas.`, 
+                `Fecha: ${ultima.fechaReserva} • Hora: ${ultima.horaReserva} • Mesa: ${ultima.mesaAsignada || 'Mesa'} • Tel: ${ultima.telefono}` 
+              ); 
+            } 
+            totalReservasPrevias = lista.length; 
+            reservasCache = lista; 
 
-    function cambiarMesCRM(offset) {
-      fechaCRM.setMonth(fechaCRM.getMonth() + offset);
-      renderizarCalendarioCRM();
-    }
+            cont.innerHTML = lista.map(r => ` 
+              <div style="background:#1e1410; border:1.5px solid var(--accent); border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:6px;"> 
+                <div style="display:flex; justify-content:space-between; align-items:center;"> 
+                  <strong style="color:#fff; font-size:14px;">${r.cliente}</strong> 
+                  <span style="background:var(--primary); color:#fff; font-size:10px; padding:3px 7px; border-radius:4px; font-weight:bold;">${r.mesaAsignada || 'Mesa'}</span> 
+                </div> 
+                <div style="font-size:12px; color:#fde047;">📅 ${r.fechaReserva} • ⏰ ${r.horaReserva} • 👥 ${r.personas} Personas</div> 
+                <div style="font-size:11px; color:#aaa;">📞 ${r.telefono} | Notas: ${r.notas}</div> 
+              </div> 
+            `).join(''); 
+            return; 
+          } 
+        } 
+      } catch (e) {} 
 
-    function renderizarCalendarioCRM() {
-      const grid = document.getElementById('crmCalendarGrid');
-      const titulo = document.getElementById('crmTituloMesAnio');
-      if (!grid || !titulo) return;
+      cont.innerHTML = '<p style="color:#aaa; font-size:13px;">No hay reservas registradas.</p>'; 
+    } 
 
-      const anio = fechaCRM.getFullYear();
-      const mes = fechaCRM.getMonth();
-      const nombresMeses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-      titulo.innerText = `${nombresMeses[mes]} ${anio}`;
+    /* 6. REPORTE CONTABLE Y VENTAS */ 
+    async function cargarVentasDesdeFirebase() { 
+      const tbody = document.getElementById('tablaVentasBody'); 
+      if (!tbody) return; 
 
-      const primerDiaSemana = new Date(anio, mes, 1).getDay();
-      const diasEnMes = new Date(anio, mes + 1, 0).getDate();
+      try { 
+        const res = await fetch(`${FIREBASE_DB_URL}ventas.json?_t=${Date.now()}`); 
+        if (res.ok) { 
+          const data = await res.json(); 
+          if (data && typeof data === 'object') { 
+            ventasCache = Object.values(data); 
+            let montoTotal = 0; 
 
-      let html = ["DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"]
-        .map(d => `<div class="crm-day-head">${d}</div>`).join('');
+            tbody.innerHTML = ventasCache.map(v => { 
+              const total = parseFloat(v.totalPEN || v.total || 0); 
+              montoTotal += total; 
+              const base = v.baseImponible ? parseFloat(v.baseImponible) : (total / 1.18); 
+              const igv = v.igv ? parseFloat(v.igv) : (total - base); 
 
-      for (let i = 0; i < primerDiaSemana; i++) {
-        html += `<div class="crm-calendar-cell" style="opacity:0.25;"></div>`;
-      }
+              return ` 
+                <tr> 
+                  <td>${v.fecha || 'N/D'}</td> 
+                  <td><b>${v.mesa || 'Mesa'}</b> (${v.cliente || 'Comensal'})</td> 
+                  <td>${v.cajero || 'Caja'}</td> 
+                  <td style="color:#fde047;">${v.productos || 'Consumo'}</td> 
+                  <td>${v.pago || 'Efectivo'}</td> 
+                  <td>S/ ${base.toFixed(2)}</td> 
+                  <td>S/ ${igv.toFixed(2)}</td> 
+                  <td style="font-weight:900; color:#86efac;">S/ ${total.toFixed(2)}</td> 
+                </tr> 
+              `; 
+            }).join(''); 
 
-      const hoyStr = new Date().toISOString().split('T')[0];
+            document.getElementById('repMontoTotalAcumulado').innerText = `S/ ${montoTotal.toFixed(2)}`; 
+            document.getElementById('repCantidadVentas').innerText = ventasCache.length; 
+            return; 
+          } 
+        } 
+      } catch (e) {} 
 
-      for (let dia = 1; dia <= diasEnMes; dia++) {
-        const diaPadded = dia < 10 ? '0' + dia : dia;
-        const mesPadded = (mes + 1) < 10 ? '0' + (mes + 1) : (mes + 1);
-        const fechaCelda = `${anio}-${mesPadded}-${diaPadded}`;
-        const esHoy = (fechaCelda === hoyStr) ? 'crm-cell-today' : '';
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#aaa;">No se encontraron registros de ventas.</td></tr>'; 
+    } 
 
-        const reservasDelDia = reservasCache.filter(r => r.fechaReserva === fechaCelda);
+    /* 8. RESEÑAS POR PLATO */ 
+    async function cargarResenasFirebase() { 
+      const cont = document.getElementById('contenedorResenasAdmin'); 
+      if (!cont) return; 
 
-        html += `
-          <div class="crm-calendar-cell ${esHoy}" onclick="abrirModalReservaCRM('${fechaCelda}')">
-            <span class="crm-cell-number">${dia}</span>
-            ${reservasDelDia.map(r => {
-              const esConfirmada = (r.estado === 'confirmada');
-              const claseEstado = esConfirmada ? 'res-confirmada' : 'res-pendiente';
-              const icono = esConfirmada ? '✔ ' : '⏳ ';
-              return `
-                <div class="crm-reserva-badge ${claseEstado}" onclick="event.stopPropagation(); abrirModalReservaCRM(null, '${r.id}')" title="${r.cliente} (${r.personas}p) -${r.estado}">
-                  ${icono}${r.horaReserva || ''} ${r.cliente} (${r.mesaAsignada || 'Mesa'})
-                </div>
-              `;
-            }).join('')}
-          </div>
-        `;
-      }
-      grid.innerHTML = html;
-    }
+      try { 
+        const res = await fetch(`${FIREBASE_DB_URL}resenas.json?_t=${Date.now()}`); 
+        if (res.ok) { 
+          const data = await res.json(); 
+          if (data && typeof data === 'object') { 
+            const list = Object.values(data); 
+            cont.innerHTML = list.map(r => ` 
+              <div style="background:#1a120f; padding:10px 12px; border-radius:10px; margin-bottom:8px; border:1px solid rgba(255,255,255,0.08);"> 
+                <div style="display:flex; justify-content:space-between; align-items:center;"> 
+                  <strong style="color:var(--gold);">${r.autor || 'Cliente'} (${'⭐'.repeat(r.rating || 5)})</strong> 
+                  <span style="font-size:11px; color:#aaa;">${r.fecha || ''}</span> 
+                </div> 
+                ${r.plato ? `<div style="font-size:11.5px; color:#86efac; margin-top:2px;"><b>Plato:</b> ${r.plato}</div>` : ''} 
+                <p style="font-size:12.5px; color:#eee; margin-top:4px;">"${r.texto || ''}"</p> 
+              </div> 
+            `).join(''); 
+            return; 
+          } 
+        } 
+      } catch (e) {} 
+      cont.innerHTML = '<p style="color:#aaa; font-size:13px;">No hay opiniones registradas aún.</p>'; 
+    } 
 
-    function alternarCamposPrepago(estado) {
-      const caja = document.getElementById('cajaDatosPrepago');
-      const btnWA = document.getElementById('btnEnviarWhatsAppReserva');
-      if (estado === 'confirmada') {
-        caja.style.display = 'block';
-        btnWA.style.display = 'block';
-      } else {
-        caja.style.display = 'none';
-        btnWA.style.display = 'none';
-      }
-    }
+    function normalizarNombreMesa(m) { 
+      if (!m) return ""; 
+      let s = String(m).trim(); 
+      const match = s.match(/\d+/); 
+      if (match && s.toLowerCase().includes("mesa")) { 
+        const num = parseInt(match[0]); return "Mesa " + (num < 10 ? "0" + num : num); 
+      } 
+      return s; 
+    } 
 
-    function abrirModalReservaCRM(fechaSeleccionada = null, resId = null) {
-      document.getElementById('crmResMesaSelect').innerHTML = listaMesasDinamicas.map(m => `<option value="${m}">${m}</option>`).join('');
+    function normalizarClaveMesa(m) { 
+      return String(m || '').toLowerCase().replace(/[^a-z0-9]/g, '_'); 
+    } 
 
-      if (resId) {
-        const r = reservasCache.find(x => x.id === resId);
-        if (r) {
-          document.getElementById('crmResId').value = r.id;
-          document.getElementById('crmResTitular').value = r.cliente || '';
-          document.getElementById('crmResTel').value = r.telefono || '';
-          document.getElementById('crmResPersonas').value = r.personas || 4;
-          document.getElementById('crmResFecha').value = r.fechaReserva || '';
-          document.getElementById('crmResHora').value = r.horaReserva || '';
-          document.getElementById('crmResMesaSelect').value = r.mesaAsignada || listaMesasDinamicas[0];
-          document.getElementById('crmResEstadoSelect').value = r.estado || 'pendiente';
-          document.getElementById('crmResMetodoPago').value = r.metodoPago || 'Yape';
-          document.getElementById('crmResMontoPrepago').value = r.montoPrepago || '50.00';
-          document.getElementById('crmResOperacion').value = r.numeroOperacion || '';
-          document.getElementById('crmResNotas').value = r.notas || '';
-          document.getElementById('crmModalTitulo').innerText = "Editar / Confirmar Reserva CRM";
-          
-          alternarCamposPrepago(r.estado || 'pendiente');
-        }
-      } else {
-        document.getElementById('crmResId').value = "";
-        document.getElementById('crmResTitular').value = "";
-        document.getElementById('crmResTel').value = "";
-        document.getElementById('crmResPersonas').value = 4;
-        document.getElementById('crmResFecha').value = fechaSeleccionada || new Date().toISOString().split('T')[0];
-        document.getElementById('crmResHora').value = "13:00";
-        document.getElementById('crmResEstadoSelect').value = "pendiente";
-        document.getElementById('crmResMetodoPago').value = "Yape";
-        document.getElementById('crmResMontoPrepago').value = "50.00";
-        document.getElementById('crmResOperacion').value = "";
-        document.getElementById('crmResNotas').value = "";
-        document.getElementById('crmModalTitulo').innerText = "Generar Nueva Reserva CRM";
+    async function regenerarTokenMesa(m) { 
+      const key = normalizarClaveMesa(m); 
+      const nuevoToken = "TK-" + Math.random().toString(36).substring(2, 8).toUpperCase() + "-" + Date.now().toString(36).toUpperCase(); 
+      tokensMesasActivos[key] = nuevoToken; 
+      await fetch(`${FIREBASE_DB_URL}config/tokens_mesas/${key}.json`, { 
+        method: 'PUT', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify(nuevoToken) 
+      }); 
+      return nuevoToken; 
+    } 
 
-        alternarCamposPrepago("pendiente");
-      }
-      document.getElementById('modalReservaCRM').classList.add('active');
-    }
+    async function sincronizarTokensDeMesasFirebase() { 
+      try { 
+        const res = await fetch(`${FIREBASE_DB_URL}config/tokens_mesas.json?_t=${Date.now()}`); 
+        if (res.ok) { 
+          const data = await res.json(); 
+          if (data && typeof data === 'object') tokensMesasActivos = data; 
+        } 
+      } catch (e) {} 
 
-    function cerrarModalReservaCRM() {
-      document.getElementById('modalReservaCRM').classList.remove('active');
-    }
+      let cambios = false; 
+      for (const m of listaMesasDinamicas) { 
+        const key = normalizarClaveMesa(m); 
+        if (!tokensMesasActivos[key]) { 
+          tokensMesasActivos[key] = "TK-" + Math.random().toString(36).substring(2, 8).toUpperCase() + "-" + Date.now().toString(36).toUpperCase(); 
+          cambios = true; 
+        } 
+      } 
+      if (cambios) { 
+        await fetch(`${FIREBASE_DB_URL}config/tokens_mesas.json`, { 
+          method: 'PUT', 
+          headers: { 'Content-Type': 'application/json' }, 
+          body: JSON.stringify(tokensMesasActivos) 
+        }); 
+      } 
+    } 
 
-    async function guardarReservaDesdeCRM(e) {
-      e.preventDefault();
-      const id = document.getElementById('crmResId').value || ("RES-" + Date.now());
-      const estado = document.getElementById('crmResEstadoSelect').value;
+    async function cargarMesasDesdeFirebase() { 
+      try { 
+        const res = await fetch(`${FIREBASE_DB_URL}config/mesas.json?_t=${Date.now()}`); 
+        if (res.ok) { 
+          const data = await res.json(); 
+          if (Array.isArray(data) && data.length > 0) listaMesasDinamicas = data; 
+        } 
+      } catch (e) {} 
+      actualizarSelectoresDeMesas(); 
+    } 
 
-      const data = {
-        id: id,
-        cliente: document.getElementById('crmResTitular').value.trim(),
-        telefono: document.getElementById('crmResTel').value.trim(),
-        personas: document.getElementById('crmResPersonas').value,
-        fechaReserva: document.getElementById('crmResFecha').value,
-        horaReserva: document.getElementById('crmResHora').value,
-        mesaAsignada: document.getElementById('crmResMesaSelect').value,
-        estado: estado,
-        metodoPago: (estado === 'confirmada') ? document.getElementById('crmResMetodoPago').value : 'Sin prepago',
-        montoPrepago: (estado === 'confirmada') ? document.getElementById('crmResMontoPrepago').value : '0.00',
-        numeroOperacion: (estado === 'confirmada') ? document.getElementById('crmResOperacion').value.trim() : '',
-        notas: document.getElementById('crmResNotas').value.trim()
-      };
+    function actualizarSelectoresDeMesas() { 
+      const qrSelect = document.getElementById('qrMesaSelectorDinamico'); 
+      if (qrSelect) { 
+        const val = qrSelect.value; 
+        qrSelect.innerHTML = listaMesasDinamicas.map(m => `<option value="${m}" ${m === val ? 'selected' : ''}>${m}</option>`).join(''); 
+      } 
+      const resSelect = document.getElementById('resAdminMesaSelectorDinamico'); 
+      if (resSelect) { 
+        resSelect.innerHTML = listaMesasDinamicas.map(m => `<option value="${m}">${m}</option>`).join(''); 
+      } 
+    } 
 
-      await fetch(`${FIREBASE_DB_URL}reservas/${id}.json`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
+    async function forzarLiberacionMesa(mesaNorm) { 
+      try { 
+        const res = await fetch(`${FIREBASE_DB_URL}comandas.json`); 
+        if (res.ok) { 
+          const data = await res.json(); 
+          for (let k in data) { 
+            if (data[k] && normalizarNombreMesa(data[k].mesa || '') === mesaNorm) { 
+              await fetch(`${FIREBASE_DB_URL}comandas/${k}.json`, { 
+                method: 'PATCH', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ estado: 'liberado', agradecimientoFinal: true }) 
+              }); 
+            } 
+          } 
+        } 
+      } catch (e) {} 
 
-      alert(`✔ Reserva guardada como "${estado === 'confirmada' ? 'CONFIRMADA Y PREPAGADA' : 'POR CONFIRMAR'}".`);
-      
-      if (estado === 'confirmada') {
-        document.getElementById('btnEnviarWhatsAppReserva').style.display = 'block';
-      } else {
-        cerrarModalReservaCRM();
-      }
-      cargarReservasFirebase();
-    }
+      await regenerarTokenMesa(mesaNorm); 
+      alert(`✔ Mesa "${mesaNorm}" desbloqueada y liberada.`); 
+      cargarComandasEnVivo(); 
+      actualizarQRVisualDirecto(); 
+    } 
 
-    function enviarMensajeWhatsAppConfirmacion() {
-      const titular = document.getElementById('crmResTitular').value.trim();
-      let tel = document.getElementById('crmResTel').value.trim().replace(/\D/g, '');
-      const fecha = document.getElementById('crmResFecha').value;
-      const hora = document.getElementById('crmResHora').value;
-      const personas = document.getElementById('crmResPersonas').value;
-      const mesa = document.getElementById('crmResMesaSelect').value;
-      const metodo = document.getElementById('crmResMetodoPago').value;
-      const monto = document.getElementById('crmResMontoPrepago').value;
-      const op = document.getElementById('crmResOperacion').value.trim();
+    function clickPildoraMesaMonitor(m, estaOcupada) { 
+      if (modoEliminarMesasActivo) return; 
+      if (estaOcupada) { 
+        if (confirm(`La ${m} figura OCUPADA.\n¿Deseas desbloquearla ahora?`)) { 
+          forzarLiberacionMesa(normalizarNombreMesa(m)); 
+        } 
+      } else alert(`La ${m} está LIBRE.`); 
+    } 
 
-      if (!tel) return alert("Por favor ingresa un número de WhatsApp válido.");
-      if (tel.length === 9) tel = "51" + tel;
+    function toggleModoEliminarMesas() { 
+      modoEliminarMesasActivo = !modoEliminarMesasActivo; 
+      document.getElementById('lblBtnModoEliminar').innerText = modoEliminarMesasActivo ? "✅ Finalizar Edición" : "🗑️ Modo Eliminar"; 
+      cargarComandasEnVivo(); 
+    } 
 
-      const texto = `🍽️ *¡RESERVA CONFIRMADA EN ${configRestaurante.nombre.toUpperCase()}!*\n\n` +
-        `Estimado/a *${titular}*, te confirmamos que tu mesa ha sido bloqueada y agendada con éxito.\n\n` +
-        `📅 *Fecha:* ${fecha}\n` +
-        `⏰ *Hora:* ${hora}\n` +
-        `👥 *Personas:* ${personas}\n` +
-        `🪑 *Mesa Asignada:* ${mesa}\n` +
-        `💳 *Prepago / Adelanto:* S/ ${parseFloat(monto).toFixed(2)} (${metodo})\n` +
-        (op ? `📄 *N° Operación:* ${op}\n` : '') +
-        `\n¡Te esperamos para brindarte la mejor experiencia gastronómica en Cusco! ✨`;
+    async function eliminarMesaDirectaMonitor(m, event) { 
+      if (event) event.stopPropagation(); 
+      if (confirm(`¿Eliminar la ${m}?`)) { 
+        listaMesasDinamicas = listaMesasDinamicas.filter(item => item !== m); 
+        await fetch(`${FIREBASE_DB_URL}config/mesas.json`, { 
+          method: 'PUT', 
+          headers: { 'Content-Type': 'application/json' }, 
+          body: JSON.stringify(listaMesasDinamicas) 
+        }); 
+        actualizarSelectoresDeMesas(); 
+        cargarComandasEnVivo(); 
+      } 
+    } 
 
-      const urlWhatsApp = `https://api.whatsapp.com/send?phone=${tel}&text=${encodeURIComponent(texto)}`;
-      window.open(urlWhatsApp, '_blank');
-      cerrarModalReservaCRM();
-    }
+    async function abrirPromptAgregarMesa() { 
+      const nombre = prompt("🪑 Ingresa nombre de la nueva mesa (Ej: Mesa 13, Mesa 25, VIP 2):"); 
+      if (!nombre || !nombre.trim()) return; 
+      const m = nombre.trim(); 
+      if (listaMesasDinamicas.includes(m)) return alert("Esa mesa ya existe."); 
 
-    /* 6. REPORTE CONTABLE Y VENTAS */
-    async function cargarVentasDesdeFirebase() {
-      const tbody = document.getElementById('tablaVentasBody');
-      if (!tbody) return;
+      listaMesasDinamicas.push(m); 
+      await fetch(`${FIREBASE_DB_URL}config/mesas.json`, { 
+        method: 'PUT', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify(listaMesasDinamicas) 
+      }); 
+      await regenerarTokenMesa(m); 
+      actualizarSelectoresDeMesas(); 
+      cargarComandasEnVivo(); 
+    } 
 
-      try {
-        const res = await fetch(`${FIREBASE_DB_URL}ventas.json?_t=${Date.now()}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data && typeof data === 'object') {
-            ventasCache = Object.values(data);
-            let montoTotal = 0;
+    async function abrirPromptDesbloquearMesaManual() { 
+      const num = prompt("🔓 Ingresa el nombre o número de la mesa a desbloquear:"); 
+      if (!num || !num.trim()) return; 
+      const mesaNorm = normalizarNombreMesa(num.trim()); 
+      await forzarLiberacionMesa(mesaNorm); 
+    } 
 
-            tbody.innerHTML = ventasCache.map(v => {
-              const total = parseFloat(v.totalPEN || v.total || 0);
-              montoTotal += total;
-              const base = v.baseImponible ? parseFloat(v.baseImponible) : (total / 1.18);
-              const igv = v.igv ? parseFloat(v.igv) : (total - base);
+    async function obtenerEnlaceCompletoMesa(mesa) { 
+      const u = "https://phyxcius.github.io/restaurante/"; 
+      const key = normalizarClaveMesa(mesa); 
+      if (!tokensMesasActivos[key]) await regenerarTokenMesa(mesa); 
+      const tk = tokensMesasActivos[key]; 
+      return `${u}?mesa=${encodeURIComponent(mesa)}&token=${encodeURIComponent(tk)}`; 
+    } 
 
-              return `
-                <tr>
-                  <td>${v.fecha || 'N/D'}</td>
-                  <td><b>${v.mesa || 'Mesa'}</b> (${v.cliente || 'Comensal'})</td>
-                  <td>${v.cajero || 'Caja'}</td>
-                  <td style="color:#fde047;">${v.productos || 'Consumo'}</td>
-                  <td>${v.pago || 'Efectivo'}</td>
-                  <td>S/ ${base.toFixed(2)}</td>
-                  <td>S/ ${igv.toFixed(2)}</td>
-                  <td style="font-weight:900; color:#86efac;">S/ ${total.toFixed(2)}</td>
-                </tr>
-              `;
-            }).join('');
+    async function abrirMenuConTokenActivo() { 
+      const selector = document.getElementById('qrMesaSelectorDinamico'); 
+      const mesa = selector ? selector.value : (listaMesasDinamicas[0] || "Mesa 01"); 
+      const urlCompleta = await obtenerEnlaceCompletoMesa(mesa); 
+      window.open(urlCompleta, '_blank'); 
+    } 
 
-            document.getElementById('repMontoTotalAcumulado').innerText = `S/ ${montoTotal.toFixed(2)}`;
-            document.getElementById('repCantidadVentas').innerText = ventasCache.length;
-            return;
-          }
-        }
-      } catch (e) {}
+    async function copiarEnlaceMesaToken() { 
+      const selector = document.getElementById('qrMesaSelectorDinamico'); 
+      const mesa = selector ? selector.value : (listaMesasDinamicas[0] || "Mesa 01"); 
+      const urlCompleta = await obtenerEnlaceCompletoMesa(mesa); 
+      navigator.clipboard.writeText(urlCompleta).then(() => { 
+        alert(`✔ Enlace copiado para ${mesa}:\n${urlCompleta}`); 
+      }).catch(() => { prompt("Copia el enlace:", urlCompleta); }); 
+    } 
 
-      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#aaa;">No se encontraron registros de ventas.</td></tr>';
-    }
+    function cerrarTurno() { 
+      if (confirm("¿Cerrar sesión y turno?")) { 
+        sessionStorage.clear(); 
+        window.location.reload(); 
+      } 
+    } 
+    function cerrarSesionAdmin() { sessionStorage.clear(); window.location.reload(); } 
 
-    /* 8. RESEÑAS POR PLATO Y ESTRELLAS */
-    async function cargarResenasFirebase() {
-      const cont = document.getElementById('contenedorResenasAdmin');
-      if (!cont) return;
-
-      try {
-        const res = await fetch(`${FIREBASE_DB_URL}resenas.json?_t=${Date.now()}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data && typeof data === 'object') {
-            const list = Object.values(data);
-            cont.innerHTML = list.map(r => `
-              <div class="review-item-card">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                  <div>
-                    <strong style="color:var(--gold);">${r.autor || 'Cliente'}</strong>
-                    <span style="color:#facc15; margin-left:6px;">${'★'.repeat(r.rating || 5)}${'☆'.repeat(5 - (r.rating || 5))}</span>
-                  </div>
-                  <span style="font-size:11px; color:#aaa;">${r.fecha || ''}</span>
-                </div>
-                ${r.plato ? `<div><span class="review-dish-tag"><i class="fa-solid fa-utensils"></i> ${r.plato}</span></div>` : ''}
-                <p style="font-size:13px; color:#eee;">"${r.texto || 'Sin comentario adicional'}"</p>
-              </div>
-            `).join('');
-            return;
-          }
-        }
-      } catch (e) {}
-      cont.innerHTML = '<p style="color:#aaa;">No hay reseñas registradas aún.</p>';
-    }
-
-    function cerrarTurno() {
-      if (confirm("¿Cerrar sesión y turno?")) {
-        sessionStorage.clear();
-        window.location.reload();
-      }
-    }
-    function cerrarSesionAdmin() { sessionStorage.clear(); window.location.reload(); }
-
-    window.onload = () => {
-      if (sessionStorage.getItem("auth_rest") === "true") mostrarPanelAdmin();
-      else {
-        document.getElementById('pantallaLogin').style.display = 'flex';
-        document.getElementById('panelAdminPrincipal').style.display = 'none';
-      }
-    };
+    window.onload = () => { 
+      if (sessionStorage.getItem("auth_rest") === "true") mostrarPanelAdmin(); 
+      else { 
+        document.getElementById('pantallaLogin').style.display = 'flex'; 
+        document.getElementById('panelAdminPrincipal').style.display = 'none'; 
+      } 
+    }; 
   </script> 
 </body> 
 </html>
