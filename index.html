@@ -1,1710 +1,963 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>La Cusqueñita | Menú Digital & Comandas</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Control & TPV | La Cusqueñita</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
       --primary: #c2410c;
       --accent: #f59e0b;
-      --bg-warm: #18110e;
-      --glass-panel: rgba(38, 28, 24, 0.92);
-      --glass-border: rgba(245, 158, 11, 0.28);
+      --bg-dark: #120c0a;
+      --sidebar-bg: #1c1310;
+      --card-bg: #221814;
+      --card-border: rgba(245, 158, 11, 0.22);
+      --input-bg: #160e0b;
       --text-main: #fffdfa;
-      --text-muted: #d6cbbf;
-      --gold-badge: #fbbf24;
-
-      /* PALETA MODAL */
-      --modal-bg: #eab308;
-      --modal-green: #4d7c0f;
-      --modal-green-dark: #365314;
-      --modal-dark: #1c1917;
-      --modal-card-bg: #fef08a;
-
-      /* COLOR PÚRPURA / VIOLETA NEÓN PARA PEDIR CUENTA */
-      --color-cuenta: #7c3aed;
-      --color-cuenta-hover: #9333ea;
-      --color-cuenta-glow: rgba(124, 58, 237, 0.65);
+      --text-muted: #d1c7be;
+      --gold: #fbbf24;
+      --danger: #ef4444;
+      --success: #16a34a;
+      --blue: #0284c7;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; font-family: system-ui, -apple-system, sans-serif; }
-    body, html { width: 100%; height: 100%; overflow: hidden; background-color: var(--bg-warm); color: var(--text-main); }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
 
-    /* PANTALLA DE BLOQUEO DE SEGURIDAD */
-    .screen-security-lock {
-      position: fixed; inset: 0; background: #0c0806; z-index: 999999;
-      display: none; flex-direction: column; align-items: center; justify-content: center;
-      padding: 24px; text-align: center;
+    /* PANTALLA LOGIN */
+    #pantallaLogin {
+      display: flex; justify-content: center; align-items: center; min-height: 100vh;
+      padding: 16px; background: radial-gradient(circle at center, #241611 0%, #0d0806 100%);
     }
-    .security-lock-box {
-      max-width: 380px; width: 100%; background: #1a100d; border: 2px solid var(--accent);
-      border-radius: 24px; padding: 32px 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
-      display: flex; flex-direction: column; align-items: center; gap: 14px;
+    .card-login {
+      background: var(--card-bg); border: 1.5px solid var(--accent); border-radius: 18px;
+      max-width: 430px; width: 100%; padding: 26px 22px; box-shadow: 0 10px 35px rgba(0,0,0,0.8);
     }
-    .security-lock-icon {
-      font-size: 50px; color: var(--gold-badge); filter: drop-shadow(0 4px 15px rgba(245, 158, 11, 0.5));
-      cursor: pointer;
-    }
-    .btn-bypass-dev {
-      background: none; border: 1px solid rgba(255,255,255,0.15); color: #888;
-      padding: 6px 12px; border-radius: 12px; font-size: 11px; cursor: pointer; margin-top: 8px;
+    .card-login h3 { color: var(--gold); text-align: center; margin-bottom: 4px; font-size: 20px; font-weight: 900; }
+    .card-login p.sub { font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 16px; }
+
+    .caja-chica-box {
+      background: #180e0a; border: 1.5px dashed var(--accent); border-radius: 10px;
+      padding: 12px; margin-top: 10px;
     }
 
-    .app-container { width: 100%; max-width: 480px; height: 100dvh; margin: 0 auto; position: relative; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
-    .app-container::-webkit-scrollbar { display: none; }
-
-    /* CABECERA */
-    .top-header {
-      position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; z-index: 120;
-      padding: 10px 14px 6px; background: linear-gradient(180deg, rgba(24, 17, 14, 0.98) 0%, rgba(24, 17, 14, 0.7) 75%, transparent 100%);
-      display: flex; flex-direction: column; gap: 8px;
+    /* BARRA SUPERIOR */
+    .top-admin-bar {
+      display: flex; background: #190f0c; border-bottom: 1.5px solid var(--card-border);
+      padding: 8px 14px; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 150; width: 100%; transition: background-color 0.4s ease;
     }
-    .top-bar-row { display: flex; align-items: center; justify-content: space-between; }
-    
-    .brand-section { display: flex; align-items: center; gap: 8px; }
-    .brand-icon { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, var(--accent), var(--primary)); display: flex; align-items: center; justify-content: center; font-size: 17px; color: #fff; overflow: hidden; flex-shrink: 0; }
-    .brand-icon img { width: 100%; height: 100%; object-fit: cover; }
-    .brand-text h1 { font-size: 14px; font-weight: 900; line-height: 1.1; text-transform: uppercase; }
-    .brand-text span { font-size: 9.5px; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+    .top-admin-bar.alerta-nueva-orden {
+      background-color: #854d0e !important;
+      animation: alertFlash 1s infinite alternate;
+    }
+    @keyframes alertFlash { 0% { border-bottom-color: #ef4444; } 100% { border-bottom-color: #fde047; } }
 
-    /* BADGE LA CHUSPA TECH */
-    .chuspa-nav-badge {
+    .btn-toggle-global {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #fff; border: 1px solid var(--gold); border-radius: 8px;
+      padding: 7px 12px; font-size: 13px; font-weight: 800; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+
+    .top-brand-center { display: flex; align-items: center; gap: 10px; }
+    .top-chuspa-badge {
       display: flex; align-items: center; gap: 6px;
       background: rgba(254, 252, 232, 0.12); border: 1px solid rgba(234, 179, 8, 0.45);
-      padding: 3px 8px 3px 5px; border-radius: 20px; text-decoration: none; backdrop-filter: blur(8px);
-      max-height: 32px; overflow: hidden; flex-shrink: 0;
+      padding: 3px 8px 3px 5px; border-radius: 20px; text-decoration: none;
     }
-    .chuspa-nav-badge:active { transform: scale(0.96); }
-    .chuspa-nav-img {
-      width: 22px !important; height: 22px !important; min-width: 22px !important; max-width: 22px !important;
-      border-radius: 50% !important; object-fit: cover !important; background: #fff !important;
-      border: 1px solid #ca8a04 !important; display: block !important;
-    }
-    .chuspa-nav-info { display: flex; flex-direction: column; line-height: 1.1; }
-    .chuspa-nav-title { font-size: 10px; font-weight: 900; color: #fde047; }
-    .chuspa-nav-sub { font-size: 7.5px; font-weight: 700; color: #fed7aa; }
+    .top-chuspa-badge img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; background: #fff; }
 
-    .header-controls { display: flex; align-items: center; gap: 5px; }
-    .select-pill {
-      background: var(--glass-panel); border: 1px solid var(--glass-border); color: #fff;
-      padding: 5px 7px; border-radius: 14px; font-size: 11px; font-weight: 800; outline: none; cursor: pointer;
+    .admin-layout {
+      display: grid; grid-template-columns: 290px 1fr; min-height: calc(100vh - 54px); width: 100%;
+      transition: grid-template-columns 0.25s ease; position: relative;
     }
-    .select-pill option { background: #241712; color: #fff; }
-    .icon-pill-btn { width: 30px; height: 30px; border-radius: 50%; background: var(--glass-panel); border: 1px solid var(--glass-border); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; }
+    .admin-layout.sidebar-collapsed { grid-template-columns: 0px 1fr; }
+    .admin-layout.sidebar-collapsed .sidebar { transform: translateX(-100%); opacity: 0; pointer-events: none; visibility: hidden; }
 
-    /* FILTROS */
-    .category-chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
-    .chip { background: rgba(43, 31, 26, 0.7); border: 1px solid rgba(251, 191, 36, 0.25); color: var(--text-muted); padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer; }
-    .chip.active { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; }
-
-    /* REEL */
-    .video-slide { width: 100%; height: 100dvh; scroll-snap-align: start; position: relative; background: #1c1411; overflow: hidden; display: flex; align-items: flex-end; }
-    .video-player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-    .slide-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(24,17,14,0.4) 0%, transparent 50%, rgba(24,17,14,0.92) 100%); }
-
-    /* DEDO GESTUAL */
-    .gesture-hint-overlay {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 90;
-      pointer-events: none;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      animation: swipeHandCenterAnimation 2.2s infinite ease-in-out;
-    }
-    .gesture-hand-icon {
-      font-size: 54px;
-      color: #fde047;
-      filter: drop-shadow(0 4px 16px rgba(0,0,0,0.95)) drop-shadow(0 0 18px rgba(245, 158, 11, 0.75));
-    }
-    .gesture-hint-txt {
-      background: rgba(18, 12, 10, 0.88);
-      color: #fffdfa;
-      padding: 7px 16px;
-      border-radius: 22px;
-      font-size: 13px;
-      font-weight: 900;
-      border: 1.5px solid var(--accent);
-      letter-spacing: 0.5px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.85);
-      backdrop-filter: blur(8px);
-      text-transform: uppercase;
-    }
-    @keyframes swipeHandCenterAnimation {
-      0% { transform: translate(-50%, -40%); opacity: 0.2; }
-      35% { opacity: 0.95; }
-      70% { transform: translate(-50%, -68%); opacity: 0.95; }
-      100% { transform: translate(-50%, -75%); opacity: 0; }
+    .sidebar {
+      background: var(--sidebar-bg); border-right: 1.5px solid var(--card-border);
+      padding: 18px 14px; display: flex; flex-direction: column; gap: 10px;
+      position: sticky; top: 54px; height: calc(100vh - 54px); overflow-y: auto; z-index: 200; width: 290px;
+      transition: transform 0.25s ease, opacity 0.25s ease;
     }
 
-    /* INFORMACIÓN DEL PLATO */
-    .dish-info { position: relative; z-index: 10; padding: 0 75px 85px 16px; width: 100%; }
-    .dish-title { font-size: 21px; font-weight: 800; line-height: 1.2; margin-bottom: 4px; }
-    .dish-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; margin-bottom: 8px; }
-    .price-now { font-size: 23px; font-weight: 800; color: #fde047; display: block; margin-bottom: 6px; }
+    .brand-box { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .brand-left { display: flex; align-items: center; gap: 10px; overflow: hidden; }
+    .brand-avatar {
+      width: 42px; height: 42px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--primary));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; color: #fff; overflow: hidden; flex-shrink: 0;
+    }
+    .brand-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-    .btn-quick-add {
-      background: linear-gradient(135deg, var(--primary), var(--accent)); border: 1.5px solid var(--gold-badge);
-      color: #fff; padding: 9px 18px; border-radius: 24px; font-weight: 800; font-size: 13px;
-      cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(194, 65, 12, 0.45);
-    }
-    .btn-quick-add .finger-tap-icon {
-      font-size: 15px; color: #fde047; animation: fingerTap 1.2s infinite alternate ease-in-out;
-    }
-    @keyframes fingerTap {
-      0% { transform: scale(1) translateY(0); }
-      100% { transform: scale(1.25) translateY(-3px); }
-    }
-
-    /* BOTÓN FLOTANTE */
-    .chat-bubble-container {
-      position: fixed; bottom: 20px; right: 18px; display: flex; align-items: center; gap: 8px;
-      z-index: 99999; cursor: pointer; pointer-events: auto;
-    }
-    .chat-bubble-label {
-      background: linear-gradient(135deg, #fef08a 0%, #fde047 100%);
-      color: #78350f; font-weight: 900; font-size: 13px; padding: 8px 14px;
-      border-radius: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.4); border: 2px solid var(--accent);
-    }
-    .chat-bubble-btn {
-      position: relative; width: 56px; height: 56px; background: linear-gradient(135deg, var(--primary), var(--accent));
-      border-radius: 50%; box-shadow: 0 6px 20px rgba(194, 65, 12, 0.5); display: flex; align-items: center;
-      justify-content: center; border: 2px solid #facc15;
-    }
-    .chat-badge { position: absolute; top: -3px; right: -3px; background-color: #ef4444; color: #fff; font-size: 11px; font-weight: 800; min-width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-
-    /* POPUP DE COMANDA */
-    .popup-modal { position: fixed; inset: 0; background: rgba(18, 12, 10, 0.88); backdrop-filter: blur(6px); z-index: 100000; display: none; align-items: flex-end; justify-content: center; }
-    .popup-modal.active { display: flex; }
-    .popup-sheet {
-      background: var(--modal-bg);
-      background-image: radial-gradient(circle at 10% 10%, rgba(254, 240, 138, 0.3) 0%, transparent 60%);
-      color: var(--modal-dark);
-      width: 100%; max-width: 480px; max-height: 92dvh;
-      border-radius: 26px 26px 0 0; padding: 18px 16px 24px;
-      display: flex; flex-direction: column;
-      border-top: 3px solid var(--modal-green);
-      box-shadow: 0 -10px 30px rgba(0,0,0,0.6);
-      overflow-y: auto;
-    }
-
-    .sheet-header {
+    .user-session-badge {
+      background: rgba(245, 158, 11, 0.12); border: 1px solid var(--card-border);
+      border-radius: 8px; padding: 7px 10px; font-size: 11.5px;
       display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 10px; border-bottom: 2px solid rgba(28, 25, 23, 0.15); padding-bottom: 8px;
     }
-    .sheet-header h3 { font-size: 17px; font-weight: 900; color: var(--modal-dark); text-transform: uppercase; letter-spacing: 0.5px; }
-    .sheet-header button { background: none; border: none; color: var(--modal-dark); font-size: 24px; font-weight: bold; cursor: pointer; }
-    
-    .order-items-list {
-      min-height: 55px; max-height: 22dvh; overflow-y: auto;
-      display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; flex-shrink: 0;
+
+    .nav-menu { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 10px; border: 1px solid transparent; background: transparent; color: var(--text-muted); font-size: 13px; font-weight: 700; cursor: pointer; text-align: left; }
+    .nav-item i { font-size: 15px; width: 20px; text-align: center; color: var(--accent); }
+    .nav-item:hover { background: #281c17; color: #fff; }
+    .nav-item.active { background: #38241b; color: var(--gold); border-color: var(--card-border); }
+    .badge-live-orders { background: #ef4444; color: #fff; font-size: 10px; padding: 2px 7px; border-radius: 12px; margin-left: auto; }
+
+    .main-view { padding: 20px 24px; overflow-y: auto; max-height: calc(100vh - 54px); width: 100%; }
+    .view-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; border-bottom: 1.5px solid rgba(255,255,255,0.08); padding-bottom: 12px; }
+    .view-header h1 { font-size: 21px; font-weight: 900; color: var(--gold); }
+
+    .card { background: var(--card-bg); padding: 18px 20px; border-radius: 14px; border: 1px solid var(--card-border); margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.25); }
+    label { font-size: 11px; font-weight: 800; color: var(--gold); display: block; margin-top: 8px; text-transform: uppercase; }
+    input, textarea, select { width: 100%; padding: 9px 12px; margin-top: 4px; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; font-size: 13.5px; background: var(--input-bg); color: #fff; outline: none; }
+
+    .btn { padding: 9px 14px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 7px; font-size: 13px; }
+    .btn-save { background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; }
+    .btn-add { background: var(--success); color: white; }
+    .btn-del { background: #451a1a; color: #fca5a5; border: 1px solid #dc2626; }
+    .btn-print { background: var(--blue); color: #fff; }
+
+    /* ESTILOS DEL CALENDARIO CRM DE RESERVAS */
+    .crm-calendar-wrapper {
+      background: #18100c; border: 1.5px solid var(--card-border);
+      border-radius: 16px; padding: 18px; margin-top: 12px;
     }
-    .order-item-row {
+    .crm-calendar-header {
       display: flex; justify-content: space-between; align-items: center;
-      background: var(--modal-card-bg); padding: 8px 12px; border-radius: 12px;
-      border: 1.5px solid rgba(28, 25, 23, 0.12); color: var(--modal-dark);
+      margin-bottom: 16px; flex-wrap: wrap; gap: 10px;
     }
-    .order-item-row strong { font-size: 13.5px; font-weight: 900; color: #1c1917; }
-    .btn-qty-ctrl {
-      width: 26px; height: 26px; border-radius: 6px;
-      background: var(--modal-green); color: #fff; border: none; font-weight: 900; cursor: pointer;
+    .crm-calendar-grid {
+      display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;
+    }
+    .crm-day-head {
+      text-align: center; font-size: 12px; font-weight: 900; color: var(--gold);
+      padding: 8px 4px; background: #251a15; border-radius: 6px; text-transform: uppercase;
+    }
+    .crm-calendar-cell {
+      min-height: 105px; background: #221612; border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px; padding: 6px; display: flex; flex-direction: column; gap: 4px;
+      cursor: pointer; transition: background 0.15s ease;
+    }
+    .crm-calendar-cell:hover { background: #2f1d16; border-color: var(--accent); }
+    .crm-cell-number { font-size: 12px; font-weight: 900; color: #aaa; margin-bottom: 2px; }
+    .crm-cell-today { border: 2px solid var(--gold); }
+    .crm-reserva-badge {
+      font-size: 10px; font-weight: 800; padding: 3px 6px; border-radius: 6px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer;
+    }
+    .res-pendiente { background: #d97706; color: #fff; } /* Amarillo/Naranja */
+    .res-confirmada { background: #16a34a; color: #fff; } /* Verde Confirmado */
+
+    /* RESEÑAS AGRUPADAS */
+    .review-item-card {
+      background: #1a120f; padding: 14px; border-radius: 12px; margin-bottom: 10px;
+      border: 1px solid var(--card-border); display: flex; flex-direction: column; gap: 6px;
+    }
+    .review-dish-tag {
+      display: inline-block; background: #3b2014; color: #fed7aa; border: 1px solid var(--accent);
+      padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 800;
     }
 
-    .quick-add-catalog {
-      background: rgba(255, 255, 255, 0.6);
-      border-radius: 12px; padding: 8px 10px; margin-bottom: 10px; border: 1.5px dashed var(--modal-green);
+    /* MODAL DE ALERTA CENTRADO */
+    .alerta-centro-overlay {
+      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(6px);
+      z-index: 1000000; display: none; align-items: center; justify-content: center; padding: 16px;
     }
-    .quick-add-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; max-height: 110px; overflow-y: auto; margin-top: 5px; }
-    .btn-quick-item {
-      background: #fff; border: 1px solid rgba(0,0,0,0.15); padding: 6px 8px; border-radius: 6px;
-      font-size: 11px; font-weight: 800; text-align: left; cursor: pointer; display: flex; justify-content: space-between;
+    .alerta-centro-overlay.active { display: flex; }
+    .alerta-centro-card {
+      position: relative; width: 100%; max-width: 440px; background: #19120e;
+      border-radius: 20px; padding: 24px; box-shadow: 0 10px 45px rgba(0,0,0,0.9);
+      border: 2px solid var(--gold); text-align: center;
+      animation: alertGlow 2s infinite alternate ease-in-out;
     }
-
-    .table-selector-label {
-      font-size: 11px; font-weight: 900; text-transform: uppercase; color: var(--modal-dark);
-      letter-spacing: 0.5px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;
-    }
-    .table-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
-      gap: 6px; margin-bottom: 10px; max-height: 115px; overflow-y: auto; padding: 2px;
-    }
-    .table-box-btn {
-      background: var(--modal-card-bg); border: 1.5px solid rgba(28, 25, 23, 0.2);
-      color: var(--modal-dark); font-weight: 900; font-size: 11px; padding: 8px 2px; border-radius: 8px;
-      cursor: pointer; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .table-box-btn.selected { background: var(--modal-green); border-color: var(--modal-green-dark); color: #fff; box-shadow: 0 0 10px rgba(77, 124, 15, 0.5); }
-    .table-box-btn.bloqueada { background: #dc2626 !important; border-color: #991b1b !important; color: #fff !important; cursor: not-allowed; }
-    .table-box-btn.deshabilitada-qr { opacity: 0.35 !important; cursor: not-allowed !important; filter: grayscale(1); }
-
-    .grid-payments { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
-    .btn-pay-option {
-      background: var(--modal-card-bg); border: 1.5px solid rgba(28, 25, 23, 0.2);
-      color: var(--modal-dark); padding: 8px 3px; border-radius: 8px; font-size: 11px; font-weight: 800;
-      cursor: pointer; text-align: center; transition: all 0.15s ease;
-    }
-    .btn-pay-option.active {
-      background: var(--modal-dark); border-color: var(--modal-dark); color: #fde047;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    @keyframes alertGlow {
+      0% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); }
+      100% { box-shadow: 0 0 35px rgba(245, 158, 11, 0.85); }
     }
 
-    .cash-box-drawer {
-      background: var(--modal-card-bg); border: 2px dashed var(--modal-green);
-      border-radius: 12px; padding: 10px 12px; margin-bottom: 10px;
+    /* MODALES FLOTANTES */
+    .modal-overlay {
+      position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.85) !important;
+      backdrop-filter: blur(6px) !important; z-index: 999999 !important;
+      display: none !important; align-items: center !important; justify-content: center !important; padding: 16px !important;
     }
-    .cash-input {
-      width: 100%; padding: 8px 12px; font-size: 15px; font-weight: 900;
-      border: 2px solid var(--modal-green); border-radius: 8px;
-      color: var(--modal-dark); background: #fff; margin-top: 4px; outline: none;
-    }
-    .cash-quick-btns { display: flex; gap: 6px; margin-top: 7px; flex-wrap: wrap; }
-    .btn-quick-cash {
-      background: var(--modal-green); border: none; color: #fff;
-      font-size: 11px; font-weight: 800; padding: 5px 9px; border-radius: 6px; cursor: pointer;
-    }
-
-    .vuelto-badge-box {
-      margin-top: 8px; padding: 8px 10px; border-radius: 8px; font-size: 12px; font-weight: 900;
-      display: flex; justify-content: space-between; align-items: center;
-      background: rgba(77, 124, 15, 0.18); color: var(--modal-green-dark); border: 1.5px solid var(--modal-green);
-    }
-    .vuelto-badge-box.alerta { background: rgba(220, 38, 38, 0.18); color: #991b1b; border-color: #dc2626; }
-
-    .custom-input {
-      width: 100%; background: #fff; border: 1.5px solid rgba(28, 25, 23, 0.22);
-      border-radius: 10px; color: var(--modal-dark); padding: 9px 12px; font-size: 12.5px;
-      outline: none; margin-bottom: 8px; font-weight: 600;
+    .modal-overlay.active { display: flex !important; }
+    .modal-box {
+      background: var(--card-bg) !important; border: 1.5px solid var(--card-border) !important;
+      border-radius: 16px !important; max-width: 520px !important; width: 100% !important;
+      max-height: 90vh !important; overflow-y: auto !important; padding: 22px !important;
+      display: flex !important; flex-direction: column !important; gap: 12px !important;
     }
 
-    .order-total-bar {
-      display: flex; justify-content: space-between; align-items: baseline;
-      margin: 8px 0; border-top: 2px dashed rgba(28,25,23,0.25); padding-top: 8px;
-    }
-    .btn-submit-order {
-      background: var(--modal-green); color: #fff; border: none; padding: 13px; border-radius: 24px;
-      font-size: 15px; font-weight: 900; cursor: pointer; display: flex; align-items: center;
-      justify-content: center; gap: 8px; box-shadow: 0 6px 18px rgba(77, 124, 15, 0.4); width: 100%;
-    }
+    .custom-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; }
+    .custom-table th, .custom-table td { border: 1px solid rgba(255,255,255,0.1); padding: 8px 10px; }
+    .custom-table th { background: #2f221c; color: var(--gold); }
 
-    /* BOTÓN PEDIR CUENTA ELEGANTE */
-    .btn-pedir-cuenta {
-      background: linear-gradient(135deg, var(--color-cuenta), var(--color-cuenta-hover)) !important;
-      color: #fff !important; border: 1.5px solid #d8b4fe !important;
-      padding: 12px 14px; border-radius: 12px; font-weight: 900; font-size: 13.5px; cursor: pointer;
-      width: 100%; box-shadow: 0 4px 18px var(--color-cuenta-glow);
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-    .btn-pedir-cuenta:active { transform: scale(0.98); }
-    .btn-pedir-cuenta.en-camino {
-      background: #4c1d95 !important; color: #e9d5ff !important; border-color: #c084fc !important; cursor: default;
-      box-shadow: none !important;
-    }
+    .live-orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+    .order-card { background: #221510; border-radius: 14px; border: 2px solid #555; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+    .order-card.estado-iniciado { border-color: var(--accent); }
+    .order-card.estado-cocina { border-color: var(--blue); }
+    .order-card.estado-servido { border-color: var(--success); }
 
-    /* ESTILOS DE RESEÑA DENTRO DEL MODAL */
-    .modal-review-box {
-      background: rgba(0, 0, 0, 0.45);
-      border: 1.5px dashed var(--accent);
-      border-radius: 12px;
-      padding: 12px;
-      margin-top: 10px;
-      margin-bottom: 12px;
-      text-align: left;
+    @media (max-width: 860px) {
+      .admin-layout { display: block !important; }
+      .sidebar {
+        position: fixed !important; top: 0 !important; left: 0 !important;
+        width: 290px !important; height: 100vh !important;
+        transform: translateX(-100%) !important; opacity: 0 !important; z-index: 250 !important;
+      }
+      .admin-layout.sidebar-open .sidebar { transform: translateX(0) !important; opacity: 1 !important; visibility: visible !important; }
+      .main-view { padding: 14px !important; }
+      .crm-calendar-cell { min-height: 70px; }
     }
-    .modal-stars-row {
-      display: flex; gap: 8px; font-size: 22px; color: #facc15; cursor: pointer; margin: 6px 0;
-    }
-
-    /* ========================================================
-       MODAL DE NOTIFICACIÓN CENTRADO CON FUEGO DORADO GIRATORIO
-       ======================================================== */
-    .notificacion-modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.76);
-      backdrop-filter: blur(6px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 99999;
-      padding: 16px;
-    }
-
-    .notificacion-card-fuego {
-      position: relative;
-      width: 92%;
-      max-width: 440px;
-      background: #15110d;
-      border-radius: 22px;
-      padding: 24px 20px;
-      box-sizing: border-box;
-      overflow: hidden;
-      box-shadow: 0 10px 45px rgba(0,0,0,0.85);
-    }
-
-    /* HAZ DE FUEGO DORADO GIRATORIO */
-    .notificacion-card-fuego::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: conic-gradient(
-        transparent, 
-        #ff4500, 
-        #ff8c00, 
-        #ffd700, 
-        #fff275, 
-        transparent 35%
-      );
-      animation: girarFuego 3.5s linear infinite;
-      z-index: 1;
-    }
-
-    .notificacion-card-fuego::after {
-      content: '';
-      position: absolute;
-      inset: 4px;
-      background: #17130e;
-      border-radius: 18px;
-      z-index: 2;
-    }
-
-    .notificacion-contenido {
-      position: relative;
-      z-index: 3;
-    }
-
-    @keyframes girarFuego {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .notificacion-card-fuego .btn-close,
-    .notificacion-card-fuego .close-btn,
-    .notificacion-card-fuego [data-dismiss="modal"] {
-      display: none !important;
-      pointer-events: none !important;
-    }
-
-    /* PANTALLA AGRADECIMIENTO */
-    .screen-agradecimiento-overlay {
-      position: fixed; inset: 0; background: rgba(18, 12, 10, 0.96); backdrop-filter: blur(10px);
-      z-index: 200000; display: none; align-items: center; justify-content: center; padding: 20px; text-align: center;
-    }
-    .screen-agradecimiento-overlay.active { display: flex; }
-    .box-agradecimiento {
-      background: #241712; border: 2px solid var(--accent); border-radius: 22px; max-width: 410px; width: 100%;
-      padding: 22px 18px; display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative;
-      max-height: 94dvh; overflow-y: auto;
-    }
-    .btn-close-modal {
-      position: absolute; top: 12px; right: 14px; background: none; border: none;
-      color: #aaa; font-size: 24px; font-weight: bold; cursor: pointer;
-    }
-    .btn-close-modal:hover { color: #fff; }
-
-    .agradece-logo-wrap {
-      width: 64px; height: 64px; border-radius: 50%; overflow: hidden; background: #000;
-      border: 2px solid var(--gold-badge); display: flex; align-items: center; justify-content: center; font-size: 32px;
-    }
-    .agradece-logo-wrap img { width: 100%; height: 100%; object-fit: cover; }
-
-    .social-links-grid {
-      display: flex; justify-content: center; gap: 10px; margin-top: 6px; width: 100%; flex-wrap: wrap;
-    }
-    .btn-social-icon {
-      width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      color: #fff; font-size: 18px; text-decoration: none; transition: transform 0.2s ease;
-    }
-    .btn-social-icon:active { transform: scale(0.9); }
-    .btn-social-wa { background: #25d366; }
-    .btn-social-fb { background: #1877f2; }
-    .btn-social-ig { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285aeb 90%); }
-    .btn-social-tk { background: #000; border: 1px solid #333; }
-
-    .chuspa-tech-card-footer {
-      background: rgba(254, 252, 232, 0.08); border: 1px dashed rgba(234, 179, 8, 0.45);
-      border-radius: 12px; padding: 9px 12px; width: 100%; margin-top: 6px;
-      display: flex; align-items: center; justify-content: space-between; text-decoration: none;
-    }
-    .chuspa-tech-footer-left { display: flex; align-items: center; gap: 8px; text-align: left; }
-    .chuspa-tech-footer-img {
-      width: 32px !important; height: 32px !important; min-width: 32px !important; max-width: 32px !important;
-      border-radius: 50% !important; object-fit: cover !important; border: 1px solid #ca8a04 !important;
-      background: #fff !important; display: block !important;
-    }
-
-    .btn-ir-reservas {
-      background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; border: none;
-      padding: 10px 16px; border-radius: 20px; font-weight: 900; font-size: 13px; cursor: pointer;
-      display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
-    }
-    .btn-compartir-wa-reservas {
-      background: #15803d; color: #fff; border: 1px solid #4ade80; padding: 10px 16px;
-      border-radius: 20px; font-weight: 800; font-size: 12.5px; cursor: pointer; width: 100%;
-      display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px;
-    }
-    .btn-salir-limpiar {
-      background: #374151; color: #f3f4f6; border: 1px solid #4b5563; padding: 10px 16px;
-      border-radius: 20px; font-weight: 800; font-size: 12.5px; cursor: pointer; width: 100%;
-    }
-
-    /* MODAL DE RESERVAS */
-    .screen-reservas-modal-overlay {
-      position: fixed; inset: 0; background: rgba(10, 6, 4, 0.98); backdrop-filter: blur(12px);
-      z-index: 250000; display: none; align-items: center; justify-content: center; padding: 16px;
-    }
-    .screen-reservas-modal-overlay.active { display: flex; }
-    .box-reservas-modal {
-      background: #1e130f; border: 2px solid var(--accent); border-radius: 24px;
-      max-width: 440px; width: 100%; padding: 22px 18px; max-height: 94dvh; overflow-y: auto;
-      display: flex; flex-direction: column; gap: 12px; position: relative; color: #fff;
-    }
-    .custom-input-white {
-      width: 100%; background: #ffffff !important; color: #1c1917 !important;
-      border: 1.5px solid #d1d5db; border-radius: 12px; padding: 11px 14px;
-      font-size: 13.5px; font-weight: 600; outline: none; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    }
-    .custom-input-white::placeholder { color: #6b7280; font-weight: 500; }
   </style>
 </head>
 <body>
 
-  <!-- PANTALLA DE BLOQUEO DE SEGURIDAD -->
-  <div class="screen-security-lock" id="pantallaBloqueoSeguridad">
-    <div class="security-lock-box">
-      <div class="security-lock-icon" id="iconLockDev" onclick="clickIconoDesarrollador()"><i class="fa-solid fa-lock"></i></div>
-      <h2 style="color:var(--gold-badge); font-size:20px; font-weight:900;" id="secTitleLocal">La Cusqueñita</h2>
-      <h3 style="color:#ef4444; font-size:15px; font-weight:800;" id="secHeadingTxt">Acceso Restringido a la Carta</h3>
-      <p style="font-size:13px; color:#ddd; line-height:1.5;" id="secDescTxt">
-        Por tu seguridad y exclusividad del servicio, este menú solo está disponible escaneando el <b>código QR físico</b> vigente en tu mesa dentro del restaurante.
-      </p>
-      <div style="background:rgba(255,255,255,0.05); padding:10px 14px; border-radius:10px; font-size:11.5px; color:#aaa;" id="secSubNoteTxt">
-        Si ya pagaste tu cuenta o estás fuera del local, esta sesión ha expirado automáticamente.
-      </div>
-      <button type="button" class="btn-bypass-dev" onclick="ingresarClaveBypassDesarrollador()" id="btnDevBypassTxt">
-        <i class="fa-solid fa-code"></i> Modo Desarrollador / Probar en Casa
-      </button>
-    </div>
-  </div>
-
-  <!-- PANTALLA AGRADECIMIENTO TRAS COBRO -->
-  <div class="screen-agradecimiento-overlay" id="pantallaAgradecimiento">
-    <div class="box-agradecimiento">
-      <button type="button" class="btn-close-modal" onclick="reiniciarNavegadorLimpio()" title="Cerrar">&times;</button>
+  <!-- PANTALLA LOGIN DINÁMICO -->
+  <div id="pantallaLogin">
+    <div class="card-login">
+      <div style="text-align:center; font-size:38px; margin-bottom:6px;">🍽️</div>
+      <h3 id="loginTitlePreview">La Cusqueñita</h3>
+      <p class="sub">Inicio de Sesión & Apertura de Turno</p>
       
-      <div class="agradece-logo-wrap" id="agradeceLogoWrap">🍽️</div>
-      <h2 style="color:var(--gold-badge); font-size:20px; font-weight:900;" id="agradeceNombreLocal">La Cusqueñita</h2>
-      
-      <p style="font-size:12.5px; color:#ddd; line-height:1.4;" id="agradeceMensajeTxt">
-        ¡Muchas gracias por tu visita! Tu comanda ha sido cancelada y la mesa ha quedado libre. Esperamos que hayas disfrutado tu experiencia gastronómica.
-      </p>
+      <form onsubmit="verificarLoginSistema(event)">
+        <label>Usuario / Rol:</label>
+        <select id="loginUsuarioSelector">
+          <option value="admin">Administrador (Gerencia)</option>
+          <option value="cajero">Cajero / Cobranzas</option>
+          <option value="mozo">Mozo / Salón</option>
+          <option value="cocina">Cocinero</option>
+        </select>
 
-      <div style="width:100%; border-top:1px dashed rgba(255,255,255,0.15); padding-top:8px;">
-        <span style="font-size:11.5px; color:#fde047; font-weight:800; display:block;">
-          <i class="fa-solid fa-phone"></i> <span id="lblAgradeceContacto">Contacto:</span> <span id="agradeceContactoTxt">+51 969 773 064</span>
-        </span>
-        <div class="social-links-grid" id="agradeceSocialLinks">
-          <a href="https://wa.me/51969773064" target="_blank" class="btn-social-icon btn-social-wa" id="linkSocialWa"><i class="fa-brands fa-whatsapp"></i></a>
-          <a href="#" target="_blank" class="btn-social-icon btn-social-fb" id="linkSocialFb"><i class="fa-brands fa-facebook-f"></i></a>
-          <a href="#" target="_blank" class="btn-social-icon btn-social-ig" id="linkSocialIg"><i class="fa-brands fa-instagram"></i></a>
-          <a href="#" target="_blank" class="btn-social-icon btn-social-tk" id="linkSocialTk"><i class="fa-brands fa-tiktok"></i></a>
-        </div>
-      </div>
+        <label>Nombre del Operador:</label>
+        <input type="text" id="loginUsuarioNombre" value="Administrador" required>
 
-      <div style="background:rgba(255,255,255,0.06); padding:10px; border-radius:12px; width:100%; margin-top:2px;">
-        <span style="font-size:11px; color:#fde047; font-weight:800; display:block; margin-bottom:6px;" id="lblVolverReservarTxt">
-          ¿Planeas volver? Reserva tu mesa para Eventos o Familias
-        </span>
-        <button type="button" class="btn-ir-reservas" onclick="abrirModalReservasCliente()" id="btnAbrirModalReservasTxt">
-          <i class="fa-solid fa-calendar-check"></i> Ver y Generar Reservas
-        </button>
-        <button type="button" class="btn-compartir-wa-reservas" onclick="compartirLinkReservasWhatsApp()" id="btnCompartirWaReservasTxt">
-          <i class="fa-brands fa-whatsapp"></i> Compartir Catálogo de Reservas por WhatsApp
-        </button>
-      </div>
+        <label>Contraseña:</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" required>
 
-      <a href="https://www.lachuspaanuncios.com/" target="_blank" class="chuspa-tech-card-footer">
-        <div class="chuspa-tech-footer-left">
-          <img src="CHUSPITA-circulo.png" alt="La Chuspa" class="chuspa-tech-footer-img" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
-          <div>
-            <div style="font-size:11px; font-weight:900; color:#fde047;">Tecnología La Chuspa Tech</div>
-            <div style="font-size:9px; color:#fed7aa;">Digitalización de restaurantes en Cusco</div>
+        <div class="caja-chica-box">
+          <div style="font-size:12px; font-weight:900; color:var(--gold); margin-bottom:6px;">
+            <i class="fa-solid fa-cash-register"></i> APERTURA DE CAJA CHICA
           </div>
+          <label style="margin-top:0;">Turno:</label>
+          <select id="loginTurno">
+            <option value="Mañana (07:00 - 15:00)">Turno Mañana (07:00 - 15:00)</option>
+            <option value="Tarde (15:00 - 23:00)">Turno Tarde (15:00 - 23:00)</option>
+            <option value="Noche (23:00 - 07:00)">Turno Noche (23:00 - 07:00)</option>
+          </select>
+          <label>Monto Inicial de Caja (S/):</label>
+          <input type="number" step="0.5" id="loginCajaChica" value="100.00" required>
         </div>
-        <i class="fa-solid fa-arrow-up-right-from-square" style="color:#fde047; font-size:12px;"></i>
-      </a>
 
-      <button type="button" class="btn-salir-limpiar" onclick="reiniciarNavegadorLimpio()" id="btnAgradeceSalirTxt">
-        <i class="fa-solid fa-rotate-right"></i> Finalizar y salir
-      </button>
-    </div>
-  </div>
-
-  <!-- VENTANA MODAL DE RESERVAS -->
-  <div class="screen-reservas-modal-overlay" id="modalReservasCliente">
-    <div class="box-reservas-modal">
-      <button type="button" class="btn-close-modal" onclick="cerrarModalReservasCliente()" title="Cerrar ventana">&times;</button>
-
-      <div style="display:flex; align-items:center; gap:10px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px;">
-        <div class="agradece-logo-wrap" style="width:44px; height:44px; font-size:22px;" id="reservasLogoLocal">🍽️</div>
-        <div>
-          <h3 style="color:var(--gold-badge); font-size:16px;" id="resModalTituloLocal">La Cusqueñita</h3>
-          <span style="font-size:11px; color:#86efac;" id="lblModalReservaSub">Catálogo Oficial de Reservas & Eventos</span>
-        </div>
-      </div>
-
-      <p style="font-size:12px; color:#ccc;" id="lblModalReservaDesc">
-        Completa tus datos para agendar tu mesa familiar, grupo turístico o evento.
-      </p>
-
-      <form onsubmit="enviarReservaDesdeCliente(event)" style="display:flex; flex-direction:column; gap:8px;">
-        <input type="text" id="resCliNombre" class="custom-input-white" placeholder="Nombre completo" required>
-        <input type="tel" id="resCliWhatsApp" class="custom-input-white" placeholder="WhatsApp de contacto (+51...)" required>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-          <input type="date" id="resCliFecha" class="custom-input-white" required>
-          <input type="time" id="resCliHora" class="custom-input-white" required>
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-          <input type="number" id="resCliPersonas" class="custom-input-white" placeholder="N° Personas" min="1" value="4" required>
-          <select id="resCliMesaSelect" class="custom-input-white" style="cursor:pointer;"></select>
-        </div>
-        <textarea id="resCliNotas" class="custom-input-white" rows="2" placeholder="Notas (motivo, alergias, requerimientos)..."></textarea>
-        
-        <button type="submit" class="btn-ir-reservas" id="btnEnviarReservaClienteTxt">
-          <i class="fa-solid fa-calendar-check"></i> Confirmar y Agendar Reserva
+        <button type="submit" class="btn btn-save" style="margin-top:16px; width:100%;">
+          <i class="fa-solid fa-right-to-bracket"></i> Abrir Caja & Entrar al Sistema
         </button>
       </form>
+    </div>
+  </div>
 
-      <button type="button" class="btn-compartir-wa-reservas" onclick="compartirLinkReservasWhatsApp()">
-        <i class="fa-brands fa-whatsapp"></i> Compartir este link a mi WhatsApp para reservar después
+  <!-- DASHBOARD PRINCIPAL -->
+  <div id="panelAdminPrincipal" style="display: none;">
+    <header class="top-admin-bar no-print" id="mainAdminHeaderBar">
+      <button type="button" class="btn-toggle-global" onclick="toggleSidebarMenu()">
+        <i class="fa-solid fa-bars"></i> <span>Menú</span>
       </button>
 
-      <div style="text-align:center; margin-top:4px;">
-        <span style="font-size:11px; color:#aaa;"><i class="fa-solid fa-phone"></i> Pedidos & Reservas: <span id="resCliTelefonoTxt">+51 969 773 064</span></span>
-        <div class="social-links-grid" style="margin-top:6px;">
-          <a href="https://wa.me/51969773064" target="_blank" class="btn-social-icon btn-social-wa" id="linkSocialWa2"><i class="fa-brands fa-whatsapp"></i></a>
-          <a href="#" target="_blank" class="btn-social-icon btn-social-fb" id="linkSocialFb2"><i class="fa-brands fa-facebook-f"></i></a>
-          <a href="#" target="_blank" class="btn-social-icon btn-social-ig" id="linkSocialIg2"><i class="fa-brands fa-instagram"></i></a>
-          <a href="#" target="_blank" class="btn-social-icon btn-social-tk" id="linkSocialTk2"><i class="fa-brands fa-tiktok"></i></a>
-        </div>
+      <div class="top-brand-center">
+        <div style="font-weight:900; font-size:14px; color:var(--gold);" id="topBarTitle">La Cusqueñita</div>
+        <a href="https://www.lachuspaanuncios.com/" target="_blank" class="top-chuspa-badge" title="La Chuspa Tech">
+          <img src="CHUSPITA-circulo.png" alt="La Chuspa" onerror="this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png'">
+          <span style="font-size:10px; font-weight:900; color:#fde047;">La Chuspa Tech</span>
+        </a>
       </div>
 
-      <button type="button" class="btn-salir-limpiar" onclick="cerrarModalReservasCliente()" id="btnCerrarModalResTxt">
-        ✕ Cerrar Ventana de Reservas
-      </button>
+      <button type="button" onclick="probarSonidoCampanaCocina()" style="background:none; border:none; color:var(--gold); font-size:17px; cursor:pointer;" title="Probar Campana"><i class="fa-solid fa-bell"></i></button>
+    </header>
+
+    <div class="admin-layout" id="adminLayoutWrapper">
+      <aside class="sidebar no-print" id="sidebarPanel">
+        <div class="brand-box">
+          <div class="brand-left">
+            <div class="brand-avatar" id="headerAvatar">🍽️</div>
+            <div>
+              <h2 id="headerBusinessName" style="font-size:15px; color:var(--gold); white-space:nowrap; overflow:hidden; max-width:145px;">La Cusqueñita</h2>
+              <span id="headerBusinessSlogan" style="font-size:10.5px; color:#aaa; display:block;">Cusco • Gourmet</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="user-session-badge">
+          <div>
+            <b id="lblSesionUsuario">Admin</b>
+            <span style="font-size:9.5px; color:#aaa; display:block;" id="lblSesionTurno">Turno Mañana</span>
+            <span style="font-size:9.5px; color:#86efac; display:block;" id="lblSesionCajaChica">Caja: S/ 100.00</span>
+          </div>
+          <button type="button" class="btn btn-del" style="padding:4px 7px; font-size:10px;" onclick="cerrarTurno()">Cerrar Caja</button>
+        </div>
+
+        <nav class="nav-menu">
+          <button class="nav-item active" id="btnNavComandas" onclick="seleccionarOpcionNav('comandas')">
+            <i class="fa-solid fa-bell-concierge"></i> Comandas en Vivo
+            <span class="badge-live-orders" id="badgeTotalComandas">0</span>
+          </button>
+
+          <button class="nav-item" id="btnNavReservas" onclick="seleccionarOpcionNav('reservas')">
+            <i class="fa-solid fa-calendar-days"></i> CRM Calendario Reservas
+          </button>
+
+          <button class="nav-item" id="btnNavReportes" onclick="seleccionarOpcionNav('reportes')">
+            <i class="fa-solid fa-chart-line"></i> Reporte Contable & SUNAT
+          </button>
+
+          <button class="nav-item" id="btnNavResenas" onclick="seleccionarOpcionNav('resenas')">
+            <i class="fa-solid fa-star"></i> Reseñas por Plato
+          </button>
+
+          <button class="nav-item rol-admin-only" id="btnNavIdentidad" onclick="seleccionarOpcionNav('identidad')">
+            <i class="fa-solid fa-store"></i> Identidad & Logo
+          </button>
+        </nav>
+
+        <div style="margin-top:auto;">
+          <button class="btn btn-del" style="width:100%;" onclick="cerrarSesionAdmin()">
+            <i class="fa-solid fa-right-from-bracket"></i> Salir del Sistema
+          </button>
+        </div>
+      </aside>
+
+      <main class="main-view" id="mainArea">
+
+        <!-- 1. COMANDAS KDS -->
+        <section id="viewComandas">
+          <div class="view-header">
+            <div>
+              <h1>🛎️ Pantalla KDS: Control de Comandas</h1>
+              <p>Seguimiento de pedidos en vivo recibidos desde la carta digital.</p>
+            </div>
+            <button class="btn btn-add" onclick="cargarComandasEnVivo()"><i class="fa-solid fa-rotate"></i> Actualizar</button>
+          </div>
+          <div class="live-orders-grid" id="liveOrdersGrid"></div>
+        </section>
+
+        <!-- 2. CRM CALENDARIO MENSUAL DE RESERVAS -->
+        <section id="viewReservas" style="display:none;">
+          <div class="view-header">
+            <div>
+              <h1>📅 CRM de Reservas & Eventos</h1>
+              <p>Calendario mensual para organizar reservas familiares y grupos turísticos.</p>
+            </div>
+            <button class="btn btn-add" onclick="abrirModalReservaCRM()"><i class="fa-solid fa-plus"></i> Nueva Reserva</button>
+          </div>
+
+          <div class="crm-calendar-wrapper">
+            <div class="crm-calendar-header">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <button class="btn btn-save" onclick="cambiarMesCRM(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+                <h2 id="crmTituloMesAnio" style="color:var(--gold); font-size:18px; font-weight:900;">Octubre 2026</h2>
+                <button class="btn btn-save" onclick="cambiarMesCRM(1)"><i class="fa-solid fa-chevron-right"></i></button>
+              </div>
+              <div style="display:flex; gap:12px; font-size:12px; font-weight:800;">
+                <span style="display:flex; align-items:center; gap:6px;"><span style="width:12px; height:12px; background:#d97706; border-radius:3px; display:inline-block;"></span> Por Confirmar</span>
+                <span style="display:flex; align-items:center; gap:6px;"><span style="width:12px; height:12px; background:#16a34a; border-radius:3px; display:inline-block;"></span> Confirmada / Bloqueada</span>
+              </div>
+            </div>
+
+            <div class="crm-calendar-grid" id="crmCalendarGrid"></div>
+          </div>
+        </section>
+
+        <!-- 3. REPORTE CONTABLE Y VENTAS (CORREGIDO) -->
+        <section id="viewReportes" style="display:none;">
+          <div class="view-header">
+            <div>
+              <h1>📊 Reporte Contable & Historial de Ventas</h1>
+              <p>Registro ordenado de todas las comandas cobradas y finalizadas en caja.</p>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-add" onclick="cargarVentasDesdeFirebase()"><i class="fa-solid fa-rotate"></i> Actualizar Ventas</button>
+              <button class="btn btn-print no-print" onclick="window.print()"><i class="fa-solid fa-print"></i> Imprimir</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:14px; font-weight:900;">
+              <span>Total Ventas Cobradas: <b style="color:#86efac;" id="repMontoTotalAcumulado">S/ 0.00</b></span>
+              <span>Total Comprobantes: <b style="color:var(--gold);" id="repCantidadVentas">0</b></span>
+            </div>
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>Fecha / Hora</th>
+                  <th>Mesa / Cliente</th>
+                  <th>Detalle Platos</th>
+                  <th>Pago</th>
+                  <th>Base Imp.</th>
+                  <th>IGV (18%)</th>
+                  <th>Total (PEN)</th>
+                </tr>
+              </thead>
+              <tbody id="tablaVentasBody">
+                <tr><td colspan="7" style="text-align:center; color:#aaa;">Cargando historial de ventas...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- 4. RESEÑAS AGRUPADAS POR PLATO Y ESTRELLAS -->
+        <section id="viewResenas" style="display:none;">
+          <div class="view-header">
+            <div>
+              <h1>⭐ Reseñas & Calificaciones de Clientes</h1>
+              <p>Comentarios y valoraciones recibidos en mesa por plato y servicio.</p>
+            </div>
+            <button class="btn btn-add" onclick="cargarResenasFirebase()"><i class="fa-solid fa-rotate"></i> Actualizar</button>
+          </div>
+          <div class="card" id="contenedorResenasAdmin">Cargando comentarios...</div>
+        </section>
+
+        <!-- 5. IDENTIDAD DEL NEGOCIO (SIN BOTÓN ELIMINAR LOGO) -->
+        <section id="viewIdentidad" style="display:none;">
+          <div class="view-header">
+            <h1>🏪 Identidad & Configuración del Logo</h1>
+          </div>
+          <div class="card">
+            <label>Nombre del Negocio:</label>
+            <input type="text" id="cfgBusinessName">
+
+            <label>Eslogan:</label>
+            <input type="text" id="cfgBusinessSlogan">
+
+            <label>RUC (SUNAT):</label>
+            <input type="text" id="cfgRuc">
+
+            <label>Dirección:</label>
+            <input type="text" id="cfgDireccion">
+
+            <label style="margin-top:14px;">Cambiar Logo (Sube una nueva imagen PNG o JPG):</label>
+            <input type="file" id="cfgLogoFileInput" accept="image/*" onchange="convertirLogoABase64(event)">
+            <small style="color:#aaa;">Al subir un nuevo archivo se reemplazará automáticamente.</small>
+
+            <div style="margin-top:10px; display:flex; align-items:center; gap:12px;">
+              <span style="font-size:12px; color:#aaa;">Logo Actual:</span>
+              <div id="previewCurrentLogo" class="brand-avatar" style="width:48px; height:48px;">🍽️</div>
+            </div>
+
+            <button class="btn btn-save" style="margin-top:16px; width:100%;" onclick="guardarIdentidadFirebase()">
+              <i class="fa-solid fa-floppy-disk"></i> Guardar Cambios de Identidad
+            </button>
+          </div>
+        </section>
+
+      </main>
     </div>
   </div>
 
-  <!-- CABECERA PRINCIPAL -->
-  <div class="top-header" id="topHeaderElement">
-    <div class="top-bar-row">
-      <div class="brand-section">
-        <div class="brand-icon" id="topIcon">🍽️</div>
-        <div class="brand-text">
-          <h1 id="topTitle">La Cusqueñita</h1>
-          <span id="topSlogan">Cusco • Gourmet</span>
-        </div>
+  <!-- MODAL CRM: CREAR / CONFIRMAR RESERVA -->
+  <div class="modal-overlay" id="modalReservaCRM" onclick="cerrarModalReservaCRM()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 id="crmModalTitulo" style="color:var(--gold);">Gestión de Reserva</h3>
+        <button type="button" style="background:none; border:none; color:#ccc; font-size:24px; font-weight:bold; cursor:pointer;" onclick="cerrarModalReservaCRM()">&times;</button>
       </div>
 
-      <!-- BADGE LA CHUSPA TECH -->
-      <a href="https://www.lachuspaanuncios.com/" target="_blank" rel="noopener noreferrer" class="chuspa-nav-badge">
-        <img src="CHUSPITA-circulo.png" alt="La Chuspa" class="chuspa-nav-img" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
-        <div class="chuspa-nav-info">
-          <span class="chuspa-nav-title">La Chuspa Tech</span>
-          <span class="chuspa-nav-sub">by La Chuspa</span>
-        </div>
-      </a>
-
-      <!-- SELECTOR DE IDIOMAS -->
-      <div class="header-controls">
-        <select class="select-pill" id="langSelector" onchange="cambiarIdiomaGlobal(this.value)">
-          <option value="es" selected>🇪🇸 ES</option>
-          <option value="en">🇬🇧 EN</option>
-          <option value="de">🇩🇪 DE</option>
-          <option value="it">🇮🇹 IT</option>
-          <option value="fr">🇫🇷 FR</option>
-          <option value="pt">🇧🇷 PT</option>
-          <option value="zh">🇨🇳 中文</option>
-          <option value="ja">🇯🇵 日本語</option>
-          <option value="ko">🇰🇷 한국어</option>
-        </select>
-        <button class="icon-pill-btn" onclick="toggleGlobalAudio()"><i class="fa-solid fa-volume-xmark" id="audioIcon"></i></button>
-      </div>
-    </div>
-
-    <div class="category-chips" id="categoryChips"></div>
-  </div>
-
-  <!-- DEDO GESTUAL -->
-  <div class="gesture-hint-overlay" id="hintManoGestual">
-    <i class="fa-solid fa-hand-pointer gesture-hand-icon"></i>
-    <span class="gesture-hint-txt" id="lblSwipeUpHint">Desliza hacia arriba 👆</span>
-  </div>
-
-  <!-- FEED TIKTOK -->
-  <div class="app-container" id="feedContainer"></div>
-
-  <!-- BOTÓN FLOTANTE PEDIDOS -->
-  <div class="chat-bubble-container" onclick="openOrdersPopup()">
-    <div class="chat-bubble-label" onclick="openOrdersPopup()"><span id="lblBurbujaPedidos">🔥 Pedidos</span></div>
-    <div class="chat-bubble-btn" onclick="openOrdersPopup()">
-      <i class="fa-solid fa-bell-concierge" style="color:#fff; font-size:22px;"></i>
-      <div class="chat-badge" id="ordersBadgeCount">0</div>
-    </div>
-  </div>
-
-  <!-- POPUP DE COMANDA -->
-  <div class="popup-modal" id="ordersPopupModal" onclick="closeOrdersPopup(event)">
-    <div class="popup-sheet" onclick="event.stopPropagation()">
-      <div class="sheet-header">
-        <h3 id="lblTituloPopup"><i class="fa-solid fa-receipt" style="color:var(--modal-green);"></i> Confirmar Comanda</h3>
-        <button type="button" onclick="closeOrdersPopup()">&times;</button>
-      </div>
-
-      <div class="order-items-list" id="orderItemsList"></div>
-
-      <div class="quick-add-catalog">
-        <div style="font-size:11px; font-weight:900; color:var(--modal-dark);" id="lblAddPlatosTitle"><i class="fa-solid fa-plus"></i> Añadir platos a tu mesa:</div>
-        <div class="quick-add-grid" id="quickAddCatalogGrid"></div>
-      </div>
-
-      <!-- SELECTOR DINÁMICO DE MESAS -->
-      <div class="table-selector-label">
-        <span id="lblMesaHeaderInfo">📍 Mesa Asignada:</span>
-        <span id="selectedTableBadge" style="color:var(--modal-green-dark); font-size:12px; font-weight:900;">Mesa 01</span>
-      </div>
-      <div class="table-grid" id="tableGridContainer"></div>
-
-      <!-- MÉTODOS DE PAGO -->
-      <div class="grid-payments">
-        <button type="button" class="btn-pay-option active" id="btnPayEfectivo" onclick="elegirPago('Efectivo', this)">💵 <span id="lblPayEfectivo">Efectivo</span></button>
-        <button type="button" class="btn-pay-option" onclick="elegirPago('Yape', this)">🟣 Yape</button>
-        <button type="button" class="btn-pay-option" onclick="elegirPago('Plin', this)">🔵 Plin</button>
-        <button type="button" class="btn-pay-option" onclick="elegirPago('Tarjeta POS', this)">💳 <span id="lblPayPos">POS</span></button>
-      </div>
-
-      <!-- CAJÓN DE EFECTIVO & VUELTO -->
-      <div class="cash-box-drawer" id="cajaEfectivoDesplegable">
-        <div style="font-size: 11.5px; font-weight: 900; color: var(--modal-dark);" id="lblCuantoPagasTxt">💵 ¿Con cuánto en efectivo pagarás?</div>
-        <input type="number" id="montoEfectivoIngresado" class="cash-input" placeholder="Ej. 100" min="0" step="5" oninput="calcularVueltoEfectivo()"/>
-        <div class="cash-quick-btns">
-          <button type="button" class="btn-quick-cash" onclick="setMontoEfectivoRapido('exacto')" id="lblBtnExacto">Pagar Exacto</button>
-          <button type="button" class="btn-quick-cash" onclick="setMontoEfectivoRapido(50)">S/ 50</button>
-          <button type="button" class="btn-quick-cash" onclick="setMontoEfectivoRapido(100)">S/ 100</button>
-          <button type="button" class="btn-quick-cash" onclick="setMontoEfectivoRapido(200)">S/ 200</button>
-        </div>
-        <div class="vuelto-badge-box" id="cajaRespuestaVuelto">
-          <span id="textoDetalleVuelto">Calculando vuelto...</span>
-          <span id="montoCalculadoVuelto" style="font-size: 14px;"></span>
-        </div>
-      </div>
-
-      <!-- CAMPOS ADICIONALES -->
-      <input type="text" id="clientNameInput" class="custom-input" placeholder="Nombre de quien pide (opcional)" />
-      <input type="text" id="notesInput" class="custom-input" placeholder="Notas para cocina (término de carne, alergias, etc.)" />
-
-      <!-- TOTAL COMANDA -->
-      <div class="order-total-bar">
-        <span style="font-weight:900; color:var(--modal-dark); font-size:14px;" id="lblTotalComandaTxt">Total comanda:</span>
-        <div>
-          <span style="font-size:21px; font-weight:900; color:var(--modal-dark);" id="orderTotalPrice">S/ 0.00</span>
-          <div style="font-size:11px; color:#57534e; text-align:right; font-weight:bold;" id="orderSecondaryPrice">≈ $ 0.00</div>
-        </div>
-      </div>
-
-      <button class="btn-submit-order" id="btnEnviarComanda" onclick="enviarComandaDirectaAlPanel()">
-        <i class="fa-solid fa-bell-concierge"></i> <span id="lblBtnEnviar">Enviar Comanda a Cocina</span>
-      </button>
-      <div id="orderStatusMsg" style="text-align:center; font-size:12px; margin-top:6px; color:var(--modal-green-dark); font-weight:900;"></div>
-    </div>
-  </div>
-
-  <!-- ========================================================
-       MODAL DE NOTIFICACIÓN CENTRADO TOTAL EN EL MEDIO DEL CATÁLOGO
-       ======================================================== -->
-  <div id="modalNotificacion" class="notificacion-modal-overlay">
-    <div class="notificacion-card-fuego">
-      <div class="notificacion-contenido">
+      <form onsubmit="guardarReservaDesdeCRM(event)" style="display:flex; flex-direction:column; gap:10px;">
+        <input type="hidden" id="crmResId">
         
-        <!-- Badge de Estado Dinámico -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-          <span id="notifModalBadge" style="background: #eab308; color: #000; font-weight: 900; font-size: 12px; padding: 4px 12px; border-radius: 20px;">
-            🟡 1. POR CONFIRMAR
-          </span>
-          <span id="notifTurnoTxt" style="font-size: 11.5px; color: #fde047; font-weight: 800;">Turno #--</span>
+        <div>
+          <label>Nombre / Titular del Grupo:</label>
+          <input type="text" id="crmResTitular" required placeholder="Ej: Familia Morales">
         </div>
 
-        <!-- Mensaje principal del estado -->
-        <p id="notifModalMensaje" style="color: #f3f4f6; font-size: 13.5px; line-height: 1.45; margin-bottom: 14px;">
-          Tu pedido fue enviado. El mozo o caja lo está verificando en el panel...
-        </p>
-
-        <!-- Caja interactiva: Pregunta del Mozo -->
-        <div id="cajaPreguntaMozo" style="display: none; background: #facc15; color: #1f2937; padding: 14px; border-radius: 12px; font-weight: 700; margin-bottom: 14px;">
-          <div style="font-size: 13.5px; margin-bottom: 10px;">
-            🔔 El mozo pregunta: ¿Deseas ordenar algo más para tu mesa?
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div>
+            <label>Teléfono / WhatsApp:</label>
+            <input type="tel" id="crmResTel" required placeholder="+51 984...">
           </div>
-          <div style="display: flex; gap: 8px;">
-            <button type="button" onclick="responderMozo(true)" style="flex: 1.2; background: #15803d; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 12px;">
-              + Sí, agregar platos
-            </button>
-            <button type="button" onclick="responderMozo(false)" style="flex: 1; background: #78350f; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 12px;">
-              No, gracias
-            </button>
+          <div>
+            <label>N° Personas:</label>
+            <input type="number" id="crmResPersonas" min="1" value="4" required>
           </div>
         </div>
 
-        <!-- Botón de Pedir Cuenta cuando ya está servido -->
-        <div id="cajaBotonPedirCuenta" style="display: none; margin-bottom: 12px;">
-          <button type="button" class="btn-pedir-cuenta" id="btnPedirCuentaModal" onclick="solicitarCuentaEnCaja()">
-            <i class="fa-solid fa-person-walking"></i> <span>💵 Pedir Cuenta y Pagar en Caja</span>
-          </button>
-        </div>
-
-        <!-- Sección de Reseña y Comentario cuando ya está servido -->
-        <div id="cajaResenaServicio" class="modal-review-box" style="display: none;">
-          <span style="font-size: 11.5px; color: #fde047; font-weight: 800; display: block;">⭐ Califica nuestro servicio y producto:</span>
-          <div class="modal-stars-row" id="starsRowModal">
-            <span onclick="setRating(1)">★</span>
-            <span onclick="setRating(2)">★</span>
-            <span onclick="setRating(3)">★</span>
-            <span onclick="setRating(4)">★</span>
-            <span onclick="setRating(5)">★</span>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div>
+            <label>Fecha de Reserva:</label>
+            <input type="date" id="crmResFecha" required>
           </div>
-          <input type="text" id="reviewModalInput" class="custom-input" placeholder="Escribe un breve comentario (opcional)..." style="margin-bottom: 8px;" />
-          <button type="button" onclick="enviarResenaFirebaseDesdeModal()" style="width: 100%; background: #4d7c0f; color: #fff; border: none; padding: 8px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 12px;">
-            Enviar Calificación
-          </button>
+          <div>
+            <label>Hora:</label>
+            <input type="time" id="crmResHora" required>
+          </div>
         </div>
 
-        <!-- Info en el pie: Mesa y Total (SIN botón de ver catálogo) -->
-        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 10px; color: #bbb; font-size: 12.5px;">
-          <span id="notifModalMesaTxt" style="font-weight: 800; color: #fff;">Mesa 01</span>
-          <span id="notifModalTotalTxt" style="font-weight: 900; color: #fde047;">S/ 0.00</span>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div>
+            <label>Mesa Asignada / Bloqueada:</label>
+            <select id="crmResMesaSelect"></select>
+          </div>
+          <div>
+            <label>Estado de Reserva:</label>
+            <select id="crmResEstadoSelect">
+              <option value="pendiente">🟡 Por Confirmar</option>
+              <option value="confirmada">🟢 Confirmada / Bloquear Mesa</option>
+            </select>
+          </div>
         </div>
 
-      </div>
+        <div>
+          <label>Notas / Requerimientos:</label>
+          <textarea id="crmResNotas" rows="2" placeholder="Alergias, menú especial, cumpleaños..."></textarea>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
+          <button type="button" class="btn btn-del" onclick="cerrarModalReservaCRM()">Cancelar</button>
+          <button type="submit" class="btn btn-save"><i class="fa-solid fa-calendar-check"></i> Guardar en Calendario</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL DE ALERTA CENTRADO PARA NOTIFICACIONES EN VIVO -->
+  <div class="alerta-centro-overlay" id="alertaCentroOverlay" onclick="cerrarAlertaCentro()">
+    <div class="alerta-centro-card" onclick="event.stopPropagation()">
+      <div style="font-size:36px; color:var(--gold); margin-bottom:8px;">🔔</div>
+      <h2 style="color:var(--gold); font-size:18px; font-weight:900; margin-bottom:6px;" id="alertaTituloCentro">¡Notificación en Vivo!</h2>
+      <p style="font-size:14px; color:#f3f4f6; line-height:1.45; margin-bottom:10px;" id="alertaMensajeCentro">Mensaje de alerta...</p>
+      <div style="background:#110907; border:1px dashed var(--accent); border-radius:10px; padding:10px; font-size:13px; color:#fde047;" id="alertaDetalleCentro">Detalle</div>
+      <button type="button" class="btn btn-save" style="margin-top:14px; width:100%;" onclick="cerrarAlertaCentro()">Entendido</button>
     </div>
   </div>
 
   <script>
     const FIREBASE_DB_URL = "https://restaurante1-695f7-default-rtdb.firebaseio.com/";
-    const CLAVE_MAESTRA_DEV = "42423549";
     const canalPedidos = new BroadcastChannel('canal_inka_pedidos');
 
-    let CONFIG = {
+    let configRestaurante = {
       nombre: "La Cusqueñita",
       eslogan: "Cusco • Gourmet",
-      logo: "🍽️",
-      whatsapp: "51969773064",
-      facebook: "https://facebook.com",
-      instagram: "https://instagram.com",
-      tiktok: "https://tiktok.com",
-      exchangeRateUSD: 3.75
+      ruc: "20601234567",
+      direccion: "Portal de Carnes 214, Cusco",
+      logo: "🍽️"
     };
 
-    const CATALOGO_DEFAULT = [
-      {
-        id: "dish-saltado", category: "mains", tag: "Plato Fuerte", precioPEN: 35.00, disponible: true,
-        posterUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?w=500",
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-        i18n: {
-          es: { name: "Lomo Saltado", desc: "Trozos de lomo fino salteados al wok con cebolla, tomate, papas fritas y arroz" },
-          en: { name: "Stir-Fried Beef (Lomo Saltado)", desc: "Wok-sautéed tender beef strips with onions, tomatoes, crispy fries, and rice" }
-        }
-      },
-      {
-        id: "dish-aji", category: "mains", tag: "Plato Fuerte", precioPEN: 35.00, disponible: true,
-        posterUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?w=500",
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-        i18n: {
-          es: { name: "Ají de Gallina", desc: "Gallina deshilachada en crema suave de ají amarillo cusqueño con arroz y papas" },
-          en: { name: "Creamy Chicken Stew (Ají de Gallina)", desc: "Shredded chicken in a velvety Peruvian yellow pepper cream sauce with rice" }
-        }
-      }
-    ];
-
-    let catalogo = [...CATALOGO_DEFAULT];
     let listaMesas = [
       "Mesa 01", "Mesa 02", "Mesa 03", "Mesa 04", "Mesa 05",
-      "Mesa 06", "Mesa 07", "Mesa 08", "Mesa 09", "Mesa 010",
-      "Mesa 11", "Mesa 12", "Barra", "Terraza 1", "Terraza 2"
+      "Mesa 06", "Mesa 07", "Mesa 08", "Mesa 09", "Mesa 010"
     ];
 
-    const pedido = {};
-    let currentLang = "es";
-    let isGlobalMuted = true;
-    let metodoPago = "Efectivo";
-    let ultimoTotalPagarPEN = 0;
-    let ratingSeleccionado = 5;
+    let reservasCache = [];
+    let ventasCache = [];
+    let fechaCRM = new Date();
+    let totalReservasPrevias = 0;
+    let audioCtx = null;
 
-    let mesaFijadaPorQR = false;
-    let mesaSeleccionada = sessionStorage.getItem("inkabistro_mesa_qr") || "Mesa 01";
-    let comandaActivaId = localStorage.getItem("inkabistro_mi_comanda_id") || null;
-    let clicksIconoDev = 0;
-    let ultimoEstadoRegistrado = null;
-    let cuentaPedidaBloqueada = false;
+    function asegurarAudioCtx() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+    window.addEventListener('click', asegurarAudioCtx, { once: true });
 
-    function reproducirSonidoNotificacion() {
+    function reproducirAlertaSonora() {
       try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        asegurarAudioCtx();
+        if (!audioCtx) return;
+        const now = audioCtx.currentTime;
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
 
         osc.type = "sine";
-        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
+        osc.frequency.setValueAtTime(1200, now);
+        osc.frequency.exponentialRampToValueAtTime(600, now + 0.6);
 
-        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
+        gain.gain.setValueAtTime(0.35, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
 
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.8);
-      } catch (e) {
-        console.warn("Audio en espera de interacción", e);
-      }
+        osc.start(now);
+        osc.stop(now + 0.7);
+      } catch (e) {}
     }
 
-    async function responderMozo(quiereMas) {
-      reproducirSonidoNotificacion();
+    function dispararAlertaCentro(titulo, mensaje, detalle) {
+      reproducirAlertaSonora();
+      document.getElementById('alertaTituloCentro').innerText = titulo;
+      document.getElementById('alertaMensajeCentro').innerHTML = mensaje;
+      document.getElementById('alertaDetalleCentro').innerHTML = detalle;
+      document.getElementById('alertaCentroOverlay').classList.add('active');
+    }
 
-      canalPedidos.postMessage({
-        tipo: 'RESPUESTA_CLIENTE',
-        mesa: mesaSeleccionada || "Mesa 01",
-        respuesta: quiereMas ? 'Desea agregar más platos' : 'No desea nada más',
-        hora: new Date().toLocaleTimeString()
+    function cerrarAlertaCentro() {
+      document.getElementById('alertaCentroOverlay').classList.remove('active');
+    }
+
+    /* INICIO DE SESIÓN */
+    function verificarLoginSistema(e) {
+      e.preventDefault();
+      sessionStorage.setItem("auth_rest", "true");
+      mostrarPanelAdmin();
+    }
+
+    async function mostrarPanelAdmin() {
+      document.getElementById('pantallaLogin').style.display = 'none';
+      document.getElementById('panelAdminPrincipal').style.display = 'block';
+
+      await cargarIdentidadFirebase();
+      await cargarMesasDesdeFirebase();
+      await cargarComandasEnVivo();
+      await cargarReservasFirebase();
+      await cargarVentasDesdeFirebase();
+      await cargarResenasFirebase();
+
+      setInterval(cargarComandasEnVivo, 2500);
+      setInterval(cargarReservasFirebase, 5000);
+    }
+
+    function toggleSidebarMenu() {
+      document.getElementById('adminLayoutWrapper').classList.toggle('sidebar-collapsed');
+    }
+
+    function seleccionarOpcionNav(seccion) {
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+      ['comandas','reservas','reportes','resenas','identidad'].forEach(id => {
+        const el = document.getElementById('view' + id.charAt(0).toUpperCase() + id.slice(1));
+        if (el) el.style.display = 'none';
       });
+      const btn = document.getElementById('btnNav' + seccion.charAt(0).toUpperCase() + seccion.slice(1));
+      if (btn) btn.classList.add('active');
+      const target = document.getElementById('view' + seccion.charAt(0).toUpperCase() + seccion.slice(1));
+      if (target) target.style.display = 'block';
 
-      if (comandaActivaId) {
-        try {
-          await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-              mozoPregunta: false,
-              clienteRespuestaMozo: quiereMas ? 'Desea agregar más platos' : 'No desea nada más'
-            })
-          });
-        } catch (e) {
-          console.error("Error al responder al mozo:", e);
-        }
-      }
-
-      document.getElementById("cajaPreguntaMozo").style.display = "none";
-
-      if (quiereMas) {
-        openOrdersPopup();
-      }
+      if (seccion === 'reservas') renderizarCalendarioCRM();
+      if (seccion === 'reportes') cargarVentasDesdeFirebase();
+      if (seccion === 'resenas') cargarResenasFirebase();
     }
 
-    function normalizarNombreMesa(m) {
-      if (!m) return "";
-      let s = String(m).trim();
-      const match = s.match(/\d+/);
-      if (match && s.toLowerCase().includes("mesa")) {
-        const num = parseInt(match[0]);
-        return "Mesa " + (num < 10 ? "0" + num : num);
-      }
-      return s;
-    }
-
-    function normalizarClaveMesa(m) {
-      return String(m || '').toLowerCase().replace(/[^a-z0-9]/g, '_');
-    }
-
-    async function validarAccesoPorTokenQR() {
-      if (sessionStorage.getItem("inkabistro_dev_bypass") === "true") {
-        return true;
-      }
-
-      const params = new URLSearchParams(window.location.search);
-      const mesaUrl = params.get('mesa');
-      const tokenUrl = params.get('token');
-
-      if (comandaActivaId) {
-        return true;
-      }
-
-      if (!mesaUrl || !tokenUrl) {
-        mostrarPantallaBloqueo();
-        return false;
-      }
-
-      const mesaNorm = normalizarNombreMesa(decodeURIComponent(mesaUrl));
-      const keyMesa = normalizarClaveMesa(mesaNorm);
+    /* 1. COMANDAS EN VIVO */
+    async function cargarComandasEnVivo() {
+      const grid = document.getElementById('liveOrdersGrid');
+      if (!grid) return;
 
       try {
-        const res = await fetch(`${FIREBASE_DB_URL}config/tokens_mesas/${keyMesa}.json?_t=${Date.now()}`);
+        const res = await fetch(`${FIREBASE_DB_URL}comandas.json?_t=${Date.now()}`);
         if (res.ok) {
-          const tokenVigente = await res.json();
-          if (tokenVigente && (tokenVigente === tokenUrl || tokenUrl.startsWith("TK-"))) {
-            mesaSeleccionada = mesaNorm;
-            mesaFijadaPorQR = true;
-            sessionStorage.setItem("inkabistro_mesa_qr", mesaNorm);
-            sessionStorage.setItem("inkabistro_token_validado", tokenUrl);
-            return true;
+          const data = await res.json();
+          if (data && typeof data === 'object') {
+            const lista = Object.keys(data).map(k => Object.assign({ id: k }, data[k]));
+            const activas = lista.filter(c => c.estado !== 'finalizado' && c.estado !== 'liberado');
+            document.getElementById('badgeTotalComandas').innerText = activas.length;
+
+            grid.innerHTML = activas.map(c => `
+              <div class="order-card estado-${c.estado || 'iniciado'}">
+                <div style="display:flex; justify-content:space-between;">
+                  <strong style="color:var(--gold);">${c.mesa || 'Mesa'} - ${c.cliente || 'Comensal'}</strong>
+                  <span style="font-size:11px; text-transform:uppercase;">${c.estado}</span>
+                </div>
+                <div style="font-size:13px; color:#fff;">${c.productos || ''}</div>
+                <div style="font-weight:900; color:#86efac;">Total: S/ ${parseFloat(c.totalPEN || c.total || 0).toFixed(2)}</div>
+              </div>
+            `).join('');
+            return;
           }
         }
-      } catch (e) {
-        console.error("Error al validar token:", e);
-      }
-
-      if (tokenUrl && tokenUrl.startsWith("TK-")) {
-        mesaSeleccionada = mesaNorm;
-        mesaFijadaPorQR = true;
-        sessionStorage.setItem("inkabistro_mesa_qr", mesaNorm);
-        return true;
-      }
-
-      mostrarPantallaBloqueo();
-      return false;
+      } catch (e) {}
+      grid.innerHTML = '<p style="color:#aaa;">No hay comandas activas.</p>';
     }
 
-    function mostrarPantallaBloqueo() {
-      document.getElementById('pantallaBloqueoSeguridad').style.display = 'flex';
-      document.getElementById('topHeaderElement').style.display = 'none';
-      document.getElementById('feedContainer').style.display = 'none';
-      document.getElementById('hintManoGestual').style.display = 'none';
-      const bubble = document.querySelector('.chat-bubble-container');
-      if (bubble) bubble.style.display = 'none';
+    /* 2. CALENDARIO MENSUAL CRM DE RESERVAS */
+    async function cargarReservasFirebase() {
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}reservas.json?_t=${Date.now()}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data) {
+            const nuevasReservas = Object.keys(data).map(k => Object.assign({ id: k }, data[k]));
+            
+            // Detectar nueva reserva en segundo plano para alerta
+            if (reservasCache.length > 0 && nuevasReservas.length > totalReservasPrevias) {
+              const ultima = nuevasReservas[nuevasReservas.length - 1];
+              dispararAlertaCentro(
+                "📅 ¡Nueva Reserva Registrada!",
+                `Se ha agendado una reserva a nombre de <b>${ultima.cliente}</b> para ${ultima.personas} personas.`,
+                `Fecha: ${ultima.fechaReserva} • Hora: ${ultima.horaReserva} • Mesa: ${ultima.mesaAsignada}`
+              );
+            }
+            totalReservasPrevias = nuevasReservas.length;
+            reservasCache = nuevasReservas;
+            renderizarCalendarioCRM();
+          }
+        }
+      } catch (e) {}
     }
 
-    function clickIconoDesarrollador() {
-      clicksIconoDev++;
-      if (clicksIconoDev >= 3) {
-        ingresarClaveBypassDesarrollador();
-        clicksIconoDev = 0;
+    function cambiarMesCRM(offset) {
+      fechaCRM.setMonth(fechaCRM.getMonth() + offset);
+      renderizarCalendarioCRM();
+    }
+
+    function renderizarCalendarioCRM() {
+      const grid = document.getElementById('crmCalendarGrid');
+      const titulo = document.getElementById('crmTituloMesAnio');
+      if (!grid || !titulo) return;
+
+      const anio = fechaCRM.getFullYear();
+      const mes = fechaCRM.getMonth();
+      const nombresMeses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+      titulo.innerText = `${nombresMeses[mes]} ${anio}`;
+
+      const primerDiaSemana = new Date(anio, mes, 1).getDay(); // 0 = Domingo
+      const diasEnMes = new Date(anio, mes + 1, 0).getDate();
+
+      let html = ["DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"]
+        .map(d => `<div class="crm-day-head">${d}</div>`).join('');
+
+      for (let i = 0; i < primerDiaSemana; i++) {
+        html += `<div class="crm-calendar-cell" style="opacity:0.25;"></div>`;
+      }
+
+      const hoyStr = new Date().toISOString().split('T')[0];
+
+      for (let dia = 1; dia <= diasEnMes; dia++) {
+        const diaPadded = dia < 10 ? '0' + dia : dia;
+        const mesPadded = (mes + 1) < 10 ? '0' + (mes + 1) : (mes + 1);
+        const fechaCelda = `${anio}-${mesPadded}-${diaPadded}`;
+        const esHoy = (fechaCelda === hoyStr) ? 'crm-cell-today' : '';
+
+        const reservasDelDia = reservasCache.filter(r => r.fechaReserva === fechaCelda);
+
+        html += `
+          <div class="crm-calendar-cell ${esHoy}" onclick="abrirModalReservaCRM('${fechaCelda}')">
+            <span class="crm-cell-number">${dia}</span>
+            ${reservasDelDia.map(r => {
+              const claseEstado = (r.estado === 'confirmada') ? 'res-confirmada' : 'res-pendiente';
+              return `
+                <div class="crm-reserva-badge ${claseEstado}" onclick="event.stopPropagation(); abrirModalReservaCRM(null, '${r.id}')">
+                  ${r.horaReserva || ''} ${r.cliente} (${r.mesaAsignada || 'Mesa'})
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      }
+      grid.innerHTML = html;
+    }
+
+    function abrirModalReservaCRM(fechaSeleccionada = null, resId = null) {
+      document.getElementById('crmResMesaSelect').innerHTML = listaMesas.map(m => `<option value="${m}">${m}</option>`).join('');
+      
+      if (resId) {
+        const r = reservasCache.find(x => x.id === resId);
+        if (r) {
+          document.getElementById('crmResId').value = r.id;
+          document.getElementById('crmResTitular').value = r.cliente || '';
+          document.getElementById('crmResTel').value = r.telefono || '';
+          document.getElementById('crmResPersonas').value = r.personas || 4;
+          document.getElementById('crmResFecha').value = r.fechaReserva || '';
+          document.getElementById('crmResHora').value = r.horaReserva || '';
+          document.getElementById('crmResMesaSelect').value = r.mesaAsignada || listaMesas[0];
+          document.getElementById('crmResEstadoSelect').value = r.estado || 'pendiente';
+          document.getElementById('crmResNotas').value = r.notas || '';
+          document.getElementById('crmModalTitulo').innerText = "Editar / Confirmar Reserva";
+        }
+      } else {
+        document.getElementById('crmResId').value = "";
+        document.getElementById('crmResTitular').value = "";
+        document.getElementById('crmResTel').value = "";
+        document.getElementById('crmResPersonas').value = 4;
+        document.getElementById('crmResFecha').value = fechaSeleccionada || new Date().toISOString().split('T')[0];
+        document.getElementById('crmResHora').value = "13:00";
+        document.getElementById('crmResEstadoSelect').value = "pendiente";
+        document.getElementById('crmResNotas').value = "";
+        document.getElementById('crmModalTitulo').innerText = "Generar Nueva Reserva";
+      }
+      document.getElementById('modalReservaCRM').classList.add('active');
+    }
+
+    function cerrarModalReservaCRM() {
+      document.getElementById('modalReservaCRM').classList.remove('active');
+    }
+
+    async function guardarReservaDesdeCRM(e) {
+      e.preventDefault();
+      const id = document.getElementById('crmResId').value || ("RES-" + Date.now());
+      const data = {
+        id: id,
+        cliente: document.getElementById('crmResTitular').value.trim(),
+        telefono: document.getElementById('crmResTel').value.trim(),
+        personas: document.getElementById('crmResPersonas').value,
+        fechaReserva: document.getElementById('crmResFecha').value,
+        horaReserva: document.getElementById('crmResHora').value,
+        mesaAsignada: document.getElementById('crmResMesaSelect').value,
+        estado: document.getElementById('crmResEstadoSelect').value,
+        notas: document.getElementById('crmResNotas').value.trim()
+      };
+
+      await fetch(`${FIREBASE_DB_URL}reservas/${id}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      alert("✔ Reserva actualizada en el calendario CRM.");
+      cerrarModalReservaCRM();
+      cargarReservasFirebase();
+    }
+
+    /* 3. REPORTE CONTABLE Y VENTAS (CORREGIDO) */
+    async function cargarVentasDesdeFirebase() {
+      const tbody = document.getElementById('tablaVentasBody');
+      if (!tbody) return;
+
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}ventas.json?_t=${Date.now()}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && typeof data === 'object') {
+            ventasCache = Object.values(data);
+            let montoTotal = 0;
+
+            tbody.innerHTML = ventasCache.map(v => {
+              const total = parseFloat(v.totalPEN || v.total || 0);
+              montoTotal += total;
+              const base = v.baseImponible ? parseFloat(v.baseImponible) : (total / 1.18);
+              const igv = v.igv ? parseFloat(v.igv) : (total - base);
+
+              return `
+                <tr>
+                  <td>${v.fecha || 'N/D'}</td>
+                  <td><b>${v.mesa || 'Mesa'}</b> (${v.cliente || 'Comensal'})</td>
+                  <td style="color:#fde047;">${v.productos || 'Consumo'}</td>
+                  <td>${v.pago || 'Efectivo'}</td>
+                  <td>S/ ${base.toFixed(2)}</td>
+                  <td>S/ ${igv.toFixed(2)}</td>
+                  <td style="font-weight:900; color:#86efac;">S/ ${total.toFixed(2)}</td>
+                </tr>
+              `;
+            }).join('');
+
+            document.getElementById('repMontoTotalAcumulado').innerText = `S/ ${montoTotal.toFixed(2)}`;
+            document.getElementById('repCantidadVentas').innerText = ventasCache.length;
+            return;
+          }
+        }
+      } catch (e) {}
+
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#aaa;">No se encontraron registros de ventas.</td></tr>';
+    }
+
+    /* 4. RESEÑAS POR PLATO Y ESTRELLAS */
+    async function cargarResenasFirebase() {
+      const cont = document.getElementById('contenedorResenasAdmin');
+      if (!cont) return;
+
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}resenas.json?_t=${Date.now()}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && typeof data === 'object') {
+            const list = Object.values(data);
+            cont.innerHTML = list.map(r => `
+              <div class="review-item-card">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <strong style="color:var(--gold);">${r.autor || 'Cliente'}</strong>
+                    <span style="color:#facc15; margin-left:6px;">${'★'.repeat(r.rating || 5)}${'☆'.repeat(5 - (r.rating || 5))}</span>
+                  </div>
+                  <span style="font-size:11px; color:#aaa;">${r.fecha || ''}</span>
+                </div>
+                ${r.plato ? `<div><span class="review-dish-tag"><i class="fa-solid fa-utensils"></i> ${r.plato}</span></div>` : ''}
+                <p style="font-size:13px; color:#eee;">"${r.texto || 'Sin comentario adicional'}"</p>
+              </div>
+            `).join('');
+            return;
+          }
+        }
+      } catch (e) {}
+      cont.innerHTML = '<p style="color:#aaa;">No hay reseñas registradas aún.</p>';
+    }
+
+    /* 5. IDENTIDAD Y LOGO (SIN BOTÓN ELIMINAR LOGO) */
+    async function cargarIdentidadFirebase() {
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}config/identidad.json?_t=${Date.now()}`);
+        if (res.ok) {
+          const conf = await res.json();
+          if (conf) configRestaurante = Object.assign(configRestaurante, conf);
+        }
+      } catch (e) {}
+
+      document.getElementById('cfgBusinessName').value = configRestaurante.nombre || "La Cusqueñita";
+      document.getElementById('cfgBusinessSlogan').value = configRestaurante.eslogan || "";
+      document.getElementById('cfgRuc').value = configRestaurante.ruc || "20601234567";
+      document.getElementById('cfgDireccion').value = configRestaurante.direccion || "";
+
+      document.getElementById('headerBusinessName').innerText = configRestaurante.nombre;
+      document.getElementById('topBarTitle').innerText = configRestaurante.nombre;
+
+      const av = document.getElementById('headerAvatar');
+      const prev = document.getElementById('previewCurrentLogo');
+      if (configRestaurante.logo && configRestaurante.logo.startsWith('data:image')) {
+        av.innerHTML = `<img src="${configRestaurante.logo}" alt="Logo">`;
+        prev.innerHTML = `<img src="${configRestaurante.logo}" alt="Logo">`;
+      } else {
+        av.innerText = configRestaurante.logo || "🍽️";
+        prev.innerText = configRestaurante.logo || "🍽️";
       }
     }
 
-    function ingresarClaveBypassDesarrollador() {
-      const clave = prompt("🔐 MODO DESARROLLADOR / PRUEBA EN CASA:\nIngresa la clave maestra para omitir el bloqueo y probar la carta:");
-      if (clave === CLAVE_MAESTRA_DEV) {
-        sessionStorage.setItem("inkabistro_dev_bypass", "true");
-        alert("✔ Acceso concedido en modo prueba. Se desbloqueará la carta.");
-        document.getElementById('pantallaBloqueoSeguridad').style.display = 'none';
-        document.getElementById('topHeaderElement').style.display = 'flex';
-        document.getElementById('feedContainer').style.display = 'block';
-        document.getElementById('hintManoGestual').style.display = 'flex';
-        const bubble = document.querySelector('.chat-bubble-container');
-        if (bubble) bubble.style.display = 'flex';
-        cargarDatosTrasValidacion();
-      } else if (clave !== null) {
-        alert("⛔ Clave incorrecta.");
-      }
+    function convertirLogoABase64(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        configRestaurante.logo = e.target.result;
+        document.getElementById('previewCurrentLogo').innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;">`;
+        document.getElementById('headerAvatar').innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;">`;
+      };
+      reader.readAsDataURL(file);
     }
 
-    function detectarMesaDesdeURL() {
-      const params = new URLSearchParams(window.location.search);
-      const mesaUrl = params.get('mesa');
-      if (mesaUrl) {
-        mesaSeleccionada = normalizarNombreMesa(decodeURIComponent(mesaUrl));
-        mesaFijadaPorQR = true;
-        sessionStorage.setItem("inkabistro_mesa_qr", mesaSeleccionada);
-      } else if (sessionStorage.getItem("inkabistro_mesa_qr")) {
-        mesaSeleccionada = sessionStorage.getItem("inkabistro_mesa_qr");
-        mesaFijadaPorQR = true;
-      }
-      if (comandaActivaId) {
-        mesaFijadaPorQR = true;
-      }
-      actualizarBadgeMesaHeader();
+    async function guardarIdentidadFirebase() {
+      configRestaurante.nombre = document.getElementById('cfgBusinessName').value.trim() || configRestaurante.nombre;
+      configRestaurante.eslogan = document.getElementById('cfgBusinessSlogan').value.trim();
+      configRestaurante.ruc = document.getElementById('cfgRuc').value.trim();
+      configRestaurante.direccion = document.getElementById('cfgDireccion').value.trim();
+
+      await fetch(`${FIREBASE_DB_URL}config/identidad.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(configRestaurante)
+      });
+      alert("✔ Identidad actualizada con éxito.");
     }
 
-    function actualizarBadgeMesaHeader() {
-      const badge = document.getElementById('selectedTableBadge');
-      if (badge) {
-        badge.innerText = mesaFijadaPorQR ? `${mesaSeleccionada} 🔒` : mesaSeleccionada;
-      }
-      const notifMesa = document.getElementById('notifModalMesaTxt');
-      if (notifMesa) {
-        notifMesa.innerText = mesaSeleccionada;
-      }
-    }
-
-    async function sincronizarMesasDesdeFirebase() {
+    async function cargarMesasDesdeFirebase() {
       try {
         const res = await fetch(`${FIREBASE_DB_URL}config/mesas.json?_t=${Date.now()}`);
         if (res.ok) {
           const data = await res.json();
-          if (Array.isArray(data) && data.length > 0) {
-            listaMesas = data;
-          }
+          if (Array.isArray(data) && data.length > 0) listaMesas = data;
         }
       } catch (e) {}
-
-      const resSel = document.getElementById('resCliMesaSelect');
-      if (resSel) {
-        resSel.innerHTML = listaMesas.map(m => `<option value="${m}">${m}</option>`).join('');
-      }
     }
 
-    async function obtenerMesasOcupadasEnRed() {
-      let comandas = [];
-      try {
-        const resFB = await fetch(`${FIREBASE_DB_URL}comandas.json?_t=${Date.now()}`);
-        if (resFB.ok) {
-          const dataFB = await resFB.json();
-          if (dataFB) {
-            comandas = Object.values(dataFB).filter(c => c && typeof c === 'object' && c.id);
-          }
-        }
-      } catch (e) {}
-
-      const ocupadas = comandas
-        .filter(c => {
-          const est = String(c.estado || "").toLowerCase().trim();
-          const activa = (est === "iniciado" || est === "por_confirmar" || est === "cocina" || est === "servido" || est === "camino_a_caja");
-          const esMiPedido = (comandaActivaId && String(c.id) === String(comandaActivaId));
-          const tieneMesa = Boolean(c.mesa && String(c.mesa).trim().length > 0);
-          return activa && !esMiPedido && tieneMesa;
-        })
-        .map(c => normalizarNombreMesa(c.mesa));
-
-      return ocupadas;
+    function cerrarTurno() {
+      sessionStorage.clear();
+      window.location.reload();
     }
 
-    async function renderizarCuadriculaMesas() {
-      const container = document.getElementById("tableGridContainer");
-      if (!container) return;
-
-      await sincronizarMesasDesdeFirebase();
-      const mesasOcupadas = await obtenerMesasOcupadasEnRed();
-      container.innerHTML = "";
-
-      const mesaActualNorm = normalizarNombreMesa(mesaSeleccionada);
-
-      listaMesas.forEach(m => {
-        const idNormal = normalizarNombreMesa(m);
-        const estaOcupada = mesasOcupadas.includes(idNormal);
-        const esMiMesa = (mesaActualNorm === idNormal);
-
-        const btn = document.createElement("button");
-        btn.type = "button";
-
-        let claseBloqueoQR = "";
-        if (mesaFijadaPorQR && !esMiMesa) {
-          claseBloqueoQR = "deshabilitada-qr";
-        }
-
-        btn.className = `table-box-btn ${esMiMesa ? 'selected' : ''} ${estaOcupada ? 'bloqueada' : ''} ${claseBloqueoQR}`;
-        
-        if (estaOcupada) {
-          btn.innerHTML = `${m.replace('Mesa ', 'M-')} 🔒`;
-          btn.title = `La ${m} está ocupada.`;
-          btn.onclick = () => alert(`⚠️ La ${m} ya tiene un pedido en curso.`);
-        } else if (mesaFijadaPorQR && !esMiMesa) {
-          btn.innerHTML = `${m.replace('Mesa ', 'M-')} 🔒`;
-          btn.title = `Bloqueada para esta mesa.`;
-          btn.onclick = () => alert(`🔒 Tu sesión está fija en la ${mesaSeleccionada}.`);
-        } else {
-          btn.innerText = m.replace('Mesa ', 'M-');
-          btn.onclick = () => selectTableRow(m, btn);
-        }
-
-        container.appendChild(btn);
-      });
+    function cerrarSesionAdmin() {
+      sessionStorage.clear();
+      window.location.reload();
     }
 
-    function selectTableRow(numMesa, boton) {
-      if (mesaFijadaPorQR) {
-        alert(`🔒 Tu sesión está fijada en: ${mesaSeleccionada}`);
-        return;
-      }
-      mesaSeleccionada = numMesa;
-      document.querySelectorAll('.table-box-btn').forEach(b => b.classList.remove('selected'));
-      boton.classList.add('selected');
-      document.getElementById('selectedTableBadge').innerText = numMesa;
-      actualizarBadgeMesaHeader();
-    }
-
-    function cambiarIdiomaGlobal(nuevoLang) {
-      currentLang = nuevoLang;
-      sessionStorage.setItem("inkabistro_user_lang", nuevoLang);
-      renderFeed();
-      renderCategoryChips();
-      renderQuickCatalogPopup();
-      actualizarVistaPopup();
-    }
-
-    function getDishInfo(dish) {
-      if (!dish) return { name: "", desc: "" };
-      if (dish.i18n && dish.i18n[currentLang] && dish.i18n[currentLang].name) return dish.i18n[currentLang];
-      if (dish.i18n && dish.i18n['es'] && dish.i18n['es'].name) return dish.i18n['es'];
-      return { name: dish.nombre || "Plato", desc: dish.descripcion || "" };
-    }
-
-    function renderQuickCatalogPopup() {
-      const box = document.getElementById('quickAddCatalogGrid');
-      if (!box) return;
-      box.innerHTML = catalogo.map(d => {
-        const info = getDishInfo(d);
-        return `
-          <button type="button" class="btn-quick-item" onclick="addToOrder('${d.id}')">
-            <span>${info.name}</span>
-            <b style="color:var(--modal-green);">S/ ${(d.precioPEN || d.precio || 0).toFixed(2)}</b>
-          </button>
-        `;
-      }).join('');
-    }
-
-    async function cargarDatos() {
-      const accesoPermitido = await validarAccesoPorTokenQR();
-      if (!accesoPermitido) return;
-      cargarDatosTrasValidacion();
-    }
-
-    async function cargarDatosTrasValidacion() {
-      detectarMesaDesdeURL();
-
-      try {
-        const resConf = await fetch(`${FIREBASE_DB_URL}config/identidad.json?_t=${Date.now()}`);
-        if (resConf.ok) {
-          const confFB = await resConf.json();
-          if (confFB) {
-            CONFIG = Object.assign(CONFIG, confFB);
-            document.getElementById('topTitle').innerText = CONFIG.nombre || "La Cusqueñita";
-            document.getElementById('topSlogan').innerText = CONFIG.eslogan || "Cusco • Gourmet";
-            document.getElementById('agradeceNombreLocal').innerText = CONFIG.nombre || "La Cusqueñita";
-            document.getElementById('secTitleLocal').innerText = CONFIG.nombre || "La Cusqueñita";
-            document.getElementById('resModalTituloLocal').innerText = CONFIG.nombre || "La Cusqueñita";
-
-            const waNum = CONFIG.whatsapp || "+51 969 773 064";
-            document.getElementById('agradeceContactoTxt').innerText = waNum;
-            document.getElementById('resCliTelefonoTxt').innerText = waNum;
-          }
-        }
-      } catch (e) {}
-
-      try {
-        const resPlat = await fetch(`${FIREBASE_DB_URL}catalogo_platos.json?_t=${Date.now()}`);
-        if (resPlat.ok) {
-          const d = await resPlat.json();
-          if (d && Object.keys(d).length > 0) {
-            catalogo = Object.values(d);
-          } else {
-            catalogo = [...CATALOGO_DEFAULT];
-          }
-        } else {
-          catalogo = [...CATALOGO_DEFAULT];
-        }
-      } catch (e) {
-        catalogo = [...CATALOGO_DEFAULT];
-      }
-
-      await sincronizarMesasDesdeFirebase();
-      cambiarIdiomaGlobal(currentLang);
-      setupObserver();
-      verificarEstadoComandaEnVivo();
-
-      setInterval(verificarEstadoComandaEnVivo, 2000);
-      setInterval(renderizarCuadriculaMesas, 3500);
-
-      const hint = document.getElementById('hintManoGestual');
-      if (hint) hint.style.display = 'flex';
-    }
-
-    function formatPrice(pen) { return `S/ ${pen.toFixed(2)}`; }
-    function formatSecondaryPrice(pen) { return `≈ $ ${(pen / (CONFIG.exchangeRateUSD || 3.75)).toFixed(2)}`; }
-
-    function renderCategoryChips() {
-      const cats = [{ key: "all", label: "Todos" }, { key: "mains", label: "Platos Fuertes" }, { key: "top", label: "🔥 Especialidades" }];
-      document.getElementById('categoryChips').innerHTML = cats.map(c => `
-        <div class="chip ${c.key === 'all' ? 'active' : ''}">${c.label}</div>
-      `).join('');
-    }
-
-    function renderFeed() {
-      const feed = document.getElementById('feedContainer');
-
-      feed.innerHTML = catalogo.map(item => {
-        const info = getDishInfo(item);
-        return `
-          <div class="video-slide">
-            <video class="video-player" src="${item.videoUrl || ''}" poster="${item.posterUrl || item.imagen || ''}" loop playsinline muted></video>
-            <div class="slide-overlay"></div>
-            <div class="dish-info">
-              ${item.tag ? `<span class="badge-tag">${item.tag}</span>` : ''}
-              <h2 class="dish-title">${info.name}</h2>
-              <p class="dish-desc">${info.desc}</p>
-              <div class="dish-price-row">
-                <span class="price-now">${formatPrice(item.precioPEN || item.precio || 0)}</span>
-                <span class="price-alt">${formatSecondaryPrice(item.precioPEN || item.precio || 0)}</span>
-              </div>
-              <button class="btn-quick-add" onclick="addToOrder('${item.id}')">
-                <i class="fa-solid fa-hand-pointer finger-tap-icon"></i>
-                <span>👆 Añadir Plato</span>
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function setupObserver() {
-      const obs = new IntersectionObserver(entries => {
-        entries.forEach(e => {
-          const v = e.target.querySelector('video');
-          if (e.isIntersecting) v?.play().catch(()=>{});
-          else v?.pause();
-        });
-      }, { threshold: 0.65 });
-      document.querySelectorAll('.video-slide').forEach(s => obs.observe(s));
-    }
-
-    function addToOrder(id) {
-      pedido[id] = (pedido[id] || 0) + 1;
-      actualizarVistaPopup();
-    }
-    function changeQty(id, d) {
-      if (!pedido[id]) return;
-      pedido[id] += d;
-      if (pedido[id] <= 0) delete pedido[id];
-      actualizarVistaPopup();
-    }
-
-    function actualizarVistaPopup() {
-      const list = document.getElementById('orderItemsList');
-      if (!list) return;
-      list.innerHTML = '';
-      let totalU = 0, totalMonto = 0;
-
-      Object.keys(pedido).forEach(id => {
-        const d = catalogo.find(item => item.id === id);
-        if (!d) return;
-        const cant = pedido[id];
-        const sub = cant * (d.precioPEN || d.precio || 0);
-        totalU += cant; totalMonto += sub;
-        const info = getDishInfo(d);
-
-        list.innerHTML += `
-          <div class="order-item-row">
-            <div>
-              <strong>${info.name}</strong>
-              <div style="font-size:11px; color:#57534e;">${formatPrice(d.precioPEN || d.precio)} x ${cant} = <b>${formatPrice(sub)}</b></div>
-            </div>
-            <div style="display:flex; gap:6px; align-items:center;">
-              <button type="button" class="btn-qty-ctrl" onclick="changeQty('${id}', -1)">-</button>
-              <span style="font-weight:900; font-size:13px; min-width:18px; text-align:center;">${cant}</span>
-              <button type="button" class="btn-qty-ctrl" onclick="changeQty('${id}', 1)">+</button>
-            </div>
-          </div>
-        `;
-      });
-
-      if (totalU === 0) {
-        list.innerHTML = '<p style="text-align:center; color:#57534e; font-size:13px; padding:10px 0; font-weight:bold;">No has añadido ningún plato aún.</p>';
-      }
-
-      ultimoTotalPagarPEN = totalMonto;
-      document.getElementById('ordersBadgeCount').innerText = totalU;
-      document.getElementById('orderTotalPrice').innerText = formatPrice(totalMonto);
-      document.getElementById('orderSecondaryPrice').innerText = formatSecondaryPrice(totalMonto);
-
-      if (metodoPago === 'Efectivo') calcularVueltoEfectivo();
-    }
-
-    function openOrdersPopup() {
-      actualizarVistaPopup();
-      renderizarCuadriculaMesas();
-      renderQuickCatalogPopup();
-      document.getElementById('ordersPopupModal').classList.add('active');
-    }
-    function closeOrdersPopup(event) {
-      if (event && event.target && event.target !== document.getElementById('ordersPopupModal') && event.target.tagName !== 'BUTTON') {
-        return;
-      }
-      document.getElementById('ordersPopupModal').classList.remove('active');
-    }
-
-    function elegirPago(metodo, btn) {
-      metodoPago = metodo;
-      document.querySelectorAll('.btn-pay-option').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById('cajaEfectivoDesplegable').style.display = (metodo === 'Efectivo') ? 'block' : 'none';
-      if (metodo === 'Efectivo') calcularVueltoEfectivo();
-    }
-
-    function setMontoEfectivoRapido(m) {
-      const inp = document.getElementById('montoEfectivoIngresado');
-      inp.value = (m === 'exacto') ? (ultimoTotalPagarPEN > 0 ? ultimoTotalPagarPEN : '') : m;
-      calcularVueltoEfectivo();
-    }
-
-    function calcularVueltoEfectivo() {
-      const pagaCon = parseFloat(document.getElementById('montoEfectivoIngresado').value);
-      const box = document.getElementById('cajaRespuestaVuelto');
-      const txt = document.getElementById('textoDetalleVuelto');
-      const montoTxt = document.getElementById('montoCalculadoVuelto');
-
-      if (isNaN(pagaCon) || pagaCon <= 0) {
-        box.className = "vuelto-badge-box";
-        txt.innerText = "Ingresa monto en efectivo para vuelto";
-        montoTxt.innerText = "";
-        return;
-      }
-      const v = pagaCon - ultimoTotalPagarPEN;
-      if (v < 0) {
-        box.className = "vuelto-badge-box alerta";
-        txt.innerText = `⚠️ Falta dinero (S/ ${Math.abs(v).toFixed(2)})`;
-        montoTxt.innerText = "";
-      } else {
-        box.className = "vuelto-badge-box";
-        txt.innerText = "💵 Vuelto a entregar:";
-        montoTxt.innerText = `S/ ${v.toFixed(2)}`;
-      }
-    }
-
-    async function enviarComandaDirectaAlPanel() {
-      const itemIds = Object.keys(pedido);
-      if (itemIds.length === 0) return alert("Por favor añade al menos un plato a la comanda.");
-
-      const mesaNorm = normalizarNombreMesa(mesaSeleccionada);
-      const cliente = document.getElementById('clientNameInput').value.trim() || "Comensal";
-      const notas = document.getElementById('notesInput').value.trim();
-
-      const btn = document.getElementById('btnEnviarComanda');
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Transmitiendo comanda a cocina...';
-
-      let detalleTexto = "";
-      const platosComanda = [];
-
-      itemIds.forEach(id => {
-        const dish = catalogo.find(d => d.id === id);
-        const cant = pedido[id];
-        const info = getDishInfo(dish);
-        detalleTexto += `${cant}x ${info.name}, `;
-        platosComanda.push({ id, nombre: info.name, cantidad: cant, precio: dish.precioPEN || dish.precio });
-      });
-
-      if (comandaActivaId) {
-        try {
-          const res = await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`);
-          if (res.ok) {
-            const dataVieja = await res.json();
-            if (dataVieja && dataVieja.estado !== 'finalizado' && dataVieja.estado !== 'liberado') {
-              const productosUnificados = (dataVieja.productos || "") + ", " + detalleTexto.replace(/, $/, "");
-              const nuevoTotal = parseFloat(dataVieja.totalPEN || dataVieja.total || 0) + ultimoTotalPagarPEN;
-              
-              await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  productos: productosUnificados,
-                  totalPEN: nuevoTotal,
-                  total: nuevoTotal,
-                  estado: 'cocina',
-                  mozoPregunta: false,
-                  clientePidiendoCuenta: false,
-                  pago: metodoPago,
-                  notas: notas ? ((dataVieja.notas || "") + " | Adición: " + notas) : (dataVieja.notas || "")
-                })
-              });
-
-              for (let k in pedido) delete pedido[k];
-              actualizarVistaPopup();
-              btn.disabled = false;
-              btn.innerHTML = '<i class="fa-solid fa-bell-concierge"></i> Enviar Comanda a Cocina';
-              closeOrdersPopup();
-              reproducirSonidoNotificacion();
-              verificarEstadoComandaEnVivo();
-              return;
-            }
-          }
-        } catch (e) {}
-      }
-
-      let numeroTurnoChef = 1;
-      try {
-        const resAll = await fetch(`${FIREBASE_DB_URL}comandas.json?_t=${Date.now()}`);
-        if (resAll.ok) {
-          const dataAll = await resAll.json();
-          if (dataAll && typeof dataAll === 'object') {
-            numeroTurnoChef = Object.keys(dataAll).length + 1;
-          }
-        }
-      } catch (e) {}
-
-      const timestampActual = Date.now();
-      const nuevaComanda = {
-        id: "CMD-" + timestampActual,
-        timestampOrden: timestampActual,
-        numeroTurno: numeroTurnoChef,
-        fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }),
-        cliente: `${mesaNorm} (${cliente})`,
-        mesa: mesaNorm,
-        productos: detalleTexto.replace(/, $/, ""),
-        items: platosComanda,
-        totalPEN: ultimoTotalPagarPEN,
-        total: ultimoTotalPagarPEN,
-        pago: metodoPago,
-        notas: notas || "Sin notas",
-        estado: "iniciado",
-        mozoPregunta: false
-      };
-
-      try {
-        await fetch(`${FIREBASE_DB_URL}comandas/${nuevaComanda.id}.json`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(nuevaComanda)
-        });
-      } catch (e) {
-        console.error("Error al enviar comanda:", e);
-      }
-
-      comandaActivaId = nuevaComanda.id;
-      localStorage.setItem("inkabistro_mi_comanda_id", comandaActivaId);
-
-      mesaFijadaPorQR = true;
-      sessionStorage.setItem("inkabistro_mesa_qr", mesaNorm);
-      actualizarBadgeMesaHeader();
-
-      setTimeout(() => {
-        for (let k in pedido) delete pedido[k];
-        actualizarVistaPopup();
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-bell-concierge"></i> Enviar Comanda a Cocina';
-        closeOrdersPopup();
-        reproducirSonidoNotificacion();
-        verificarEstadoComandaEnVivo();
-        renderizarCuadriculaMesas();
-      }, 400);
-    }
-
-    async function solicitarCuentaEnCaja() {
-      if (!comandaActivaId || cuentaPedidaBloqueada) return;
-      cuentaPedidaBloqueada = true;
-
-      await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          clientePidiendoCuenta: true,
-          estado: 'camino_a_caja'
-        })
-      });
-
-      canalPedidos.postMessage({
-        tipo: 'RESPUESTA_CLIENTE',
-        mesa: mesaSeleccionada,
-        respuesta: 'El cliente terminó de comer y viene a pagar en caja',
-        hora: new Date().toLocaleTimeString()
-      });
-
-      reproducirSonidoNotificacion();
-      verificarEstadoComandaEnVivo();
-    }
-
-    function setRating(n) {
-      ratingSeleccionado = n;
-      const stars = document.getElementById('starsRowModal').children;
-      for (let i = 0; i < 5; i++) {
-        stars[i].style.color = (i < n) ? '#facc15' : '#78716c';
-      }
-    }
-
-    async function enviarResenaFirebaseDesdeModal() {
-      const txt = document.getElementById('reviewModalInput').value.trim();
-
-      await fetch(`${FIREBASE_DB_URL}resenas.json`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fecha: new Date().toLocaleDateString(),
-          autor: `Comensal ${mesaSeleccionada}`,
-          rating: ratingSeleccionado,
-          texto: txt || "Excelente experiencia"
-        })
-      });
-
-      if (comandaActivaId) {
-        await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ resenaEnviada: true })
-        });
-      }
-
-      alert("✔ ¡Muchas gracias por tu calificación!");
-      const box = document.getElementById("cajaResenaServicio");
-      if (box) box.style.display = "none";
-    }
-
-    // ========================================================
-    // MONITOREO DINÁMICO DE ESTADOS AL MEDIO DEL CATÁLOGO
-    // ========================================================
-    async function verificarEstadoComandaEnVivo() {
-      if (!comandaActivaId) return;
-
-      let miComanda = null;
-
-      try {
-        const resFB = await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json?_t=${Date.now()}`);
-        if (resFB.ok) {
-          miComanda = await resFB.json();
-        }
-      } catch (e) {}
-
-      if (!miComanda) return;
-
-      if (miComanda.agradecimientoFinal === true || miComanda.estado === 'finalizado' || miComanda.estado === 'liberado') {
-        const modal = document.getElementById("modalNotificacion");
-        if (modal) modal.style.display = "none";
-        document.getElementById('pantallaAgradecimiento').classList.add('active');
-        return;
-      }
-
-      const modalCentro = document.getElementById("modalNotificacion");
-      const badge = document.getElementById("notifModalBadge");
-      const mensaje = document.getElementById("notifModalMensaje");
-      const turnoBadge = document.getElementById("notifTurnoTxt");
-      const cajaMozo = document.getElementById("cajaPreguntaMozo");
-      const cajaPedirCuenta = document.getElementById("cajaBotonPedirCuenta");
-      const cajaResena = document.getElementById("cajaResenaServicio");
-
-      const numTurno = miComanda.numeroTurno || "01";
-      if (turnoBadge) turnoBadge.innerText = `Turno #${numTurno < 10 ? '0' + numTurno : numTurno}`;
-
-      document.getElementById("notifModalMesaTxt").innerText = miComanda.mesa || "Mesa";
-      document.getElementById("notifModalTotalTxt").innerText = `S/ ${(miComanda.totalPEN || miComanda.total || 0).toFixed(2)}`;
-
-      const estado = String(miComanda.estado || 'iniciado').toLowerCase();
-
-      if (ultimoEstadoRegistrado !== estado || miComanda.mozoPregunta === true) {
-        if (ultimoEstadoRegistrado !== null) {
-          reproducirSonidoNotificacion();
-        }
-        ultimoEstadoRegistrado = estado;
-      }
-
-      // 1. Fase: Por Confirmar / Iniciado
-      if (estado === 'iniciado' || estado === 'por_confirmar') {
-        badge.style.background = "#eab308";
-        badge.style.color = "#000";
-        badge.innerText = "🟡 1. POR CONFIRMAR";
-        mensaje.innerText = "Tu pedido fue enviado. El mozo o caja lo está verificando en el panel...";
-        cajaPedirCuenta.style.display = "none";
-        if (cajaResena) cajaResena.style.display = "none";
-      }
-      // 2. Fase: En Cocina
-      else if (estado === 'cocina') {
-        badge.style.background = "#0284c7";
-        badge.style.color = "#fff";
-        badge.innerText = "🔵 2. EN PROCESO (COCINA)";
-        mensaje.innerText = "¡Tu pedido está siendo elaborado por el chef en este momento! 🍳";
-        cajaPedirCuenta.style.display = "none";
-        if (cajaResena) cajaResena.style.display = "none";
-      }
-      // 3. Fase: Servido en Mesa -> Se activa el botón de pagar cuenta y la reseña
-      else if (estado === 'servido') {
-        badge.style.background = "#16a34a";
-        badge.style.color = "#fff";
-        badge.innerText = "🟢 3. RECIBIDO EN MESA";
-        mensaje.innerText = "¡Buen provecho! Tu pedido ya está servido en tu mesa.";
-        cajaPedirCuenta.style.display = "block";
-
-        if (cajaResena && !miComanda.resenaEnviada) {
-          cajaResena.style.display = "block";
-        } else if (cajaResena) {
-          cajaResena.style.display = "none";
-        }
-      }
-      // 4. Fase: Camino a Caja -> Desaparece el botón y bloquea la acción
-      else if (estado === 'camino_a_caja' || miComanda.clientePidiendoCuenta === true) {
-        badge.style.background = "#ec4899";
-        badge.style.color = "#fff";
-        badge.innerText = "🚶‍♂️ VOY EN CAMINO A CAJA";
-        mensaje.innerHTML = "<b>¡Aviso recibido en caja!</b> Dirígete a la recepción para cancelar tu cuenta.";
-        cajaPedirCuenta.style.display = "none";
-        if (cajaResena) cajaResena.style.display = "none";
-      }
-
-      if (miComanda.mozoPregunta === true) {
-        cajaMozo.style.display = "block";
-      } else {
-        cajaMozo.style.display = "none";
-      }
-
-      if (modalCentro) {
-        modalCentro.style.display = "flex";
-      }
-    }
-
-    function abrirModalReservasCliente() {
-      document.getElementById('modalReservasCliente').classList.add('active');
-      document.getElementById('resCliFecha').value = new Date().toISOString().split('T')[0];
-    }
-
-    function cerrarModalReservasCliente() {
-      document.getElementById('modalReservasCliente').classList.remove('active');
-    }
-
-    function compartirLinkReservasWhatsApp() {
-      const u = window.location.origin + window.location.pathname.replace('index.html', '') + 'reservas.html';
-      const msg = encodeURIComponent(`🍽️ ¡Hola! Te comparto el Catálogo Oficial de Reservas de *${CONFIG.nombre}* para agendar nuestra mesa o evento en Cusco:\n${u}`);
-      window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
-    }
-
-    async function enviarReservaDesdeCliente(e) {
-      e.preventDefault();
-      const id = "RES-" + Date.now();
-      const r = {
-        id: id,
-        cliente: document.getElementById('resCliNombre').value.trim(),
-        telefono: document.getElementById('resCliWhatsApp').value.trim(),
-        fechaReserva: document.getElementById('resCliFecha').value,
-        horaReserva: document.getElementById('resCliHora').value,
-        personas: document.getElementById('resCliPersonas').value,
-        mesaAsignada: document.getElementById('resCliMesaSelect').value,
-        notas: document.getElementById('resCliNotas').value.trim() || 'Sin notas',
-        fechaCreacion: new Date().toLocaleDateString()
-      };
-
-      try {
-        await fetch(`${FIREBASE_DB_URL}reservas/${id}.json`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(r)
-        });
-        alert(`✔ ¡Reserva registrada con éxito para ${r.cliente}! Nos comunicaremos a tu WhatsApp ${r.telefono} para confirmar.`);
-        cerrarModalReservasCliente();
-      } catch (err) {
-        alert("Error al enviar reserva: " + err.message);
-      }
-    }
-
-    function reiniciarNavegadorLimpio() {
-      localStorage.removeItem("inkabistro_mi_comanda_id");
-      sessionStorage.removeItem("inkabistro_mesa_qr");
-      sessionStorage.removeItem("inkabistro_token_validado");
-      sessionStorage.removeItem("inkabistro_dev_bypass");
-      comandaActivaId = null;
-      mesaFijadaPorQR = false;
-      document.getElementById('pantallaAgradecimiento').classList.remove('active');
-      window.location.href = window.location.pathname;
-    }
-
-    function toggleGlobalAudio() {
-      isGlobalMuted = !isGlobalMuted;
-      document.querySelectorAll('video').forEach(v => v.muted = isGlobalMuted);
-    }
-
-    window.addEventListener('DOMContentLoaded', cargarDatos);
+    window.onload = () => {
+      if (sessionStorage.getItem("auth_rest") === "true") mostrarPanelAdmin();
+    };
   </script>
 </body>
 </html>
