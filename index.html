@@ -293,13 +293,42 @@
       justify-content: center; gap: 8px; box-shadow: 0 6px 18px rgba(77, 124, 15, 0.4); width: 100%;
     }
 
+    /* BOTÓN PEDIR CUENTA ELEGANTE */
+    .btn-pedir-cuenta {
+      background: linear-gradient(135deg, var(--color-cuenta), var(--color-cuenta-hover)) !important;
+      color: #fff !important; border: 1.5px solid #d8b4fe !important;
+      padding: 12px 14px; border-radius: 12px; font-weight: 900; font-size: 13.5px; cursor: pointer;
+      width: 100%; box-shadow: 0 4px 18px var(--color-cuenta-glow);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .btn-pedir-cuenta:active { transform: scale(0.98); }
+    .btn-pedir-cuenta.en-camino {
+      background: #4c1d95 !important; color: #e9d5ff !important; border-color: #c084fc !important; cursor: default;
+      box-shadow: none !important;
+    }
+
+    /* ESTILOS DE RESEÑA DENTRO DEL MODAL */
+    .modal-review-box {
+      background: rgba(0, 0, 0, 0.45);
+      border: 1.5px dashed var(--accent);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 10px;
+      margin-bottom: 12px;
+      text-align: left;
+    }
+    .modal-stars-row {
+      display: flex; gap: 8px; font-size: 22px; color: #facc15; cursor: pointer; margin: 6px 0;
+    }
+
     /* ========================================================
-       MODAL DE NOTIFICACIÓN CENTRADO TOTAL CON FUEGO DORADO GIRATORIO
+       MODAL DE NOTIFICACIÓN CENTRADO CON FUEGO DORADO GIRATORIO
        ======================================================== */
     .notificacion-modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.72);
+      background: rgba(0, 0, 0, 0.76);
       backdrop-filter: blur(6px);
       display: none;
       align-items: center;
@@ -742,13 +771,26 @@
           </button>
         </div>
 
-        <!-- Info en el pie: Mesa, Total y Botón Minimizar -->
+        <!-- Sección de Reseña y Comentario cuando ya está servido -->
+        <div id="cajaResenaServicio" class="modal-review-box" style="display: none;">
+          <span style="font-size: 11.5px; color: #fde047; font-weight: 800; display: block;">⭐ Califica nuestro servicio y producto:</span>
+          <div class="modal-stars-row" id="starsRowModal">
+            <span onclick="setRating(1)">★</span>
+            <span onclick="setRating(2)">★</span>
+            <span onclick="setRating(3)">★</span>
+            <span onclick="setRating(4)">★</span>
+            <span onclick="setRating(5)">★</span>
+          </div>
+          <input type="text" id="reviewModalInput" class="custom-input" placeholder="Escribe un breve comentario (opcional)..." style="margin-bottom: 8px;" />
+          <button type="button" onclick="enviarResenaFirebaseDesdeModal()" style="width: 100%; background: #4d7c0f; color: #fff; border: none; padding: 8px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 12px;">
+            Enviar Calificación
+          </button>
+        </div>
+
+        <!-- Info en el pie: Mesa y Total (SIN botón de ver catálogo) -->
         <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 10px; color: #bbb; font-size: 12.5px;">
           <span id="notifModalMesaTxt" style="font-weight: 800; color: #fff;">Mesa 01</span>
           <span id="notifModalTotalTxt" style="font-weight: 900; color: #fde047;">S/ 0.00</span>
-          <button type="button" onclick="minimizarNotificacionCentro()" style="background: rgba(255,255,255,0.12); color: #ddd; border: 1px solid rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 12px; font-size: 11px; cursor: pointer;">
-            👁️ Ver Catálogo
-          </button>
         </div>
 
       </div>
@@ -811,48 +853,7 @@
     let comandaActivaId = localStorage.getItem("inkabistro_mi_comanda_id") || null;
     let clicksIconoDev = 0;
     let ultimoEstadoRegistrado = null;
-    let notificacionMinimizadaManualmente = false;
-
-    const DICCIONARIO = {
-      es: {
-        pedidosBurbuja: "🔥 Pedidos",
-        confirmarComanda: "Confirmar Comanda",
-        addPlatosTitle: "Añadir platos a tu mesa:",
-        mesaAsignada: "📍 Tu Mesa Asignada (Bloqueada):",
-        efectivo: "Efectivo",
-        pos: "POS",
-        cuantoPagas: "💵 ¿Con cuánto en efectivo pagarás?",
-        pagarExacto: "Pagar Exacto",
-        calcVuelto: "Ingresa monto en efectivo para vuelto",
-        vueltoEntregar: "💵 Vuelto a entregar:",
-        faltaDinero: "⚠️ Falta dinero",
-        placeholderNombre: "Nombre de quien pide (opcional)",
-        placeholderNotas: "Notas para cocina (término de carne, alergias, etc.)",
-        totalComanda: "Total comanda:",
-        btnEnviar: "Enviar Comanda a Cocina",
-        btnEnviarAdd: "Añadir a mi Comanda en Curso",
-        pedirCuenta: "💵 Pedir Cuenta y Pagar en Caja",
-        swipeUp: "Desliza hacia arriba 👆",
-        btnPedirPlato: "👆 Añadir Plato",
-        catTodos: "Todos",
-        catMains: "Platos Fuertes",
-        catTop: "🔥 Especialidades",
-        secHeading: "Acceso Restringido a la Carta",
-        secDesc: "Por tu seguridad y exclusividad, este menú solo está disponible escaneando el <b>código QR físico</b> de tu mesa en el restaurante.",
-        secSubNote: "Si ya pagaste tu cuenta o estás fuera del local, esta sesión ha expirado automáticamente.",
-        btnDevBypass: "Modo Desarrollador / Probar en Casa",
-        agradeceMensaje: "¡Muchas gracias por tu visita! Tu comanda ha sido cancelada y la mesa ha quedado libre. Esperamos que hayas disfrutado tu experiencia gastronómica.",
-        agradeceContacto: "Contacto:",
-        volverReservar: "¿Planeas volver? Reserva tu mesa para Eventos o Familias",
-        verReservas: "Ver y Generar Reservas",
-        compartirWaReservas: "Compartir Catálogo de Reservas por WhatsApp",
-        finalizarSalir: "Finalizar y salir",
-        resModalTitulo: "Catálogo Oficial de Reservas & Eventos",
-        resModalDesc: "Completa tus datos para agendar tu mesa familiar, grupo turístico o evento.",
-        resConfirmar: "Confirmar y Agendar Reserva",
-        resCerrar: "✕ Cerrar Ventana de Reservas"
-      }
-    };
+    let cuentaPedidaBloqueada = false;
 
     function reproducirSonidoNotificacion() {
       try {
@@ -861,8 +862,8 @@
         const gain = audioCtx.createGain();
 
         osc.type = "sine";
-        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
-        osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15); // A5
+        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
 
         gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
@@ -873,26 +874,13 @@
         osc.start();
         osc.stop(audioCtx.currentTime + 0.8);
       } catch (e) {
-        console.warn("Audio no permitido aún", e);
+        console.warn("Audio en espera de interacción", e);
       }
-    }
-
-    function minimizarNotificacionCentro() {
-      notificacionMinimizadaManualmente = true;
-      const modal = document.getElementById("modalNotificacion");
-      if (modal) modal.style.display = "none";
-    }
-
-    function reabrirNotificacionCentro() {
-      notificacionMinimizadaManualmente = false;
-      const modal = document.getElementById("modalNotificacion");
-      if (modal) modal.style.display = "flex";
     }
 
     async function responderMozo(quiereMas) {
       reproducirSonidoNotificacion();
 
-      // Sincronizar en tiempo real con admin.html por BroadcastChannel
       canalPedidos.postMessage({
         tipo: 'RESPUESTA_CLIENTE',
         mesa: mesaSeleccionada || "Mesa 01",
@@ -918,7 +906,6 @@
       document.getElementById("cajaPreguntaMozo").style.display = "none";
 
       if (quiereMas) {
-        minimizarNotificacionCentro();
         openOrdersPopup();
       }
     }
@@ -1211,6 +1198,8 @@
           } else {
             catalogo = [...CATALOGO_DEFAULT];
           }
+        } else {
+          catalogo = [...CATALOGO_DEFAULT];
         }
       } catch (e) {
         catalogo = [...CATALOGO_DEFAULT];
@@ -1232,8 +1221,7 @@
     function formatSecondaryPrice(pen) { return `≈ $ ${(pen / (CONFIG.exchangeRateUSD || 3.75)).toFixed(2)}`; }
 
     function renderCategoryChips() {
-      const dic = DICCIONARIO[currentLang] || DICCIONARIO.es;
-      const cats = [{ key: "all", label: dic.catTodos }, { key: "mains", label: dic.catMains }, { key: "top", label: dic.catTop }];
+      const cats = [{ key: "all", label: "Todos" }, { key: "mains", label: "Platos Fuertes" }, { key: "top", label: "🔥 Especialidades" }];
       document.getElementById('categoryChips').innerHTML = cats.map(c => `
         <div class="chip ${c.key === 'all' ? 'active' : ''}">${c.label}</div>
       `).join('');
@@ -1241,7 +1229,6 @@
 
     function renderFeed() {
       const feed = document.getElementById('feedContainer');
-      const dic = DICCIONARIO[currentLang] || DICCIONARIO.es;
 
       feed.innerHTML = catalogo.map(item => {
         const info = getDishInfo(item);
@@ -1259,7 +1246,7 @@
               </div>
               <button class="btn-quick-add" onclick="addToOrder('${item.id}')">
                 <i class="fa-solid fa-hand-pointer finger-tap-icon"></i>
-                <span>${dic.btnPedirPlato}</span>
+                <span>👆 Añadir Plato</span>
               </button>
             </div>
           </div>
@@ -1362,22 +1349,21 @@
       const box = document.getElementById('cajaRespuestaVuelto');
       const txt = document.getElementById('textoDetalleVuelto');
       const montoTxt = document.getElementById('montoCalculadoVuelto');
-      const dic = DICCIONARIO[currentLang] || DICCIONARIO.es;
 
       if (isNaN(pagaCon) || pagaCon <= 0) {
         box.className = "vuelto-badge-box";
-        txt.innerText = dic.calcVuelto;
+        txt.innerText = "Ingresa monto en efectivo para vuelto";
         montoTxt.innerText = "";
         return;
       }
       const v = pagaCon - ultimoTotalPagarPEN;
       if (v < 0) {
         box.className = "vuelto-badge-box alerta";
-        txt.innerText = `${dic.faltaDinero} (S/ ${Math.abs(v).toFixed(2)})`;
+        txt.innerText = `⚠️ Falta dinero (S/ ${Math.abs(v).toFixed(2)})`;
         montoTxt.innerText = "";
       } else {
         box.className = "vuelto-badge-box";
-        txt.innerText = dic.vueltoEntregar;
+        txt.innerText = "💵 Vuelto a entregar:";
         montoTxt.innerText = `S/ ${v.toFixed(2)}`;
       }
     }
@@ -1432,10 +1418,9 @@
               for (let k in pedido) delete pedido[k];
               actualizarVistaPopup();
               btn.disabled = false;
-              btn.innerHTML = '<i class="fa-solid fa-bell-concierge"></i> ' + (DICCIONARIO[currentLang]||DICCIONARIO.es).btnEnviar;
+              btn.innerHTML = '<i class="fa-solid fa-bell-concierge"></i> Enviar Comanda a Cocina';
               closeOrdersPopup();
               reproducirSonidoNotificacion();
-              notificacionMinimizadaManualmente = false;
               verificarEstadoComandaEnVivo();
               return;
             }
@@ -1493,18 +1478,17 @@
         for (let k in pedido) delete pedido[k];
         actualizarVistaPopup();
         btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-bell-concierge"></i> ' + (DICCIONARIO[currentLang]||DICCIONARIO.es).btnEnviar;
+        btn.innerHTML = '<i class="fa-solid fa-bell-concierge"></i> Enviar Comanda a Cocina';
         closeOrdersPopup();
-        
         reproducirSonidoNotificacion();
-        notificacionMinimizadaManualmente = false;
         verificarEstadoComandaEnVivo();
         renderizarCuadriculaMesas();
       }, 400);
     }
 
     async function solicitarCuentaEnCaja() {
-      if (!comandaActivaId) return;
+      if (!comandaActivaId || cuentaPedidaBloqueada) return;
+      cuentaPedidaBloqueada = true;
 
       await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`, {
         method: 'PATCH',
@@ -1515,7 +1499,6 @@
         })
       });
 
-      // Notificar por BroadcastChannel al panel admin.html
       canalPedidos.postMessage({
         tipo: 'RESPUESTA_CLIENTE',
         mesa: mesaSeleccionada,
@@ -1527,23 +1510,53 @@
       verificarEstadoComandaEnVivo();
     }
 
+    function setRating(n) {
+      ratingSeleccionado = n;
+      const stars = document.getElementById('starsRowModal').children;
+      for (let i = 0; i < 5; i++) {
+        stars[i].style.color = (i < n) ? '#facc15' : '#78716c';
+      }
+    }
+
+    async function enviarResenaFirebaseDesdeModal() {
+      const txt = document.getElementById('reviewModalInput').value.trim();
+
+      await fetch(`${FIREBASE_DB_URL}resenas.json`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fecha: new Date().toLocaleDateString(),
+          autor: `Comensal ${mesaSeleccionada}`,
+          rating: ratingSeleccionado,
+          texto: txt || "Excelente experiencia"
+        })
+      });
+
+      if (comandaActivaId) {
+        await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ resenaEnviada: true })
+        });
+      }
+
+      alert("✔ ¡Muchas gracias por tu calificación!");
+      const box = document.getElementById("cajaResenaServicio");
+      if (box) box.style.display = "none";
+    }
+
     // ========================================================
     // MONITOREO DINÁMICO DE ESTADOS AL MEDIO DEL CATÁLOGO
     // ========================================================
     async function verificarEstadoComandaEnVivo() {
       if (!comandaActivaId) return;
 
-      let todasLasComandas = [];
       let miComanda = null;
 
       try {
-        const resFB = await fetch(`${FIREBASE_DB_URL}comandas.json?_t=${Date.now()}`);
+        const resFB = await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json?_t=${Date.now()}`);
         if (resFB.ok) {
-          const dataFB = await resFB.json();
-          if (dataFB && typeof dataFB === 'object') {
-            todasLasComandas = Object.values(dataFB).filter(c => c && typeof c === 'object');
-            miComanda = dataFB[comandaActivaId] || null;
-          }
+          miComanda = await resFB.json();
         }
       } catch (e) {}
 
@@ -1562,6 +1575,7 @@
       const turnoBadge = document.getElementById("notifTurnoTxt");
       const cajaMozo = document.getElementById("cajaPreguntaMozo");
       const cajaPedirCuenta = document.getElementById("cajaBotonPedirCuenta");
+      const cajaResena = document.getElementById("cajaResenaServicio");
 
       const numTurno = miComanda.numeroTurno || "01";
       if (turnoBadge) turnoBadge.innerText = `Turno #${numTurno < 10 ? '0' + numTurno : numTurno}`;
@@ -1571,11 +1585,9 @@
 
       const estado = String(miComanda.estado || 'iniciado').toLowerCase();
 
-      // Reproducir sonido si el estado cambió
       if (ultimoEstadoRegistrado !== estado || miComanda.mozoPregunta === true) {
         if (ultimoEstadoRegistrado !== null) {
           reproducirSonidoNotificacion();
-          notificacionMinimizadaManualmente = false; // reabrir si hay actualización nueva
         }
         ultimoEstadoRegistrado = estado;
       }
@@ -1585,8 +1597,9 @@
         badge.style.background = "#eab308";
         badge.style.color = "#000";
         badge.innerText = "🟡 1. POR CONFIRMAR";
-        mensaje.innerText = "Tu pedido fue enviado. El mozo o cocina lo está verificando en el panel...";
+        mensaje.innerText = "Tu pedido fue enviado. El mozo o caja lo está verificando en el panel...";
         cajaPedirCuenta.style.display = "none";
+        if (cajaResena) cajaResena.style.display = "none";
       }
       // 2. Fase: En Cocina
       else if (estado === 'cocina') {
@@ -1595,33 +1608,39 @@
         badge.innerText = "🔵 2. EN PROCESO (COCINA)";
         mensaje.innerText = "¡Tu pedido está siendo elaborado por el chef en este momento! 🍳";
         cajaPedirCuenta.style.display = "none";
+        if (cajaResena) cajaResena.style.display = "none";
       }
-      // 3. Fase: Servido en Mesa
+      // 3. Fase: Servido en Mesa -> Se activa el botón de pagar cuenta y la reseña
       else if (estado === 'servido') {
         badge.style.background = "#16a34a";
         badge.style.color = "#fff";
         badge.innerText = "🟢 3. RECIBIDO EN MESA";
         mensaje.innerText = "¡Buen provecho! Tu pedido ya está servido en tu mesa.";
         cajaPedirCuenta.style.display = "block";
+
+        if (cajaResena && !miComanda.resenaEnviada) {
+          cajaResena.style.display = "block";
+        } else if (cajaResena) {
+          cajaResena.style.display = "none";
+        }
       }
-      // 4. Fase: Camino a Caja
+      // 4. Fase: Camino a Caja -> Desaparece el botón y bloquea la acción
       else if (estado === 'camino_a_caja' || miComanda.clientePidiendoCuenta === true) {
         badge.style.background = "#ec4899";
         badge.style.color = "#fff";
         badge.innerText = "🚶‍♂️ VOY EN CAMINO A CAJA";
         mensaje.innerHTML = "<b>¡Aviso recibido en caja!</b> Dirígete a la recepción para cancelar tu cuenta.";
         cajaPedirCuenta.style.display = "none";
+        if (cajaResena) cajaResena.style.display = "none";
       }
 
-      // Activar o desactivar caja de pregunta del mozo
       if (miComanda.mozoPregunta === true) {
         cajaMozo.style.display = "block";
       } else {
         cajaMozo.style.display = "none";
       }
 
-      // Mostrar centrado si no está minimizado manualmente
-      if (!notificacionMinimizadaManualmente && modalCentro) {
+      if (modalCentro) {
         modalCentro.style.display = "flex";
       }
     }
