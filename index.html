@@ -509,6 +509,11 @@
         ¡Muchas gracias por tu visita! Tu comanda ha sido cancelada y la mesa ha quedado libre. Esperamos que hayas disfrutado tu experiencia gastronómica.
       </p>
 
+      <!-- BOTÓN VER SELLOS Y PREMIOS ACUMULADOS EN EL CLUB -->
+      <a id="btnVerSellosAgradecimiento" href="club.html" class="btn-ir-reservas" style="background: linear-gradient(135deg, #ca8a04, #eab308); color: #000; font-weight: 900; text-decoration: none; margin-top: 4px;">
+        🎁 Ver mis Sellos y Premios Acumulados
+      </a>
+
       <div style="width:100%; border-top:1px dashed rgba(255,255,255,0.15); padding-top:8px;">
         <span style="font-size:11.5px; color:#fde047; font-weight:800; display:block;">
           <i class="fa-solid fa-phone"></i> <span id="lblAgradeceContacto">Contacto:</span> <span id="agradeceContactoTxt">+51 969 773 064</span>
@@ -713,6 +718,27 @@
       <input type="text" id="clientNameInput" class="custom-input" placeholder="Nombre de quien pide (opcional)" />
       <input type="text" id="notesInput" class="custom-input" placeholder="Notas para cocina (término de carne, alergias, etc.)" />
 
+      <!-- CAMPO DNI PARA CLUB DE RECOMPENSAS (INTEGRADO) -->
+      <div style="background: rgba(245, 158, 11, 0.12); border: 1.5px dashed var(--accent); border-radius: 12px; padding: 10px 12px; margin-bottom: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <span style="font-size: 11.5px; font-weight: 900; color: #fde047;">
+            ⭐ ¿Eres socio del Club? Acumula sellos:
+          </span>
+          <button type="button" onclick="irAClubDesdeIndex()" style="background: none; border: none; color: var(--gold-badge); font-size: 11px; font-weight: bold; cursor: pointer; text-decoration: underline;">
+            Ver mi tarjeta
+          </button>
+        </div>
+        <input 
+          type="tel" 
+          id="clientDniInput" 
+          class="custom-input" 
+          placeholder="Ingresa tu DNI (8 dígitos)..." 
+          maxlength="10" 
+          style="margin-bottom: 0;"
+          oninput="guardarDniLocal(this.value)"
+        />
+      </div>
+
       <!-- TOTAL COMANDA -->
       <div class="order-total-bar">
         <span style="font-weight:900; color:var(--modal-dark); font-size:14px;" id="lblTotalComandaTxt">Total comanda:</span>
@@ -787,7 +813,7 @@
           </button>
         </div>
 
-        <!-- Info en el pie: Mesa y Total (SIN botón de ver catálogo) -->
+        <!-- Info en el pie: Mesa y Total -->
         <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 10px; color: #bbb; font-size: 12.5px;">
           <span id="notifModalMesaTxt" style="font-weight: 800; color: #fff;">Mesa 01</span>
           <span id="notifModalTotalTxt" style="font-weight: 900; color: #fde047;">S/ 0.00</span>
@@ -854,6 +880,39 @@
     let clicksIconoDev = 0;
     let ultimoEstadoRegistrado = null;
     let cuentaPedidaBloqueada = false;
+
+    // 1. Guardar DNI localmente para autocompletar en futuras visitas
+    function guardarDniLocal(dni) {
+      const limpio = dni.trim();
+      if (limpio) {
+        localStorage.setItem('inkabistro_cliente_dni', limpio);
+        const btnAgradece = document.getElementById('btnVerSellosAgradecimiento');
+        if (btnAgradece) btnAgradece.href = `club.html?dni=${encodeURIComponent(limpio)}`;
+      }
+    }
+
+    // 2. Redirigir a club.html con el DNI ingresado
+    function irAClubDesdeIndex() {
+      const dni = document.getElementById('clientDniInput')?.value.trim() || localStorage.getItem('inkabistro_cliente_dni') || '';
+      if (dni) {
+        window.location.href = `club.html?dni=${encodeURIComponent(dni)}`;
+      } else {
+        window.location.href = 'club.html';
+      }
+    }
+
+    // 3. Autocompletar el DNI al cargar si ya se guardó antes
+    window.addEventListener('DOMContentLoaded', () => {
+      const dniGuardado = localStorage.getItem('inkabistro_cliente_dni');
+      const inputDni = document.getElementById('clientDniInput');
+      if (dniGuardado && inputDni) {
+        inputDni.value = dniGuardado;
+      }
+      const btnAgradece = document.getElementById('btnVerSellosAgradecimiento');
+      if (btnAgradece && dniGuardado) {
+        btnAgradece.href = `club.html?dni=${encodeURIComponent(dniGuardado)}`;
+      }
+    });
 
     function reproducirSonidoNotificacion() {
       try {
@@ -1376,6 +1435,9 @@
       const cliente = document.getElementById('clientNameInput').value.trim() || "Comensal";
       const notas = document.getElementById('notesInput').value.trim();
 
+      // OBTENER EL DNI INGRESADO O PREVIAMENTE GUARDADO
+      const dniComensal = document.getElementById('clientDniInput')?.value.trim() || localStorage.getItem('inkabistro_cliente_dni') || '';
+
       const btn = document.getElementById('btnEnviarComanda');
       btn.disabled = true;
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Transmitiendo comanda a cocina...';
@@ -1407,6 +1469,7 @@
                   productos: productosUnificados,
                   totalPEN: nuevoTotal,
                   total: nuevoTotal,
+                  dni: dniComensal || dataVieja.dni || '',
                   estado: 'cocina',
                   mozoPregunta: false,
                   clientePidiendoCuenta: false,
@@ -1447,6 +1510,7 @@
         fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }),
         cliente: `${mesaNorm} (${cliente})`,
         mesa: mesaNorm,
+        dni: dniComensal, // <-- SINCRONIZADO PARA EL CLUB DE RECOMPENSAS
         productos: detalleTexto.replace(/, $/, ""),
         items: platosComanda,
         totalPEN: ultimoTotalPagarPEN,
@@ -1597,7 +1661,7 @@
         badge.style.background = "#eab308";
         badge.style.color = "#000";
         badge.innerText = "🟡 1. POR CONFIRMAR";
-        mensaje.innerText = "Tu pedido fue enviado. El mozo o caja lo está verificando en el panel...";
+        mensaje.innerText = "Tu pedido fue enviado. El mozo o cocina lo está verificando en el panel...";
         cajaPedirCuenta.style.display = "none";
         if (cajaResena) cajaResena.style.display = "none";
       }
