@@ -172,6 +172,16 @@
     .res-pendiente { background: #d97706; color: #fff; }
     .res-confirmada { background: #16a34a; color: #fff; }
 
+    /* RESEÑAS AGRUPADAS */
+    .review-item-card {
+      background: #1a120f; padding: 14px; border-radius: 12px; margin-bottom: 10px;
+      border: 1px solid var(--card-border); display: flex; flex-direction: column; gap: 6px;
+    }
+    .review-dish-tag {
+      display: inline-block; background: #3b2014; color: #fed7aa; border: 1px solid var(--accent);
+      padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 800;
+    }
+
     .kds-calendar-bar { 
       background: #180e0a; border: 1.5px solid var(--accent); border-radius: 14px; 
       padding: 12px 16px; margin-bottom: 14px; display: flex; flex-wrap: wrap; 
@@ -301,9 +311,7 @@
 
     .sidebar-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 180; } 
 
-    /* ======================================================== 
-       MODAL DE ALERTA CENTRADO (SEGUNDO PLANO A PRIMER PLANO) 
-       ======================================================== */ 
+    /* MODAL DE ALERTA CENTRADO */ 
     .alerta-centro-overlay { 
       position: fixed; inset: 0; 
       background: rgba(0, 0, 0, 0.78); 
@@ -504,7 +512,7 @@
           </button> 
 
           <button class="nav-item" id="btnNavReservas" onclick="seleccionarOpcionNav('reservas')"> 
-            <i class="fa-solid fa-calendar-check"></i> Generación de Reservas 
+            <i class="fa-solid fa-calendar-days"></i> Generación de Reservas 
           </button> 
 
           <button class="nav-item" id="btnNavMesas" onclick="seleccionarOpcionNav('mesas')"> 
@@ -774,7 +782,7 @@
           </div> 
         </section> 
 
-        <!-- 6. REPORTE CONTABLE (CORREGIDO) --> 
+        <!-- 6. REPORTE CONTABLE --> 
         <section id="viewReportes" style="display:none;"> 
           <div class="view-header"> 
             <div> 
@@ -823,7 +831,7 @@
           </div> 
         </section> 
 
-        <!-- 7. QR MESAS (CORREGIDO PARA IMPRESIÓN DIRECTA SIN FALLAS) --> 
+        <!-- 7. QR MESAS --> 
         <section id="viewMesas" style="display:none;"> 
           <div class="view-header"> 
             <div> 
@@ -981,7 +989,7 @@
     </div>
   </div>
 
-  <!-- MODAL DE ALERTA CENTRADO EN SEGUNDO PLANO (CORREGIDO) --> 
+  <!-- MODAL DE ALERTA CENTRADO EN SEGUNDO PLANO --> 
   <div class="alerta-centro-overlay" id="alertaCentroOverlay" onclick="cerrarAlertaCentro()"> 
     <div class="alerta-centro-card" onclick="event.stopPropagation()"> 
       <div class="alerta-icono-wrap" id="alertaIconoWrap"> 
@@ -1166,11 +1174,13 @@
 
     let audioCtx = null; 
     function asegurarAudioCtx() { 
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
-      if (audioCtx.state === 'suspended') audioCtx.resume(); 
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
+        if (audioCtx.state === 'suspended') audioCtx.resume(); 
+      } catch (e) {}
     } 
-    window.addEventListener('click', asegurarAudioCtx, { once: true }); 
-    window.addEventListener('touchstart', asegurarAudioCtx, { once: true }); 
+    window.addEventListener('click', asegurarAudioCtx); 
+    window.addEventListener('touchstart', asegurarAudioCtx); 
 
     function reproducirSonidoCampanaCocina() { 
       try { 
@@ -1201,7 +1211,7 @@
     } 
     function probarSonidoCampanaCocina() { reproducirSonidoCampanaCocina(); } 
 
-    /* GESTOR DE ALERTAS VISUALES EN PANTALLA COMPLETA (CORREGIDO) */ 
+    /* GESTOR DE ALERTAS VISUALES EN PANTALLA COMPLETA */ 
     function dispararAlertaCentro(titulo, mensaje, detalle, icono = 'fa-bell', colorIcono = '#fbbf24') { 
       reproducirSonidoCampanaCocina(); 
       const overlay = document.getElementById('alertaCentroOverlay'); 
@@ -1227,7 +1237,7 @@
       if (overlay) overlay.classList.remove('active'); 
     } 
 
-    /* ESCUCHA EN TIEMPO REAL ENTRE PESTAÑAS (INDEX.HTML -> ADMIN.HTML) (SINTAXIS CORREGIDA) */ 
+    /* ESCUCHA EN TIEMPO REAL ENTRE PESTAÑAS (INDEX.HTML -> ADMIN.HTML) */ 
     canalPedidos.onmessage = (event) => { 
       if (event.data?.tipo === 'RESPUESTA_CLIENTE') {
         const respuesta = event.data.respuesta || ''; 
@@ -1263,7 +1273,7 @@
       } 
     }; 
 
-    /* INICIO DE SESIÓN COMPLETO Y CORREGIDO */
+    /* INICIO DE SESIÓN COMPLETO */
     async function verificarLoginSistema(e) { 
       e.preventDefault(); 
       const rolSeleccionado = document.getElementById('loginUsuarioSelector').value; 
@@ -1285,7 +1295,6 @@
         u.nombre && u.nombre.toLowerCase() === nombreIngresado.toLowerCase() && u.pass === passIngresada 
       ); 
 
-      // Admite clave maestra de respaldo o credenciales de la base de datos
       const esClaveMaestra = (passIngresada === "regocijo123" || passIngresada === PASSWORD_MAESTRA_VAULT); 
 
       if (usuarioEncontrado || esClaveMaestra) { 
@@ -1300,7 +1309,7 @@
 
         mostrarPanelAdmin(); 
       } else { 
-        alert("⛔ Nombre de operador o contraseña incorrectos. Usa la clave maestra regocijo123 si no has registrado usuarios."); 
+        alert("⛔ Nombre de operador o contraseña incorrectos. Usa regocijo123 para ingresar."); 
       } 
     } 
 
@@ -1913,6 +1922,99 @@
       await cargarComandasEnVivo(); 
     } 
 
+    /* CARGA DE COMANDAS EN VIVO Y MONITOREO INTELIGENTE DE ALERTAS */
+    async function cargarComandasEnVivo() { 
+      const grid = document.getElementById('liveOrdersGrid'); 
+      const monitorGrid = document.getElementById('tablesMonitorGrid'); 
+      if (!grid || !monitorGrid) return; 
+
+      let comandas = []; 
+      try { 
+        const resFB = await fetch(`${FIREBASE_DB_URL}comandas.json?_t=${Date.now()}`); 
+        if (resFB.ok) { 
+          const dataFB = await resFB.json(); 
+          if (dataFB && typeof dataFB === 'object') { 
+            comandas = Object.keys(dataFB).map(k => { 
+              const item = dataFB[k]; 
+              if (!item || typeof item !== 'object') return null; 
+              return Object.assign({ id: k }, item); 
+            }).filter(Boolean); 
+          } 
+        } 
+      } catch (e) {
+        console.error("Error al cargar comandas:", e);
+      } 
+
+      comandas.sort((a, b) => (a.timestampOrden || 0) - (b.timestampOrden || 0)); 
+      todasLasComandasCache = comandas; 
+
+      // DETECCIÓN DE ALERTAS EN TIEMPO REAL
+      comandas.forEach(c => { 
+        const previo = estadosConocidosComandas[c.id]; 
+        const estadoActual = String(c.estado || '').toLowerCase(); 
+
+        // 1. Nueva Comanda ingresada
+        if (!previo && estadoActual !== 'finalizado' && estadoActual !== 'liberado') { 
+          if (Object.keys(estadosConocidosComandas).length > 0) { 
+            dispararAlertaCentro( 
+              "🔔 ¡Nueva Comanda Ingresada!", 
+              `Se acaba de registrar un nuevo pedido para <b>${c.mesa || 'Mesa'}</b> (${c.cliente || 'Comensal'}).`, 
+              `Platos: ${c.productos || 'Plato nuevo'} • Total: S/ ${(c.totalPEN || c.total || 0).toFixed(2)}`, 
+              'fa-bell-concierge', 
+              '#fbbf24' 
+            ); 
+          } 
+        } 
+
+        // 2. Cliente pide cuenta en caja
+        if (c.clientePidiendoCuenta === true && (!previo || !previo.clientePidiendoCuenta) && estadoActual !== 'finalizado') { 
+          dispararAlertaCentro( 
+            "💵 ¡El Cliente va a Pagar en Caja!", 
+            `El comensal de la <b>${c.mesa || 'Mesa'}</b> ha terminado de consumir y <b>viene a caja a pagar</b>.`, 
+            `Total a cobrar: S/ ${(c.totalPEN || c.total || 0).toFixed(2)} | Método: ${c.pago || 'Efectivo'}`, 
+            'fa-person-walking', 
+            '#ec4899' 
+          ); 
+        } 
+
+        // 3. Respuesta del cliente al mozo
+        if (c.clienteRespuestaMozo && (!previo || previo.clienteRespuestaMozo !== c.clienteRespuestaMozo)) { 
+          if (c.clienteRespuestaMozo.toLowerCase().includes('no')) { 
+            dispararAlertaCentro( 
+              "🛑 El Cliente no agregará más", 
+              `En la <b>${c.mesa || 'Mesa'}</b> respondieron que <b>no desean nada más</b> por el momento.`, 
+              `Estado comanda: ${estadoActual}`, 
+              'fa-circle-xmark', 
+              '#f87171' 
+            ); 
+          } 
+        } 
+
+        estadosConocidosComandas[c.id] = { 
+          estado: estadoActual, 
+          clientePidiendoCuenta: c.clientePidiendoCuenta, 
+          clienteRespuestaMozo: c.clienteRespuestaMozo 
+        }; 
+      }); 
+
+      const activasSinCobro = comandas.filter(c => String(c.estado || "").toLowerCase() !== 'finalizado'); 
+      totalComandasPrevias = activasSinCobro.length; 
+      document.getElementById('badgeTotalComandas').innerText = activasSinCobro.length; 
+
+      const mesasOcupadas = activasSinCobro.map(c => normalizarNombreMesa(c.mesa || '')); 
+      monitorGrid.innerHTML = listaMesasDinamicas.map(m => { 
+        const estaOcupada = mesasOcupadas.includes(normalizarNombreMesa(m)); 
+        return ` 
+          <div class="table-pill ${estaOcupada ? 'ocupada' : 'libre'}" onclick="clickPildoraMesaMonitor('${m}', ${estaOcupada})"> 
+            <span>${m.replace('Mesa ', 'M-')} ${estaOcupada ? '🔒' : '✔'}</span> 
+            ${modoEliminarMesasActivo ? `<button type="button" class="btn-remove-pill" onclick="eliminarMesaDirectaMonitor('${m}', event)">✕</button>` : ''} 
+          </div> 
+        `; 
+      }).join(''); 
+
+      renderizarListaKDSFiltrada(); 
+    } 
+
     function renderizarListaKDSFiltrada() { 
       const grid = document.getElementById('liveOrdersGrid'); 
       if (!grid) return; 
@@ -2047,202 +2149,41 @@
       }).join(''); 
     } 
 
-    async function cambiarEstadoFirebase(idComanda, nuevoEstado) { 
-      await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, { 
-        method: 'PATCH', 
-        headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify({ estado: nuevoEstado, clientePidiendoCuenta: false }) 
-      }); 
-      await cargarComandasEnVivo(); 
+    function aplicarFiltroEstadoKDS(filtro) { 
+      filtroEstadoKDSActual = filtro; 
+      document.querySelectorAll('.kds-filter-btn').forEach(b => b.classList.remove('active')); 
+      if (filtro === 'todos') document.getElementById('btnFiltroTodos').classList.add('active'); 
+      if (filtro === 'cobrar') document.getElementById('btnFiltroCobrar').classList.add('active'); 
+      if (filtro === 'iniciado') document.getElementById('btnFiltroIniciado').classList.add('active'); 
+      if (filtro === 'cocina') document.getElementById('btnFiltroCocina').classList.add('active'); 
+      renderizarListaKDSFiltrada(); 
     } 
 
-    async function enviarMensajeAgregarMas(idComanda) { 
-      await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, { 
-        method: 'PATCH', 
-        headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify({ mozoPregunta: true }) 
-      }); 
-      alert("✔ Notificación enviada al cliente."); 
+    function filtrarComandasKDS() { renderizarListaKDSFiltrada(); } 
+
+    function cambiarFechaKDS(val) { 
+      fechaKdsSeleccionada = val; 
+      document.querySelectorAll('.kds-date-quick-btn').forEach(b => b.classList.remove('active')); 
+      renderizarListaKDSFiltrada(); 
     } 
 
-    async function cargarMesasDesdeFirebase() { 
-      try { 
-        const res = await fetch(`${FIREBASE_DB_URL}config/mesas.json?_t=${Date.now()}`); 
-        if (res.ok) { 
-          const data = await res.json(); 
-          if (Array.isArray(data) && data.length > 0) listaMesasDinamicas = data; 
-        } 
-      } catch (e) {} 
-      actualizarSelectoresDeMesas(); 
-    } 
-
-    function actualizarSelectoresDeMesas() { 
-      const qrSelect = document.getElementById('qrMesaSelectorDinamico'); 
-      if (qrSelect) { 
-        const val = qrSelect.value; 
-        qrSelect.innerHTML = listaMesasDinamicas.map(m => `<option value="${m}" ${m === val ? 'selected' : ''}>${m}</option>`).join(''); 
+    function setKdsFechaRapida(modo) { 
+      document.querySelectorAll('.kds-date-quick-btn').forEach(b => b.classList.remove('active')); 
+      const hoy = new Date(); 
+      if (modo === 'hoy') { 
+        fechaKdsSeleccionada = hoy.toISOString().split('T')[0]; 
+        document.getElementById('btnKdsHoy').classList.add('active'); 
+      } else if (modo === 'ayer') { 
+        const ayer = new Date(hoy); 
+        ayer.setDate(ayer.getDate() - 1); 
+        fechaKdsSeleccionada = ayer.toISOString().split('T')[0]; 
+        document.getElementById('btnKdsAyer').classList.add('active'); 
+      } else if (modo === 'todas') { 
+        fechaKdsSeleccionada = ""; 
+        document.getElementById('btnKdsTodas').classList.add('active'); 
       } 
-
-      const resSelect = document.getElementById('crmResMesaSelect'); 
-      if (resSelect) { 
-        resSelect.innerHTML = listaMesasDinamicas.map(m => `<option value="${m}">${m}</option>`).join(''); 
-      } 
-    } 
-
-    function generarTokenAleatorio() { 
-      return "TK-" + Math.random().toString(36).substring(2, 8).toUpperCase() + "-" + Date.now().toString(36).toUpperCase(); 
-    } 
-
-    function normalizarClaveMesa(m) { 
-      return String(m || '').toLowerCase().replace(/[^a-z0-9]/g, '_'); 
-    } 
-
-    async function regenerarTokenMesa(m) { 
-      const key = normalizarClaveMesa(m); 
-      const nuevoToken = generarTokenAleatorio(); 
-      tokensMesasActivos[key] = nuevoToken; 
-      await fetch(`${FIREBASE_DB_URL}config/tokens_mesas/${key}.json`, { 
-        method: 'PUT', 
-        headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify(nuevoToken) 
-      }); 
-      return nuevoToken; 
-    } 
-
-    async function sincronizarTokensDeMesasFirebase() { 
-      try { 
-        const res = await fetch(`${FIREBASE_DB_URL}config/tokens_mesas.json?_t=${Date.now()}`); 
-        if (res.ok) { 
-          const data = await res.json(); 
-          if (data && typeof data === 'object') tokensMesasActivos = data; 
-        } 
-      } catch (e) {} 
-
-      let cambios = false; 
-      for (const m of listaMesasDinamicas) { 
-        const key = normalizarClaveMesa(m); 
-        if (!tokensMesasActivos[key]) { 
-          tokensMesasActivos[key] = generarTokenAleatorio(); 
-          cambios = true; 
-        } 
-      } 
-      if (cambios) { 
-        await fetch(`${FIREBASE_DB_URL}config/tokens_mesas.json`, { 
-          method: 'PUT', 
-          headers: { 'Content-Type': 'application/json' }, 
-          body: JSON.stringify(tokensMesasActivos) 
-        }); 
-      } 
-    } 
-
-    async function obtenerEnlaceCompletoMesa(mesa) { 
-      const u = "https://phyxcius.github.io/restaurante/"; 
-      const key = normalizarClaveMesa(mesa); 
-      if (!tokensMesasActivos[key]) await regenerarTokenMesa(mesa); 
-      const tk = tokensMesasActivos[key]; 
-      return `${u}?mesa=${encodeURIComponent(mesa)}&token=${encodeURIComponent(tk)}`; 
-    } 
-
-    async function abrirMenuConTokenActivo() { 
-      const selector = document.getElementById('qrMesaSelectorDinamico'); 
-      const mesa = selector ? selector.value : (listaMesasDinamicas[0] || "Mesa 01"); 
-      const urlCompleta = await obtenerEnlaceCompletoMesa(mesa); 
-      window.open(urlCompleta, '_blank'); 
-    } 
-
-    async function copiarEnlaceMesaToken() { 
-      const selector = document.getElementById('qrMesaSelectorDinamico'); 
-      const mesa = selector ? selector.value : (listaMesasDinamicas[0] || "Mesa 01"); 
-      const urlCompleta = await obtenerEnlaceCompletoMesa(mesa); 
-      navigator.clipboard.writeText(urlCompleta).then(() => { 
-        alert(`✔ Enlace copiado para ${mesa}:\n${urlCompleta}`); 
-      }).catch(() => { prompt("Copia el enlace:", urlCompleta); }); 
-    } 
-
-    async function abrirPromptAgregarMesa() { 
-      const nombre = prompt("🪑 Ingresa nombre de la nueva mesa (Ej: Mesa 13, Mesa 25, VIP 2):"); 
-      if (!nombre || !nombre.trim()) return; 
-      const m = nombre.trim(); 
-      if (listaMesasDinamicas.includes(m)) return alert("Esa mesa ya existe."); 
-
-      listaMesasDinamicas.push(m); 
-      await fetch(`${FIREBASE_DB_URL}config/mesas.json`, { 
-        method: 'PUT', 
-        headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify(listaMesasDinamicas) 
-      }); 
-      await regenerarTokenMesa(m); 
-      actualizarSelectoresDeMesas(); 
-      cargarComandasEnVivo(); 
-    } 
-
-    function toggleModoEliminarMesas() { 
-      modoEliminarMesasActivo = !modoEliminarMesasActivo; 
-      document.getElementById('lblBtnModoEliminar').innerText = modoEliminarMesasActivo ? "✅ Finalizar Edición" : "🗑️ Modo Eliminar"; 
-      cargarComandasEnVivo(); 
-    } 
-
-    async function eliminarMesaDirectaMonitor(m, event) { 
-      if (event) event.stopPropagation(); 
-      if (confirm(`¿Eliminar la ${m}?`)) { 
-        listaMesasDinamicas = listaMesasDinamicas.filter(item => item !== m); 
-        await fetch(`${FIREBASE_DB_URL}config/mesas.json`, { 
-          method: 'PUT', 
-          headers: { 'Content-Type': 'application/json' }, 
-          body: JSON.stringify(listaMesasDinamicas) 
-        }); 
-        actualizarSelectoresDeMesas(); 
-        cargarComandasEnVivo(); 
-      } 
-    } 
-
-    async function abrirPromptDesbloquearMesaManual() { 
-      const num = prompt("🔓 Ingresa el nombre o número de la mesa a desbloquear:"); 
-      if (!num || !num.trim()) return; 
-      const mesaNorm = normalizarNombreMesa(num.trim()); 
-      await forzarLiberacionMesa(mesaNorm); 
-    } 
-
-    function normalizarNombreMesa(m) { 
-      if (!m) return ""; 
-      let s = String(m).trim(); 
-      const match = s.match(/\d+/); 
-      if (match && s.toLowerCase().includes("mesa")) { 
-        const num = parseInt(match[0]); return "Mesa " + (num < 10 ? "0" + num : num); 
-      } 
-      return s; 
-    } 
-
-    async function forzarLiberacionMesa(mesaNorm) { 
-      try { 
-        const res = await fetch(`${FIREBASE_DB_URL}comandas.json`); 
-        if (res.ok) { 
-          const data = await res.json(); 
-          for (let k in data) { 
-            if (data[k] && normalizarNombreMesa(data[k].mesa || '') === mesaNorm) { 
-              await fetch(`${FIREBASE_DB_URL}comandas/${k}.json`, { 
-                method: 'PATCH', 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ estado: 'liberado', agradecimientoFinal: true }) 
-              }); 
-            } 
-          } 
-        } 
-      } catch (e) {} 
-
-      await regenerarTokenMesa(mesaNorm); 
-      alert(`✔ Mesa "${mesaNorm}" desbloqueada y liberada.`); 
-      cargarComandasEnVivo(); 
-      actualizarQRVisualDirecto(); 
-    } 
-
-    function clickPildoraMesaMonitor(m, estaOcupada) { 
-      if (modoEliminarMesasActivo) return; 
-      if (estaOcupada) { 
-        if (confirm(`La ${m} figura OCUPADA.\n¿Deseas desbloquearla ahora?`)) { 
-          forzarLiberacionMesa(normalizarNombreMesa(m)); 
-        } 
-      } else alert(`La ${m} está LIBRE.`); 
+      document.getElementById('kdsFechaSeleccionada').value = fechaKdsSeleccionada; 
+      renderizarListaKDSFiltrada(); 
     } 
 
     /* CARGA Y CONFIGURACIÓN DEL LOGO (SOPORTA CUALQUIER IMAGEN) */
@@ -2327,7 +2268,7 @@
       cargarIdentidadFirebase(); 
     } 
 
-    /* IMPRESIÓN CORREGIDA DE CÓDIGOS QR (ESPERA CARGA TOTAL DE IMAGEN) */
+    /* IMPRESIÓN CORREGIDA DE CÓDIGOS QR */
     async function actualizarQRVisualDirecto(mesaManual = null) { 
       const selector = document.getElementById('qrMesaSelectorDinamico'); 
       const mesa = mesaManual || (selector ? selector.value : (listaMesasDinamicas[0] || "Mesa 01")); 
@@ -2583,7 +2524,7 @@
       cerrarModalReservaCRM();
     }
 
-    /* 6. REPORTE CONTABLE Y VENTAS (CORREGIDO) */
+    /* 6. REPORTE CONTABLE Y VENTAS */
     async function cargarVentasDesdeFirebase() {
       const tbody = document.getElementById('tablaVentasBody');
       if (!tbody) return;
