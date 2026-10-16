@@ -37,16 +37,26 @@
     .card-login h3 { color: var(--gold); text-align: center; margin-bottom: 4px; font-size: 20px; font-weight: 900; } 
     .card-login p.sub { font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 16px; } 
 
-    /* LOGO OFICIAL LA CHUSPA TECH EN LOGIN */
+    /* LOGOS ENCABEZADO LOGIN (CHUSPA TECH + LOCAL) */
+    .login-logos-header {
+      display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 12px;
+    }
     .login-chuspa-logo-wrap {
-      width: 72px; height: 72px; margin: 0 auto 10px; border-radius: 50%;
+      width: 66px; height: 66px; border-radius: 50%;
       background: #fff; border: 2.5px solid var(--gold); overflow: hidden;
       display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 18px rgba(245, 158, 11, 0.45);
+      box-shadow: 0 4px 18px rgba(245, 158, 11, 0.45); flex-shrink: 0;
     }
-    .login-chuspa-logo-wrap img {
-      width: 100%; height: 100%; object-fit: cover; display: block;
+    .login-chuspa-logo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .login-brand-logo-wrap {
+      width: 66px; height: 66px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--primary));
+      border: 2.5px solid var(--gold); overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 18px rgba(194, 65, 12, 0.45); font-size: 28px; color: #fff; flex-shrink: 0;
     }
+    .login-brand-logo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
     .caja-chica-box { 
       background: #180e0a; border: 1.5px dashed var(--accent); border-radius: 10px; 
@@ -331,8 +341,13 @@
   <!-- PANTALLA LOGIN DINÁMICO --> 
   <div id="pantallaLogin"> 
     <div class="card-login"> 
-      <div class="login-chuspa-logo-wrap">
-        <img src="CHUSPITA-circulo.png" alt="La Chuspa Tech" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
+      <div class="login-logos-header">
+        <div class="login-chuspa-logo-wrap" title="La Chuspa Tech">
+          <img src="CHUSPITA-circulo.png" alt="La Chuspa Tech" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
+        </div>
+        <div class="login-brand-logo-wrap" id="loginBrandLogoWrap" title="Logo del Restaurante">
+          🍽️
+        </div>
       </div>
       <h3 id="loginTitlePreview">La Cusqueñita</h3> 
       <p class="sub">Inicio de Sesión & Apertura de Turno</p> 
@@ -1316,7 +1331,6 @@
     function mostrarSeccion(s) { 
       document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active')); 
       
-      // Actualiza la lista de IDs a ocultar agregando 'socios'
       ['comandas','socios','platos','usuarios','reservas','identidad','reportes','mesas','resenas'].forEach(id => { 
         const el = document.getElementById('view' + id.charAt(0).toUpperCase() + id.slice(1)); 
         if (el) el.style.display = 'none'; 
@@ -1338,7 +1352,6 @@
     } 
 
     /* MÓDULO CLUB & SOCIOS FRECUENTES - FUNCIONES JS */
-    // Busca y muestra la tarjeta del socio por DNI
     async function buscarSocioPorDniDirecto() {
       const dni = document.getElementById('inputBuscarDniSocio').value.trim();
       if (!dni) return alert("Por favor ingresa un número de DNI.");
@@ -1384,7 +1397,6 @@
       box.style.display = 'flex';
     }
 
-    // Suma manual de 1 sello
     async function sumarSelloManual() {
       if (!socioConsultadoActual) return;
       socioConsultadoActual.sellos = (socioConsultadoActual.sellos || 0) + 1;
@@ -1401,7 +1413,6 @@
       cargarListaCompletaSocios();
     }
 
-    // Canje de premio
     async function canjearPremioSocio() {
       if (!socioConsultadoActual) return;
       if (confirm(`¿Entregar premio gratis a ${socioConsultadoActual.nombre} y reiniciar sus sellos?`)) {
@@ -1419,7 +1430,6 @@
       }
     }
 
-    // Lista general de todos los socios
     async function cargarListaCompletaSocios() {
       const tbody = document.getElementById('tablaSociosBody');
       const count = document.getElementById('totalSociosRegistradosTxt');
@@ -1881,7 +1891,6 @@
         }) 
       }); 
 
-      // NOTIFICAR AL CLIENTE QUE YA SE FINALIZÓ EL COBRO
       try {
         canalPedidos.postMessage({
           tipo: 'ESTADO_ACTUALIZADO',
@@ -1891,7 +1900,6 @@
         });
       } catch (e) {}
 
-      // INTEGRACIÓN DE SELLOS DE FIDELIDAD AUTOMÁTICOS 
       const dniCliente = docCliente || (comandaCobrandoActual.dni || '').trim();
       if (dniCliente && dniCliente.length >= 8) { 
         try { 
@@ -2328,7 +2336,7 @@
       renderizarListaKDSFiltrada(); 
     } 
 
-    /* CARGA Y CONFIGURACIÓN DEL LOGO */ 
+    /* CARGA Y CONFIGURACIÓN DEL LOGO (SINCRONIZADO EN LOGIN Y PANEL) */ 
     async function cargarIdentidadFirebase() { 
       try { 
         const res = await fetch(`${FIREBASE_DB_URL}config/identidad.json?_t=${Date.now()}`); 
@@ -2348,6 +2356,7 @@
       document.getElementById('cfgInstagram').value = configRestaurante.instagram || ""; 
       document.getElementById('cfgTiktok').value = configRestaurante.tiktok || ""; 
 
+      document.getElementById('loginTitlePreview').innerText = configRestaurante.nombre; 
       document.getElementById('headerBusinessName').innerText = configRestaurante.nombre; 
       document.getElementById('topBarTitle').innerText = configRestaurante.nombre; 
       document.getElementById('repLocalRazonSocial').innerText = configRestaurante.nombre; 
@@ -2361,14 +2370,20 @@
     function actualizarRenderLogoVisual(logoData) { 
       const av = document.getElementById('headerAvatar'); 
       const prev = document.getElementById('previewCurrentLogo'); 
+      const loginBrandLogo = document.getElementById('loginBrandLogoWrap');
       const inpUrl = document.getElementById('cfgLogoUrlInput'); 
+
       if (logoData && (logoData.startsWith('data:image') || logoData.startsWith('http'))) { 
-        av.innerHTML = `<img src="${logoData}" alt="Logo">`; 
-        prev.innerHTML = `<img src="${logoData}" alt="Logo">`; 
+        const imgHtml = `<img src="${logoData}" alt="Logo">`;
+        av.innerHTML = imgHtml; 
+        prev.innerHTML = imgHtml; 
+        if (loginBrandLogo) loginBrandLogo.innerHTML = imgHtml;
         if (inpUrl && logoData.startsWith('http')) inpUrl.value = logoData; 
       } else { 
-        av.innerText = logoData || "🍽️"; 
-        prev.innerText = logoData || "🍽️"; 
+        const txt = logoData || "🍽️";
+        av.innerText = txt; 
+        prev.innerText = txt; 
+        if (loginBrandLogo) loginBrandLogo.innerText = txt;
       } 
     } 
 
@@ -2779,15 +2794,18 @@
     } 
 
     function cerrarTurno() { 
-      if (confirm("¿Cerrar sesión y turno?")) 
+      if (confirm("¿Cerrar sesión y turno?")) {
         sessionStorage.clear(); 
         window.location.reload(); 
+      }
     } 
     function cerrarSesionAdmin() { sessionStorage.clear(); window.location.reload(); } 
 
-    window.onload = () => { 
-      if (sessionStorage.getItem("auth_rest") === "true") mostrarPanelAdmin(); 
-      else { 
+    window.onload = async () => { 
+      await cargarIdentidadFirebase(); 
+      if (sessionStorage.getItem("auth_rest") === "true") {
+        mostrarPanelAdmin(); 
+      } else { 
         document.getElementById('pantallaLogin').style.display = 'flex'; 
         document.getElementById('panelAdminPrincipal').style.display = 'none'; 
       } 
