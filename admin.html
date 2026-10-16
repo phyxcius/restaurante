@@ -100,8 +100,8 @@
       width: 44px; height: 44px; border-radius: 12px; 
       background: linear-gradient(135deg, var(--accent), var(--primary)); 
       display: flex; align-items: center; justify-content: center; 
-      font-size: 22px; color: #fff; overflow: hidden; flex-shrink: 0;
-      border: 1.5px solid var(--gold);
+      font-size: 22px; color: #fff; overflow: hidden; flex-shrink: 0; 
+      border: 1.5px solid var(--gold); 
     } 
     .brand-avatar img { width: 100%; height: 100%; object-fit: cover; } 
 
@@ -469,6 +469,10 @@
             <span class="badge-live-orders" id="badgeTotalComandas">0</span> 
           </button> 
 
+          <button class="nav-item" id="btnNavSocios" onclick="seleccionarOpcionNav('socios')"> 
+            <i class="fa-solid fa-star"></i> Club & Socios Frecuentes 
+          </button> 
+
           <button class="nav-item" id="btnNavReservas" onclick="seleccionarOpcionNav('reservas')"> 
             <i class="fa-solid fa-calendar-check"></i> Generación de Reservas 
           </button> 
@@ -563,6 +567,76 @@
           <div class="live-orders-grid" id="liveOrdersGrid"></div> 
         </section> 
 
+        <!-- MÓDULO CLUB & SOCIOS FRECUENTES -->
+        <section id="viewSocios" style="display:none;">
+          <div class="view-header">
+            <div>
+              <h1>⭐ Club de Recompensas: Consulta de Socios</h1>
+              <p>Ingresa el DNI del comensal para ver su tarjeta de sellos acumulados y canjear premios.</p>
+            </div>
+            <button class="btn btn-add" onclick="cargarListaCompletaSocios()"><i class="fa-solid fa-rotate"></i> Actualizar Lista</button>
+          </div>
+
+          <!-- BUSCADOR POR DNI -->
+          <div class="card">
+            <strong style="color:var(--gold); font-size:14px;"><i class="fa-solid fa-id-card"></i> Buscar Socio por DNI o Escaneo:</strong>
+            <div style="display:flex; gap:10px; margin-top:8px;">
+              <input type="tel" id="inputBuscarDniSocio" placeholder="Ingresa DNI del cliente..." style="font-size:15px; font-weight:900;" maxlength="10">
+              <button type="button" class="btn btn-save" onclick="buscarSocioPorDniDirecto()"><i class="fa-solid fa-magnifying-glass"></i> Consultar</button>
+            </div>
+
+            <!-- FICHA DEL SOCIO ENCONTRADO -->
+            <div id="resultadoSocioBox" style="background:#19100d; border:1.5px solid var(--gold); border-radius:14px; padding:16px; display:none; flex-direction:column; gap:10px; margin-top:14px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <h3 id="resSocioNombre" style="color:#fff; font-size:17px; font-weight:900;">--</h3>
+                  <span style="font-size:12px; color:#aaa;">DNI: <b id="resSocioDni" style="color:var(--gold);">--</b></span>
+                </div>
+                <span id="resSocioBadgePremio" style="background:#16a34a; color:#fff; font-size:11px; font-weight:900; padding:4px 10px; border-radius:12px; display:none;">
+                  🎁 ¡TIENE PREMIO LISTO!
+                </span>
+              </div>
+
+              <div style="background:#241612; border:1px dashed var(--accent); border-radius:10px; padding:12px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <span style="font-size:12px; color:#ddd; display:block;">Puntaje Actual:</span>
+                  <b id="resSocioSellos" style="font-size:24px; color:#fde047;">0</b> <span style="font-size:12px; color:#aaa;">de 10 sellos</span>
+                </div>
+                <div>
+                  <span style="font-size:11px; color:#aaa; display:block;">Total Visitas Históricas:</span>
+                  <b id="resSocioVisitas" style="font-size:14px; color:#fff;">0</b>
+                </div>
+              </div>
+
+              <div style="display:flex; gap:8px; margin-top:6px;">
+                <button type="button" class="btn btn-save" style="flex:1;" onclick="sumarSelloManual()"><i class="fa-solid fa-plus"></i> +1 Sello de Consumo</button>
+                <button type="button" class="btn btn-add" id="btnCanjearPremio" style="flex:1; display:none;" onclick="canjearPremioSocio()"><i class="fa-solid fa-gift"></i> Entregar Premio y Reiniciar</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- TABLA GENERAL DE SOCIOS REGISTRADOS -->
+          <div class="card">
+            <strong style="color:var(--gold); font-size:14px; display:block; margin-bottom:8px;">
+              Historial de Socios Registrados (<span id="totalSociosRegistradosTxt">0</span>):
+            </strong>
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>DNI</th>
+                  <th>Nombre del Cliente</th>
+                  <th>Sellos Actuales</th>
+                  <th>Total Visitas</th>
+                  <th>Acción Rápida</th>
+                </tr>
+              </thead>
+              <tbody id="tablaSociosBody">
+                <tr><td colspan="5" style="text-align:center; color:#888;">Cargando socios...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
         <!-- 2. GESTIÓN DE USUARIOS --> 
         <section id="viewUsuarios" style="display:none;"> 
           <div class="view-header"> 
@@ -584,7 +658,7 @@
                 <input type="text" id="userInputNombre" placeholder="Ej: Carlos Salón" required> 
               </div> 
               <div> 
-                <label>Rol / Nivel de Accesso:</label> 
+                <label>Rol / Nivel de Acceso:</label> 
                 <select id="userInputRol" required> 
                   <option value="admin">Administrador (Acceso total)</option> 
                   <option value="cajero" selected>Cajero (Cobros y KDS)</option> 
@@ -1047,6 +1121,7 @@
     let reservasCache = []; 
     let ventasCache = []; 
     let totalReservasPrevias = 0; 
+    let socioConsultadoActual = null; 
 
     let vaultTokenDesbloqueado = false; 
     let vaultResetComandasDesbloqueado = false; 
@@ -1233,17 +1308,20 @@
       else layout.classList.toggle('sidebar-collapsed'); 
     } 
     function cerrarMenuMovil() { document.getElementById('adminLayoutWrapper').classList.remove('sidebar-open'); } 
-    function seleccionarOpcionNav(sec) { 
-      mostrarSeccion(sec); 
+    function seleccionarOpcionNav(s) { 
+      mostrarSeccion(s); 
       if (window.innerWidth <= 860) cerrarMenuMovil(); 
     } 
 
     function mostrarSeccion(s) { 
       document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active')); 
-      ['comandas','platos','usuarios','reservas','identidad','reportes','mesas','resenas'].forEach(id => { 
+      
+      // Actualiza la lista de IDs a ocultar agregando 'socios'
+      ['comandas','socios','platos','usuarios','reservas','identidad','reportes','mesas','resenas'].forEach(id => { 
         const el = document.getElementById('view' + id.charAt(0).toUpperCase() + id.slice(1)); 
         if (el) el.style.display = 'none'; 
       }); 
+      
       const btn = document.getElementById('btnNav' + s.charAt(0).toUpperCase() + s.slice(1)); 
       if (btn) btn.classList.add('active'); 
       const target = document.getElementById('view' + s.charAt(0).toUpperCase() + s.slice(1)); 
@@ -1256,7 +1334,130 @@
       if (s === 'mesas') actualizarQRVisualDirecto(); 
       if (s === 'resenas') cargarResenasFirebase(); 
       if (s === 'reportes') cargarVentasDesdeFirebase(); 
+      if (s === 'socios') cargarListaCompletaSocios(); 
     } 
+
+    /* MÓDULO CLUB & SOCIOS FRECUENTES - FUNCIONES JS */
+    // Busca y muestra la tarjeta del socio por DNI
+    async function buscarSocioPorDniDirecto() {
+      const dni = document.getElementById('inputBuscarDniSocio').value.trim();
+      if (!dni) return alert("Por favor ingresa un número de DNI.");
+
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${dni}.json?_t=${Date.now()}`);
+        const data = await res.json();
+
+        if (data && data.dni) {
+          mostrarFichaSocio(data);
+        } else {
+          if (confirm(`El DNI ${dni} no está registrado en el Club. ¿Deseas afiliarlo ahora?`)) {
+            const nom = prompt("Nombre completo del comensal:");
+            if (nom) {
+              const nuevo = { dni: dni, nombre: nom.trim(), sellos: 1, totalVisitas: 1 };
+              await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${dni}.json`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(nuevo)
+              });
+              mostrarFichaSocio(nuevo);
+              cargarListaCompletaSocios();
+            }
+          }
+        }
+      } catch (e) {
+        alert("Error al conectar con la base de datos.");
+      }
+    }
+
+    function mostrarFichaSocio(socio) {
+      socioConsultadoActual = socio;
+      const box = document.getElementById('resultadoSocioBox');
+      document.getElementById('resSocioNombre').innerText = socio.nombre || "Socio Frecuente";
+      document.getElementById('resSocioDni').innerText = socio.dni;
+      document.getElementById('resSocioSellos').innerText = (socio.sellos || 0) % 10;
+      document.getElementById('resSocioVisitas').innerText = socio.totalVisitas || 1;
+
+      const tienePremio = (socio.sellos >= 10);
+      document.getElementById('resSocioBadgePremio').style.display = tienePremio ? 'inline-block' : 'none';
+      document.getElementById('btnCanjearPremio').style.display = tienePremio ? 'inline-flex' : 'none';
+
+      box.style.display = 'flex';
+    }
+
+    // Suma manual de 1 sello
+    async function sumarSelloManual() {
+      if (!socioConsultadoActual) return;
+      socioConsultadoActual.sellos = (socioConsultadoActual.sellos || 0) + 1;
+      socioConsultadoActual.totalVisitas = (socioConsultadoActual.totalVisitas || 0) + 1;
+
+      await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${socioConsultadoActual.dni}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(socioConsultadoActual)
+      });
+
+      alert(`✔ ¡Sello sumado a ${socioConsultadoActual.nombre}!`);
+      mostrarFichaSocio(socioConsultadoActual);
+      cargarListaCompletaSocios();
+    }
+
+    // Canje de premio
+    async function canjearPremioSocio() {
+      if (!socioConsultadoActual) return;
+      if (confirm(`¿Entregar premio gratis a ${socioConsultadoActual.nombre} y reiniciar sus sellos?`)) {
+        socioConsultadoActual.sellos = Math.max(0, (socioConsultadoActual.sellos || 10) - 10);
+
+        await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${socioConsultadoActual.dni}.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(socioConsultadoActual)
+        });
+
+        alert("✔ Premio canjeado con éxito.");
+        mostrarFichaSocio(socioConsultadoActual);
+        cargarListaCompletaSocios();
+      }
+    }
+
+    // Lista general de todos los socios
+    async function cargarListaCompletaSocios() {
+      const tbody = document.getElementById('tablaSociosBody');
+      const count = document.getElementById('totalSociosRegistradosTxt');
+      if (!tbody) return;
+
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}fidelidad_clientes.json?_t=${Date.now()}`);
+        const data = await res.json();
+
+        if (data && typeof data === 'object') {
+          const lista = Object.values(data);
+          if (count) count.innerText = lista.length;
+
+          tbody.innerHTML = lista.map(s => `
+            <tr>
+              <td><b style="color:var(--gold);">${s.dni}</b></td>
+              <td>${s.nombre || 'Socio'}</td>
+              <td><b>${(s.sellos || 0) % 10} / 10</b> ${s.sellos >= 10 ? '🎁 <span style="color:#86efac; font-weight:bold;">¡Premio listo!</span>' : ''}</td>
+              <td>${s.totalVisitas || 1}</td>
+              <td>
+                <button class="btn btn-save" style="padding:4px 8px; font-size:11px;" onclick="cargarSocioDirecto('${s.dni}')">
+                  Ver Ficha
+                </button>
+              </td>
+            </tr>
+          `).join('');
+          return;
+        }
+      } catch (e) {}
+
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888;">No hay socios registrados aún.</td></tr>';
+    }
+
+    function cargarSocioDirecto(dni) {
+      document.getElementById('inputBuscarDniSocio').value = dni;
+      buscarSocioPorDniDirecto();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
     function toggleAcordeonClave(tipo) { 
       if (tipo === 'token') { 
