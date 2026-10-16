@@ -1,10 +1,45 @@
 <!DOCTYPE html>
+<html langPara responder con total claridad a tus dos preguntas:
+
+---
+
+### 1. ¿Cuál de los 2 archivos necesita sincronizar: `index.html` o `admin.html`?
+
+**Ambos archivos necesitan sincronización, pero con funciones distintas y complementarias:**
+
+1. **`admin.html` (El más importante e indispensable):**
+   * Es el **cajero/administrador** quien valida los consumos, cobra la cuenta y entrega los sellos.
+   * En `admin.html` se debe sincronizar:
+     * Al cobrar una comanda (`confirmarCobroFinalizado`), si el cliente dio su DNI, sumar automáticamente un sello en Firebase (`fidelidad_clientes/${dni}`).
+     * Un botón o lector rápido para **escanear/buscar el DNI del socio**, sellar manualmente su tarjeta o canjear el premio una vez que llegue a 10 sellos (reiniciando la cuenta a 0).
+2. **`index.html` (Vista del comensal):**
+   * Necesita un enlace de acceso (por ejemplo, en el pie de página, en la pantalla de agradecimiento o en la cabecera) con un botón que diga: **`⭐ Club de Puntos / Recompensas`** que redirija a `club.html?dni=...`.
+   * En el formulario de comanda o cobro, incluir un campo opcional: *"¿Eres socio del Club? Ingresa tu DNI para acumular sellos"*.
+
+---
+
+### 2. ¿Qué le falta actualizar a `club.html`?
+
+A tu archivo `club.html` le faltan detalles operativos clave para que funcione de forma autónoma y profesional:
+1. **Registro de Nuevos Socios:** Si el DNI ingresado no existe en Firebase, actualmente solo crea un objeto temporal en memoria, pero no pide el nombre ni el teléfono del cliente para guardarlo formalmente en Firebase.
+2. **Carga dinámica de la Identidad del Negocio:** Lee el nombre fijo como *"La Cusqueñita"*, en lugar de traer dinámicamente el nombre y logo configurados en `config/identidad.json` (como ya hacen `index.html` y `admin.html`).
+3. **Escucha en tiempo real (Polling o BroadcastChannel):** Si el cliente tiene abierta la tarjeta en su celular y el cajero le sella la visita en el panel, la tarjeta debe iluminar el nuevo sello al instante sin obligar a recargar la página.
+4. **Botonera para compartir por WhatsApp:** Poder enviar su tarjeta o invitar a amigos a unirse al Club.
+
+---
+
+### Código Completo y Actualizado de `club.html`
+
+Guarda y reemplaza este código en tu archivo **`club.html`**:
+
+```html
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Club de Recompensas | La Cusqueñita</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css)">
   <style>
     :root {
       --primary: #c2410c;
@@ -37,7 +72,7 @@
 
     /* TARJETA PRINCIPAL DE MEMBRESÍA */
     .loyalty-card {
-      background: linear-gradient(145deg, #241612 0%, #170d0a 100%);
+      background: linear-gradient(145deg, #241611 0%, #170d0a 100%);
       border: 2px solid var(--accent);
       border-radius: 22px;
       padding: 20px 18px;
@@ -49,9 +84,10 @@
       content: "";
       position: absolute;
       top: -30px; right: -30px;
-      width: 100px; height: 100px;
-      background: radial-gradient(circle, rgba(245, 158, 11, 0.25) 0%, transparent 70%);
+      width: 110px; height: 110px;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.3) 0%, transparent 70%);
       border-radius: 50%;
+      pointer-events: none;
     }
 
     .card-header {
@@ -67,6 +103,16 @@
       font-weight: 900;
       color: var(--gold);
       text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand-logo-mini {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #fff;
     }
     .badge-member {
       background: #78350f;
@@ -79,10 +125,10 @@
     }
 
     .client-name-row {
-      font-size: 15px;
-      font-weight: 800;
+      font-size: 16px;
+      font-weight: 900;
       color: #fff;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
     .client-dni-row {
       font-size: 12px;
@@ -90,7 +136,7 @@
       margin-bottom: 14px;
     }
 
-    /* MATRIZ DE 10 SELLOS (COMO EN LAS CAPTURAS) */
+    /* MATRIZ DE 10 SELLOS */
     .stamps-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -111,15 +157,13 @@
       position: relative;
       transition: all 0.3s ease;
     }
-    /* SELLO ILUMINADO / COMPLETADO */
     .stamp-slot.stamped {
       background: linear-gradient(135deg, var(--accent), var(--primary));
       border: 2px solid #fde047;
       color: #fff;
-      box-shadow: 0 0 14px rgba(245, 158, 11, 0.6);
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.65);
       transform: scale(1.05);
     }
-    /* CASILLA 10: EL PREMIO FINAL */
     .stamp-slot.prize-slot {
       border-color: var(--gold);
       background: rgba(234, 179, 8, 0.15);
@@ -130,12 +174,12 @@
       background: linear-gradient(135deg, #16a34a, #22c55e);
       border-color: #86efac;
       color: #fff;
-      box-shadow: 0 0 18px rgba(34, 197, 94, 0.8);
-      animation: prizePulse 1.5s infinite alternate;
+      box-shadow: 0 0 20px rgba(34, 197, 94, 0.9);
+      animation: prizePulse 1.4s infinite alternate;
     }
     @keyframes prizePulse {
       0% { transform: scale(1.02); }
-      100% { transform: scale(1.12); }
+      100% { transform: scale(1.14); }
     }
 
     /* BARRA DE PROGRESO */
@@ -156,41 +200,48 @@
 
     /* TARJETA DE RECOMPENSA */
     .reward-banner {
-      background: rgba(254, 240, 138, 0.12);
-      border: 1.5px solid var(--accent);
-      border-radius: 14px;
-      padding: 12px 14px;
+      background: rgba(254, 240, 138, 0.14);
+      border: 2px solid #facc15;
+      border-radius: 16px;
+      padding: 14px;
       display: flex;
       align-items: center;
       gap: 12px;
+      box-shadow: 0 0 20px rgba(234, 179, 8, 0.35);
+      animation: bannerGlow 2s infinite alternate;
+    }
+    @keyframes bannerGlow {
+      0% { border-color: #ca8a04; }
+      100% { border-color: #fde047; }
     }
     .reward-banner i {
-      font-size: 28px;
+      font-size: 32px;
       color: var(--gold);
     }
     .reward-info h4 {
-      font-size: 13.5px;
+      font-size: 14px;
       color: #fde047;
       font-weight: 900;
     }
     .reward-info p {
       font-size: 11.5px;
-      color: #ddd;
+      color: #eee;
       margin-top: 2px;
+      line-height: 1.35;
     }
 
-    /* CÓDIGO QR PERSONAL DE SOCIO */
+    /* QR SOCIO */
     .qr-card-client {
       background: #fff;
       color: #000;
-      border-radius: 16px;
+      border-radius: 18px;
       padding: 18px;
       text-align: center;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      box-shadow: 0 6px 25px rgba(0,0,0,0.6);
     }
     .qr-card-client img {
-      width: 160px;
-      height: 160px;
+      width: 170px;
+      height: 170px;
       margin: 8px auto;
       display: block;
     }
@@ -209,6 +260,7 @@
       justify-content: center;
       gap: 8px;
       text-decoration: none;
+      box-shadow: 0 4px 15px rgba(194, 65, 12, 0.4);
     }
     .btn-action-club:active { transform: scale(0.98); }
 
@@ -223,16 +275,32 @@
       font-weight: bold;
       outline: none;
     }
+
+    /* MODAL DE REGISTRO RÁPIDO */
+    .modal-registro-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px);
+      z-index: 99999; display: none; align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal-registro-overlay.active { display: flex; }
+    .modal-registro-box {
+      background: var(--card-bg); border: 2px solid var(--accent); border-radius: 20px;
+      max-width: 380px; width: 100%; padding: 22px; display: flex; flex-direction: column; gap: 12px;
+      color: #fff; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+    }
+    .modal-input {
+      width: 100%; background: #fff; color: #111; padding: 10px 12px; border-radius: 10px;
+      border: 1.5px solid #d1d5db; font-size: 13.5px; font-weight: 600; outline: none;
+    }
   </style>
 </head>
 <body>
 
   <div class="club-container">
     
-    <!-- CONSULTA POR DNI (SI NO VIENE CON PARÁMETRO) -->
-    <div style="background:var(--card-bg); padding:14px; border-radius:16px; border:1px solid rgba(255,255,255,0.1);">
+    <!-- CONSULTA POR DNI -->
+    <div style="background:var(--card-bg); padding:14px; border-radius:18px; border:1px solid rgba(255,255,255,0.12);">
       <label style="font-size:11px; font-weight:800; color:var(--gold); text-transform:uppercase; display:block; margin-bottom:6px;">
-        🔍 Ingresa tu DNI para ver tus sellos y premios:
+        🔍 Consulta o Activa tu Tarjeta con tu DNI:
       </label>
       <div style="display:flex; gap:6px;">
         <input type="tel" id="inputDniSocio" class="input-dni-search" placeholder="Número de DNI..." maxlength="10">
@@ -245,12 +313,15 @@
     <!-- TARJETA DE FIDELIDAD -->
     <div class="loyalty-card" id="tarjetaClubPrincipal">
       <div class="card-header">
-        <span class="brand-title" id="clubBrandName">La Cusqueñita</span>
+        <span class="brand-title" id="clubBrandName">
+          <span id="clubBrandLogo">🍽️</span>
+          <span id="clubBrandTitleTxt">La Cusqueñita</span>
+        </span>
         <span class="badge-member" id="clubNivelSocio">Socio Frecuente</span>
       </div>
 
       <div class="client-name-row" id="clubClientNombre">Cliente Amigo</div>
-      <div class="client-dni-row">DNI / Documento: <b id="clubClientDni">--</b></div>
+      <div class="client-dni-row">DNI / Socio: <b id="clubClientDni">--</b></div>
 
       <div style="display:flex; justify-content:space-between; font-size:11.5px; font-weight:800;">
         <span style="color:#aaa;">Progreso de tu regalo:</span>
@@ -265,7 +336,7 @@
       <div class="stamps-grid" id="clubSellosGrid"></div>
 
       <p style="font-size:11px; color:#aaa; text-align:center; line-height:1.3;" id="clubMensajeEstado">
-        Acumula 10 sellos en tus visitas y reclama tu premio de cortesía.
+        Presenta tu QR en cada consumo. Al llegar a 10 sellos ganas tu plato o postre especial gratis.
       </p>
     </div>
 
@@ -273,28 +344,49 @@
     <div class="reward-banner" id="bannerPremioCanjeable" style="display:none;">
       <i class="fa-solid fa-gift"></i>
       <div class="reward-info">
-        <h4>🎉 ¡FELICITACIONES! TIENES 1 PREMIO DISPONIBLE</h4>
-        <p>Has completado tus 10 sellos. Muestra esta pantalla al cajero para reclamar tu postre o plato especial gratis.</p>
+        <h4>🎉 ¡FELICITACIONES! PREMIO DISPONIBLE</h4>
+        <p>Has completado tus 10 sellos. Muestra esta pantalla al cajero para canjear tu premio de cortesía.</p>
       </div>
     </div>
 
     <!-- CÓDIGO QR PERSONAL PARA ESCANEAR EN CAJA -->
     <div class="qr-card-client">
-      <h3 style="font-size:14px; font-weight:900;">Muestra este QR en Caja</h3>
-      <p style="font-size:11px; color:#666;">El cajero escaneará tu código para sellar tu visita de hoy</p>
+      <h3 style="font-size:14px; font-weight:900;">Muestra este código en Caja</h3>
+      <p style="font-size:11px; color:#666;">El cajero lo escaneará para sellar tu visita de hoy</p>
       <img id="qrSocioImg" src="" alt="QR Socio">
       <b style="font-size:13px; letter-spacing:1px;" id="qrSocioCodigoTxt">DNI: --</b>
     </div>
 
-    <!-- VOLVER A LA CARTA -->
+    <!-- BOTÓN VOLVER A LA CARTA DIGITAL -->
     <a href="index.html" class="btn-action-club">
       <i class="fa-solid fa-utensils"></i> Volver a la Carta Digital
     </a>
 
   </div>
 
+  <!-- MODAL: REGISTRO RÁPIDO DE SOCIO SI NO EXISTE -->
+  <div class="modal-registro-overlay" id="modalRegistroSocio">
+    <div class="modal-registro-box">
+      <h3 style="color:var(--gold); font-size:16px; font-weight:900;">⭐ ¡Únete a nuestro Club de Recompensas!</h3>
+      <p style="font-size:12px; color:#ddd; line-height:1.4;">
+        Tu DNI aún no está registrado. Completa tus datos para recibir tu <b>1er sello de bienvenida gratis</b>:
+      </p>
+
+      <form onsubmit="guardarNuevoSocio(event)" style="display:flex; flex-direction:column; gap:8px;">
+        <input type="text" id="regNombre" class="modal-input" placeholder="Nombre completo" required>
+        <input type="tel" id="regWhatsApp" class="modal-input" placeholder="WhatsApp (+51...)" required>
+        <button type="submit" class="btn-action-club" style="margin-top:6px;">
+          <i class="fa-solid fa-star"></i> Activar Membresía & 1er Sello
+        </button>
+        <button type="button" onclick="cerrarModalRegistro()" style="background:none; border:none; color:#aaa; font-size:12px; cursor:pointer; padding:6px;">
+          Cancelar
+        </button>
+      </form>
+    </div>
+  </div>
+
   <script>
-    const FIREBASE_DB_URL = "https://restaurante1-695f7-default-rtdb.firebaseio.com/";
+    const FIREBASE_DB_URL = "[https://restaurante1-695f7-default-rtdb.firebaseio.com/](https://restaurante1-695f7-default-rtdb.firebaseio.com/)";
 
     let socioActual = {
       dni: "",
@@ -303,8 +395,11 @@
       totalVisitas: 0
     };
 
+    let dniPendienteRegistro = "";
+
     async function cargarDatosClub() {
-      // 1. Obtener DNI desde URL o almacenamiento local
+      await cargarIdentidadNegocio();
+
       const params = new URLSearchParams(window.location.search);
       let dniParam = params.get('dni') || localStorage.getItem('inkabistro_cliente_dni') || "";
 
@@ -314,31 +409,80 @@
       } else {
         renderizarMatrizSellos(0);
       }
+
+      // Actualizar automáticamente cada 3 segundos si el cajero le sella en caja
+      setInterval(() => {
+        if (socioActual.dni) consultarDatosFirebase(socioActual.dni, false);
+      }, 3000);
     }
 
-    async function consultarDatosFirebase(dni) {
+    async function cargarIdentidadNegocio() {
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}config/identidad.json?_t=${Date.now()}`);
+        if (res.ok) {
+          const conf = await res.json();
+          if (conf && conf.nombre) {
+            document.getElementById('clubBrandTitleTxt').innerText = conf.nombre;
+            if (conf.logo && conf.logo.startsWith('data:image')) {
+              document.getElementById('clubBrandLogo').innerHTML = `<img src="${conf.logo}" class="brand-logo-mini" alt="Logo">`;
+            }
+          }
+        }
+      } catch (e) {}
+    }
+
+    async function consultarDatosFirebase(dni, abrirModalSiNoExiste = true) {
       if (!dni) return;
 
       try {
         const res = await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${dni}.json?_t=${Date.now()}`);
         if (res.ok) {
           const data = await res.json();
-          if (data) {
+          if (data && data.dni) {
             socioActual = data;
-          } else {
-            socioActual = {
-              dni: dni,
-              nombre: "Nuevo Socio",
-              sellos: 1, // Primer sello de cortesía
-              totalVisitas: 1
-            };
+            actualizarPantallaSocio();
+          } else if (abrirModalSiNoExiste) {
+            dniPendienteRegistro = dni;
+            document.getElementById('modalRegistroSocio').classList.add('active');
           }
         }
       } catch (e) {
-        socioActual = { dni: dni, nombre: "Socio", sellos: 1, totalVisitas: 1 };
+        console.error("Error al consultar socio:", e);
       }
+    }
 
-      actualizarPantallaSocio();
+    async function guardarNuevoSocio(e) {
+      e.preventDefault();
+      const nombre = document.getElementById('regNombre').value.trim();
+      const wa = document.getElementById('regWhatsApp').value.trim();
+
+      socioActual = {
+        dni: dniPendienteRegistro,
+        nombre: nombre,
+        whatsapp: wa,
+        sellos: 1, // Primer sello de cortesía
+        totalVisitas: 1,
+        fechaRegistro: new Date().toLocaleDateString()
+      };
+
+      try {
+        await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${dniPendienteRegistro}.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(socioActual)
+        });
+
+        localStorage.setItem('inkabistro_cliente_dni', dniPendienteRegistro);
+        cerrarModalRegistro();
+        actualizarPantallaSocio();
+        alert(`🎉 ¡Bienvenido ${nombre}! Se te ha otorgado tu 1er sello de cortesía.`);
+      } catch (err) {
+        alert("Error al registrar: " + err.message);
+      }
+    }
+
+    function cerrarModalRegistro() {
+      document.getElementById('modalRegistroSocio').classList.remove('active');
     }
 
     function actualizarPantallaSocio() {
@@ -352,13 +496,10 @@
       document.getElementById('clubBarraFill').style.width = `${(numSellos / 10) * 100}%`;
 
       renderizarMatrizSellos(numSellos, tienePremio);
-
-      // Mostrar u ocultar el banner de premio
       document.getElementById('bannerPremioCanjeable').style.display = tienePremio ? 'flex' : 'none';
 
-      // Generar QR dinámico para el cajero
-      const qrData = `SOCIO:${socioActual.dni}`;
-      document.getElementById('qrSocioImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrData)}`;
+      const qrData = `DNI:${socioActual.dni}`;
+      document.getElementById('qrSocioImg').src = `[https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=$](https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=$){encodeURIComponent(qrData)}`;
       document.getElementById('qrSocioCodigoTxt').innerText = `DNI: ${socioActual.dni}`;
     }
 
@@ -369,7 +510,7 @@
       for (let i = 1; i <= 10; i++) {
         const slot = document.createElement('div');
         const esPremio = (i === 10);
-        const estaSellado = (i <= sellosActivos) || premioListo;
+        const estaSellado = (i <= sellosActivos) || (premioListo && esPremio);
 
         slot.className = `stamp-slot ${esPremio ? 'prize-slot' : ''} ${estaSellado ? 'stamped' : ''}`;
 
@@ -387,7 +528,7 @@
       const dni = document.getElementById('inputDniSocio').value.trim();
       if (!dni) return alert("Por favor escribe tu número de DNI.");
       localStorage.setItem('inkabistro_cliente_dni', dni);
-      consultarDatosFirebase(dni);
+      consultarDatosFirebase(dni, true);
     }
 
     window.addEventListener('DOMContentLoaded', cargarDatosClub);
