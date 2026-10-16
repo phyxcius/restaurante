@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Pantalla KDS Cocina | La Cusqueñita</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-kds: #0d0a09;
+      --card-bg: #1c1410;
+      --border-color: rgba(255, 255, 255, 0.12);
+      --gold: #fbbf24;
+      --orange: #ea580c;
+      --blue: #0284c7;
+      --green: #16a34a;
+      --red: #ef4444;
+      --text: #fffdfa;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; user-select: none; }
+    body { background-color: var(--bg-kds); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+
+    /* BARRA SUPERIOR DE COCINA */
+    .kds-header {
+      background: #170e0a;
+      border-bottom: 2px solid var(--orange);
+      padding: 10px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .kds-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--gold);
+    }
+    .kds-metrics {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .badge-metric {
+      background: #241612;
+      border: 1px solid var(--border-color);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .badge-metric b { font-size: 16px; margin-left: 4px; }
+
+    .btn-sound-test {
+      background: none;
+      border: 1.5px solid var(--gold);
+      color: var(--gold);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* REJILLA DE PEDIDOS PARA TABLETS Y PANTALLAS */
+    .kds-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 16px;
+      padding: 18px;
+      flex: 1;
+      align-content: start;
+    }
+
+    /* TARJETA DE COMANDA */
+    .kds-card {
+      background: var(--card-bg);
+      border-radius: 14px;
+      border: 2px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+      overflow: hidden;
+      transition: transform 0.15s ease, border-color 0.2s ease;
+    }
+
+    /* ESTADOS POR COLORES */
+    .kds-card.estado-iniciado {
+      border-color: var(--gold);
+    }
+    .kds-card.estado-iniciado .card-top {
+      background: #78350f;
+      color: #fde047;
+    }
+
+    .kds-card.estado-cocina {
+      border-color: var(--blue);
+    }
+    .kds-card.estado-cocina .card-top {
+      background: #0369a1;
+      color: #fff;
+    }
+
+    /* ENCABEZADO DE COMANDA */
+    .card-top {
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 900;
+    }
+    .card-mesa { font-size: 18px; }
+    .card-turno {
+      font-size: 13px;
+      background: rgba(0,0,0,0.35);
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    /* TIEMPO TRANSCURRIDO */
+    .card-timer-bar {
+      background: rgba(0,0,0,0.4);
+      padding: 6px 14px;
+      font-size: 12px;
+      color: #aaa;
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px dashed var(--border-color);
+    }
+    .timer-alert { color: #f87171 !important; font-weight: 900; }
+
+    /* CUERPO CON PLATOS */
+    .card-body {
+      padding: 14px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .plato-item {
+      font-size: 16px;
+      font-weight: 900;
+      line-height: 1.35;
+      color: #fffdfa;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .plato-item span.bullet { color: var(--gold); }
+    
+    .card-notas {
+      background: rgba(239, 68, 68, 0.15);
+      border-left: 3px solid var(--red);
+      color: #fca5a5;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 12.5px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    /* BOTONES DE ACCIÓN RÁPIDA TÁCTIL */
+    .card-actions {
+      padding: 10px 14px;
+      background: rgba(0,0,0,0.3);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      gap: 8px;
+    }
+    .btn-kds {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-transform: uppercase;
+    }
+    .btn-kds:active { transform: scale(0.97); }
+    .btn-start { background: var(--blue); color: #fff; }
+    .btn-finish { background: var(--green); color: #fff; }
+
+    /* PANTALLA VACÍA */
+    .kds-empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 80px 20px;
+      color: #777;
+    }
+    .kds-empty i { font-size: 54px; margin-bottom: 12px; color: #444; }
+  </style>
+</head>
+<body>
+
+  <!-- BARRA SUPERIOR -->
+  <header class="kds-header">
+    <div class="kds-brand">
+      <i class="fa-solid fa-fire-burner"></i>
+      <span>COCINA KDS</span>
+      <span style="font-size:12px; color:#aaa; font-weight:normal;" id="kdsLocalNombre">La Cusqueñita</span>
+    </div>
+
+    <div class="kds-metrics">
+      <div class="badge-metric">Por Preparar: <b id="cntPendientes" style="color:var(--gold);">0</b></div>
+      <div class="badge-metric">En Fuego: <b id="cntEnCocina" style="color:#38bdf8;">0</b></div>
+      <button type="button" class="btn-sound-test" onclick="probarSonidoKDS()"><i class="fa-solid fa-volume-high"></i> Campana</button>
+    </div>
+  </header>
+
+  <!-- CONTENEDOR DE ÓRDENES TÁCTILES -->
+  <main class="kds-grid" id="kdsGridOrders">
+    <div class="kds-empty">
+      <i class="fa-solid fa-utensils"></i>
+      <h2>Cocina en limpio</h2>
+      <p>Esperando nuevas órdenes de los comensales...</p>
+    </div>
+  </main>
+
+  <script>
+    const FIREBASE_DB_URL = "https://restaurante1-695f7-default-rtdb.firebaseio.com/";
+    const canalPedidos = new BroadcastChannel('canal_inka_pedidos');
+
+    let audioCtx = null;
+    let comandasCache = [];
+    let estadosConocidosKDS = {};
+
+    function asegurarAudio() {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+      } catch (e) {}
+    }
+    window.addEventListener('click', asegurarAudio, { once: true });
+    window.addEventListener('touchstart', asegurarAudio, { once: true });
+
+    function sonarCampanaCocina() {
+      try {
+        asegurarAudio();
+        if (!audioCtx) return;
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(1760, now);
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.8);
+
+        gain.gain.setValueAtTime(0.5, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.85);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.9);
+      } catch (e) {}
+    }
+    function probarSonidoKDS() { sonarCampanaCocina(); }
+
+    /* ESCUCHAR EN TIEMPO REAL SI ENTRAN PEDIDOS O ADICIONES */
+    canalPedidos.onmessage = (event) => {
+      cargarOrdenesCocina();
+    };
+
+    /* CONSULTAR FIREBASE CADA 2 SEGUNDOS */
+    async function cargarOrdenesCocina() {
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}comandas.json?_t=${Date.now()}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && typeof data === 'object') {
+            const lista = Object.keys(data).map(k => Object.assign({ id: k }, data[k]));
+
+            // Solo mostrar comandas activas para la cocina (iniciado o en cocina)
+            comandasCache = lista.filter(c => {
+              const est = String(c.estado || '').toLowerCase();
+              return est === 'iniciado' || est === 'por_confirmar' || est === 'cocina';
+            });
+
+            // Detectar si entró una orden nueva y sonar
+            comandasCache.forEach(c => {
+              if (!estadosConocidosKDS[c.id]) {
+                if (Object.keys(estadosConocidosKDS).length > 0) {
+                  sonarCampanaCocina();
+                }
+              }
+              estadosConocidosKDS[c.id] = c.estado;
+            });
+
+            renderizarTarjetasKDS();
+            return;
+          }
+        }
+      } catch (e) {}
+
+      comandasCache = [];
+      renderizarTarjetasKDS();
+    }
+
+    function renderizarTarjetasKDS() {
+      const grid = document.getElementById('kdsGridOrders');
+      let pendientes = 0;
+      let enCocina = 0;
+
+      if (!comandasCache || comandasCache.length === 0) {
+        grid.innerHTML = `
+          <div class="kds-empty">
+            <i class="fa-solid fa-utensils"></i>
+            <h2>Cocina en limpio</h2>
+            <p>Esperando nuevas órdenes de los comensales...</p>
+          </div>
+        `;
+        document.getElementById('cntPendientes').innerText = 0;
+        document.getElementById('cntEnCocina').innerText = 0;
+        return;
+      }
+
+      // Ordenar por hora de llegada (el más antiguo primero para respetar prioridad)
+      comandasCache.sort((a, b) => (a.timestampOrden || 0) - (b.timestampOrden || 0));
+
+      grid.innerHTML = comandasCache.map(c => {
+        let estado = String(c.estado || 'iniciado').toLowerCase();
+        if (estado === 'por_confirmar') estado = 'iniciado';
+
+        if (estado === 'iniciado') pendientes++;
+        if (estado === 'cocina') enCocina++;
+
+        // Calcular minutos transcurridos
+        const minutos = c.timestampOrden ? Math.floor((Date.now() - c.timestampOrden) / 60000) : 0;
+        const alertaTiempo = minutos >= 15 ? 'timer-alert' : '';
+
+        // Formatear platos como lista limpia
+        const platosArray = (c.productos || '').split(', ').filter(Boolean);
+
+        return `
+          <div class="kds-card estado-${estado}">
+            <div class="card-top">
+              <span class="card-mesa">${c.mesa || 'Mesa'} (${c.cliente ? c.cliente.split('(')[1]?.replace(')', '') || c.cliente : 'Comensal'})</span>
+              <span class="card-turno">Turno #${c.numeroTurno || '01'}</span>
+            </div>
+
+            <div class="card-timer-bar">
+              <span><i class="fa-regular fa-clock"></i> ${c.fecha ? c.fecha.split(' ')[1] : ''}</span>
+              <span class="${alertaTiempo}"><b>Hace ${minutos} min</b></span>
+            </div>
+
+            <div class="card-body">
+              ${platosArray.map(p => `
+                <div class="plato-item">
+                  <span class="bullet">👉</span>
+                  <span>${p}</span>
+                </div>
+              `).join('')}
+
+              ${c.notas && c.notas !== 'Sin notas' ? `
+                <div class="card-notas">
+                  <i class="fa-solid fa-triangle-exclamation"></i> <b>Nota:</b> ${c.notas}
+                </div>
+              ` : ''}
+            </div>
+
+            <div class="card-actions">
+              ${estado === 'iniciado' ? `
+                <button type="button" class="btn-kds btn-start" onclick="cambiarEstadoDesdeKDS('${c.id}', 'cocina')">
+                  <i class="fa-solid fa-fire"></i> Preparar
+                </button>
+              ` : `
+                <button type="button" class="btn-kds btn-finish" onclick="cambiarEstadoDesdeKDS('${c.id}', 'servido')">
+                  <i class="fa-solid fa-check-double"></i> Listo / Servido
+                </button>
+              `}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('cntPendientes').innerText = pendientes;
+      document.getElementById('cntEnCocina').innerText = enCocina;
+    }
+
+    /* CAMBIAR ESTADO DESDE LA PANTALLA TÁCTIL DE COCINA */
+    async function cambiarEstadoDesdeKDS(id, nuevoEstado) {
+      try {
+        await fetch(`${FIREBASE_DB_URL}comandas/${id}.json`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            estado: nuevoEstado,
+            clientePidiendoCuenta: false 
+          })
+        });
+
+        // Notificar de inmediato al panel de administración y al cliente
+        canalPedidos.postMessage({
+          tipo: 'ESTADO_ACTUALIZADO',
+          id: id,
+          estado: nuevoEstado
+        });
+
+        cargarOrdenesCocina();
+      } catch (e) {
+        alert("Error al actualizar la orden en cocina.");
+      }
+    }
+
+    async function cargarNombreLocal() {
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}config/identidad.json`);
+        const conf = await res.json();
+        if (conf && conf.nombre) document.getElementById('kdsLocalNombre').innerText = conf.nombre;
+      } catch (e) {}
+    }
+
+    window.onload = () => {
+      cargarNombreLocal();
+      cargarOrdenesCocina();
+      setInterval(cargarOrdenesCocina, 2000);
+    };
+  </script>
+</body>
+</html>
