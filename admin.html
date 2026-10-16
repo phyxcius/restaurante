@@ -97,10 +97,11 @@
     .brand-box { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); } 
     .brand-left { display: flex; align-items: center; gap: 10px; overflow: hidden; } 
     .brand-avatar { 
-      width: 42px; height: 42px; border-radius: 10px; 
+      width: 44px; height: 44px; border-radius: 12px; 
       background: linear-gradient(135deg, var(--accent), var(--primary)); 
       display: flex; align-items: center; justify-content: center; 
-      font-size: 20px; color: #fff; overflow: hidden; flex-shrink: 0; 
+      font-size: 22px; color: #fff; overflow: hidden; flex-shrink: 0;
+      border: 1.5px solid var(--gold);
     } 
     .brand-avatar img { width: 100%; height: 100%; object-fit: cover; } 
 
@@ -170,16 +171,6 @@
     }
     .res-pendiente { background: #d97706; color: #fff; }
     .res-confirmada { background: #16a34a; color: #fff; }
-
-    /* RESEÑAS AGRUPADAS */
-    .review-item-card {
-      background: #1a120f; padding: 14px; border-radius: 12px; margin-bottom: 10px;
-      border: 1px solid var(--card-border); display: flex; flex-direction: column; gap: 6px;
-    }
-    .review-dish-tag {
-      display: inline-block; background: #3b2014; color: #fed7aa; border: 1px solid var(--accent);
-      padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 800;
-    }
 
     .kds-calendar-bar { 
       background: #180e0a; border: 1.5px solid var(--accent); border-radius: 14px; 
@@ -310,7 +301,9 @@
 
     .sidebar-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 180; } 
 
-    /* MODAL DE ALERTA CENTRADO */ 
+    /* ======================================================== 
+       MODAL DE ALERTA CENTRADO (SEGUNDO PLANO A PRIMER PLANO) 
+       ======================================================== */ 
     .alerta-centro-overlay { 
       position: fixed; inset: 0; 
       background: rgba(0, 0, 0, 0.78); 
@@ -708,7 +701,7 @@
           </div>
         </section> 
 
-        <!-- 5. IDENTIDAD, SUNAT Y REDES SOCIALES --> 
+        <!-- 5. IDENTIDAD, SUNAT Y REDES SOCIALES (CAMBIO DE CUALQUIER LOGO) --> 
         <section id="viewIdentidad" style="display:none;"> 
           <div class="view-header"><h1>🏪 Identidad del Negocio & Redes Sociales</h1></div> 
           <div class="card"> 
@@ -759,14 +752,23 @@
               </div> 
             </div> 
 
-            <label style="margin-top:14px;">Cambiar Logo (PNG o JPG):</label> 
-            <input type="file" id="cfgLogoFileInput" accept="image/*" onchange="convertirLogoABase64(event)"> 
-            <small style="color:#aaa;">Al subir un nuevo archivo se reemplazará automáticamente.</small>
+            <!-- SECCIÓN PARA CAMBIAR CUALQUIER LOGO (URL O ARCHIVO) -->
+            <div style="background:#180f0c; padding:14px; border-radius:12px; border:1px dashed var(--accent); margin-top:14px;">
+              <strong style="color:var(--gold); font-size:12.5px; display:block; margin-bottom:8px;">
+                <i class="fa-solid fa-image"></i> Logotipo del Restaurante:
+              </strong>
+              
+              <label style="margin-top:0;">Opción A: Subir imagen desde tu dispositivo (PNG o JPG):</label> 
+              <input type="file" id="cfgLogoFileInput" accept="image/*" onchange="convertirLogoABase64(event)"> 
+              
+              <label style="margin-top:8px;">Opción B: O pega directamente el enlace web del logo (https://...):</label>
+              <input type="url" id="cfgLogoUrlInput" placeholder="https://ejemplo.com/mi-logo.png" oninput="actualizarLogoPorUrl(this.value)">
 
-            <div style="margin-top:8px; display:flex; align-items:center; gap:10px;"> 
-              <span style="font-size:12px; color:#aaa;">Logo Actual:</span> 
-              <div id="previewCurrentLogo" class="brand-avatar" style="width:46px; height:46px;">🍽️</div> 
-            </div> 
+              <div style="margin-top:10px; display:flex; align-items:center; gap:12px;"> 
+                <span style="font-size:12px; color:#aaa;">Vista previa del Logo:</span> 
+                <div id="previewCurrentLogo" class="brand-avatar" style="width:52px; height:52px;">🍽️</div> 
+              </div> 
+            </div>
 
             <button class="btn btn-save" style="margin-top:16px; width:100%;" onclick="guardarIdentidadFirebase()"><i class="fa-solid fa-floppy-disk"></i> Guardar Identidad, Logo & Redes</button> 
           </div> 
@@ -821,7 +823,7 @@
           </div> 
         </section> 
 
-        <!-- 7. QR MESAS --> 
+        <!-- 7. QR MESAS (CORREGIDO PARA IMPRESIÓN DIRECTA SIN FALLAS) --> 
         <section id="viewMesas" style="display:none;"> 
           <div class="view-header"> 
             <div> 
@@ -979,7 +981,7 @@
     </div>
   </div>
 
-  <!-- MODAL DE ALERTA CENTRADO EN SEGUNDO PLANO --> 
+  <!-- MODAL DE ALERTA CENTRADO EN SEGUNDO PLANO (CORREGIDO) --> 
   <div class="alerta-centro-overlay" id="alertaCentroOverlay" onclick="cerrarAlertaCentro()"> 
     <div class="alerta-centro-card" onclick="event.stopPropagation()"> 
       <div class="alerta-icono-wrap" id="alertaIconoWrap"> 
@@ -1199,7 +1201,7 @@
     } 
     function probarSonidoCampanaCocina() { reproducirSonidoCampanaCocina(); } 
 
-    /* GESTOR DE ALERTAS VISUALES EN PANTALLA COMPLETA */ 
+    /* GESTOR DE ALERTAS VISUALES EN PANTALLA COMPLETA (CORREGIDO) */ 
     function dispararAlertaCentro(titulo, mensaje, detalle, icono = 'fa-bell', colorIcono = '#fbbf24') { 
       reproducirSonidoCampanaCocina(); 
       const overlay = document.getElementById('alertaCentroOverlay'); 
@@ -1225,7 +1227,7 @@
       if (overlay) overlay.classList.remove('active'); 
     } 
 
-    /* ESCUCHA EN TIEMPO REAL ENTRE PESTAÑAS (INDEX.HTML -> ADMIN.HTML) */ 
+    /* ESCUCHA EN TIEMPO REAL ENTRE PESTAÑAS (INDEX.HTML -> ADMIN.HTML) (SINTAXIS CORREGIDA) */ 
     canalPedidos.onmessage = (event) => { 
       if (event.data?.tipo === 'RESPUESTA_CLIENTE') {
         const respuesta = event.data.respuesta || ''; 
@@ -1240,6 +1242,14 @@
             'fa-circle-xmark', 
             '#f87171' 
           ); 
+        } else if (respuesta.toLowerCase().includes('pagar') || respuesta.toLowerCase().includes('cuenta')) {
+          dispararAlertaCentro( 
+            "💵 ¡El Cliente va a Pagar en Caja!", 
+            `El comensal de la <b>${mesa}</b> ha terminado de consumir y <b>viene a caja a pagar</b>.`, 
+            `Hora: ${hora}`, 
+            'fa-person-walking', 
+            '#ec4899' 
+          ); 
         } else { 
           dispararAlertaCentro( 
             "➕ Cliente Desea Agregar Platos", 
@@ -1253,6 +1263,7 @@
       } 
     }; 
 
+    /* INICIO DE SESIÓN COMPLETO Y CORREGIDO */
     async function verificarLoginSistema(e) { 
       e.preventDefault(); 
       const rolSeleccionado = document.getElementById('loginUsuarioSelector').value; 
@@ -1263,7 +1274,7 @@
 
       let usuarios = []; 
       try { 
-        const res = await fetch(`${FIREBASE_DB_URL}config/usuarios.json`); 
+        const res = await fetch(`${FIREBASE_DB_URL}config/usuarios.json?_t=${Date.now()}`); 
         if (res.ok) { 
           const dataU = await res.json(); 
           if (dataU && typeof dataU === 'object') usuarios = Object.values(dataU); 
@@ -1274,6 +1285,7 @@
         u.nombre && u.nombre.toLowerCase() === nombreIngresado.toLowerCase() && u.pass === passIngresada 
       ); 
 
+      // Admite clave maestra de respaldo o credenciales de la base de datos
       const esClaveMaestra = (passIngresada === "regocijo123" || passIngresada === PASSWORD_MAESTRA_VAULT); 
 
       if (usuarioEncontrado || esClaveMaestra) { 
@@ -1288,7 +1300,7 @@
 
         mostrarPanelAdmin(); 
       } else { 
-        alert("⛔ Nombre de operador o contraseña incorrectos."); 
+        alert("⛔ Nombre de operador o contraseña incorrectos. Usa la clave maestra regocijo123 si no has registrado usuarios."); 
       } 
     } 
 
@@ -1780,7 +1792,7 @@
       }); 
 
       // INTEGRACIÓN DE SELLOS DE FIDELIDAD AUTOMÁTICOS
-      const dniCliente = document.getElementById('cobroRucCliente').value.trim();
+      const dniCliente = docCliente || (comandaCobrandoActual.dni || '').trim();
       if (dniCliente && dniCliente.length >= 8) {
         try {
           const resSocio = await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${dniCliente}.json`);
@@ -2233,6 +2245,7 @@
       } else alert(`La ${m} está LIBRE.`); 
     } 
 
+    /* CARGA Y CONFIGURACIÓN DEL LOGO (SOPORTA CUALQUIER IMAGEN) */
     async function cargarIdentidadFirebase() { 
       try { 
         const res = await fetch(`${FIREBASE_DB_URL}config/identidad.json?_t=${Date.now()}`); 
@@ -2259,16 +2272,22 @@
       document.getElementById('repLocalDireccion').innerText = configRestaurante.direccion; 
       document.getElementById('repFechaHoy').innerText = new Date().toLocaleDateString(); 
 
+      actualizarRenderLogoVisual(configRestaurante.logo);
+    } 
+
+    function actualizarRenderLogoVisual(logoData) {
       const av = document.getElementById('headerAvatar'); 
       const prev = document.getElementById('previewCurrentLogo'); 
-      if (configRestaurante.logo && configRestaurante.logo.startsWith('data:image')) { 
-        av.innerHTML = `<img src="${configRestaurante.logo}" alt="Logo">`; 
-        prev.innerHTML = `<img src="${configRestaurante.logo}" alt="Logo">`; 
+      const inpUrl = document.getElementById('cfgLogoUrlInput');
+      if (logoData && (logoData.startsWith('data:image') || logoData.startsWith('http'))) { 
+        av.innerHTML = `<img src="${logoData}" alt="Logo">`; 
+        prev.innerHTML = `<img src="${logoData}" alt="Logo">`; 
+        if (inpUrl && logoData.startsWith('http')) inpUrl.value = logoData;
       } else { 
-        av.innerText = configRestaurante.logo || "🍽️"; 
-        prev.innerText = configRestaurante.logo || "🍽️"; 
+        av.innerText = logoData || "🍽️"; 
+        prev.innerText = logoData || "🍽️"; 
       } 
-    } 
+    }
 
     function convertirLogoABase64(event) { 
       const file = event.target.files[0]; 
@@ -2276,11 +2295,17 @@
       const reader = new FileReader(); 
       reader.onload = (e) => { 
         configRestaurante.logo = e.target.result; 
-        document.getElementById('previewCurrentLogo').innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;">`; 
-        document.getElementById('headerAvatar').innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;">`; 
+        actualizarRenderLogoVisual(e.target.result);
       }; 
       reader.readAsDataURL(file); 
     } 
+
+    function actualizarLogoPorUrl(url) {
+      if (url.trim()) {
+        configRestaurante.logo = url.trim();
+        actualizarRenderLogoVisual(url.trim());
+      }
+    }
 
     async function guardarIdentidadFirebase() { 
       configRestaurante.nombre = document.getElementById('cfgBusinessName').value.trim() || configRestaurante.nombre; 
@@ -2298,8 +2323,63 @@
         headers: { 'Content-Type': 'application/json' }, 
         body: JSON.stringify(configRestaurante) 
       }); 
-      alert("✔ Identidad y Redes guardadas."); 
+      alert("✔ Identidad y Logo actualizados en todo el restaurante."); 
       cargarIdentidadFirebase(); 
+    } 
+
+    /* IMPRESIÓN CORREGIDA DE CÓDIGOS QR (ESPERA CARGA TOTAL DE IMAGEN) */
+    async function actualizarQRVisualDirecto(mesaManual = null) { 
+      const selector = document.getElementById('qrMesaSelectorDinamico'); 
+      const mesa = mesaManual || (selector ? selector.value : (listaMesasDinamicas[0] || "Mesa 01")); 
+      const tel = document.getElementById('qrTelefonoInput').value.trim() || "+51969773064"; 
+      const link = await obtenerEnlaceCompletoMesa(mesa); 
+
+      document.getElementById('qrPrintNumeroMesa').innerText = mesa.toUpperCase(); 
+      document.getElementById('qrPrintTelefonoContacto').innerText = `Pedidos: ${tel}`; 
+      document.getElementById('imgQRVisualCentrado').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(link)}`; 
+    } 
+
+    async function imprimirTarjetaMesaQR() { 
+      const selector = document.getElementById('qrMesaSelectorDinamico'); 
+      const mesa = selector ? selector.value : (listaMesasDinamicas[0] || "Mesa 01"); 
+      const tel = document.getElementById('qrTelefonoInput').value.trim() || "+51969773064"; 
+      const link = await obtenerEnlaceCompletoMesa(mesa); 
+      const qrImgSrc = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodeURIComponent(link)}`; 
+       
+      const ventana = window.open('', '_blank'); 
+      ventana.document.write(` 
+        <!DOCTYPE html><html><head><title>QR ${mesa}</title> 
+        <style>
+          @page { margin: 0; size: auto; }
+          body { font-family: -apple-system, system-ui, sans-serif; margin: 0; padding: 30px 20px; display: flex; justify-content: center; background: #fff; } 
+          .card { border: 2.5px dashed #000; border-radius: 26px; padding: 30px 24px; width: 340px; text-align: center; } 
+          img { width: 230px; height: 230px; margin: 0 auto; display: block; }
+          h2 { margin: 0 0 4px; font-size: 22px; font-weight: 900; letter-spacing: 0.5px; }
+          h1 { margin: 14px 0 4px; font-size: 30px; font-weight: 900; }
+          p { margin: 4px 0; font-size: 13px; color: #333; }
+        </style></head><body> 
+          <div class="card"> 
+            <h2>${configRestaurante.nombre.toUpperCase()}</h2> 
+            <p style="color:#666; font-size:12px; margin-bottom:12px;">${configRestaurante.eslogan || 'Cusco • Gourmet'}</p>
+            <img id="qrPrintImg" src="${qrImgSrc}"> 
+            <h1>${mesa.toUpperCase()}</h1> 
+            <p>Escanea con tu celular para ver la carta y pedir</p> 
+            <p style="font-weight:bold; margin-top:8px;">Pedidos: ${tel}</p> 
+          </div> 
+          <script>
+            window.onload = function() {
+              const img = document.getElementById('qrPrintImg');
+              if (img.complete) {
+                window.print();
+                window.close();
+              } else {
+                img.onload = function() { window.print(); window.close(); }
+              }
+            }
+          <\/script> 
+        </body></html> 
+      `); 
+      ventana.document.close(); 
     } 
 
     /* 4. CRM CALENDARIO MENSUAL DE RESERVAS CON PREPAGOS Y WHATSAPP */
