@@ -323,7 +323,7 @@
     }
 
     /* ========================================================
-       MODAL DE NOTIFICACIÓN CENTRADO CON FUEGO DORADO GIRATORIO
+       MODAL DE NOTIFICACIÓN CENTRADO TOTAL EN EL MEDIO DEL CATÁLOGO
        ======================================================== */
     .notificacion-modal-overlay {
       position: fixed;
@@ -772,7 +772,7 @@
 
         <!-- Mensaje principal del estado -->
         <p id="notifModalMensaje" style="color: #f3f4f6; font-size: 13.5px; line-height: 1.45; margin-bottom: 14px;">
-          Tu pedido fue enviado. El mozo o caja lo está verificando en el panel...
+          Tu pedido fue enviado. El mozo o cocina lo está verificando en el panel...
         </p>
 
         <!-- Caja interactiva: Pregunta del Mozo -->
@@ -827,6 +827,13 @@
     const FIREBASE_DB_URL = "https://restaurante1-695f7-default-rtdb.firebaseio.com/";
     const CLAVE_MAESTRA_DEV = "42423549";
     const canalPedidos = new BroadcastChannel('canal_inka_pedidos');
+
+    // RECEPTOR EN TIEMPO REAL DESDE ADMIN.HTML
+    canalPedidos.onmessage = (event) => {
+      if (event.data?.tipo === 'ESTADO_ACTUALIZADO') {
+        verificarEstadoComandaEnVivo();
+      }
+    };
 
     let CONFIG = {
       nombre: "La Cusqueñita",
@@ -1510,7 +1517,7 @@
         fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }),
         cliente: `${mesaNorm} (${cliente})`,
         mesa: mesaNorm,
-        dni: dniComensal, // <-- SINCRONIZADO PARA EL CLUB DE RECOMPENSAS
+        dni: dniComensal,
         productos: detalleTexto.replace(/, $/, ""),
         items: platosComanda,
         totalPEN: ultimoTotalPagarPEN,
