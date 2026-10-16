@@ -511,7 +511,7 @@
           </button> 
 
           <button class="nav-item" id="btnNavReservas" onclick="seleccionarOpcionNav('reservas')"> 
-            <i class="fa-solid fa-calendar-days"></i> Generación de Reservas 
+            <i class="fa-solid fa-calendar-check"></i> Generación de Reservas 
           </button> 
 
           <button class="nav-item" id="btnNavMesas" onclick="seleccionarOpcionNav('mesas')"> 
@@ -681,7 +681,7 @@
           <div class="dishes-grid" id="dishesVisualGrid"></div> 
         </section> 
 
-        <!-- 4. GENERACIÓN DE RESERVAS CONVERTIDA EN CRM CALENDARIO MENSUAL --> 
+        <!-- 4. GENERACIÓN DE RESERVAS (CRM CALENDARIO MENSUAL) --> 
         <section id="viewReservas" style="display:none;"> 
           <div class="view-header"> 
             <div> 
@@ -1227,7 +1227,7 @@
 
     /* ESCUCHA EN TIEMPO REAL ENTRE PESTAÑAS (INDEX.HTML -> ADMIN.HTML) */ 
     canalPedidos.onmessage = (event) => { 
-      if (event.data?.tipo === 'RESPUESTA_CLIENTE') 
+      if (event.data?.tipo === 'RESPUESTA_CLIENTE') {
         const respuesta = event.data.respuesta || ''; 
         const mesa = event.data.mesa || 'Mesa del Cliente'; 
         const hora = event.data.hora || new Date().toLocaleTimeString(); 
@@ -2368,7 +2368,7 @@
             ${reservasDelDia.map(r => {
               const esConfirmada = (r.estado === 'confirmada');
               const claseEstado = esConfirmada ? 'res-confirmada' : 'res-pendiente';
-              const icono = esConfirmada ? '✔' : '⏳';
+              const icono = esConfirmada ? '✔ ' : '⏳ ';
               return `
                 <div class="crm-reserva-badge ${claseEstado}" onclick="event.stopPropagation(); abrirModalReservaCRM(null, '${r.id}')" title="${r.cliente} (${r.personas}p) -${r.estado}">
                   ${icono}${r.horaReserva || ''} ${r.cliente} (${r.mesaAsignada || 'Mesa'})
