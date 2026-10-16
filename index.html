@@ -39,17 +39,32 @@
       padding: 24px; text-align: center;
     }
     .security-lock-box {
-      max-width: 380px; width: 100%; background: #1a100d; border: 2px solid var(--accent);
-      border-radius: 24px; padding: 32px 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
-      display: flex; flex-direction: column; align-items: center; gap: 14px;
+      max-width: 390px; width: 100%; background: #1a100d; border: 2px solid var(--accent);
+      border-radius: 24px; padding: 26px 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
     }
+    .security-header-logos {
+      display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 4px;
+    }
+    .sec-chuspa-badge {
+      width: 58px; height: 58px; border-radius: 50%; background: #fff;
+      border: 2px solid var(--gold-badge); overflow: hidden; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
+    }
+    .sec-chuspa-badge img { width: 100%; height: 100%; object-fit: cover; }
+    .sec-brand-badge {
+      width: 58px; height: 58px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--primary));
+      border: 2px solid var(--gold-badge); overflow: hidden; display: flex; align-items: center; justify-content: center;
+      font-size: 26px; color: #fff; box-shadow: 0 4px 14px rgba(194, 65, 12, 0.4);
+    }
+    .sec-brand-badge img { width: 100%; height: 100%; object-fit: cover; }
+
     .security-lock-icon {
-      font-size: 50px; color: var(--gold-badge); filter: drop-shadow(0 4px 15px rgba(245, 158, 11, 0.5));
-      cursor: pointer;
+      font-size: 32px; color: var(--gold-badge); cursor: pointer;
     }
     .btn-bypass-dev {
       background: none; border: 1px solid rgba(255,255,255,0.15); color: #888;
-      padding: 6px 12px; border-radius: 12px; font-size: 11px; cursor: pointer; margin-top: 8px;
+      padding: 6px 12px; border-radius: 12px; font-size: 11px; cursor: pointer; margin-top: 4px;
     }
 
     .app-container { width: 100%; max-width: 480px; height: 100dvh; margin: 0 auto; position: relative; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
@@ -64,7 +79,7 @@
     .top-bar-row { display: flex; align-items: center; justify-content: space-between; }
     
     .brand-section { display: flex; align-items: center; gap: 8px; }
-    .brand-icon { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, var(--accent), var(--primary)); display: flex; align-items: center; justify-content: center; font-size: 17px; color: #fff; overflow: hidden; flex-shrink: 0; }
+    .brand-icon { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, var(--accent), var(--primary)); display: flex; align-items: center; justify-content: center; font-size: 17px; color: #fff; overflow: hidden; flex-shrink: 0; border: 1px solid var(--gold-badge); }
     .brand-icon img { width: 100%; height: 100%; object-fit: cover; }
     .brand-text h1 { font-size: 14px; font-weight: 900; line-height: 1.1; text-transform: uppercase; }
     .brand-text span { font-size: 9.5px; text-transform: uppercase; color: var(--accent); font-weight: 700; }
@@ -217,7 +232,7 @@
       background: var(--modal-green); color: #fff; border: none; font-weight: 900; cursor: pointer;
     }
 
-    /* CATÁLOGO DENTRO DEL POPUP AMPLIADO Y CÓMODO */
+    /* CATÁLOGO DENTRO DEL POPUP */
     .quick-add-catalog {
       background: #fff;
       border-radius: 12px; padding: 10px; margin-bottom: 8px; border: 1.5px solid var(--modal-green);
@@ -237,11 +252,6 @@
     .table-selector-label {
       font-size: 11.5px; font-weight: 900; text-transform: uppercase; color: var(--modal-dark);
       letter-spacing: 0.5px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;
-    }
-    .table-card-assigned {
-      background: #1c1917; color: #fde047; border-radius: 10px; padding: 8px 12px;
-      display: flex; justify-content: space-between; align-items: center; font-weight: 900; font-size: 13px;
-      border: 1.5px solid #ca8a04; margin-bottom: 8px;
     }
     .table-grid {
       display: grid; grid-template-columns: repeat(auto-fill, minmax(62px, 1fr));
@@ -413,9 +423,22 @@
       color: #aaa; font-size: 24px; font-weight: bold; cursor: pointer;
     }
 
+    /* ENCABEZADO DUAL DE LOGOS EN AGRADECIMIENTO */
+    .agradece-logos-header {
+      display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 2px;
+    }
+    .agradece-chuspa-wrap {
+      width: 60px; height: 60px; border-radius: 50%; overflow: hidden; background: #fff;
+      border: 2px solid var(--gold-badge); display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4); flex-shrink: 0;
+    }
+    .agradece-chuspa-wrap img { width: 100%; height: 100%; object-fit: cover; }
+
     .agradece-logo-wrap {
-      width: 64px; height: 64px; border-radius: 50%; overflow: hidden; background: #000;
-      border: 2px solid var(--gold-badge); display: flex; align-items: center; justify-content: center; font-size: 32px;
+      width: 60px; height: 60px; border-radius: 50%; overflow: hidden;
+      background: linear-gradient(135deg, var(--accent), var(--primary));
+      border: 2px solid var(--gold-badge); display: flex; align-items: center; justify-content: center;
+      font-size: 28px; color: #fff; box-shadow: 0 4px 14px rgba(194, 65, 12, 0.4); flex-shrink: 0;
     }
     .agradece-logo-wrap img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -426,6 +449,7 @@
       width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
       color: #fff; font-size: 18px; text-decoration: none; transition: transform 0.2s ease;
     }
+    .btn-social-icon:active { transform: scale(0.9); }
     .btn-social-wa { background: #25d366; }
     .btn-social-fb { background: #1877f2; }
     .btn-social-ig { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285aeb 90%); }
@@ -478,9 +502,19 @@
 </head>
 <body>
 
-  <!-- PANTALLA DE BLOQUEO DE SEGURIDAD -->
+  <!-- PANTALLA DE BLOQUEO DE SEGURIDAD (CON LOGO CHUSPA TECH + LOGO NEGOCIO) -->
   <div class="screen-security-lock" id="pantallaBloqueoSeguridad">
     <div class="security-lock-box">
+      
+      <div class="security-header-logos">
+        <div class="sec-chuspa-badge" title="La Chuspa Tech">
+          <img src="CHUSPITA-circulo.png" alt="La Chuspa Tech" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
+        </div>
+        <div class="sec-brand-badge" id="secBrandBadge" title="Logo del Restaurante">
+          🍽️
+        </div>
+      </div>
+
       <div class="security-lock-icon" id="iconLockDev" onclick="clickIconoDesarrollador()"><i class="fa-solid fa-lock"></i></div>
       <h2 style="color:var(--gold-badge); font-size:20px; font-weight:900;" id="secTitleLocal">La Cusqueñita</h2>
       <h3 style="color:#ef4444; font-size:15px; font-weight:800;" id="secHeadingTxt">Acceso Restringido a la Carta</h3>
@@ -496,12 +530,20 @@
     </div>
   </div>
 
-  <!-- PANTALLA AGRADECIMIENTO TRAS COBRO -->
+  <!-- PANTALLA AGRADECIMIENTO TRAS COBRO (CON LOGO CHUSPA TECH + LOGO NEGOCIO) -->
   <div class="screen-agradecimiento-overlay" id="pantallaAgradecimiento">
     <div class="box-agradecimiento">
       <button type="button" class="btn-close-modal" onclick="reiniciarNavegadorLimpio()" title="Cerrar">&times;</button>
       
-      <div class="agradece-logo-wrap" id="agradeceLogoWrap">🍽️</div>
+      <div class="agradece-logos-header">
+        <div class="agradece-chuspa-wrap" title="La Chuspa Tech">
+          <img src="CHUSPITA-circulo.png" alt="La Chuspa Tech" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
+        </div>
+        <div class="agradece-logo-wrap" id="agradeceLogoWrap" title="Logo del Restaurante">
+          🍽️
+        </div>
+      </div>
+
       <h2 style="color:var(--gold-badge); font-size:20px; font-weight:900;" id="agradeceNombreLocal">La Cusqueñita</h2>
       
       <p style="font-size:12.5px; color:#ddd; line-height:1.4;" id="agradeceMensajeTxt">
@@ -554,17 +596,22 @@
     </div>
   </div>
 
-  <!-- VENTANA MODAL DE RESERVAS -->
+  <!-- VENTANA MODAL DE RESERVAS (CON LOGOS SINCRONIZADOS) -->
   <div class="screen-reservas-modal-overlay" id="modalReservasCliente">
     <div class="box-reservas-modal">
       <button type="button" class="btn-close-modal" onclick="cerrarModalReservasCliente()" title="Cerrar ventana">&times;</button>
 
-      <div style="display:flex; align-items:center; gap:10px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px;">
-        <div class="agradece-logo-wrap" style="width:44px; height:44px; font-size:22px;" id="reservasLogoLocal">🍽️</div>
-        <div>
-          <h3 style="color:var(--gold-badge); font-size:16px;" id="resModalTituloLocal">La Cusqueñita</h3>
-          <span style="font-size:11px; color:#86efac;" id="lblModalReservaSub">Catálogo Oficial de Reservas & Eventos</span>
+      <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div class="agradece-logo-wrap" style="width:44px; height:44px; font-size:22px;" id="reservasLogoLocal">🍽️</div>
+          <div>
+            <h3 style="color:var(--gold-badge); font-size:16px;" id="resModalTituloLocal">La Cusqueñita</h3>
+            <span style="font-size:11px; color:#86efac;" id="lblModalReservaSub">Catálogo Oficial de Reservas & Eventos</span>
+          </div>
         </div>
+        <a href="https://www.lachuspaanuncios.com/" target="_blank" title="Tecnología La Chuspa Tech">
+          <img src="CHUSPITA-circulo.png" alt="La Chuspa" style="width:28px; height:28px; border-radius:50%; object-fit:cover; border:1px solid var(--gold-badge); background:#fff;" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
+        </a>
       </div>
 
       <p style="font-size:12px; color:#ccc;" id="lblModalReservaDesc">
@@ -691,7 +738,7 @@
         <span id="selectedTableBadge" style="color:var(--modal-green-dark); font-size:12.5px; font-weight:900;">Mesa 01 🔒</span>
       </div>
       
-      <!-- CONTENEDOR DE MESAS (CON ALTO CONTRASTE PARA QUE NUNCA SE VEAN AMARILLAS INVISIBLES) -->
+      <!-- CONTENEDOR DE MESAS -->
       <div id="wrapperSelectorMesas">
         <div class="table-grid" id="tableGridContainer"></div>
       </div>
@@ -974,11 +1021,8 @@
       document.getElementById("cajaPreguntaMozo").style.display = "none";
 
       if (quiereMas) {
-        // Ocultar notificación para dar paso al popup sin estorbar
         const modalNotif = document.getElementById("modalNotificacion");
         if (modalNotif) modalNotif.style.display = "none";
-
-        // Abrir popup preparado para añadir más platos
         openOrdersPopup(true);
       }
     }
@@ -1150,7 +1194,7 @@
       return ocupadas;
     }
 
-    /* RENDER DE MESAS CORREGIDO: VISIBILIDAD DE ALTO CONTRASTE */
+    /* RENDER DE MESAS CON ALTO CONTRASTE */
     async function renderizarCuadriculaMesas() {
       const container = document.getElementById("tableGridContainer");
       if (!container) return;
@@ -1242,6 +1286,7 @@
       cargarDatosTrasValidacion();
     }
 
+    /* CARGA Y SINCRONIZACIÓN DE LOGO E IDENTIDAD DEL NEGOCIO */
     async function cargarDatosTrasValidacion() {
       detectarMesaDesdeURL();
 
@@ -1251,11 +1296,16 @@
           const confFB = await resConf.json();
           if (confFB) {
             CONFIG = Object.assign(CONFIG, confFB);
+            
+            // Textos sincronizados
             document.getElementById('topTitle').innerText = CONFIG.nombre || "La Cusqueñita";
             document.getElementById('topSlogan').innerText = CONFIG.eslogan || "Cusco • Gourmet";
             document.getElementById('agradeceNombreLocal').innerText = CONFIG.nombre || "La Cusqueñita";
             document.getElementById('secTitleLocal').innerText = CONFIG.nombre || "La Cusqueñita";
             document.getElementById('resModalTituloLocal').innerText = CONFIG.nombre || "La Cusqueñita";
+
+            // Sincronización visual del logo en todas las vistas
+            actualizarLogosVisualesEnTodaLaApp(CONFIG.logo);
 
             const waNum = CONFIG.whatsapp || "+51 969 773 064";
             document.getElementById('agradeceContactoTxt').innerText = waNum;
@@ -1290,6 +1340,27 @@
 
       const hint = document.getElementById('hintManoGestual');
       if (hint) hint.style.display = 'flex';
+    }
+
+    function actualizarLogosVisualesEnTodaLaApp(logoData) {
+      const topIcon = document.getElementById('topIcon');
+      const secBrand = document.getElementById('secBrandBadge');
+      const agradeceWrap = document.getElementById('agradeceLogoWrap');
+      const resLogo = document.getElementById('reservasLogoLocal');
+
+      if (logoData && (logoData.startsWith('data:image') || logoData.startsWith('http'))) {
+        const imgHtml = `<img src="${logoData}" alt="Logo">`;
+        if (topIcon) topIcon.innerHTML = imgHtml;
+        if (secBrand) secBrand.innerHTML = imgHtml;
+        if (agradeceWrap) agradeceWrap.innerHTML = imgHtml;
+        if (resLogo) resLogo.innerHTML = imgHtml;
+      } else {
+        const txt = logoData || "🍽️";
+        if (topIcon) topIcon.innerText = txt;
+        if (secBrand) secBrand.innerText = txt;
+        if (agradeceWrap) agradeceWrap.innerText = txt;
+        if (resLogo) resLogo.innerText = txt;
+      }
     }
 
     function formatPrice(pen) { return `S/ ${pen.toFixed(2)}`; }
@@ -1414,7 +1485,6 @@
       }
       document.getElementById('ordersPopupModal').classList.remove('active');
 
-      // Si tiene comanda activa y cerró el popup de adición, reabrir la notificación de estado
       if (comandaActivaId) {
         verificarEstadoComandaEnVivo();
       }
@@ -1730,14 +1800,12 @@
         if (cajaResena) cajaResena.style.display = "none";
       }
 
-      // Mostrar pregunta del mozo si está activa
       if (miComanda.mozoPregunta === true) {
         cajaMozo.style.display = "block";
       } else {
         cajaMozo.style.display = "none";
       }
 
-      // Si no tiene el popup abierto, mantener visible la notificación
       const popupModal = document.getElementById('ordersPopupModal');
       if (modalCentro && (!popupModal || !popupModal.classList.contains('active'))) {
         modalCentro.style.display = "flex";
