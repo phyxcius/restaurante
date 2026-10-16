@@ -256,6 +256,45 @@
 
     .sidebar-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 180; }
 
+    /* ========================================================
+       MODAL DE ALERTA CENTRADO (SEGUNDO PLANO A PRIMER PLANO)
+       ======================================================== */
+    .alerta-centro-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(6px);
+      z-index: 1000000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .alerta-centro-overlay.active { display: flex; }
+    .alerta-centro-card {
+      position: relative; width: 100%; max-width: 440px;
+      background: #19120e; border-radius: 20px; padding: 22px;
+      overflow: hidden; box-shadow: 0 10px 45px rgba(0,0,0,0.9);
+      border: 2px solid var(--gold);
+      animation: alertPulseGlow 2.5s infinite alternate ease-in-out;
+      text-align: center;
+    }
+    @keyframes alertPulseGlow {
+      0% { box-shadow: 0 0 18px rgba(245, 158, 11, 0.4), 0 0 35px rgba(239, 68, 68, 0.2); }
+      100% { box-shadow: 0 0 38px rgba(245, 158, 11, 0.8), 0 0 60px rgba(239, 68, 68, 0.5); }
+    }
+    .alerta-icono-wrap {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: rgba(245, 158, 11, 0.15); border: 2px solid var(--gold);
+      margin: 0 auto 12px; display: flex; align-items: center; justify-content: center;
+      font-size: 30px; color: var(--gold);
+    }
+    .btn-alerta-entendido {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #fff; font-weight: 900; font-size: 13.5px; border: none;
+      border-radius: 12px; padding: 11px 24px; cursor: pointer; margin-top: 14px;
+      width: 100%; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+    }
+
     @media (max-width: 860px) {
       .admin-layout { display: block !important; }
       .sidebar {
@@ -364,7 +403,6 @@
 
         <!-- ACORDEONES DEL VAULT -->
         <div class="rol-admin-only" style="display:flex; flex-direction:column; gap:2px;">
-          <!-- ACORDEÓN 1: TOKEN GITHUB -->
           <div class="vault-box">
             <button class="vault-trigger" type="button" onclick="toggleAcordeonClave('token')">
               <span><i class="fa-solid fa-key"></i> Token GitHub</span>
@@ -380,7 +418,6 @@
             </div>
           </div>
 
-          <!-- ACORDEÓN 2: RESETEAR COMANDAS Y MESAS -->
           <div class="vault-box danger-vault">
             <button class="vault-trigger" type="button" onclick="toggleAcordeonClave('resetComandas')">
               <span><i class="fa-solid fa-broom"></i> Reset Comandas & Mesas</span>
@@ -396,7 +433,6 @@
             </div>
           </div>
 
-          <!-- ACORDEÓN 3: RESETEAR HISTORIAL CONTABLE -->
           <div class="vault-box danger-vault">
             <button class="vault-trigger" type="button" onclick="toggleAcordeonClave('resetReportes')">
               <span><i class="fa-solid fa-file-invoice-dollar"></i> Reset Historial Ventas</span>
@@ -469,18 +505,18 @@
 
           <div class="kds-calendar-bar">
             <div class="kds-date-picker-wrap">
-              <span style="font-size:12px; font-weight:900; color:var(--gold);"><i class="fa-solid fa-calendar-day"></i> Ver Comandas del Día:</span>
+              <span style="font-size:12px; font-weight:900; color:var(--gold);"><i class="fa-solid fa-calendar-day"></i> Ver Comandas:</span>
               <input type="date" id="kdsFechaSeleccionada" class="kds-date-input" onchange="cambiarFechaKDS(this.value)">
-              <button type="button" class="kds-date-quick-btn active" id="btnKdsHoy" onclick="setKdsFechaRapida('hoy')">Hoy</button>
+              <button type="button" class="kds-date-quick-btn active" id="btnKdsTodas" onclick="setKdsFechaRapida('todas')">Ver Todas (Recomendado)</button>
+              <button type="button" class="kds-date-quick-btn" id="btnKdsHoy" onclick="setKdsFechaRapida('hoy')">Solo Hoy</button>
               <button type="button" class="kds-date-quick-btn" id="btnKdsAyer" onclick="setKdsFechaRapida('ayer')">Ayer</button>
-              <button type="button" class="kds-date-quick-btn" id="btnKdsTodas" onclick="setKdsFechaRapida('todas')">Todas las fechas</button>
             </div>
 
             <div class="kds-day-metrics">
-              <div class="metric-pill">Comandas del Día: <b id="metricDiaTotal">0</b></div>
+              <div class="metric-pill">Comandas: <b id="metricDiaTotal">0</b></div>
               <div class="metric-pill">En Curso: <b id="metricDiaActivas" style="color:#38bdf8;">0</b></div>
               <div class="metric-pill">Cobradas: <b id="metricDiaFinalizadas" style="color:#86efac;">0</b></div>
-              <div class="metric-pill">Vendido: <b id="metricDiaTotalPEN" style="color:#fde047;">S/ 0.00</b></div>
+              <div class="metric-pill">Total: <b id="metricDiaTotalPEN" style="color:#fde047;">S/ 0.00</b></div>
             </div>
           </div>
 
@@ -529,12 +565,10 @@
             </strong>
             <form onsubmit="guardarUsuarioSistema(event)" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-top:10px;">
               <input type="hidden" id="usuarioEditandoId" value="">
-              
               <div>
                 <label>Nombre y Apellido del Operador:</label>
                 <input type="text" id="userInputNombre" placeholder="Ej: Carlos Salón" required>
               </div>
-
               <div>
                 <label>Rol / Nivel de Acceso:</label>
                 <select id="userInputRol" required>
@@ -544,12 +578,10 @@
                   <option value="cocina">Cocinero (Solo KDS cocina)</option>
                 </select>
               </div>
-
               <div>
                 <label>Contraseña de Acceso:</label>
                 <input type="password" id="userInputPass" placeholder="••••••••" required>
               </div>
-
               <div style="display:flex; align-items:flex-end; gap:8px;">
                 <button type="submit" class="btn btn-save" style="flex:1; height:42px;">
                   <i class="fa-solid fa-floppy-disk"></i> <span id="btnGuardarUserTxt">Guardar Usuario</span>
@@ -803,6 +835,21 @@
     </div>
   </div>
 
+  <!-- MODAL DE ALERTA CENTRADO EN SEGUNDO PLANO (NUEVO) -->
+  <div class="alerta-centro-overlay" id="alertaCentroOverlay" onclick="cerrarAlertaCentro()">
+    <div class="alerta-centro-card" onclick="event.stopPropagation()">
+      <div class="alerta-icono-wrap" id="alertaIconoWrap">
+        <i class="fa-solid fa-bell" id="alertaIconoInterior"></i>
+      </div>
+      <h2 style="color:var(--gold); font-size:18px; font-weight:900; margin-bottom:6px;" id="alertaTituloCentro">¡Notificación del Salón!</h2>
+      <p style="font-size:14px; color:#f3f4f6; line-height:1.45; margin-bottom:10px;" id="alertaMensajeCentro">Mensaje de alerta del cliente...</p>
+      <div style="background:#110907; border:1px dashed var(--accent); border-radius:10px; padding:10px; font-size:13px; color:#fde047;" id="alertaDetalleCentro">Mesa --</div>
+      <button type="button" class="btn-alerta-entendido" onclick="cerrarAlertaCentro()">
+        <i class="fa-solid fa-check"></i> Entendido / Cerrar Aviso
+      </button>
+    </div>
+  </div>
+
   <!-- MODAL FLOTANTE 1: EDICIÓN DE PLATOS CON CAMPO Y SOPORTE DE VIDEO -->
   <div class="modal-overlay" id="dishModal" onclick="cerrarModalPlato()">
     <div class="modal-box" onclick="event.stopPropagation()">
@@ -838,7 +885,6 @@
         <input type="text" id="platoImagenUrl" placeholder="https://ejemplo.com/foto-plato.jpg" style="margin-top:6px;">
       </div>
 
-      <!-- Campo de Video Integrado -->
       <div class="form-group" style="background:#180f0c; padding:10px; border-radius:8px; border:1px dashed #555; margin-top:8px;">
         <label style="font-weight: bold; color: #fff; margin-top:0;">2. Video del Plato (Opcional):</label>
         <input type="file" id="fileDishVideo" accept="video/mp4,video/webm" onchange="convertirVideoPlato(event)">
@@ -916,6 +962,7 @@
   <script>
     const FIREBASE_DB_URL = "https://restaurante1-695f7-default-rtdb.firebaseio.com/";
     const PASSWORD_MAESTRA_VAULT = "42423549";
+    const canalPedidos = new BroadcastChannel('canal_inka_pedidos');
 
     let catalogo = [
       {
@@ -958,8 +1005,9 @@
     let todasLasComandasCache = [];
     let filtroEstadoKDSActual = "todos";
     let totalComandasPrevias = 0;
-    let fechaKdsSeleccionada = new Date().toISOString().split('T')[0];
+    let fechaKdsSeleccionada = ""; // Inicia mostrando todas para asegurar visualización en celulares
     let modoEliminarMesasActivo = false;
+    let estadosConocidosComandas = {};
 
     let vaultTokenDesbloqueado = false;
     let vaultResetComandasDesbloqueado = false;
@@ -971,6 +1019,7 @@
       if (audioCtx.state === 'suspended') audioCtx.resume();
     }
     window.addEventListener('click', asegurarAudioCtx, { once: true });
+    window.addEventListener('touchstart', asegurarAudioCtx, { once: true });
 
     function reproducirSonidoCampanaCocina() {
       try {
@@ -1000,6 +1049,60 @@
       } catch (e) {}
     }
     function probarSonidoCampanaCocina() { reproducirSonidoCampanaCocina(); }
+
+    /* GESTOR DE ALERTAS VISUALES EN PANTALLA COMPLETA */
+    function dispararAlertaCentro(titulo, mensaje, detalle, icono = 'fa-bell', colorIcono = '#fbbf24') {
+      reproducirSonidoCampanaCocina();
+      const overlay = document.getElementById('alertaCentroOverlay');
+      const t = document.getElementById('alertaTituloCentro');
+      const m = document.getElementById('alertaMensajeCentro');
+      const d = document.getElementById('alertaDetalleCentro');
+      const icWrap = document.getElementById('alertaIconoWrap');
+      const ic = document.getElementById('alertaIconoInterior');
+
+      if (t) t.innerText = titulo;
+      if (m) m.innerHTML = mensaje;
+      if (d) d.innerHTML = detalle;
+      if (ic) ic.className = `fa-solid ${icono}`;
+      if (icWrap) {
+        icWrap.style.borderColor = colorIcono;
+        icWrap.style.color = colorIcono;
+      }
+      if (overlay) overlay.classList.add('active');
+    }
+
+    function cerrarAlertaCentro() {
+      const overlay = document.getElementById('alertaCentroOverlay');
+      if (overlay) overlay.classList.remove('active');
+    }
+
+    /* ESCUCHA EN TIEMPO REAL ENTRE PESTAÑAS (INDEX.HTML -> ADMIN.HTML) */
+    canalPedidos.onmessage = (event) => {
+      if (event.data?.tipo === 'RESPUESTA_CLIENTE') {
+        const respuesta = event.data.respuesta || '';
+        const mesa = event.data.mesa || 'Mesa del Cliente';
+        const hora = event.data.hora || new Date().toLocaleTimeString();
+
+        if (respuesta.toLowerCase().includes('no')) {
+          dispararAlertaCentro(
+            "🛑 Respuesta del Cliente",
+            `El cliente en la <b>${mesa}</b> indicó que <b>NO le interesa agregar nada más</b> a su comanda.`,
+            `Hora: ${hora}`,
+            'fa-circle-xmark',
+            '#f87171'
+          );
+        } else {
+          dispararAlertaCentro(
+            "➕ Cliente Desea Agregar Platos",
+            `El cliente en la <b>${mesa}</b> confirmó que <b>va a ordenar más platos</b> a su mesa.`,
+            `Hora: ${hora}`,
+            'fa-circle-plus',
+            '#4ade80'
+          );
+        }
+        cargarComandasEnVivo();
+      }
+    };
 
     async function verificarLoginSistema(e) {
       e.preventDefault();
@@ -1058,7 +1161,7 @@
         el.style.display = esAdmin ? (el.tagName === 'BUTTON' ? 'flex' : 'block') : 'none';
       });
 
-      document.getElementById('kdsFechaSeleccionada').value = fechaKdsSeleccionada;
+      document.getElementById('kdsFechaSeleccionada').value = "";
 
       await cargarIdentidadFirebase();
       await cargarMesasDesdeFirebase();
@@ -1299,7 +1402,6 @@
       }
     }
 
-    // MULTIMEDIA FOTO / VIDEO
     function convertirFotoPlato(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -1316,7 +1418,6 @@
       reader.readAsDataURL(file);
     }
 
-    // MODAL EDICIÓN PLATOS
     function abrirModalPlato(id = null) {
       platoEditandoId = id;
       if (id) {
@@ -1343,7 +1444,6 @@
       document.getElementById('dishModal').classList.remove('active');
     }
 
-    // CARGA Y GUARDADO DEL PLATO CON VIDEO SINCRONIZADO
     async function cargarCatalogoDesdeFirebase() {
       try {
         const resPlat = await fetch(`${FIREBASE_DB_URL}catalogo_platos.json?_t=${Date.now()}`);
@@ -1455,7 +1555,6 @@
       renderizarVisualDishes();
     }
 
-    // MODAL COBRO
     async function abrirModalCobroComanda(idComanda) {
       let comanda = todasLasComandasCache.find(c => c.id === idComanda);
       if (!comanda) {
@@ -1680,7 +1779,7 @@
       }
 
       if (filtradas.length === 0) {
-        grid.innerHTML = `<p style="color:#aaa; font-size:14px; padding:24px 0; text-align:center;">No hay comandas registradas para la fecha seleccionada.</p>`;
+        grid.innerHTML = `<p style="color:#aaa; font-size:14px; padding:24px 0; text-align:center;">No hay comandas registradas.</p>`;
         return;
       }
 
@@ -2056,6 +2155,7 @@
       renderizarListaKDSFiltrada();
     }
 
+    /* MONITOREO DE COMANDAS EN VIVO CON DISPARADOR DE ALERTAS */
     async function cargarComandasEnVivo() {
       const grid = document.getElementById('liveOrdersGrid');
       const monitorGrid = document.getElementById('tablesMonitorGrid');
@@ -2079,10 +2179,57 @@
       comandas.sort((a, b) => (a.timestampOrden || 0) - (b.timestampOrden || 0));
       todasLasComandasCache = comandas;
 
+      // DETECCIÓN INTELIGENTE DE EVENTOS EN SEGUNDO PLANO
+      comandas.forEach(c => {
+        const previo = estadosConocidosComandas[c.id];
+        const estadoActual = String(c.estado || '').toLowerCase();
+
+        // 1. Nueva Comanda que ingresa
+        if (!previo && estadoActual !== 'finalizado' && estadoActual !== 'liberado') {
+          if (Object.keys(estadosConocidosComandas).length > 0) {
+            dispararAlertaCentro(
+              "🔔 ¡Nueva Comanda Ingresada!",
+              `Se acaba de registrar un nuevo pedido para <b>${c.mesa || 'Mesa'}</b> (${c.cliente || 'Comensal'}).`,
+              `Platos: ${c.productos || 'Plato nuevo'} • Total: S/ ${(c.totalPEN || c.total || 0).toFixed(2)}`,
+              'fa-bell-concierge',
+              '#fbbf24'
+            );
+          }
+        }
+
+        // 2. Cliente pide cuenta (terminó de comer y va a pagar)
+        if (c.clientePidiendoCuenta === true && (!previo || !previo.clientePidiendoCuenta) && estadoActual !== 'finalizado') {
+          dispararAlertaCentro(
+            "💵 ¡El Cliente va a Pagar en Caja!",
+            `El comensal de la <b>${c.mesa || 'Mesa'}</b> ha terminado de consumir y <b>viene a caja a pagar</b>.`,
+            `Total a cobrar: S/ ${(c.totalPEN || c.total || 0).toFixed(2)} | Método: ${c.pago || 'Efectivo'}`,
+            'fa-person-walking',
+            '#ec4899'
+          );
+        }
+
+        // 3. Respuesta del cliente al mozo guardada en comanda
+        if (c.clienteRespuestaMozo && (!previo || previo.clienteRespuestaMozo !== c.clienteRespuestaMozo)) {
+          if (c.clienteRespuestaMozo.toLowerCase().includes('no')) {
+            dispararAlertaCentro(
+              "🛑 El Cliente no agregará más",
+              `En la <b>${c.mesa || 'Mesa'}</b> respondieron que <b>no desean nada más</b> por el momento.`,
+              `Estado comanda: ${estadoActual}`,
+              'fa-circle-xmark',
+              '#f87171'
+            );
+          }
+        }
+
+        // Guardar snapshot de estado
+        estadosConocidosComandas[c.id] = {
+          estado: estadoActual,
+          clientePidiendoCuenta: c.clientePidiendoCuenta,
+          clienteRespuestaMozo: c.clienteRespuestaMozo
+        };
+      });
+
       const activasSinCobro = comandas.filter(c => String(c.estado || "").toLowerCase() !== 'finalizado');
-      if (activasSinCobro.length > totalComandasPrevias && totalComandasPrevias !== 0) {
-        reproducirSonidoCampanaCocina();
-      }
       totalComandasPrevias = activasSinCobro.length;
       document.getElementById('badgeTotalComandas').innerText = activasSinCobro.length;
 
