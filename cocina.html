@@ -642,97 +642,127 @@
     let intervaloPollKDS = null;
 
     /* ========================================================
-       AUTENTICACIÓN Y VALIDACIÓN CON MÓDULO DE USUARIOS (MEJORADO)
+       AUTENTICACIÓN Y VALIDACIÓN SINCRONIZADA CON PANEL DE CONTROL
        ======================================================== */
 
-    // Clave fija de emergencia para que la cocina nunca se quede bloqueada
-    const CLAVE_RESPALDO_EMERGENCIA = "1234";
-
+    // 1. Carga exhaustiva de usuarios desde Firebase y LocalStorage del Panel
     async function cargarUsuariosSincronizados() {
+      let usuariosEncontrados = [];
+
+      // Intento A: Consulta a Firebase Realtime Database (/usuarios)
       try {
         const res = await fetch(`${FIREBASE_DB_URL}usuarios.json?_t=${Date.now()}`);
         if (res.ok) {
           const data = await res.json();
-          console.log("📥 Datos crudos recibidos desde Firebase /usuarios:", data);
-          
           if (data && typeof data === 'object') {
             const arr = Array.isArray(data) 
               ? data.filter(Boolean) 
               : Object.keys(data).map(k => Object.assign({ id: k }, data[k]));
-            
-            localStorage.setItem('panel_usuarios_cache', JSON.stringify(arr));
-            return arr;
+            usuariosEncontrados = usuariosEncontrados.concat(arr);
           }
-        } else {
-          console.warn("⚠️ Firebase respondió con error HTTP:", res.status);
         }
       } catch (e) {
-        console.warn("⚠️ Error conectando a Firebase usuarios, usando cache:", e);
-      }
-      return JSON.parse(localStorage.getItem('panel_usuarios_cache') || '[]');
-    }
-
-    async function validarIngresoCocinero() {
-      const pin = document.getElementById('inputClaveCocinero').value.trim();
-      const errorMsg = document.getElementById('authErrorMsg');
-
-      if (!pin) return;
-
-      // 1. Acceso directo por clave de emergencia
-      if (pin === CLAVE_RESPALDO_EMERGENCIA) {
-        console.log("✅ Acceso concedido mediante clave de respaldo");
-        document.getElementById('authErrorMsg').style.display = 'none';
-        desbloquearPantallaCocina("Cocinero Principal (Respaldo)");
-        return;
+        console.warn("Aviso Firebase /usuarios:", e);
       }
 
-      // 2. Validación con usuarios sincronizados
-      const usuarios = await cargarUsuariosSincronizados();
-      console.log("🔍 Evaluando PIN contra usuarios registrados:", usuarios);
-
-      // Lista amplia de roles válidos para cocina
-      const rolesValidos = [
-        'cocina', 'cocinero', 'chef', 'kds', 'kitchen', 
-        'admin', 'administrador', 'general', ''
-      ];
-
-      const userValido = usuarios.find(u => {
-        if (!u) return false;
-
-        // Busca la clave en cualquiera de las posibles propiedades que use el panel
-        const pass = String(
-          u.password || u.pin || u.clave || u.codigo || u.pass || u.contrasena || ''
-        ).trim();
-
-        // Normaliza el rol
-        const rol = String(u.rol || u.role || u.tipo || u.perfil || '').toLowerCase().trim();
-
-        const coincideClave = (pass === pin);
-        const tienePermiso = rolesValidos.includes(rol) || rol.includes('cocin') || rol.includes('chef');
-
-        if (coincideClave) {
-          console.log(`👤 Coincidencia encontrada para usuario: "${u.nombre || u.usuario}", Rol: "${rol}", Permitido: ${tienePermiso}`);
+      // Intento B: Si el panel guarda en nodo /personal
+      try {
+        const resPersonal = await fetch(`${FIREBASE_DB_URL}personal.json?_t=${Date.now()}`);
+        if (resPersonal.ok) {
+          const dataPersonal = await resPersonal.json();
+          if (dataPersonal && typeof dataPersonal === 'object') {
+            const arrPers = Array.isArray(dataPersonal) 
+              ? dataPersonal.filter(Boolean) 
+              : Object.keys(dataPersonal).map(k => Object.assign({ id: k }, dataPersonal[k]));
+            usuariosEncontrados = usuariosEncontrados.concat(arrPers);
+          }
         }
+      } catch (e) {}
 
-        return coincideClave && tienePermiso;
+      // Intento C: Sincronización con almacenamiento local del navegador (Panel Admin)
+      const clavesLocal = ['panel_usuarios_cache', 'restaurante_usuarios', 'usuarios_sistema', 'usuarios'];
+      for (const clave of clavesLocal) {
+        const guardados = localStorage.getItem(clave);
+        if (guardados) {
+          try {
+            const parseados = JSON.parse(guardados);
+            if (Array.isArray(parseados)) {
+              usuariosEncontrados = usuariosEncontrados.concat(parseados);
+            } else if (typeof parseados === 'object') {
+              usuariosEncontrados = usuariosEncontrados.concat(Object.values(parseados));
+            }
+          } catch (err) {}
+        }
+      }
+
+      // Quitar duplicados por ID o nombre
+      const mapaUnico = new Map();
+      usuariosEncontrados.forEach(u => {
+        if (u && (u.id || u.nombre || u.usuario)) {
+          const key = String(u.id || u.nombre || u.usuario);
+          mapaUnico.set(key, u);
+        }
       });
 
-      if (userValido) {
-        const nombre = userValido.nombre || userValido.username || userValido.usuario || 'Cocinero';
+      const listaFinal = Array.from(mapaUnico.values());
+      localStorage.setItem('panel_usuarios_cache', JSON.stringify(listaFinal));
+      return listaFinal;
+    }
+
+    // 2. Validación de PIN / Contraseña del Cocinero Asignado
+    async function validarIngresoCocinero() {
+      const pinIngresado = document.getElementById('inputClaveCocinero').value.trim();
+      const errorMsg = document.getElementById('authErrorMsg');
+
+      if (!pinIngresado) return;
+
+      const usuarios = await cargarUsuariosSincronizados();
+      console.log("Usuarios sincronizados desde el panel de control:", usuarios);
+
+      // Roles válidos para operar la cocina
+      const rolesCocina = ['cocina', 'cocinero', 'chef', 'kds', 'kitchen', 'admin', 'administrador'];
+
+      // Buscar usuario con rol cocina cuya clave coincida
+      const cocineroValido = usuarios.find(u => {
+        if (!u) return false;
+
+        // Normalizar la clave registrada en el panel
+        const passRegistrada = String(
+          u.password || u.pin || u.clave || u.codigo || u.pass || u.contrasena || u.pin_acceso || ''
+        ).trim();
+
+        // Normalizar el rol asignado por el administrador
+        const rolUsuario = String(
+          u.rol || u.role || u.tipo || u.perfil || u.cargo || ''
+        ).toLowerCase().trim();
+
+        const coincideClave = (passRegistrada === pinIngresado);
+        const tieneRolCocina = rolesCocina.includes(rolUsuario) || 
+                               rolUsuario.includes('cocin') || 
+                               rolUsuario.includes('chef') ||
+                               rolUsuario === '';
+
+        return coincideClave && tieneRolCocina;
+      });
+
+      if (cocineroValido) {
+        const nombreCocinero = cocineroValido.nombre || cocineroValido.usuario || cocineroValido.username || 'Cocinero de Turno';
+        
+        // Guardar sesión activa en la pestaña
         sessionStorage.setItem('kds_session_user', JSON.stringify({
-          nombre: nombre,
-          rol: userValido.rol || 'cocina',
-          id: userValido.id || 'cocinero'
+          nombre: nombreCocinero,
+          rol: cocineroValido.rol || 'cocinero',
+          id: cocineroValido.id || 'cocina'
         }));
 
-        document.getElementById('authErrorMsg').style.display = 'none';
-        desbloquearPantallaCocina(nombre);
+        errorMsg.style.display = 'none';
+        desbloquearPantallaCocina(nombreCocinero);
       } else {
-        errorMsg.innerText = "Clave incorrecta o sin permisos para cocina.";
+        // Si la clave no coincide o el usuario no tiene rol asignado en cocina
+        errorMsg.innerText = "Clave no asignada a ningún cocinero o administrador en el panel.";
         errorMsg.style.display = "block";
         document.getElementById('inputClaveCocinero').value = "";
         document.getElementById('inputClaveCocinero').focus();
-        console.warn("❌ Acceso denegado. Revisa en la consola si el usuario creado tiene otro nombre de campo o rol.");
       }
     }
 
