@@ -495,7 +495,7 @@
 <body>
 
   <!-- ========================================================
-       MODAL DE INGRESO: CLAVE DE COCINERO (PANEL DE USUARIOS)
+       MODAL DE INGRESO: CLAVE DE COCINERO (FIREBASE /usuarios)
        ======================================================== -->
   <div id="authOverlayKDS">
     <div class="auth-card-kds">
@@ -506,9 +506,9 @@
       </div>
 
       <h2>ACCESO A COCINA</h2>
-      <p>Ingresa tu clave de cocinero sincronizada con el módulo de usuarios</p>
+      <p>Ingresa tu clave de cocinero sincronizada con el panel de control</p>
 
-      <input type="password" id="inputClaveCocinero" class="auth-pin-input" placeholder="••••" maxlength="8" autofocus autocomplete="off" />
+      <input type="password" id="inputClaveCocinero" class="auth-pin-input" placeholder="••••" maxlength="12" autofocus autocomplete="off" />
 
       <button type="button" class="auth-btn-enter" onclick="validarIngresoCocinero()">
         <i class="fa-solid fa-unlock-keyhole"></i> Abrir Tablero
@@ -642,74 +642,76 @@
     let intervaloPollKDS = null;
 
     /* ========================================================
-       AUTENTICACIÓN Y VALIDACIÓN SINCRONIZADA CON PANEL DE CONTROL
+       AUTENTICACIÓN SINCRONIZADA CON FIREBASE /usuarios.json
        ======================================================== */
 
-    // 1. Carga exhaustiva de usuarios desde Firebase y LocalStorage del Panel
-    async function cargarUsuariosSincronizados() {
-      let usuariosEncontrados = [];
+    // Convierte cualquier formato devuelto por Firebase (árbol, array, objetos anidados) a lista plana
+    function aplanarUsuariosFirebase(data) {
+      if (!data) return [];
+      let lista = [];
 
-      // Intento A: Consulta a Firebase Realtime Database (/usuarios)
+      if (Array.isArray(data)) {
+        data.forEach((item, idx) => {
+          if (item && typeof item === 'object') {
+            lista.push(Object.assign({ id: item.id || idx }, item));
+          }
+        });
+      } else if (typeof data === 'object') {
+        Object.keys(data).forEach(k => {
+          const val = data[k];
+          if (val && typeof val === 'object') {
+            lista.push(Object.assign({ id: val.id || k }, val));
+          }
+        });
+      }
+      return lista;
+    }
+
+    // 1. Carga directa desde https://restaurante1-695f7-default-rtdb.firebaseio.com/usuarios.json
+    async function cargarUsuariosSincronizados() {
+      let usuariosTotales = [];
+
+      // Consulta a la URL exacta solicitada
       try {
         const res = await fetch(`${FIREBASE_DB_URL}usuarios.json?_t=${Date.now()}`);
         if (res.ok) {
           const data = await res.json();
-          if (data && typeof data === 'object') {
-            const arr = Array.isArray(data) 
-              ? data.filter(Boolean) 
-              : Object.keys(data).map(k => Object.assign({ id: k }, data[k]));
-            usuariosEncontrados = usuariosEncontrados.concat(arr);
-          }
+          console.log("📥 Usuarios recibidos de Firebase:", data);
+          usuariosTotales = usuariosTotales.concat(aplanarUsuariosFirebase(data));
+        } else {
+          console.warn("⚠️ Error HTTP consultando Firebase usuarios:", res.status);
         }
       } catch (e) {
-        console.warn("Aviso Firebase /usuarios:", e);
+        console.warn("⚠️ Error en petición a Firebase /usuarios.json:", e);
       }
 
-      // Intento B: Si el panel guarda en nodo /personal
-      try {
-        const resPersonal = await fetch(`${FIREBASE_DB_URL}personal.json?_t=${Date.now()}`);
-        if (resPersonal.ok) {
-          const dataPersonal = await resPersonal.json();
-          if (dataPersonal && typeof dataPersonal === 'object') {
-            const arrPers = Array.isArray(dataPersonal) 
-              ? dataPersonal.filter(Boolean) 
-              : Object.keys(dataPersonal).map(k => Object.assign({ id: k }, dataPersonal[k]));
-            usuariosEncontrados = usuariosEncontrados.concat(arrPers);
-          }
-        }
-      } catch (e) {}
-
-      // Intento C: Sincronización con almacenamiento local del navegador (Panel Admin)
-      const clavesLocal = ['panel_usuarios_cache', 'restaurante_usuarios', 'usuarios_sistema', 'usuarios'];
-      for (const clave of clavesLocal) {
-        const guardados = localStorage.getItem(clave);
-        if (guardados) {
+      // Respaldo en localStorage por si se guardó desde el panel en este mismo navegador
+      const clavesBackup = ['panel_usuarios_cache', 'usuarios_sistema', 'restaurante_usuarios', 'usuarios'];
+      for (const k of clavesBackup) {
+        const guardado = localStorage.getItem(k);
+        if (guardado) {
           try {
-            const parseados = JSON.parse(guardados);
-            if (Array.isArray(parseados)) {
-              usuariosEncontrados = usuariosEncontrados.concat(parseados);
-            } else if (typeof parseados === 'object') {
-              usuariosEncontrados = usuariosEncontrados.concat(Object.values(parseados));
-            }
+            const parsed = JSON.parse(guardado);
+            usuariosTotales = usuariosTotales.concat(aplanarUsuariosFirebase(parsed));
           } catch (err) {}
         }
       }
 
-      // Quitar duplicados por ID o nombre
-      const mapaUnico = new Map();
-      usuariosEncontrados.forEach(u => {
-        if (u && (u.id || u.nombre || u.usuario)) {
-          const key = String(u.id || u.nombre || u.usuario);
-          mapaUnico.set(key, u);
+      // Eliminar registros vacíos o duplicados
+      const mapa = new Map();
+      usuariosTotales.forEach(u => {
+        if (u) {
+          const ident = String(u.id || u.usuario || u.nombre || Math.random());
+          mapa.set(ident, u);
         }
       });
 
-      const listaFinal = Array.from(mapaUnico.values());
-      localStorage.setItem('panel_usuarios_cache', JSON.stringify(listaFinal));
-      return listaFinal;
+      const resultado = Array.from(mapa.values());
+      localStorage.setItem('panel_usuarios_cache', JSON.stringify(resultado));
+      return resultado;
     }
 
-    // 2. Validación de PIN / Contraseña del Cocinero Asignado
+    // 2. Validación de PIN o Contraseña del Cocinero Asignado
     async function validarIngresoCocinero() {
       const pinIngresado = document.getElementById('inputClaveCocinero').value.trim();
       const errorMsg = document.getElementById('authErrorMsg');
@@ -717,49 +719,51 @@
       if (!pinIngresado) return;
 
       const usuarios = await cargarUsuariosSincronizados();
-      console.log("Usuarios sincronizados desde el panel de control:", usuarios);
+      console.log("🔍 Validando clave ingresada con lista de usuarios:", usuarios);
 
-      // Roles válidos para operar la cocina
-      const rolesCocina = ['cocina', 'cocinero', 'chef', 'kds', 'kitchen', 'admin', 'administrador'];
+      // Roles aceptados para cocina
+      const rolesValidosCocina = ['cocina', 'cocinero', 'chef', 'kds', 'kitchen', 'admin', 'administrador'];
 
-      // Buscar usuario con rol cocina cuya clave coincida
-      const cocineroValido = usuarios.find(u => {
+      // Búsqueda del usuario que coincida con la contraseña o PIN
+      const cocineroEncontrado = usuarios.find(u => {
         if (!u) return false;
 
-        // Normalizar la clave registrada en el panel
-        const passRegistrada = String(
-          u.password || u.pin || u.clave || u.codigo || u.pass || u.contrasena || u.pin_acceso || ''
+        // Comprueba cualquier nombre de propiedad que haya asignado el panel para la clave
+        const claveGuardada = String(
+          u.password || u.pin || u.clave || u.codigo || u.pass || u.contrasena || u.pin_acceso || u.token || ''
         ).trim();
 
-        // Normalizar el rol asignado por el administrador
+        // Normaliza el rol
         const rolUsuario = String(
           u.rol || u.role || u.tipo || u.perfil || u.cargo || ''
         ).toLowerCase().trim();
 
-        const coincideClave = (passRegistrada === pinIngresado);
-        const tieneRolCocina = rolesCocina.includes(rolUsuario) || 
-                               rolUsuario.includes('cocin') || 
-                               rolUsuario.includes('chef') ||
-                               rolUsuario === '';
+        const coincideClave = (claveGuardada === pinIngresado);
+        const tienePermisoCocina = rolesValidosCocina.includes(rolUsuario) ||
+                                   rolUsuario.includes('cocin') ||
+                                   rolUsuario.includes('chef') ||
+                                   rolUsuario === '';
 
-        return coincideClave && tieneRolCocina;
+        if (coincideClave) {
+          console.log(`👤 Usuario coincidente: "${u.nombre || u.usuario}", Rol: "${rolUsuario}", Autorizado: ${tienePermisoCocina}`);
+        }
+
+        return coincideClave && tienePermisoCocina;
       });
 
-      if (cocineroValido) {
-        const nombreCocinero = cocineroValido.nombre || cocineroValido.usuario || cocineroValido.username || 'Cocinero de Turno';
+      if (cocineroEncontrado) {
+        const nombreMostrar = cocineroEncontrado.nombre || cocineroEncontrado.usuario || cocineroEncontrado.username || 'Cocinero de Turno';
         
-        // Guardar sesión activa en la pestaña
         sessionStorage.setItem('kds_session_user', JSON.stringify({
-          nombre: nombreCocinero,
-          rol: cocineroValido.rol || 'cocinero',
-          id: cocineroValido.id || 'cocina'
+          nombre: nombreMostrar,
+          rol: cocineroEncontrado.rol || 'cocinero',
+          id: cocineroEncontrado.id || 'cocina'
         }));
 
         errorMsg.style.display = 'none';
-        desbloquearPantallaCocina(nombreCocinero);
+        desbloquearPantallaCocina(nombreMostrar);
       } else {
-        // Si la clave no coincide o el usuario no tiene rol asignado en cocina
-        errorMsg.innerText = "Clave no asignada a ningún cocinero o administrador en el panel.";
+        errorMsg.innerText = "Clave incorrecta o usuario sin permisos para cocina.";
         errorMsg.style.display = "block";
         document.getElementById('inputClaveCocinero').value = "";
         document.getElementById('inputClaveCocinero').focus();
@@ -770,7 +774,7 @@
       document.getElementById('authOverlayKDS').style.display = 'none';
       document.getElementById('labelCocineroActivo').innerText = nombre;
 
-      // Iniciar sincronización de comandas
+      // Iniciar recepción y sincronización continua de comandas
       cargarComandasCocina();
       if (!intervaloPollKDS) {
         intervaloPollKDS = setInterval(cargarComandasCocina, 2000);
