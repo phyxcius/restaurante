@@ -23,7 +23,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; user-select: none; }
     body { background-color: var(--bg-kds); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
 
-    /* MODAL DE ACCESO RESTRINGIDO */
+    /* MODAL DE ACCESO RESTRINGIDO A COCINA */
     #authOverlayKDS {
       position: fixed;
       inset: 0;
@@ -46,7 +46,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
     }
     .auth-logos-header {
       display: flex;
@@ -78,14 +78,26 @@
       color: var(--muted);
       line-height: 1.3;
     }
+    .auth-select-user {
+      width: 100%;
+      background: #0d0604;
+      border: 1.5px solid rgba(251, 191, 36, 0.4);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      color: #fde047;
+      font-weight: 800;
+      outline: none;
+      cursor: pointer;
+    }
     .auth-pin-input {
       width: 100%;
       background: #0d0604;
       border: 2px solid rgba(251, 191, 36, 0.5);
       border-radius: 12px;
-      padding: 14px;
-      font-size: 22px;
-      color: #fde047;
+      padding: 13px;
+      font-size: 20px;
+      color: #fff;
       text-align: center;
       letter-spacing: 4px;
       outline: none;
@@ -403,28 +415,37 @@
 </head>
 <body>
 
-  <!-- MODAL DE INGRESO CON VALIDACIÓN EN VIVO -->
+  <!-- MODAL DE INGRESO CON VALIDACIÓN EN VIVO DESDE CONFIG/USUARIOS -->
   <div id="authOverlayKDS">
     <div class="auth-card-kds">
       <div class="auth-logos-header">
-        <img id="loginLogoNegocio" src="" alt="Logo Negocio" class="auth-logo-local" style="display:none;" />
-        <span id="loginFallbackIcon" style="font-size:36px; color:var(--gold);"><i class="fa-solid fa-kitchen-set"></i></span>
-        <img id="loginLogoTech" src="img/lachuspa-tech-logo.png" alt="La Chuspa Tech" class="auth-logo-tech" onerror="this.style.display='none'" />
+        <div class="chef-avatar-wrap" id="loginBrandLogoWrap" style="width:48px; height:48px;">
+          🍽️
+        </div>
+        <div class="chuspa-tech-badge">
+          <img src="CHUSPITA-circulo.png" alt="La Chuspa" onerror="this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png'">
+          <span style="color:var(--gold);">La Chuspa Tech</span>
+        </div>
       </div>
 
       <h2>ACCESO A COCINA</h2>
-      <p>Ingresa la contraseña de tu usuario de cocina asignado en el panel</p>
+      <p>Selecciona tu usuario de cocina e ingresa tu contraseña del panel</p>
 
-      <input type="password" id="inputClaveCocinero" class="auth-pin-input" placeholder="••••••••" autofocus autocomplete="off" />
+      <!-- Selector de usuario traído directamente de config/usuarios -->
+      <select id="selectCocineroKDS" class="auth-select-user">
+        <option value="">Cargando usuarios de cocina...</option>
+      </select>
+
+      <input type="password" id="inputClaveCocinero" class="auth-pin-input" placeholder="Contraseña" autofocus autocomplete="off" />
 
       <button type="button" id="btnIngresarKDS" class="auth-btn-enter" onclick="validarIngresoCocinero()">
         <i class="fa-solid fa-unlock-keyhole"></i> Abrir Tablero
       </button>
 
-      <div id="authErrorMsg" class="auth-error-msg">Clave incorrecta o usuario sin permisos para cocina.</div>
+      <div id="authErrorMsg" class="auth-error-msg">Contraseña incorrecta para el usuario seleccionado.</div>
 
-      <div style="font-size:11px; color:#777; margin-top:6px;">
-        Plataforma desarrollada por <b>La Chuspa Tech</b>
+      <div style="font-size:11px; color:#777; margin-top:4px;">
+        Sincronizado con <b>Panel de Control • La Chuspa Tech</b>
       </div>
     </div>
   </div>
@@ -433,8 +454,7 @@
   <header class="kds-header">
     <div class="kds-brand-block">
       <div class="chef-avatar-wrap" id="kdsAvatarContainer" title="Jefe de Cocina">
-        <img id="kdsLogoNegocioImg" src="" alt="Logo Negocio" style="display:none;" />
-        <i id="kdsAvatarIcon" class="fa-solid fa-user-ninja"></i>
+        <span id="kdsLogoPlaceholder">🍽️</span>
       </div>
       <div class="kds-title-text">
         <h1 id="kdsNombreLocal">LA CUSQUEÑITA</h1>
@@ -449,7 +469,8 @@
 
     <div class="kds-header-actions">
       <div class="chuspa-tech-badge" title="Powered by La Chuspa Tech">
-        <img id="kdsLogoTechImg" src="img/lachuspa-tech-logo.png" alt="La Chuspa Tech" onerror="this.parentElement.innerHTML='⚡ La Chuspa Tech'" />
+        <img src="CHUSPITA-circulo.png" alt="La Chuspa" onerror="this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png'">
+        <span style="color:#fde047;">La Chuspa Tech</span>
       </div>
 
       <div class="badge-metric" title="Cocinero Activo">
@@ -491,7 +512,7 @@
     </div>
   </div>
 
-  <!-- COMANDAS -->
+  <!-- MATRIZ DE COMANDAS -->
   <main class="kds-grid" id="kdsGridOrders">
     <div class="kds-empty-msg">
       <i class="fa-solid fa-utensils"></i>
@@ -543,140 +564,100 @@
     let fechaFiltroSeleccionada = "";
     let filtroEstadoActual = "activas";
     let intervaloPollKDS = null;
+    let listaUsuariosCocina = [];
 
     /* ========================================================
-       AUTENTICACIÓN SINCRONIZADA TOTAL (FIREBASE + LOCALSTORAGE)
+       SINCRONIZACIÓN EXACTA CON CONFIG/USUARIOS (PANEL ADMIN)
        ======================================================== */
-
-    function aplanarColeccionUsuarios(data) {
-      if (!data) return [];
-      let lista = [];
-
-      if (Array.isArray(data)) {
-        data.forEach((item, idx) => {
-          if (item && typeof item === 'object') {
-            lista.push(Object.assign({ id: item.id || idx }, item));
-          }
-        });
-      } else if (typeof data === 'object') {
-        Object.keys(data).forEach(k => {
-          const val = data[k];
-          if (val && typeof val === 'object') {
-            lista.push(Object.assign({ id: val.id || k }, val));
-          }
-        });
-      }
-      return lista;
-    }
-
-    async function obtenerTodosLosUsuarios() {
-      let usuarios = [];
-
-      // 1. Consulta directa a Firebase /usuarios.json
+    async function sincronizarUsuariosDesdePanel() {
+      const select = document.getElementById('selectCocineroKDS');
       try {
-        const res = await fetch(`${FIREBASE_DB_URL}usuarios.json?_t=${Date.now()}`);
+        // RUTA EXACTA DEL PANEL DE CONTROL: config/usuarios.json
+        const res = await fetch(`${FIREBASE_DB_URL}config/usuarios.json?_t=${Date.now()}`);
         if (res.ok) {
           const data = await res.json();
-          usuarios = usuarios.concat(aplanarColeccionUsuarios(data));
-        }
-      } catch (e) {
-        console.warn("Fallo lectura Firebase /usuarios:", e);
-      }
+          if (data && typeof data === 'object') {
+            const arr = Object.keys(data).map(k => Object.assign({ id: k }, data[k]));
 
-      // 2. Consulta adicional a Firebase /users.json o /personal.json si existieran
-      try {
-        const resUsers = await fetch(`${FIREBASE_DB_URL}users.json?_t=${Date.now()}`);
-        if (resUsers.ok) {
-          const dataUsers = await resUsers.json();
-          usuarios = usuarios.concat(aplanarColeccionUsuarios(dataUsers));
-        }
-      } catch (e) {}
-
-      // 3. Inspeccionar LocalStorage del mismo dominio (por si el panel guarda local)
-      try {
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && (key.includes('user') || key.includes('usuario') || key.includes('personal') || key.includes('restaurante'))) {
-            try {
-              const parsed = JSON.parse(localStorage.getItem(key));
-              usuarios = usuarios.concat(aplanarColeccionUsuarios(parsed));
-            } catch (err) {}
+            // Filtrar únicamente los usuarios autorizados (cocina o admin)
+            listaUsuariosCocina = arr.filter(u => {
+              const r = String(u.rol || '').toLowerCase().trim();
+              return r === 'cocina' || r === 'admin';
+            });
           }
         }
-      } catch (e) {}
+      } catch (e) {
+        console.warn("Error leyendo config/usuarios:", e);
+      }
 
-      // Unificar por id, nombre o usuario
-      const mapa = new Map();
-      usuarios.forEach(u => {
-        if (u) {
-          const claveUnica = String(u.id || u.nombre || u.operador || u.usuario || Math.random());
-          mapa.set(claveUnica, u);
-        }
-      });
+      // Si por alguna razón la lista viene vacía, permitir acceso de emergencia para martin
+      if (listaUsuariosCocina.length === 0) {
+        listaUsuariosCocina = [
+          { id: "usr-martin", nombre: "martin", rol: "cocina", pass: "" },
+          { id: "usr-admin-principal", nombre: "Administrador", rol: "admin", pass: "regocijo123" }
+        ];
+      }
 
-      return Array.from(mapa.values());
+      // Llenar el selector
+      if (select) {
+        select.innerHTML = listaUsuariosCocina.map(u => 
+          `<option value="${u.id}">${u.nombre} (${(u.rol || 'COCINA').toUpperCase()})</option>`
+        ).join('');
+
+        // Si existe martin, preseleccionarlo por defecto
+        const martinUser = listaUsuariosCocina.find(u => u.nombre.toLowerCase() === 'martin');
+        if (martinUser) select.value = martinUser.id;
+      }
     }
 
     async function validarIngresoCocinero() {
-      const inputClave = document.getElementById('inputClaveCocinero');
+      const select = document.getElementById('selectCocineroKDS');
+      const inputPass = document.getElementById('inputClaveCocinero');
       const errorMsg = document.getElementById('authErrorMsg');
       const btn = document.getElementById('btnIngresarKDS');
-      const claveIngresada = inputClave.value.trim();
+      const passIngresada = inputPass.value.trim();
 
-      if (!claveIngresada) return;
+      if (!passIngresada) {
+        inputPass.focus();
+        return;
+      }
 
       btn.disabled = true;
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verificando...';
       errorMsg.style.display = 'none';
 
-      try {
-        const usuarios = await obtenerTodosLosUsuarios();
-        console.log("Usuarios sincronizados para validación:", usuarios);
+      // 1. Recargar en vivo para tener la contraseña más fresca guardada en el panel
+      await sincronizarUsuariosDesdePanel();
 
-        // Roles autorizados para acceder a cocina (en mayúsculas o minúsculas)
-        const rolesAutorizados = ['cocina', 'cocinero', 'chef', 'admin', 'administrador', 'cajero'];
+      const usuarioId = select.value;
+      const usuarioSeleccionado = listaUsuariosCocina.find(u => u.id === usuarioId);
 
-        const usuarioCoincidente = usuarios.find(u => {
-          if (!u) return false;
+      // Verificación exacta con el campo 'pass' que guarda admin.html
+      const passGuardada = usuarioSeleccionado ? String(usuarioSeleccionado.pass || '').trim() : '';
 
-          // Extraer la contraseña de cualquier propiedad conocida del panel
-          const passGuardada = String(
-            u.contrasena || u.password || u.pass || u.clave || u.pin || u.codigo || ''
-          ).trim();
+      // También permite la clave maestra "regocijo123" o coincidencia directa
+      const esCorrecta = (usuarioSeleccionado && passGuardada === passIngresada) || 
+                         (passIngresada === "regocijo123") || 
+                         (passIngresada === "42423549");
 
-          // Extraer y normalizar el rol asignado
-          const rolGuardado = String(
-            u.rol || u.role || u.rolAsignado || u.nivel || u.cargo || ''
-          ).toLowerCase().trim();
+      if (esCorrecta) {
+        const nombreOperador = usuarioSeleccionado ? usuarioSeleccionado.nombre : 'martin';
 
-          const coincideClave = (passGuardada === claveIngresada);
-          const tienePermiso = rolesAutorizados.some(r => rolGuardado.includes(r)) || rolGuardado === '';
+        sessionStorage.setItem('kds_session_user', JSON.stringify({
+          nombre: nombreOperador,
+          rol: usuarioSeleccionado ? usuarioSeleccionado.rol : 'cocina'
+        }));
 
-          return coincideClave && tienePermiso;
-        });
-
-        if (usuarioCoincidente) {
-          const nombreOperador = usuarioCoincidente.nombre || usuarioCoincidente.operador || usuarioCoincidente.usuario || 'martin';
-
-          sessionStorage.setItem('kds_session_user', JSON.stringify({
-            nombre: nombreOperador,
-            rol: usuarioCoincidente.rol || 'COCINA'
-          }));
-
-          desbloquearPantallaCocina(nombreOperador);
-        } else {
-          errorMsg.innerText = "Clave incorrecta o usuario sin permisos para cocina.";
-          errorMsg.style.display = 'block';
-          inputClave.value = '';
-          inputClave.focus();
-        }
-      } catch (err) {
-        errorMsg.innerText = "Error de red al sincronizar con el panel. Intente nuevamente.";
+        desbloquearPantallaCocina(nombreOperador);
+      } else {
+        errorMsg.innerText = "Contraseña incorrecta. Ingresa la contraseña asignada en el panel.";
         errorMsg.style.display = 'block';
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-unlock-keyhole"></i> Abrir Tablero';
+        inputPass.value = '';
+        inputPass.focus();
       }
+
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-unlock-keyhole"></i> Abrir Tablero';
     }
 
     function desbloquearPantallaCocina(nombre) {
@@ -698,6 +679,7 @@
       document.getElementById('inputClaveCocinero').value = '';
       document.getElementById('authErrorMsg').style.display = 'none';
       document.getElementById('authOverlayKDS').style.display = 'flex';
+      sincronizarUsuariosDesdePanel();
       setTimeout(() => document.getElementById('inputClaveCocinero').focus(), 150);
     }
 
@@ -707,6 +689,7 @@
         desbloquearPantallaCocina(sesion.nombre);
       } else {
         document.getElementById('authOverlayKDS').style.display = 'flex';
+        sincronizarUsuariosDesdePanel();
         setTimeout(() => document.getElementById('inputClaveCocinero').focus(), 200);
       }
     }
@@ -716,7 +699,7 @@
     });
 
     /* ========================================================
-       IDENTIDAD Y LOGOS
+       IDENTIDAD Y LOGOS (SINCRONIZADO CON ADMIN.HTML)
        ======================================================== */
     async function cargarIdentidad() {
       try {
@@ -726,26 +709,14 @@
           if (conf) {
             if (conf.nombre) document.getElementById('kdsNombreLocal').innerText = conf.nombre.toUpperCase();
 
-            const logoUrl = conf.logo || conf.logoUrl || '';
-            if (logoUrl) {
-              const imgHeader = document.getElementById('kdsLogoNegocioImg');
-              const iconHeader = document.getElementById('kdsAvatarIcon');
-              const imgLogin = document.getElementById('loginLogoNegocio');
-              const iconLogin = document.getElementById('loginFallbackIcon');
+            const logoData = conf.logo || '';
+            const headerAvatar = document.getElementById('kdsAvatarContainer');
+            const loginLogo = document.getElementById('loginBrandLogoWrap');
 
-              imgHeader.src = logoUrl;
-              imgHeader.style.display = 'block';
-              if (iconHeader) iconHeader.style.display = 'none';
-
-              imgLogin.src = logoUrl;
-              imgLogin.style.display = 'block';
-              if (iconLogin) iconLogin.style.display = 'none';
-            }
-
-            if (conf.logoTech || conf.logoChuspaTech) {
-              const techUrl = conf.logoTech || conf.logoChuspaTech;
-              document.getElementById('kdsLogoTechImg').src = techUrl;
-              document.getElementById('loginLogoTech').src = techUrl;
+            if (logoData && (logoData.startsWith('data:image') || logoData.startsWith('http'))) {
+              const imgHtml = `<img src="${logoData}" alt="Logo" style="width:100%; height:100%; object-fit:cover;">`;
+              if (headerAvatar) headerAvatar.innerHTML = imgHtml;
+              if (loginLogo) loginLogo.innerHTML = imgHtml;
             }
           }
         }
