@@ -35,14 +35,14 @@
     /* CUSTOM SCROLLBARS VISIBLES Y ESTILIZADOS */
     .custom-scroll {
       scrollbar-width: thin;
-      scrollbar-color: var(--primary) rgba(28, 25, 23, 0.2);
+      scrollbar-color: var(--primary) rgba(28, 25, 23, 0.25);
     }
     .custom-scroll::-webkit-scrollbar {
       width: 6px;
       height: 6px;
     }
     .custom-scroll::-webkit-scrollbar-track {
-      background: rgba(28, 25, 23, 0.15);
+      background: rgba(28, 25, 23, 0.18);
       border-radius: 8px;
     }
     .custom-scroll::-webkit-scrollbar-thumb {
@@ -1095,6 +1095,7 @@
         categoriaFiltroActiva = categoriaOpcional;
       }
       renderCategoryChips();
+      actualizarTituloModalCuadricula();
       renderizarPopupCuadricula();
       document.getElementById('modalMenuCuadricula').classList.add('active');
     }
@@ -1104,6 +1105,22 @@
         return;
       }
       document.getElementById('modalMenuCuadricula').classList.remove('active');
+    }
+
+    /* ACTUALIZAR TÍTULO SEGÚN LA CATEGORÍA INGRESADA */
+    function actualizarTituloModalCuadricula() {
+      const headerTitle = document.getElementById('lblMenuCasaTitulo');
+      if (!headerTitle) return;
+
+      const t = I18N_UI[currentLang] || I18N_UI['es'];
+
+      if (categoriaFiltroActiva === 'all') {
+        headerTitle.innerHTML = `<i class="fa-solid fa-book-open"></i> ${t.houseMenu}`;
+      } else {
+        const catLower = categoriaFiltroActiva.toLowerCase();
+        let catNombre = t[catLower] || (categoriaFiltroActiva.charAt(0).toUpperCase() + categoriaFiltroActiva.slice(1));
+        headerTitle.innerHTML = `<i class="fa-solid fa-utensils"></i> ${catNombre}`;
+      }
     }
 
     function renderizarPopupCuadricula() {
@@ -1211,6 +1228,7 @@
       }
     }
 
+    /* RESPUESTA AL MOZO Y APERTURA DE POPUP CON CATÁLOGO COMPLETO */
     async function responderMozo(quiereMas) {
       reproducirSonidoNotificacion();
 
@@ -1511,8 +1529,7 @@
       const elBtnEnviar = document.getElementById('lblBtnEnviar');
       if (elBtnEnviar) elBtnEnviar.innerText = comandaActivaId ? t.sendAddMore : t.sendOrder;
 
-      const elMenuCasa = document.getElementById('lblMenuCasaTitulo');
-      if (elMenuCasa) elMenuCasa.innerHTML = `<i class="fa-solid fa-book-open"></i> ${t.houseMenu}`;
+      actualizarTituloModalCuadricula();
 
       const elClubPr = document.getElementById('lblClubPrompt');
       if (elClubPr) elClubPr.innerText = t.clubPrompt;
@@ -1638,7 +1655,7 @@
     function formatSecondaryPrice(pen) { return `≈ $ ${(pen / (CONFIG.exchangeRateUSD || 3.75)).toFixed(2)}`; }
 
     /* ========================================================
-       CHIPS DE CATEGORÍAS 100% DINÁMICOS -> ABREN EN CUADRITOS
+       CHIPS DE CATEGORÍAS DINÁMICOS -> ABREN EN CUADRITOS
        ======================================================== */
     function renderCategoryChips() {
       const container = document.getElementById('categoryChips');
@@ -1646,7 +1663,6 @@
 
       const t = I18N_UI[currentLang] || I18N_UI['es'];
 
-      // Extrae todas las categorías existentes en el catálogo sin repetir
       const categoriasUnicas = new Set();
       catalogo.forEach(item => {
         if (item.category && item.category.trim()) {
@@ -1673,7 +1689,7 @@
       renderCategoryChips();
       renderFeed();
 
-      // Si hace clic en una categoría específica (Platos fuertes, bebidas, etc.), abre directamente en cuadritos
+      // Si hace clic en una categoría específica, abre directamente en cuadritos con su título respectivo
       if (catKey !== 'all') {
         abrirModalCuadricula(catKey);
       } else {
