@@ -69,25 +69,29 @@
       display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 4px;
     }
     .sec-chuspa-badge {
-      width: 58px; height: 58px; border-radius: 50%; background: #fff;
-      border: 2px solid var(--gold-badge); overflow: hidden; display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
+      width: 62px; height: 62px; border-radius: 50%; background: #fff;
+      border: 2.5px solid var(--gold-badge); overflow: hidden; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(245, 158, 11, 0.5); flex-shrink: 0; text-decoration: none; cursor: pointer;
+      transition: transform 0.2s ease;
     }
-    .sec-chuspa-badge img { width: 100%; height: 100%; object-fit: cover; }
+    .sec-chuspa-badge:active { transform: scale(0.95); }
+    .sec-chuspa-badge img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .sec-brand-badge {
-      width: 58px; height: 58px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--primary));
-      border: 2px solid var(--gold-badge); overflow: hidden; display: flex; align-items: center; justify-content: center;
-      font-size: 26px; color: #fff; box-shadow: 0 4px 14px rgba(194, 65, 12, 0.4);
+      width: 62px; height: 62px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--primary));
+      border: 2.5px solid var(--gold-badge); overflow: hidden; display: flex; align-items: center; justify-content: center;
+      font-size: 28px; color: #fff; box-shadow: 0 4px 16px rgba(194, 65, 12, 0.5); flex-shrink: 0;
     }
-    .sec-brand-badge img { width: 100%; height: 100%; object-fit: cover; }
+    .sec-brand-badge img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
     .security-lock-icon {
       font-size: 32px; color: var(--gold-badge); cursor: pointer;
     }
     .btn-bypass-dev {
-      background: none; border: 1px solid rgba(255,255,255,0.15); color: #888;
-      padding: 6px 12px; border-radius: 12px; font-size: 11px; cursor: pointer; margin-top: 4px;
+      background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(251, 191, 36, 0.35); color: #fde047;
+      padding: 9px 18px; border-radius: 20px; font-size: 11.5px; font-weight: 800; cursor: pointer; margin-top: 4px;
+      display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease;
     }
+    .btn-bypass-dev:active { transform: scale(0.96); background: rgba(251, 191, 36, 0.15); }
 
     .app-container { width: 100%; max-width: 480px; height: 100dvh; margin: 0 auto; position: relative; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
     .app-container::-webkit-scrollbar { display: none; }
@@ -428,7 +432,7 @@
     .agradece-chuspa-wrap {
       width: 60px; height: 60px; border-radius: 50%; overflow: hidden; background: #fff;
       border: 2px solid var(--gold-badge); display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4); flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4); flex-shrink: 0; text-decoration: none;
     }
     .agradece-chuspa-wrap img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -500,13 +504,13 @@
 </head>
 <body>
 
-  <!-- PANTALLA DE BLOQUEO DE SEGURIDAD -->
+  <!-- PANTALLA DE BLOQUEO DE SEGURIDAD (CON LOGOS Y ACCESO RESTRINGIDO PARA ADMIN Y MOZO) -->
   <div class="screen-security-lock" id="pantallaBloqueoSeguridad">
     <div class="security-lock-box">
       <div class="security-header-logos">
-        <div class="sec-chuspa-badge" title="La Chuspa Tech">
+        <a href="https://www.lachuspaanuncios.com/" target="_blank" rel="noopener noreferrer" class="sec-chuspa-badge" title="Ir a La Chuspa Tech (www.lachuspaanuncios.com)">
           <img src="CHUSPITA-circulo.png" alt="La Chuspa Tech" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
-        </div>
+        </a>
         <div class="sec-brand-badge" id="secBrandBadge" title="Logo del Restaurante">🍽️</div>
       </div>
 
@@ -520,7 +524,7 @@
         Si ya pagaste tu cuenta o estás fuera del local, esta sesión ha expirado automáticamente.
       </div>
       <button type="button" class="btn-bypass-dev" onclick="ingresarClaveBypassDesarrollador()" id="btnDevBypassTxt">
-        <i class="fa-solid fa-code"></i> Modo Desarrollador / Probar en Casa
+        <i class="fa-solid fa-key"></i> Acceso Administrador / Mozo
       </button>
     </div>
   </div>
@@ -531,9 +535,9 @@
       <button type="button" class="btn-close-modal" onclick="reiniciarNavegadorLimpio()" title="Cerrar">&times;</button>
       
       <div class="agradece-logos-header">
-        <div class="agradece-chuspa-wrap" title="La Chuspa Tech">
+        <a href="https://www.lachuspaanuncios.com/" target="_blank" rel="noopener noreferrer" class="agradece-chuspa-wrap" title="La Chuspa Tech">
           <img src="CHUSPITA-circulo.png" alt="La Chuspa Tech" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
-        </div>
+        </a>
         <div class="agradece-logo-wrap" id="agradeceLogoWrap" title="Logo del Restaurante">🍽️</div>
       </div>
 
@@ -1345,23 +1349,61 @@
       }
     }
 
-    function ingresarClaveBypassDesarrollador() {
-      const clave = prompt("🔐 MODO DESARROLLADOR / PRUEBA EN CASA:\nIngresa la clave maestra para omitir el bloqueo y probar la carta:");
-      if (clave === CLAVE_MAESTRA_DEV) {
-        sessionStorage.setItem("inkabistro_dev_bypass", "true");
-        alert("✔ Acceso concedido en modo prueba. Se desbloqueará la carta.");
-        document.getElementById('pantallaBloqueoSeguridad').style.display = 'none';
-        document.getElementById('topHeaderElement').style.display = 'flex';
-        document.getElementById('feedContainer').style.display = 'block';
-        document.getElementById('hintManoGestual').style.display = 'flex';
-        const bubble = document.querySelector('.chat-bubble-container');
-        if (bubble) bubble.style.display = 'flex';
-        const gridBtn = document.querySelector('.grid-toggle-container');
-        if (gridBtn) gridBtn.style.display = 'flex';
-        cargarDatosTrasValidacion();
-      } else if (clave !== null) {
-        alert("⛔ Clave incorrecta.");
+    /* MODO DESARROLLADOR / APERTURA: EXCLUSIVO PARA ADMINISTRADOR Y MOZO */
+    async function ingresarClaveBypassDesarrollador() {
+      const clave = prompt("🔐 ACCESO:\nIngresa la contraseña de tu usuario Administrador, Mozo o Clave Maestra:");
+      if (!clave) return;
+
+      const claveTrim = clave.trim();
+
+      // 1. Validar claves maestras de administración
+      if (claveTrim === CLAVE_MAESTRA_DEV || claveTrim === "regocijo123") {
+        activarModoDesarrolladorExitoso();
+        return;
       }
+
+      // 2. Validar contra usuarios registrados en config/usuarios (SOLO admin y mozo)
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}config/usuarios.json?_t=${Date.now()}`);
+        if (res.ok) {
+          const usuariosData = await res.json();
+          if (usuariosData && typeof usuariosData === 'object') {
+            const arr = Object.values(usuariosData);
+            
+            // FILTRO ESTRICTO: Solo permite roles 'admin' o 'mozo'. Los cocineros ('cocina') están anulados.
+            const usuarioValido = arr.find(u => {
+              const r = String(u.rol || '').toLowerCase().trim();
+              const p = String(u.pass || '').trim();
+              const coincideClave = (p === claveTrim);
+              const rolPermitido = (r === 'admin' || r === 'mozo');
+              return coincideClave && rolPermitido;
+            });
+
+            if (usuarioValido) {
+              alert(`✔ Acceso concedido. Bienvenido ${usuarioValido.nombre} (${(usuarioValido.rol || 'OPERADOR').toUpperCase()}).`);
+              activarModoDesarrolladorExitoso();
+              return;
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("Fallo temporal de conexión a usuarios:", err);
+      }
+
+      alert("⛔ Clave incorrecta o sin permisos. El acceso al menú está reservado únicamente para Administradores o Mozos.");
+    }
+
+    function activarModoDesarrolladorExitoso() {
+      sessionStorage.setItem("inkabistro_dev_bypass", "true");
+      document.getElementById('pantallaBloqueoSeguridad').style.display = 'none';
+      document.getElementById('topHeaderElement').style.display = 'flex';
+      document.getElementById('feedContainer').style.display = 'block';
+      document.getElementById('hintManoGestual').style.display = 'flex';
+      const bubble = document.querySelector('.chat-bubble-container');
+      if (bubble) bubble.style.display = 'flex';
+      const gridBtn = document.querySelector('.grid-toggle-container');
+      if (gridBtn) gridBtn.style.display = 'flex';
+      cargarDatosTrasValidacion();
     }
 
     function detectarMesaDesdeURL() {
@@ -1572,14 +1614,16 @@
     }
 
     async function cargarDatos() {
+      // Cargar identidad primero para tener el logo y datos del negocio disponibles en el bloqueo
+      await cargarIdentidadNegocioDirecta();
+
       const accesoPermitido = await validarAccesoPorTokenQR();
       if (!accesoPermitido) return;
       cargarDatosTrasValidacion();
     }
 
-    async function cargarDatosTrasValidacion() {
-      detectarMesaDesdeURL();
-
+    /* CARGA TEMPRANA DE IDENTIDAD PARA PANTALLA DE BLOQUEO */
+    async function cargarIdentidadNegocioDirecta() {
       try {
         const resConf = await fetch(`${FIREBASE_DB_URL}config/identidad.json?_t=${Date.now()}`);
         if (resConf.ok) {
@@ -1601,6 +1645,11 @@
           }
         }
       } catch (e) {}
+    }
+
+    async function cargarDatosTrasValidacion() {
+      detectarMesaDesdeURL();
+      await cargarIdentidadNegocioDirecta();
 
       try {
         const resPlat = await fetch(`${FIREBASE_DB_URL}catalogo_platos.json?_t=${Date.now()}`);
