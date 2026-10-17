@@ -49,8 +49,10 @@
     .sec-chuspa-badge {
       width: 62px; height: 62px; border-radius: 50%; background: #fff;
       border: 2.5px solid var(--gold-badge); overflow: hidden; display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 16px rgba(245, 158, 11, 0.5); flex-shrink: 0;
+      box-shadow: 0 4px 16px rgba(245, 158, 11, 0.5); flex-shrink: 0; text-decoration: none; cursor: pointer;
+      transition: transform 0.2s ease;
     }
+    .sec-chuspa-badge:active { transform: scale(0.95); }
     .sec-chuspa-badge img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .sec-brand-badge {
       width: 62px; height: 62px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--primary));
@@ -64,7 +66,7 @@
     }
     .btn-bypass-dev {
       background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(251, 191, 36, 0.35); color: #fde047;
-      padding: 8px 16px; border-radius: 20px; font-size: 11.5px; font-weight: 800; cursor: pointer; margin-top: 4px;
+      padding: 9px 18px; border-radius: 20px; font-size: 11.5px; font-weight: 800; cursor: pointer; margin-top: 4px;
       display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease;
     }
     .btn-bypass-dev:active { transform: scale(0.96); background: rgba(251, 191, 36, 0.15); }
@@ -431,7 +433,7 @@
     .agradece-chuspa-wrap {
       width: 60px; height: 60px; border-radius: 50%; overflow: hidden; background: #fff;
       border: 2px solid var(--gold-badge); display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4); flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4); flex-shrink: 0; text-decoration: none;
     }
     .agradece-chuspa-wrap img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -503,15 +505,15 @@
 </head>
 <body>
 
-  <!-- PANTALLA DE BLOQUEO DE SEGURIDAD (CON LOGO CHUSPA TECH + LOGO NEGOCIO) -->
+  <!-- PANTALLA DE BLOQUEO DE SEGURIDAD (CON LOGO CHUSPA TECH REDIRECCIONABLE + LOGO NEGOCIO) -->
   <div class="screen-security-lock" id="pantallaBloqueoSeguridad">
     <div class="security-lock-box">
       
       <!-- ENCABEZADO DE LOGOS -->
       <div class="security-header-logos">
-        <div class="sec-chuspa-badge" title="La Chuspa Tech">
+        <a href="https://www.lachuspaanuncios.com/" target="_blank" rel="noopener noreferrer" class="sec-chuspa-badge" title="Ir a La Chuspa Tech (www.lachuspaanuncios.com)">
           <img src="CHUSPITA-circulo.png" alt="La Chuspa Tech" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
-        </div>
+        </a>
         <div class="sec-brand-badge" id="secBrandBadge" title="Logo del Restaurante">
           🍽️
         </div>
@@ -527,7 +529,7 @@
         Si ya pagaste tu cuenta o estás fuera del local, esta sesión ha expirado automáticamente.
       </div>
       <button type="button" class="btn-bypass-dev" onclick="ingresarClaveBypassDesarrollador()" id="btnDevBypassTxt">
-        <i class="fa-solid fa-code"></i> Modo Desarrollador / Probar en Casa
+        <i class="fa-solid fa-code"></i> Modo Desarrollador / Administrador, Mozo
       </button>
     </div>
   </div>
@@ -538,9 +540,9 @@
       <button type="button" class="btn-close-modal" onclick="reiniciarNavegadorLimpio()" title="Cerrar">&times;</button>
       
       <div class="agradece-logos-header">
-        <div class="agradece-chuspa-wrap" title="La Chuspa Tech">
+        <a href="https://www.lachuspaanuncios.com/" target="_blank" rel="noopener noreferrer" class="agradece-chuspa-wrap" title="La Chuspa Tech">
           <img src="CHUSPITA-circulo.png" alt="La Chuspa Tech" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
-        </div>
+        </a>
         <div class="agradece-logo-wrap" id="agradeceLogoWrap" title="Logo del Restaurante">
           🍽️
         </div>
@@ -829,10 +831,10 @@
             🔔 El mozo pregunta: ¿Deseas ordenar algo más para tu mesa?
           </div>
           <div style="display: flex; gap: 8px;">
-            <button type="button" onclick="responderMozo(true)" style="flex: 1.2; background: #15803d; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 12px;">
+            <button type="button" onclick="responderMozo(true)" style="flex: 1.2; background: #15803d; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 800; cursor: font-size: 12px;">
               + Sí, agregar platos
             </button>
-            <button type="button" onclick="responderMozo(false)" style="flex: 1; background: #78350f; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 12px;">
+            <button type="button" onclick="responderMozo(false)" style="flex: 1; background: #78350f; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 800; cursor: font-size: 12px;">
               No, gracias
             </button>
           </div>
@@ -1100,20 +1102,20 @@
       }
     }
 
-    /* MODO DESARROLLADOR: AHORA SINCRONIZADO CON CLAVE DE COCINERO / CONFIG/USUARIOS */
+    /* MODO DESARROLLADOR: EXCLUSIVO PARA ADMINISTRADOR Y MOZO (COCINEROS ANULADOS) */
     async function ingresarClaveBypassDesarrollador() {
-      const clave = prompt("🔐 ACCESO DE PRUEBA / MODO DESARROLLADOR:\nIngresa la contraseña de tu usuario Cocinero, Administrador o Clave Maestra:");
+      const clave = prompt("🔐 ACCESO:\nIngresa la contraseña de tu usuario Administrador, Mozo o Clave Maestra:");
       if (!clave) return;
 
       const claveTrim = clave.trim();
 
-      // 1. Validar claves maestras directas
+      // 1. Validar claves maestras de administración
       if (claveTrim === CLAVE_MAESTRA_DEV || claveTrim === "regocijo123") {
         activarModoDesarrolladorExitoso();
         return;
       }
 
-      // 2. Validar con usuarios registrados en config/usuarios (cocinero martin, etc.)
+      // 2. Validar contra usuarios registrados en config/usuarios (SOLO admin y mozo)
       try {
         const res = await fetch(`${FIREBASE_DB_URL}config/usuarios.json?_t=${Date.now()}`);
         if (res.ok) {
@@ -1121,17 +1123,17 @@
           if (usuariosData && typeof usuariosData === 'object') {
             const arr = Object.values(usuariosData);
             
-            // Busca si coincide con la contraseña (u.pass) de un cocinero o admin
+            // FILTRO ESTRICTO: Solo permite roles 'admin' o 'mozo'. Los cocineros ('cocina') están anulados.
             const usuarioValido = arr.find(u => {
               const r = String(u.rol || '').toLowerCase().trim();
               const p = String(u.pass || '').trim();
               const coincideClave = (p === claveTrim);
-              const rolPermitido = (r === 'cocina' || r === 'admin' || r === 'cajero');
+              const rolPermitido = (r === 'admin' || r === 'mozo');
               return coincideClave && rolPermitido;
             });
 
             if (usuarioValido) {
-              alert(`✔ Acceso concedido. Bienvenido operador ${usuarioValido.nombre} (${(usuarioValido.rol || 'COCINA').toUpperCase()}).`);
+              alert(`✔ Acceso concedido. Bienvenido ${usuarioValido.nombre} (${(usuarioValido.rol || 'OPERADOR').toUpperCase()}).`);
               activarModoDesarrolladorExitoso();
               return;
             }
@@ -1141,7 +1143,7 @@
         console.warn("Fallo temporal de conexión a usuarios:", err);
       }
 
-      alert("⛔ Clave incorrecta. Ingresa la contraseña de tu usuario cocinero asignado en el panel.");
+      alert("⛔ Clave incorrecta o sin permisos. El acceso al menú está reservado únicamente para Administradores o Mozos.");
     }
 
     function activarModoDesarrolladorExitoso() {
@@ -1310,14 +1312,16 @@
     }
 
     async function cargarDatos() {
+      // Cargar identidad primero para tener el logo y datos del negocio disponibles en el bloqueo
+      await cargarIdentidadNegocioDirecta();
+
       const accesoPermitido = await validarAccesoPorTokenQR();
       if (!accesoPermitido) return;
       cargarDatosTrasValidacion();
     }
 
-    async function cargarDatosTrasValidacion() {
-      detectarMesaDesdeURL();
-
+    /* CARGA TEMPRANA DE IDENTIDAD PARA PANTALLA DE BLOQUEO */
+    async function cargarIdentidadNegocioDirecta() {
       try {
         const resConf = await fetch(`${FIREBASE_DB_URL}config/identidad.json?_t=${Date.now()}`);
         if (resConf.ok) {
@@ -1339,6 +1343,11 @@
           }
         }
       } catch (e) {}
+    }
+
+    async function cargarDatosTrasValidacion() {
+      detectarMesaDesdeURL();
+      await cargarIdentidadNegocioDirecta();
 
       try {
         const resPlat = await fetch(`${FIREBASE_DB_URL}catalogo_platos.json?_t=${Date.now()}`);
