@@ -102,16 +102,6 @@
     .chuspa-nav-sub { font-size: 7.5px; font-weight: 700; color: #fed7aa; }
 
     .header-controls { display: flex; align-items: center; gap: 5px; }
-    
-    /* BOTÓN CONMUTADOR DE VISTA TIKTOK / CUADROS */
-    .btn-view-toggle {
-      background: var(--glass-panel); border: 1px solid var(--gold-badge); color: var(--gold-badge);
-      padding: 5px 9px; border-radius: 14px; font-size: 11px; font-weight: 800;
-      display: flex; align-items: center; gap: 5px; cursor: pointer; transition: all 0.2s ease;
-    }
-    .btn-view-toggle.active {
-      background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; border-color: #fff;
-    }
 
     .select-pill {
       background: var(--glass-panel); border: 1px solid var(--glass-border); color: #fff;
@@ -125,7 +115,7 @@
     .chip { background: rgba(43, 31, 26, 0.7); border: 1px solid rgba(251, 191, 36, 0.25); color: var(--text-muted); padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer; }
     .chip.active { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; }
 
-    /* 1. MODO REELS (TIKTOK) */
+    /* MODO REELS (TIKTOK) */
     .video-slide { width: 100%; height: 100dvh; scroll-snap-align: start; position: relative; background: #1c1411; overflow: hidden; display: flex; align-items: flex-end; }
     .video-player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
     .slide-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(24,17,14,0.4) 0%, transparent 50%, rgba(24,17,14,0.92) 100%); }
@@ -163,18 +153,51 @@
     .btn-quick-add .finger-tap-icon { font-size: 15px; color: #fde047; animation: fingerTap 1.2s infinite alternate ease-in-out; }
     @keyframes fingerTap { 0% { transform: scale(1) translateY(0); } 100% { transform: scale(1.25) translateY(-3px); } }
 
-    /* 2. MODO CUADROS (GRID TRADICIONAL) */
-    .menu-grid-container {
-      display: none; grid-template-columns: 1fr 1fr; gap: 12px;
-      padding: 106px 14px 90px; max-width: 480px; margin: 0 auto;
-      height: 100dvh; overflow-y: auto; scrollbar-width: none;
+    /* BOTÓN FLOTANTE INFERIOR IZQUIERDO: ABRIR POPUP DE CUADRÍCULA */
+    .grid-toggle-container {
+      position: fixed; bottom: 20px; left: 18px; display: flex; align-items: center; gap: 8px;
+      z-index: 99998; cursor: pointer; pointer-events: auto;
     }
-    .menu-grid-container::-webkit-scrollbar { display: none; }
+    .grid-toggle-btn {
+      width: 52px; height: 52px; background: rgba(28, 19, 14, 0.95);
+      border-radius: 50%; box-shadow: 0 6px 20px rgba(0,0,0,0.65); display: flex; align-items: center;
+      justify-content: center; border: 2px solid var(--accent); color: var(--gold-badge);
+      font-size: 20px; backdrop-filter: blur(8px); transition: transform 0.15s ease;
+    }
+    .grid-toggle-btn:active { transform: scale(0.92); }
+    .grid-toggle-label {
+      background: rgba(24, 17, 14, 0.92); color: var(--gold-badge); font-weight: 900; font-size: 11.5px;
+      padding: 7px 12px; border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      border: 1.5px solid var(--accent); backdrop-filter: blur(6px);
+    }
+
+    /* MODAL POPUP: MENÚ EN CUADRÍCULA (GRID) */
+    .grid-popup-modal {
+      position: fixed; inset: 0; background: rgba(10, 6, 4, 0.88); backdrop-filter: blur(8px);
+      z-index: 100001; display: none; align-items: center; justify-content: center; padding: 14px;
+    }
+    .grid-popup-modal.active { display: flex; }
+    .grid-popup-box {
+      background: #19110d; border: 2px solid var(--accent); border-radius: 24px;
+      width: 100%; max-width: 460px; max-height: 86dvh; display: flex; flex-direction: column;
+      box-shadow: 0 10px 45px rgba(0,0,0,0.9); overflow: hidden;
+    }
+    .grid-popup-header {
+      padding: 14px 18px 10px; border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .grid-popup-header h3 { font-size: 16px; font-weight: 900; color: var(--gold-badge); display: flex; align-items: center; gap: 8px; }
+    .grid-popup-header button { background: none; border: none; color: #ddd; font-size: 24px; cursor: pointer; }
+
+    .grid-popup-body {
+      padding: 14px; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr;
+      gap: 12px; scrollbar-width: none;
+    }
+    .grid-popup-body::-webkit-scrollbar { display: none; }
 
     .dish-card-box {
-      background: #1e130e; border: 1.5px solid var(--glass-border); border-radius: 16px;
-      overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 6px 18px rgba(0,0,0,0.6);
-      position: relative;
+      background: #241611; border: 1.5px solid rgba(245, 158, 11, 0.22); border-radius: 16px;
+      overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 4px 14px rgba(0,0,0,0.6);
     }
     .dish-card-media {
       width: 100%; aspect-ratio: 1; background: #000; position: relative; overflow: hidden; cursor: pointer;
@@ -196,7 +219,7 @@
     }
     .btn-card-add:active { transform: scale(0.95); }
 
-    /* BOTÓN FLOTANTE PEDIDOS */
+    /* BOTÓN FLOTANTE PEDIDOS (DERECHA) */
     .chat-bubble-container {
       position: fixed; bottom: 20px; right: 18px; display: flex; align-items: center; gap: 8px;
       z-index: 99999; cursor: pointer; pointer-events: auto;
@@ -605,7 +628,7 @@
     </div>
   </div>
 
-  <!-- CABECERA PRINCIPAL CON BOTÓN DE CAMBIO DE VISTA -->
+  <!-- CABECERA PRINCIPAL -->
   <div class="top-header" id="topHeaderElement">
     <div class="top-bar-row">
       <div class="brand-section">
@@ -625,13 +648,8 @@
         </div>
       </a>
 
-      <!-- SELECTOR DE IDIOMAS Y BOTÓN CAMBIAR A CUADROS -->
+      <!-- SELECTOR DE IDIOMAS Y BOTÓN DE AUDIO -->
       <div class="header-controls">
-        <button type="button" class="btn-view-toggle" id="btnToggleVista" onclick="alternarModoVisualizacion()" title="Cambiar a Cuadros / Reels">
-          <i class="fa-solid fa-table-cells" id="iconoModoVista"></i>
-          <span id="txtModoVista">Cuadros</span>
-        </button>
-
         <select class="select-pill" id="langSelector" onchange="cambiarIdiomaGlobal(this.value)">
           <option value="es" selected>🇪🇸 ES</option>
           <option value="en">🇬🇧 EN</option>
@@ -643,7 +661,6 @@
           <option value="ja">🇯🇵 日本語</option>
           <option value="ko">🇰🇷 한국어</option>
         </select>
-
         <button class="icon-pill-btn" onclick="toggleGlobalAudio()"><i class="fa-solid fa-volume-xmark" id="audioIcon"></i></button>
       </div>
     </div>
@@ -660,10 +677,28 @@
   <!-- 1. FEED TIKTOK / REELS VERTICAL -->
   <div class="app-container" id="feedContainer"></div>
 
-  <!-- 2. CATÁLOGO EN CUADRICULA / GRID DE 2 COLUMNAS -->
-  <div class="menu-grid-container" id="menuGridContainer"></div>
+  <!-- BOTÓN FLOTANTE INFERIOR IZQUIERDO: CAMBIAR A MODO CUADRÍCULA (POPUP) -->
+  <div class="grid-toggle-container" onclick="abrirModalCuadricula()">
+    <div class="grid-toggle-btn" title="Ver Menú en Cuadros">
+      <i class="fa-solid fa-table-cells-large"></i>
+    </div>
+    <div class="grid-toggle-label">
+      <span>Ver Carta</span>
+    </div>
+  </div>
 
-  <!-- BOTÓN FLOTANTE PEDIDOS -->
+  <!-- MODAL POPUP: MENÚ EN CUADRÍCULA (GRID DE PLATOS) -->
+  <div class="grid-popup-modal" id="modalMenuCuadricula" onclick="cerrarModalCuadricula(event)">
+    <div class="grid-popup-box" onclick="event.stopPropagation()">
+      <div class="grid-popup-header">
+        <h3><i class="fa-solid fa-book-open"></i> Menú de la Casa</h3>
+        <button type="button" onclick="cerrarModalCuadricula()">&times;</button>
+      </div>
+      <div class="grid-popup-body" id="gridPopupDishes"></div>
+    </div>
+  </div>
+
+  <!-- BOTÓN FLOTANTE PEDIDOS (DERECHA) -->
   <div class="chat-bubble-container" onclick="openOrdersPopup()">
     <div class="chat-bubble-label" onclick="openOrdersPopup()"><span id="lblBurbujaPedidos">🔥 Pedidos</span></div>
     <div class="chat-bubble-btn" onclick="openOrdersPopup()">
@@ -889,7 +924,6 @@
     let metodoPago = "Efectivo";
     let ultimoTotalPagarPEN = 0;
     let ratingSeleccionado = 5;
-    let modoVistaActual = 'tiktok'; // 'tiktok' o 'grid'
 
     let mesaFijadaPorQR = false;
     let mesaSeleccionada = sessionStorage.getItem("inkabistro_mesa_qr") || "Mesa 01";
@@ -899,53 +933,31 @@
     let cuentaPedidaBloqueada = false;
 
     // ========================================================
-    // CONMUTADOR DE VISTAS (TIKTOK REELS <-> CUADRÍCULA GRID)
+    // MODAL POPUP: MENÚ EN CUADRÍCULA (GRID)
     // ========================================================
-    function alternarModoVisualizacion() {
-      const feed = document.getElementById('feedContainer');
-      const grid = document.getElementById('menuGridContainer');
-      const btn = document.getElementById('btnToggleVista');
-      const icono = document.getElementById('iconoModoVista');
-      const txt = document.getElementById('txtModoVista');
-      const hint = document.getElementById('hintManoGestual');
-
-      if (modoVistaActual === 'tiktok') {
-        modoVistaActual = 'grid';
-        feed.style.display = 'none';
-        grid.style.display = 'grid';
-        if (hint) hint.style.display = 'none';
-
-        // Pausar reproducción de videos de fondo
-        document.querySelectorAll('#feedContainer video').forEach(v => v.pause());
-
-        btn.classList.add('active');
-        icono.className = 'fa-solid fa-play';
-        txt.innerText = 'Reels';
-        renderMenuGrid();
-      } else {
-        modoVistaActual = 'tiktok';
-        feed.style.display = 'block';
-        grid.style.display = 'none';
-        if (hint) hint.style.display = 'flex';
-
-        btn.classList.remove('active');
-        icono.className = 'fa-solid fa-table-cells';
-        txt.innerText = 'Cuadros';
-        setupObserver();
-      }
+    function abrirModalCuadricula() {
+      renderizarPopupCuadricula();
+      document.getElementById('modalMenuCuadricula').classList.add('active');
     }
 
-    function renderMenuGrid() {
-      const grid = document.getElementById('menuGridContainer');
-      if (!grid) return;
+    function cerrarModalCuadricula(e) {
+      if (e && e.target && e.target !== document.getElementById('modalMenuCuadricula') && e.target.tagName !== 'BUTTON') {
+        return;
+      }
+      document.getElementById('modalMenuCuadricula').classList.remove('active');
+    }
 
-      grid.innerHTML = catalogo.map(item => {
+    function renderizarPopupCuadricula() {
+      const contenedor = document.getElementById('gridPopupDishes');
+      if (!contenedor) return;
+
+      contenedor.innerHTML = catalogo.map(item => {
         const info = getDishInfo(item);
         const imagenSrc = item.posterUrl || item.imagen || 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500';
 
         return `
           <div class="dish-card-box">
-            <div class="dish-card-media" onclick="abrirReelEspecifico('${item.id}')">
+            <div class="dish-card-media" onclick="seleccionarPlatoDesdeGrid('${item.id}')">
               <img src="${imagenSrc}" alt="${info.name}" loading="lazy">
               ${item.tag ? `<span class="dish-card-tag">${item.tag}</span>` : ''}
               ${item.videoUrl ? `<span style="position:absolute; bottom:6px; right:6px; background:rgba(0,0,0,0.7); color:#fff; font-size:10px; padding:3px 6px; border-radius:6px;"><i class="fa-solid fa-play"></i></span>` : ''}
@@ -964,9 +976,9 @@
       }).join('');
     }
 
-    // Tocar la foto en la cuadrícula lleva al video en modo TikTok
-    function abrirReelEspecifico(id) {
-      alternarModoVisualizacion();
+    // Al tocar la foto en el modal, se cierra y salta al video de ese plato en el Feed TikTok
+    function seleccionarPlatoDesdeGrid(id) {
+      document.getElementById('modalMenuCuadricula').classList.remove('active');
       const index = catalogo.findIndex(d => d.id === id);
       if (index !== -1) {
         const slides = document.querySelectorAll('.video-slide');
@@ -1029,6 +1041,7 @@
       }
     }
 
+    /* RESPUESTA AL MOZO Y APERTURA DE POPUP CON CATÁLOGO COMPLETO */
     async function responderMozo(quiereMas) {
       reproducirSonidoNotificacion();
 
@@ -1130,10 +1143,11 @@
       document.getElementById('pantallaBloqueoSeguridad').style.display = 'flex';
       document.getElementById('topHeaderElement').style.display = 'none';
       document.getElementById('feedContainer').style.display = 'none';
-      document.getElementById('menuGridContainer').style.display = 'none';
       document.getElementById('hintManoGestual').style.display = 'none';
       const bubble = document.querySelector('.chat-bubble-container');
       if (bubble) bubble.style.display = 'none';
+      const gridBtn = document.querySelector('.grid-toggle-container');
+      if (gridBtn) gridBtn.style.display = 'none';
     }
 
     function clickIconoDesarrollador() {
@@ -1155,6 +1169,8 @@
         document.getElementById('hintManoGestual').style.display = 'flex';
         const bubble = document.querySelector('.chat-bubble-container');
         if (bubble) bubble.style.display = 'flex';
+        const gridBtn = document.querySelector('.grid-toggle-container');
+        if (gridBtn) gridBtn.style.display = 'flex';
         cargarDatosTrasValidacion();
       } else if (clave !== null) {
         alert("⛔ Clave incorrecta.");
@@ -1231,6 +1247,7 @@
       return ocupadas;
     }
 
+    /* RENDER DE MESAS CON ALTO CONTRASTE */
     async function renderizarCuadriculaMesas() {
       const container = document.getElementById("tableGridContainer");
       if (!container) return;
@@ -1291,7 +1308,7 @@
       renderFeed();
       renderCategoryChips();
       renderQuickCatalogPopup();
-      if (modoVistaActual === 'grid') renderMenuGrid();
+      renderizarPopupCuadricula();
       actualizarVistaPopup();
     }
 
@@ -1372,7 +1389,7 @@
       setInterval(renderizarCuadriculaMesas, 4000);
 
       const hint = document.getElementById('hintManoGestual');
-      if (hint && modoVistaActual === 'tiktok') hint.style.display = 'flex';
+      if (hint) hint.style.display = 'flex';
     }
 
     function actualizarLogosVisualesEnTodaLaApp(logoData) {
@@ -1787,7 +1804,6 @@
         ultimoEstadoRegistrado = estado;
       }
 
-      // 1. Fase: Por Confirmar / Iniciado
       if (estado === 'iniciado' || estado === 'por_confirmar') {
         badge.style.background = "#eab308";
         badge.style.color = "#000";
@@ -1796,7 +1812,6 @@
         cajaPedirCuenta.style.display = "none";
         if (cajaResena) cajaResena.style.display = "none";
       }
-      // 2. Fase: En Cocina
       else if (estado === 'cocina') {
         badge.style.background = "#0284c7";
         badge.style.color = "#fff";
@@ -1805,7 +1820,6 @@
         cajaPedirCuenta.style.display = "none";
         if (cajaResena) cajaResena.style.display = "none";
       }
-      // 3. Fase: Servido en Mesa
       else if (estado === 'servido') {
         badge.style.background = "#16a34a";
         badge.style.color = "#fff";
@@ -1819,7 +1833,6 @@
           cajaResena.style.display = "none";
         }
       }
-      // 4. Fase: Camino a Caja
       else if (estado === 'camino_a_caja' || miComanda.clientePidiendoCuenta === true) {
         badge.style.background = "#ec4899";
         badge.style.color = "#fff";
@@ -1836,7 +1849,8 @@
       }
 
       const popupModal = document.getElementById('ordersPopupModal');
-      if (modalCentro && (!popupModal || !popupModal.classList.contains('active'))) {
+      const gridModal = document.getElementById('modalMenuCuadricula');
+      if (modalCentro && (!popupModal || !popupModal.classList.contains('active')) && (!gridModal || !gridModal.classList.contains('active'))) {
         modalCentro.style.display = "flex";
       }
     }
