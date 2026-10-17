@@ -110,10 +110,10 @@
     .select-pill option { background: #241712; color: #fff; }
     .icon-pill-btn { width: 30px; height: 30px; border-radius: 50%; background: var(--glass-panel); border: 1px solid var(--glass-border); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; }
 
-    /* FILTROS */
+    /* FILTROS DINÁMICOS */
     .category-chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
     .chip { background: rgba(43, 31, 26, 0.7); border: 1px solid rgba(251, 191, 36, 0.25); color: var(--text-muted); padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer; }
-    .chip.active { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; }
+    .chip.active { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; font-weight: 800; }
 
     /* MODO REELS (TIKTOK) */
     .video-slide { width: 100%; height: 100dvh; scroll-snap-align: start; position: relative; background: #1c1411; overflow: hidden; display: flex; align-items: flex-end; }
@@ -153,7 +153,7 @@
     .btn-quick-add .finger-tap-icon { font-size: 15px; color: #fde047; animation: fingerTap 1.2s infinite alternate ease-in-out; }
     @keyframes fingerTap { 0% { transform: scale(1) translateY(0); } 100% { transform: scale(1.25) translateY(-3px); } }
 
-    /* BOTÓN FLOTANTE INFERIOR IZQUIERDO: ABRIR POPUP DE CUADRÍCULA */
+    /* BOTÓN FLOTANTE INFERIOR IZQUIERDO: CAMBIAR A MODO CUADRÍCULA */
     .grid-toggle-container {
       position: fixed; bottom: 20px; left: 18px; display: flex; align-items: center; gap: 8px;
       z-index: 99998; cursor: pointer; pointer-events: auto;
@@ -219,10 +219,10 @@
     }
     .btn-card-add:active { transform: scale(0.95); }
 
-    /* BOTÓN FLOTANTE PEDIDOS (DERECHA) */
+    /* BOTÓN FLOTANTE PEDIDOS (SUPERPUESTO ENCIMA DE TODO PARA VER CONTADOR) */
     .chat-bubble-container {
       position: fixed; bottom: 20px; right: 18px; display: flex; align-items: center; gap: 8px;
-      z-index: 99999; cursor: pointer; pointer-events: auto;
+      z-index: 100002 !important; cursor: pointer; pointer-events: auto;
     }
     .chat-bubble-label {
       background: linear-gradient(135deg, #fef08a 0%, #fde047 100%);
@@ -237,7 +237,7 @@
     .chat-badge { position: absolute; top: -3px; right: -3px; background-color: #ef4444; color: #fff; font-size: 11px; font-weight: 800; min-width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
     /* POPUP DE COMANDA OPTIMIZADO */
-    .popup-modal { position: fixed; inset: 0; background: rgba(18, 12, 10, 0.88); backdrop-filter: blur(6px); z-index: 100000; display: none; align-items: flex-end; justify-content: center; }
+    .popup-modal { position: fixed; inset: 0; background: rgba(18, 12, 10, 0.88); backdrop-filter: blur(6px); z-index: 100003; display: none; align-items: flex-end; justify-content: center; }
     .popup-modal.active { display: flex; }
     .popup-sheet {
       background: var(--modal-bg);
@@ -628,7 +628,7 @@
     </div>
   </div>
 
-  <!-- CABECERA PRINCIPAL -->
+  <!-- CABECERA PRINCIPAL CON CATEGORÍAS DINÁMICAS -->
   <div class="top-header" id="topHeaderElement">
     <div class="top-bar-row">
       <div class="brand-section">
@@ -665,6 +665,7 @@
       </div>
     </div>
 
+    <!-- CHIPS DE CATEGORÍAS CARGADOS SEGÚN EL CATÁLOGO -->
     <div class="category-chips" id="categoryChips"></div>
   </div>
 
@@ -677,7 +678,7 @@
   <!-- 1. FEED TIKTOK / REELS VERTICAL -->
   <div class="app-container" id="feedContainer"></div>
 
-  <!-- BOTÓN FLOTANTE INFERIOR IZQUIERDO: CAMBIAR A MODO CUADRÍCULA (POPUP) -->
+  <!-- BOTÓN FLOTANTE INFERIOR IZQUIERDO: CAMBIAR A MODO CUADRÍCULA -->
   <div class="grid-toggle-container" onclick="abrirModalCuadricula()">
     <div class="grid-toggle-btn" title="Ver Menú en Cuadros">
       <i class="fa-solid fa-table-cells-large"></i>
@@ -698,7 +699,7 @@
     </div>
   </div>
 
-  <!-- BOTÓN FLOTANTE PEDIDOS (DERECHA) -->
+  <!-- BOTÓN FLOTANTE PEDIDOS (SUPERPUESTO ENCIMA DE TODO PARA VER CONTADOR) -->
   <div class="chat-bubble-container" onclick="openOrdersPopup()">
     <div class="chat-bubble-label" onclick="openOrdersPopup()"><span id="lblBurbujaPedidos">🔥 Pedidos</span></div>
     <div class="chat-bubble-btn" onclick="openOrdersPopup()">
@@ -924,6 +925,7 @@
     let metodoPago = "Efectivo";
     let ultimoTotalPagarPEN = 0;
     let ratingSeleccionado = 5;
+    let categoriaFiltroActiva = "all";
 
     let mesaFijadaPorQR = false;
     let mesaSeleccionada = sessionStorage.getItem("inkabistro_mesa_qr") || "Mesa 01";
@@ -951,7 +953,17 @@
       const contenedor = document.getElementById('gridPopupDishes');
       if (!contenedor) return;
 
-      contenedor.innerHTML = catalogo.map(item => {
+      const platosFiltrados = catalogo.filter(item => {
+        if (categoriaFiltroActiva === "all") return true;
+        return (item.category || "").toLowerCase() === categoriaFiltroActiva.toLowerCase();
+      });
+
+      if (platosFiltrados.length === 0) {
+        contenedor.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:#aaa; padding:20px;">No hay platos en esta categoría.</p>';
+        return;
+      }
+
+      contenedor.innerHTML = platosFiltrados.map(item => {
         const info = getDishInfo(item);
         const imagenSrc = item.posterUrl || item.imagen || 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500';
 
@@ -1416,17 +1428,67 @@
     function formatPrice(pen) { return `S/ ${pen.toFixed(2)}`; }
     function formatSecondaryPrice(pen) { return `≈ $ ${(pen / (CONFIG.exchangeRateUSD || 3.75)).toFixed(2)}`; }
 
+    /* ========================================================
+       CHIPS DE CATEGORÍAS 100% DINÁMICOS SEGÚN EL CATÁLOGO
+       ======================================================== */
     function renderCategoryChips() {
-      const cats = [{ key: "all", label: "Todos" }, { key: "mains", label: "Platos Fuertes" }, { key: "top", label: "🔥 Especialidades" }];
-      document.getElementById('categoryChips').innerHTML = cats.map(c => `
-        <div class="chip ${c.key === 'all' ? 'active' : ''}">${c.label}</div>
-      `).join('');
+      const container = document.getElementById('categoryChips');
+      if (!container) return;
+
+      // Extrae todas las categorías existentes en el catálogo sin repetir
+      const categoriasUnicas = new Set();
+      catalogo.forEach(item => {
+        if (item.category && item.category.trim()) {
+          categoriasUnicas.add(item.category.trim());
+        }
+      });
+
+      // Diccionario amigable para traducir identificadores conocidos
+      const etiquetasConocidas = {
+        "mains": "Platos Fuertes",
+        "top": "🔥 Especialidades",
+        "drinks": "Bebidas & Cocteles",
+        "desserts": "Postres",
+        "starters": "Entradas & Piques"
+      };
+
+      let html = `<div class="chip ${categoriaFiltroActiva === 'all' ? 'active' : ''}" onclick="filtrarPorCategoria('all')">Todos</div>`;
+
+      categoriasUnicas.forEach(catKey => {
+        const label = etiquetasConocidas[catKey.toLowerCase()] || catKey.charAt(0).toUpperCase() + catKey.slice(1);
+        const isActive = (categoriaFiltroActiva.toLowerCase() === catKey.toLowerCase()) ? 'active' : '';
+        html += `<div class="chip ${isActive}" onclick="filtrarPorCategoria('${catKey}')">${label}</div>`;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function filtrarPorCategoria(catKey) {
+      categoriaFiltroActiva = catKey;
+      renderCategoryChips();
+      renderFeed();
+      renderizarPopupCuadricula();
     }
 
     function renderFeed() {
       const feed = document.getElementById('feedContainer');
 
-      feed.innerHTML = catalogo.map(item => {
+      // Aplica el filtro de categoría activo
+      const platosFiltrados = catalogo.filter(item => {
+        if (categoriaFiltroActiva === "all") return true;
+        return (item.category || "").toLowerCase() === categoriaFiltroActiva.toLowerCase();
+      });
+
+      if (platosFiltrados.length === 0) {
+        feed.innerHTML = `
+          <div style="height:100dvh; display:flex; align-items:center; justify-content:center; text-align:center; padding:20px;">
+            <p style="color:#aaa; font-size:14px;">No hay platos disponibles en esta categoría.</p>
+          </div>
+        `;
+        return;
+      }
+
+      feed.innerHTML = platosFiltrados.map(item => {
         const info = getDishInfo(item);
         return `
           <div class="video-slide">
@@ -1448,6 +1510,8 @@
           </div>
         `;
       }).join('');
+
+      setupObserver();
     }
 
     function setupObserver() {
