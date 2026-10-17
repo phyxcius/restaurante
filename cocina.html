@@ -23,9 +23,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; user-select: none; }
     body { background-color: var(--bg-kds); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
 
-    /* ========================================================
-       MODAL DE ACCESO RESTRINGIDO (LOGIN COCINERO)
-       ======================================================== */
+    /* MODAL DE ACCESO RESTRINGIDO */
     #authOverlayKDS {
       position: fixed;
       inset: 0;
@@ -86,12 +84,11 @@
       border: 2px solid rgba(251, 191, 36, 0.5);
       border-radius: 12px;
       padding: 14px;
-      font-size: 24px;
+      font-size: 22px;
       color: #fde047;
       text-align: center;
-      letter-spacing: 6px;
+      letter-spacing: 4px;
       outline: none;
-      font-family: monospace;
       font-weight: 900;
     }
     .auth-pin-input:focus {
@@ -116,16 +113,16 @@
       gap: 8px;
     }
     .auth-btn-enter:active { transform: scale(0.97); }
+    .auth-btn-enter:disabled { opacity: 0.6; cursor: not-allowed; }
     .auth-error-msg {
       color: #ef4444;
       font-size: 13px;
       font-weight: 800;
       display: none;
+      line-height: 1.3;
     }
 
-    /* ========================================================
-       BARRA SUPERIOR PRINCIPAL KDS
-       ======================================================== */
+    /* BARRA SUPERIOR */
     .kds-header {
       background: #180e0a;
       border-bottom: 2.5px solid var(--orange);
@@ -140,14 +137,7 @@
       gap: 10px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.8);
     }
-
-    .kds-brand-block {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    /* LOGO NEGOCIO / AVATAR CHEF */
+    .kds-brand-block { display: flex; align-items: center; gap: 12px; }
     .chef-avatar-wrap {
       width: 48px;
       height: 48px;
@@ -164,7 +154,6 @@
       flex-shrink: 0;
     }
     .chef-avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
-
     .kds-title-text h1 {
       font-size: 19px;
       font-weight: 900;
@@ -172,13 +161,7 @@
       letter-spacing: 0.5px;
       line-height: 1.1;
     }
-    .kds-title-text span {
-      font-size: 11px;
-      color: #ddd;
-      font-weight: 700;
-    }
-
-    /* BADGE Y LOGO LA CHUSPA TECH */
+    .kds-title-text span { font-size: 11px; color: #ddd; font-weight: 700; }
     .chuspa-tech-badge {
       display: flex;
       align-items: center;
@@ -191,12 +174,7 @@
       font-weight: 700;
       color: #e5e7eb;
     }
-    .chuspa-tech-badge img {
-      max-height: 22px;
-      object-fit: contain;
-    }
-
-    /* RELOJ DIGITAL EN VIVO */
+    .chuspa-tech-badge img { max-height: 22px; object-fit: contain; }
     .kds-live-clock {
       background: #110805;
       border: 1.5px solid rgba(251, 191, 36, 0.4);
@@ -212,14 +190,7 @@
       letter-spacing: 1px;
       box-shadow: inset 0 0 8px rgba(0,0,0,0.8);
     }
-
-    .kds-header-actions {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
+    .kds-header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
     .badge-metric {
       background: #24140e;
       border: 1px solid var(--card-border);
@@ -229,7 +200,6 @@
       font-weight: 800;
     }
     .badge-metric b { font-size: 16px; margin-left: 4px; }
-
     .btn-top-action {
       background: #261611;
       border: 1.5px solid var(--gold);
@@ -244,14 +214,9 @@
       gap: 6px;
     }
     .btn-top-action:active { transform: scale(0.96); }
+    .btn-lock-kds { background: #3b110e; border: 1.5px solid var(--red); color: #fca5a5; }
 
-    .btn-lock-kds {
-      background: #3b110e;
-      border: 1.5px solid var(--red);
-      color: #fca5a5;
-    }
-
-    /* BARRA DE FILTROS & CALENDARIO */
+    /* FILTROS */
     .kds-control-bar {
       background: #140b07;
       border-bottom: 1px solid var(--card-border);
@@ -262,11 +227,7 @@
       flex-wrap: wrap;
       gap: 10px;
     }
-    .kds-date-selector {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    .kds-date-selector { display: flex; align-items: center; gap: 8px; }
     .kds-date-input {
       padding: 6px 10px;
       border-radius: 8px;
@@ -288,16 +249,8 @@
       font-weight: 800;
       cursor: pointer;
     }
-    .btn-quick-date.active {
-      background: var(--orange);
-      border-color: var(--gold);
-      color: #fff;
-    }
-
-    .kds-state-filters {
-      display: flex;
-      gap: 6px;
-    }
+    .btn-quick-date.active { background: var(--orange); border-color: var(--gold); color: #fff; }
+    .kds-state-filters { display: flex; gap: 6px; }
     .btn-state-filter {
       background: #1f120c;
       border: 1px solid rgba(255,255,255,0.15);
@@ -308,13 +261,9 @@
       font-weight: 800;
       cursor: pointer;
     }
-    .btn-state-filter.active {
-      background: var(--blue);
-      color: #fff;
-      border-color: #38bdf8;
-    }
+    .btn-state-filter.active { background: var(--blue); color: #fff; border-color: #38bdf8; }
 
-    /* REJILLA DE COMANDAS */
+    /* GRID COMANDAS */
     .kds-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -323,8 +272,6 @@
       flex: 1;
       align-content: start;
     }
-
-    /* TARJETA DE COMANDA TAMAÑO GRANDE */
     .kds-card {
       background: var(--card-bg);
       border-radius: 16px;
@@ -336,23 +283,14 @@
       position: relative;
       transition: transform 0.15s ease, box-shadow 0.2s ease;
     }
-
     .kds-card.glow-pulso {
       border-color: #f59e0b !important;
       animation: resplandorBrillante 1.8s infinite alternate ease-in-out;
     }
     @keyframes resplandorBrillante {
-      0% {
-        box-shadow: 0 0 14px rgba(245, 158, 11, 0.4), inset 0 0 10px rgba(245, 158, 11, 0.2);
-        border-color: #f59e0b;
-      }
-      100% {
-        box-shadow: 0 0 35px rgba(245, 158, 11, 0.95), inset 0 0 20px rgba(245, 158, 11, 0.5);
-        border-color: #fde047;
-      }
+      0% { box-shadow: 0 0 14px rgba(245, 158, 11, 0.4), inset 0 0 10px rgba(245, 158, 11, 0.2); border-color: #f59e0b; }
+      100% { box-shadow: 0 0 35px rgba(245, 158, 11, 0.95), inset 0 0 20px rgba(245, 158, 11, 0.5); border-color: #fde047; }
     }
-
-    /* ESTADOS */
     .kds-card.estado-iniciado .card-top { background: #78350f; color: #fde047; }
     .kds-card.estado-cocina { border-color: #0284c7 !important; }
     .kds-card.estado-cocina .card-top { background: #0369a1; color: #fff; }
@@ -361,20 +299,8 @@
     .kds-card.estado-finalizado { border-color: #444 !important; opacity: 0.72; }
     .kds-card.estado-finalizado .card-top { background: #262626; color: #aaa; }
 
-    /* ENCABEZADO DE TARJETA */
-    .card-top {
-      padding: 12px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-weight: 900;
-    }
-    .card-mesa-title {
-      font-size: 20px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    .card-top { padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; font-weight: 900; }
+    .card-mesa-title { font-size: 20px; display: flex; align-items: center; gap: 8px; }
     .card-order-seq {
       background: rgba(0,0,0,0.45);
       border: 1px solid rgba(255,255,255,0.2);
@@ -383,8 +309,6 @@
       border-radius: 6px;
       letter-spacing: 0.5px;
     }
-
-    /* BARRA DE HORA Y TIEMPO */
     .card-timer-bar {
       background: rgba(0,0,0,0.45);
       padding: 6px 16px;
@@ -395,15 +319,7 @@
       border-bottom: 1px dashed rgba(255,255,255,0.12);
     }
     .timer-alert { color: #f87171 !important; font-weight: 900; }
-
-    /* LISTA DE PLATOS GRANDES */
-    .card-body {
-      padding: 16px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
+    .card-body { padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 12px; }
     .plato-item-row {
       font-size: 18px;
       font-weight: 900;
@@ -424,7 +340,6 @@
       border: 1px solid var(--orange);
       flex-shrink: 0;
     }
-
     .card-notas-box {
       background: rgba(239, 68, 68, 0.18);
       border-left: 4px solid var(--red);
@@ -435,8 +350,6 @@
       font-weight: 800;
       margin-top: 4px;
     }
-
-    /* BOTONERA TÁCTIL DE ACCIÓN */
     .card-actions {
       padding: 12px 14px;
       background: rgba(0,0,0,0.35);
@@ -464,7 +377,7 @@
     .btn-kds-ready { background: linear-gradient(135deg, #16a34a, #22c55e); color: #fff; }
     .btn-kds-print { background: #374151; color: #e5e7eb; border: 1px solid #4b5563; flex: 0.55; }
 
-    /* MODAL DE CONTABILIDAD Y RESUMEN POR CATEGORÍAS */
+    /* MODAL CONTABILIDAD */
     .kds-modal-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
       z-index: 99999; display: none; align-items: center; justify-content: center; padding: 16px;
@@ -475,12 +388,8 @@
       max-width: 580px; width: 100%; max-height: 88vh; overflow-y: auto; padding: 22px;
       display: flex; flex-direction: column; gap: 14px; box-shadow: 0 10px 45px rgba(0,0,0,0.9);
     }
-    .kds-table-stats {
-      width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;
-    }
-    .kds-table-stats th, .kds-table-stats td {
-      padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
+    .kds-table-stats { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+    .kds-table-stats th, .kds-table-stats td { padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.08); }
     .kds-table-stats th { color: var(--gold); text-transform: uppercase; font-size: 11.5px; }
 
     .kds-empty-msg {
@@ -494,9 +403,7 @@
 </head>
 <body>
 
-  <!-- ========================================================
-       MODAL DE INGRESO: CLAVE DE COCINERO (FIREBASE /usuarios)
-       ======================================================== -->
+  <!-- MODAL DE INGRESO CON VALIDACIÓN EN VIVO -->
   <div id="authOverlayKDS">
     <div class="auth-card-kds">
       <div class="auth-logos-header">
@@ -506,15 +413,15 @@
       </div>
 
       <h2>ACCESO A COCINA</h2>
-      <p>Ingresa tu clave de cocinero sincronizada con el panel de control</p>
+      <p>Ingresa la contraseña de tu usuario de cocina asignado en el panel</p>
 
-      <input type="password" id="inputClaveCocinero" class="auth-pin-input" placeholder="••••" maxlength="12" autofocus autocomplete="off" />
+      <input type="password" id="inputClaveCocinero" class="auth-pin-input" placeholder="••••••••" autofocus autocomplete="off" />
 
-      <button type="button" class="auth-btn-enter" onclick="validarIngresoCocinero()">
+      <button type="button" id="btnIngresarKDS" class="auth-btn-enter" onclick="validarIngresoCocinero()">
         <i class="fa-solid fa-unlock-keyhole"></i> Abrir Tablero
       </button>
 
-      <div id="authErrorMsg" class="auth-error-msg">Clave incorrecta o sin permisos para cocina</div>
+      <div id="authErrorMsg" class="auth-error-msg">Clave incorrecta o usuario sin permisos para cocina.</div>
 
       <div style="font-size:11px; color:#777; margin-top:6px;">
         Plataforma desarrollada por <b>La Chuspa Tech</b>
@@ -525,7 +432,6 @@
   <!-- CABECERA SUPERIOR KDS -->
   <header class="kds-header">
     <div class="kds-brand-block">
-      <!-- LOGO DEL NEGOCIO / CHEF AVATAR -->
       <div class="chef-avatar-wrap" id="kdsAvatarContainer" title="Jefe de Cocina">
         <img id="kdsLogoNegocioImg" src="" alt="Logo Negocio" style="display:none;" />
         <i id="kdsAvatarIcon" class="fa-solid fa-user-ninja"></i>
@@ -536,20 +442,18 @@
       </div>
     </div>
 
-    <!-- RELOJ DIGITAL EN VIVO -->
     <div class="kds-live-clock" id="kdsClockDisplay">
       <i class="fa-regular fa-clock" style="font-size:15px; color:var(--orange);"></i>
       <span id="relojHoraActual">--:--:--</span>
     </div>
 
     <div class="kds-header-actions">
-      <!-- LOGO LA CHUSPA TECH -->
       <div class="chuspa-tech-badge" title="Powered by La Chuspa Tech">
         <img id="kdsLogoTechImg" src="img/lachuspa-tech-logo.png" alt="La Chuspa Tech" onerror="this.parentElement.innerHTML='⚡ La Chuspa Tech'" />
       </div>
 
       <div class="badge-metric" title="Cocinero Activo">
-        <i class="fa-solid fa-user-check" style="color:var(--gold);"></i> <span id="labelCocineroActivo">Cocinero</span>
+        <i class="fa-solid fa-user-check" style="color:var(--gold);"></i> <span id="labelCocineroActivo">martin</span>
       </div>
 
       <div class="badge-metric">Por Preparar: <b id="cntPendientes" style="color:var(--gold);">0</b></div>
@@ -564,14 +468,13 @@
         <i class="fa-solid fa-bell"></i> Probar Campana
       </button>
 
-      <!-- BOTÓN PARA BLOQUEAR TABLERO / SALIR -->
       <button type="button" class="btn-top-action btn-lock-kds" onclick="bloquearPantallaCocina()" title="Bloquear pantalla de cocina">
         <i class="fa-solid fa-lock"></i>
       </button>
     </div>
   </header>
 
-  <!-- BARRA DE FECHAS & FILTROS DE ESTADO -->
+  <!-- BARRA DE FECHAS & FILTROS -->
   <div class="kds-control-bar">
     <div class="kds-date-selector">
       <span style="font-size:12px; font-weight:800; color:var(--gold);"><i class="fa-solid fa-calendar-day"></i> Fecha:</span>
@@ -588,7 +491,7 @@
     </div>
   </div>
 
-  <!-- MATRIZ DE COMANDAS EN ORDEN DE LLEGADA -->
+  <!-- COMANDAS -->
   <main class="kds-grid" id="kdsGridOrders">
     <div class="kds-empty-msg">
       <i class="fa-solid fa-utensils"></i>
@@ -597,7 +500,7 @@
     </div>
   </main>
 
-  <!-- MODAL: CONTABILIDAD Y RESUMEN POR CATEGORÍAS -->
+  <!-- MODAL: CONTABILIDAD -->
   <div class="kds-modal-overlay" id="modalContabilidadKDS" onclick="cerrarModalContabilidad()">
     <div class="kds-modal-box" onclick="event.stopPropagation()">
       <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid rgba(255,255,255,0.1); padding-bottom:8px;">
@@ -642,11 +545,10 @@
     let intervaloPollKDS = null;
 
     /* ========================================================
-       AUTENTICACIÓN SINCRONIZADA CON FIREBASE /usuarios.json
+       AUTENTICACIÓN SINCRONIZADA TOTAL (FIREBASE + LOCALSTORAGE)
        ======================================================== */
 
-    // Convierte cualquier formato devuelto por Firebase (árbol, array, objetos anidados) a lista plana
-    function aplanarUsuariosFirebase(data) {
+    function aplanarColeccionUsuarios(data) {
       if (!data) return [];
       let lista = [];
 
@@ -667,106 +569,113 @@
       return lista;
     }
 
-    // 1. Carga directa desde https://restaurante1-695f7-default-rtdb.firebaseio.com/usuarios.json
-    async function cargarUsuariosSincronizados() {
-      let usuariosTotales = [];
+    async function obtenerTodosLosUsuarios() {
+      let usuarios = [];
 
-      // Consulta a la URL exacta solicitada
+      // 1. Consulta directa a Firebase /usuarios.json
       try {
         const res = await fetch(`${FIREBASE_DB_URL}usuarios.json?_t=${Date.now()}`);
         if (res.ok) {
           const data = await res.json();
-          console.log("📥 Usuarios recibidos de Firebase:", data);
-          usuariosTotales = usuariosTotales.concat(aplanarUsuariosFirebase(data));
-        } else {
-          console.warn("⚠️ Error HTTP consultando Firebase usuarios:", res.status);
+          usuarios = usuarios.concat(aplanarColeccionUsuarios(data));
         }
       } catch (e) {
-        console.warn("⚠️ Error en petición a Firebase /usuarios.json:", e);
+        console.warn("Fallo lectura Firebase /usuarios:", e);
       }
 
-      // Respaldo en localStorage por si se guardó desde el panel en este mismo navegador
-      const clavesBackup = ['panel_usuarios_cache', 'usuarios_sistema', 'restaurante_usuarios', 'usuarios'];
-      for (const k of clavesBackup) {
-        const guardado = localStorage.getItem(k);
-        if (guardado) {
-          try {
-            const parsed = JSON.parse(guardado);
-            usuariosTotales = usuariosTotales.concat(aplanarUsuariosFirebase(parsed));
-          } catch (err) {}
+      // 2. Consulta adicional a Firebase /users.json o /personal.json si existieran
+      try {
+        const resUsers = await fetch(`${FIREBASE_DB_URL}users.json?_t=${Date.now()}`);
+        if (resUsers.ok) {
+          const dataUsers = await resUsers.json();
+          usuarios = usuarios.concat(aplanarColeccionUsuarios(dataUsers));
         }
-      }
+      } catch (e) {}
 
-      // Eliminar registros vacíos o duplicados
+      // 3. Inspeccionar LocalStorage del mismo dominio (por si el panel guarda local)
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && (key.includes('user') || key.includes('usuario') || key.includes('personal') || key.includes('restaurante'))) {
+            try {
+              const parsed = JSON.parse(localStorage.getItem(key));
+              usuarios = usuarios.concat(aplanarColeccionUsuarios(parsed));
+            } catch (err) {}
+          }
+        }
+      } catch (e) {}
+
+      // Unificar por id, nombre o usuario
       const mapa = new Map();
-      usuariosTotales.forEach(u => {
+      usuarios.forEach(u => {
         if (u) {
-          const ident = String(u.id || u.usuario || u.nombre || Math.random());
-          mapa.set(ident, u);
+          const claveUnica = String(u.id || u.nombre || u.operador || u.usuario || Math.random());
+          mapa.set(claveUnica, u);
         }
       });
 
-      const resultado = Array.from(mapa.values());
-      localStorage.setItem('panel_usuarios_cache', JSON.stringify(resultado));
-      return resultado;
+      return Array.from(mapa.values());
     }
 
-    // 2. Validación de PIN o Contraseña del Cocinero Asignado
     async function validarIngresoCocinero() {
-      const pinIngresado = document.getElementById('inputClaveCocinero').value.trim();
+      const inputClave = document.getElementById('inputClaveCocinero');
       const errorMsg = document.getElementById('authErrorMsg');
+      const btn = document.getElementById('btnIngresarKDS');
+      const claveIngresada = inputClave.value.trim();
 
-      if (!pinIngresado) return;
+      if (!claveIngresada) return;
 
-      const usuarios = await cargarUsuariosSincronizados();
-      console.log("🔍 Validando clave ingresada con lista de usuarios:", usuarios);
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verificando...';
+      errorMsg.style.display = 'none';
 
-      // Roles aceptados para cocina
-      const rolesValidosCocina = ['cocina', 'cocinero', 'chef', 'kds', 'kitchen', 'admin', 'administrador'];
+      try {
+        const usuarios = await obtenerTodosLosUsuarios();
+        console.log("Usuarios sincronizados para validación:", usuarios);
 
-      // Búsqueda del usuario que coincida con la contraseña o PIN
-      const cocineroEncontrado = usuarios.find(u => {
-        if (!u) return false;
+        // Roles autorizados para acceder a cocina (en mayúsculas o minúsculas)
+        const rolesAutorizados = ['cocina', 'cocinero', 'chef', 'admin', 'administrador', 'cajero'];
 
-        // Comprueba cualquier nombre de propiedad que haya asignado el panel para la clave
-        const claveGuardada = String(
-          u.password || u.pin || u.clave || u.codigo || u.pass || u.contrasena || u.pin_acceso || u.token || ''
-        ).trim();
+        const usuarioCoincidente = usuarios.find(u => {
+          if (!u) return false;
 
-        // Normaliza el rol
-        const rolUsuario = String(
-          u.rol || u.role || u.tipo || u.perfil || u.cargo || ''
-        ).toLowerCase().trim();
+          // Extraer la contraseña de cualquier propiedad conocida del panel
+          const passGuardada = String(
+            u.contrasena || u.password || u.pass || u.clave || u.pin || u.codigo || ''
+          ).trim();
 
-        const coincideClave = (claveGuardada === pinIngresado);
-        const tienePermisoCocina = rolesValidosCocina.includes(rolUsuario) ||
-                                   rolUsuario.includes('cocin') ||
-                                   rolUsuario.includes('chef') ||
-                                   rolUsuario === '';
+          // Extraer y normalizar el rol asignado
+          const rolGuardado = String(
+            u.rol || u.role || u.rolAsignado || u.nivel || u.cargo || ''
+          ).toLowerCase().trim();
 
-        if (coincideClave) {
-          console.log(`👤 Usuario coincidente: "${u.nombre || u.usuario}", Rol: "${rolUsuario}", Autorizado: ${tienePermisoCocina}`);
+          const coincideClave = (passGuardada === claveIngresada);
+          const tienePermiso = rolesAutorizados.some(r => rolGuardado.includes(r)) || rolGuardado === '';
+
+          return coincideClave && tienePermiso;
+        });
+
+        if (usuarioCoincidente) {
+          const nombreOperador = usuarioCoincidente.nombre || usuarioCoincidente.operador || usuarioCoincidente.usuario || 'martin';
+
+          sessionStorage.setItem('kds_session_user', JSON.stringify({
+            nombre: nombreOperador,
+            rol: usuarioCoincidente.rol || 'COCINA'
+          }));
+
+          desbloquearPantallaCocina(nombreOperador);
+        } else {
+          errorMsg.innerText = "Clave incorrecta o usuario sin permisos para cocina.";
+          errorMsg.style.display = 'block';
+          inputClave.value = '';
+          inputClave.focus();
         }
-
-        return coincideClave && tienePermisoCocina;
-      });
-
-      if (cocineroEncontrado) {
-        const nombreMostrar = cocineroEncontrado.nombre || cocineroEncontrado.usuario || cocineroEncontrado.username || 'Cocinero de Turno';
-        
-        sessionStorage.setItem('kds_session_user', JSON.stringify({
-          nombre: nombreMostrar,
-          rol: cocineroEncontrado.rol || 'cocinero',
-          id: cocineroEncontrado.id || 'cocina'
-        }));
-
-        errorMsg.style.display = 'none';
-        desbloquearPantallaCocina(nombreMostrar);
-      } else {
-        errorMsg.innerText = "Clave incorrecta o usuario sin permisos para cocina.";
-        errorMsg.style.display = "block";
-        document.getElementById('inputClaveCocinero').value = "";
-        document.getElementById('inputClaveCocinero').focus();
+      } catch (err) {
+        errorMsg.innerText = "Error de red al sincronizar con el panel. Intente nuevamente.";
+        errorMsg.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-unlock-keyhole"></i> Abrir Tablero';
       }
     }
 
@@ -774,7 +683,6 @@
       document.getElementById('authOverlayKDS').style.display = 'none';
       document.getElementById('labelCocineroActivo').innerText = nombre;
 
-      // Iniciar recepción y sincronización continua de comandas
       cargarComandasCocina();
       if (!intervaloPollKDS) {
         intervaloPollKDS = setInterval(cargarComandasCocina, 2000);
@@ -808,7 +716,7 @@
     });
 
     /* ========================================================
-       CARGA DE IDENTIDAD (LOGO NEGOCIO & LA CHUSPA TECH)
+       IDENTIDAD Y LOGOS
        ======================================================== */
     async function cargarIdentidad() {
       try {
@@ -816,9 +724,7 @@
         if (res.ok) {
           const conf = await res.json();
           if (conf) {
-            if (conf.nombre) {
-              document.getElementById('kdsNombreLocal').innerText = conf.nombre.toUpperCase();
-            }
+            if (conf.nombre) document.getElementById('kdsNombreLocal').innerText = conf.nombre.toUpperCase();
 
             const logoUrl = conf.logo || conf.logoUrl || '';
             if (logoUrl) {
@@ -843,12 +749,10 @@
             }
           }
         }
-      } catch (e) {
-        console.warn("Identidad cargada con valores por defecto:", e);
-      }
+      } catch (e) {}
     }
 
-    /* 1. RELOJ DIGITAL EN VIVO */
+    /* RELOJ DIGITAL */
     function actualizarRelojEnVivo() {
       const ahora = new Date();
       const horas = String(ahora.getHours()).padStart(2, '0');
@@ -860,7 +764,7 @@
     setInterval(actualizarRelojEnVivo, 1000);
     actualizarRelojEnVivo();
 
-    /* 2. AUDIO DE CAMPANA DE COCINA */
+    /* SONIDO CAMPANA */
     function asegurarAudio() {
       try {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -893,12 +797,9 @@
     }
     function probarSonidoCampana() { sonarCampanaCocina(); }
 
-    /* 3. ESCUCHA BIDIRECCIONAL DESDE CARTA O PANEL */
-    canalPedidos.onmessage = (event) => {
-      cargarComandasCocina();
-    };
+    canalPedidos.onmessage = () => cargarComandasCocina();
 
-    /* 4. CARGA PRINCIPAL DE COMANDAS */
+    /* CARGAR COMANDAS */
     async function cargarComandasCocina() {
       try {
         const res = await fetch(`${FIREBASE_DB_URL}comandas.json?_t=${Date.now()}`);
@@ -911,7 +812,6 @@
               return Object.assign({ id: k }, item);
             }).filter(Boolean);
 
-            // DETECCIÓN DE NUEVAS COMANDAS PARA EFECTO BRILLANTE Y CAMPANA
             lista.forEach(c => {
               const estado = String(c.estado || '').toLowerCase();
               if (!estadosConocidosKDS[c.id]) {
@@ -927,15 +827,13 @@
             return;
           }
         }
-      } catch (e) {
-        console.error("Error al cargar comandas KDS:", e);
-      }
+      } catch (e) {}
 
       comandasCache = [];
       renderizarTarjetasKDS();
     }
 
-    /* 5. RENDERIZAR COMANDAS EN ORDEN SECUENCIAL DE LLEGADA */
+    /* RENDERIZAR */
     function renderizarTarjetasKDS() {
       const grid = document.getElementById('kdsGridOrders');
       if (!grid) return;
@@ -955,7 +853,6 @@
       document.getElementById('cntEnCocina').innerText = countCocina;
       document.getElementById('cntServidos').innerText = countServidos;
 
-      // FILTRADO POR FECHA
       let comandasFiltradas = comandasCache.filter(c => {
         if (!fechaFiltroSeleccionada) return true;
         const fec = String(c.fecha || "");
@@ -965,7 +862,6 @@
         return fec.includes(diaFiltro) || fec.includes(fechaFiltroSeleccionada);
       });
 
-      // FILTRADO POR ESTADO
       comandasFiltradas = comandasFiltradas.filter(c => {
         const est = String(c.estado || 'iniciado').toLowerCase();
         if (filtroEstadoActual === 'activas') {
@@ -976,7 +872,6 @@
         return true;
       });
 
-      // ORDEN ESTRICTO DE LLEGADA
       comandasFiltradas.sort((a, b) => (a.timestampOrden || 0) - (b.timestampOrden || 0));
 
       if (comandasFiltradas.length === 0) {
@@ -1069,7 +964,6 @@
       }).join('');
     }
 
-    /* 6. CAMBIO DE ESTADO TÁCTIL SINCRONIZADO */
     async function cambiarEstadoKDS(id, nuevoEstado) {
       try {
         await fetch(`${FIREBASE_DB_URL}comandas/${id}.json`, {
@@ -1081,19 +975,13 @@
           })
         });
 
-        canalPedidos.postMessage({
-          tipo: 'ESTADO_ACTUALIZADO',
-          id: id,
-          estado: nuevoEstado
-        });
-
+        canalPedidos.postMessage({ tipo: 'ESTADO_ACTUALIZADO', id: id, estado: nuevoEstado });
         cargarComandasCocina();
       } catch (e) {
         alert("Error al actualizar estado en cocina.");
       }
     }
 
-    /* 7. IMPRIMIR TICKET INDIVIDUAL */
     function imprimirComandaIndividual(idComanda) {
       const c = comandasCache.find(x => x.id === idComanda);
       if (!c) return alert("Comanda no disponible.");
@@ -1126,7 +1014,6 @@
       ventana.document.close();
     }
 
-    /* 8. CONTABILIDAD DE PLATOS */
     function abrirModalContabilidad() {
       const modal = document.getElementById('modalContabilidadKDS');
       const tbody = document.getElementById('tablaConteoPlatosBody');
@@ -1171,7 +1058,6 @@
       document.getElementById('modalContabilidadKDS').classList.remove('active');
     }
 
-    /* 9. MANEJO DE FILTROS */
     function cambiarFechaKDS(val) {
       fechaFiltroSeleccionada = val;
       document.querySelectorAll('.btn-quick-date').forEach(b => b.classList.remove('active'));
@@ -1206,7 +1092,6 @@
       renderizarTarjetasKDS();
     }
 
-    /* ARRANQUE Y CONTROL DE SESIÓN */
     window.onload = () => {
       cargarIdentidad();
       verificarSesionPrevia();
