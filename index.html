@@ -32,6 +32,28 @@
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; font-family: system-ui, -apple-system, sans-serif; }
     body, html { width: 100%; height: 100%; overflow: hidden; background-color: var(--bg-warm); color: var(--text-main); }
 
+    /* CUSTOM SCROLLBARS VISIBLES Y ESTILIZADOS */
+    .custom-scroll {
+      scrollbar-width: thin;
+      scrollbar-color: var(--primary) rgba(28, 25, 23, 0.2);
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: rgba(28, 25, 23, 0.15);
+      border-radius: 8px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, var(--primary), var(--accent));
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .custom-scroll::-webkit-scrollbar-thumb:hover {
+      background: var(--primary);
+    }
+
     /* PANTALLA DE BLOQUEO DE SEGURIDAD */
     .screen-security-lock {
       position: fixed; inset: 0; background: #0c0806; z-index: 999999;
@@ -191,9 +213,8 @@
 
     .grid-popup-body {
       padding: 14px; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr;
-      gap: 12px; scrollbar-width: none;
+      gap: 12px;
     }
-    .grid-popup-body::-webkit-scrollbar { display: none; }
 
     .dish-card-box {
       background: #241611; border: 1.5px solid rgba(245, 158, 11, 0.22); border-radius: 16px;
@@ -255,7 +276,7 @@
     .sheet-header button { background: none; border: none; color: var(--modal-dark); font-size: 24px; font-weight: bold; cursor: pointer; }
     
     .order-items-list {
-      max-height: 18dvh; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; flex-shrink: 0;
+      max-height: 18dvh; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; flex-shrink: 0; padding-right: 4px;
     }
     .order-item-row {
       display: flex; justify-content: space-between; align-items: center;
@@ -273,7 +294,7 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
     .quick-add-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 6px; max-height: 150px; overflow-y: auto; margin-top: 6px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 6px; max-height: 145px; overflow-y: auto; margin-top: 6px; padding-right: 4px;
     }
     .btn-quick-item {
       background: #fef08a; border: 1px solid #ca8a04; padding: 8px 10px; border-radius: 8px;
@@ -288,7 +309,7 @@
     }
     .table-grid {
       display: grid; grid-template-columns: repeat(auto-fill, minmax(62px, 1fr));
-      gap: 5px; margin-bottom: 8px; max-height: 95px; overflow-y: auto; padding: 2px;
+      gap: 5px; margin-bottom: 8px; max-height: 95px; overflow-y: auto; padding: 2px 4px 2px 2px;
     }
     .table-box-btn {
       background: #1c1917; border: 1.5px solid #78350f; color: #fed7aa;
@@ -684,7 +705,7 @@
       <i class="fa-solid fa-table-cells-large"></i>
     </div>
     <div class="grid-toggle-label">
-      <span>Ver Carta</span>
+      <span id="lblBtnVerCarta">Ver Carta</span>
     </div>
   </div>
 
@@ -692,10 +713,10 @@
   <div class="grid-popup-modal" id="modalMenuCuadricula" onclick="cerrarModalCuadricula(event)">
     <div class="grid-popup-box" onclick="event.stopPropagation()">
       <div class="grid-popup-header">
-        <h3><i class="fa-solid fa-book-open"></i> Menú de la Casa</h3>
+        <h3 id="lblMenuCasaTitulo"><i class="fa-solid fa-book-open"></i> Menú de la Casa</h3>
         <button type="button" onclick="cerrarModalCuadricula()">&times;</button>
       </div>
-      <div class="grid-popup-body" id="gridPopupDishes"></div>
+      <div class="grid-popup-body custom-scroll" id="gridPopupDishes"></div>
     </div>
   </div>
 
@@ -710,20 +731,20 @@
 
   <!-- POPUP DE COMANDA OPTIMIZADO -->
   <div class="popup-modal" id="ordersPopupModal" onclick="closeOrdersPopup(event)">
-    <div class="popup-sheet" onclick="event.stopPropagation()">
+    <div class="popup-sheet custom-scroll" onclick="event.stopPropagation()">
       <div class="sheet-header">
         <h3 id="lblTituloPopup"><i class="fa-solid fa-receipt" style="color:var(--modal-green);"></i> Confirmar Comanda</h3>
         <button type="button" onclick="closeOrdersPopup()">&times;</button>
       </div>
 
-      <div class="order-items-list" id="orderItemsList"></div>
+      <div class="order-items-list custom-scroll" id="orderItemsList"></div>
 
       <!-- CATÁLOGO AMPLIADO Y CÓMODO EN EL POPUP -->
       <div class="quick-add-catalog">
         <div style="font-size:12px; font-weight:900; color:var(--modal-dark);" id="lblAddPlatosTitle">
           <i class="fa-solid fa-plus-circle" style="color:var(--modal-green);"></i> Añadir platos a tu mesa:
         </div>
-        <div class="quick-add-grid" id="quickAddCatalogGrid"></div>
+        <div class="quick-add-grid custom-scroll" id="quickAddCatalogGrid"></div>
       </div>
 
       <!-- MESA ASIGNADA CON CLARIDAD -->
@@ -732,9 +753,9 @@
         <span id="selectedTableBadge" style="color:var(--modal-green-dark); font-size:12.5px; font-weight:900;">Mesa 01 🔒</span>
       </div>
       
-      <!-- CONTENEDOR DE MESAS -->
+      <!-- CONTENEDOR DE MESAS CON CUSTOM SCROLLBAR -->
       <div id="wrapperSelectorMesas">
-        <div class="table-grid" id="tableGridContainer"></div>
+        <div class="table-grid custom-scroll" id="tableGridContainer"></div>
       </div>
 
       <!-- MÉTODOS DE PAGO -->
@@ -768,10 +789,10 @@
       <!-- CAMPO DNI PARA CLUB DE RECOMPENSAS -->
       <div style="background: rgba(245, 158, 11, 0.15); border: 1.5px dashed #b45309; border-radius: 12px; padding: 10px 12px; margin-bottom: 8px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-          <span style="font-size: 12px; font-weight: 900; color: #78350f;">
+          <span style="font-size: 12px; font-weight: 900; color: #78350f;" id="lblClubPrompt">
             ⭐ ¿Eres socio del Club? Acumula sellos:
           </span>
-          <button type="button" onclick="irAClubDesdeIndex()" style="background: none; border: none; color: #b45309; font-size: 11.5px; font-weight: 900; cursor: pointer; text-decoration: underline;">
+          <button type="button" onclick="irAClubDesdeIndex()" style="background: none; border: none; color: #b45309; font-size: 11.5px; font-weight: 900; cursor: pointer; text-decoration: underline;" id="lblVerMiTarjeta">
             Ver mi tarjeta
           </button>
         </div>
@@ -891,6 +912,124 @@
       exchangeRateUSD: 3.75
     };
 
+    // DICCIONARIO COMPLETO DE TRADUCCIÓN MULTI-IDIOMA
+    const I18N_UI = {
+      es: {
+        all: "Todos",
+        mains: "Platos Fuertes",
+        top: "🔥 Especialidades",
+        drinks: "Bebidas & Cocteles",
+        desserts: "Postres",
+        starters: "Entradas",
+        swipeUp: "Desliza hacia arriba 👆",
+        addDish: "👆 Añadir Plato",
+        viewMenu: "Ver Carta",
+        orders: "🔥 Pedidos",
+        confirmOrder: "Confirmar Comanda",
+        addMoreDishes: "Añadir platos a tu mesa:",
+        assignedTable: "📍 Mesa Asignada:",
+        cash: "Efectivo",
+        exactPay: "Pagar Exacto",
+        calcChange: "Ingresa monto en efectivo para vuelto",
+        changeToGive: "💵 Vuelto a entregar:",
+        missingCash: "⚠️ Falta dinero",
+        namePlaceholder: "Nombre de quien pide (opcional)",
+        notesPlaceholder: "Notas para cocina (término de carne, alergias, etc.)",
+        clubPrompt: "⭐ ¿Eres socio del Club? Acumula sellos:",
+        viewCard: "Ver mi tarjeta",
+        orderTotal: "Total comanda:",
+        sendOrder: "Enviar Comanda a Cocina",
+        sendAddMore: "Añadir Platos a mi Mesa",
+        houseMenu: "Menú de la Casa",
+        noDishesCat: "No hay platos disponibles en esta categoría."
+      },
+      en: {
+        all: "All",
+        mains: "Main Courses",
+        top: "🔥 Specials",
+        drinks: "Drinks & Cocktails",
+        desserts: "Desserts",
+        starters: "Starters",
+        swipeUp: "Swipe up 👆",
+        addDish: "👆 Add Dish",
+        viewMenu: "View Menu",
+        orders: "🔥 Orders",
+        confirmOrder: "Confirm Order",
+        addMoreDishes: "Add dishes to your table:",
+        assignedTable: "📍 Assigned Table:",
+        cash: "Cash",
+        exactPay: "Exact Cash",
+        calcChange: "Enter cash amount for change",
+        changeToGive: "💵 Change to return:",
+        missingCash: "⚠️ Insufficient cash",
+        namePlaceholder: "Your name (optional)",
+        notesPlaceholder: "Notes for the kitchen (meat temp, allergies, etc.)",
+        clubPrompt: "⭐ Club Member? Collect loyalty stamps:",
+        viewCard: "View my card",
+        orderTotal: "Order total:",
+        sendOrder: "Send Order to Kitchen",
+        sendAddMore: "Add Dishes to my Table",
+        houseMenu: "House Menu",
+        noDishesCat: "No dishes available in this category."
+      },
+      de: {
+        all: "Alle", mains: "Hauptgerichte", top: "🔥 Spezialitäten", drinks: "Getränke", desserts: "Desserts", starters: "Vorspeisen",
+        swipeUp: "Nach oben wischen 👆", addDish: "👆 Gericht hinzufügen", viewMenu: "Speisekarte", orders: "🔥 Bestellungen", confirmOrder: "Bestellung bestätigen",
+        addMoreDishes: "Gerichte hinzufügen:", assignedTable: "📍 Tisch:", cash: "Bargeld", exactPay: "Passend zahlen", calcChange: "Bargeld für Rückgeld eingeben",
+        changeToGive: "💵 Rückgeld:", missingCash: "⚠️ Zu wenig Bargeld", namePlaceholder: "Name (optional)", notesPlaceholder: "Notizen für die Küche",
+        clubPrompt: "⭐ Club-Mitglied? Stempel sammeln:", viewCard: "Karte anzeigen", orderTotal: "Gesamtsumme:", sendOrder: "Bestellung an Küche senden",
+        sendAddMore: "Gerichte hinzufügen", houseMenu: "Speisekarte", noDishesCat: "Keine Gerichte in dieser Kategorie."
+      },
+      it: {
+        all: "Tutti", mains: "Piatti Principali", top: "🔥 Specialità", drinks: "Bevande", desserts: "Dolci", starters: "Antipasti",
+        swipeUp: "Scorri verso l'alto 👆", addDish: "👆 Aggiungi Piatto", viewMenu: "Visualizza Menu", orders: "🔥 Ordini", confirmOrder: "Conferma Comanda",
+        addMoreDishes: "Aggiungi piatti al tuo tavolo:", assignedTable: "📍 Tavolo Assegnato:", cash: "Contanti", exactPay: "Paga Esatto", calcChange: "Inserisci contanti per il resto",
+        changeToGive: "💵 Resto da dare:", missingCash: "⚠️ Denaro insufficiente", namePlaceholder: "Nome (opzionale)", notesPlaceholder: "Note per la cucina",
+        clubPrompt: "⭐ Socio del Club? Raccogli timbri:", viewCard: "Vedi la mia carta", orderTotal: "Totale comanda:", sendOrder: "Invia Comanda in Cucina",
+        sendAddMore: "Aggiungi Piatti al Tavolo", houseMenu: "Menu della Casa", noDishesCat: "Nessun piatto in questa categoria."
+      },
+      fr: {
+        all: "Tous", mains: "Plats Principaux", top: "🔥 Spécialités", drinks: "Boissons", desserts: "Desserts", starters: "Entrées",
+        swipeUp: "Glissez vers le haut 👆", addDish: "👆 Ajouter Plat", viewMenu: "Voir le Menu", orders: "🔥 Commandes", confirmOrder: "Confirmer Commande",
+        addMoreDishes: "Ajouter des plats à votre table:", assignedTable: "📍 Table Assignée:", cash: "Espèces", exactPay: "Montant Exact", calcChange: "Entrez le montant en espèces",
+        changeToGive: "💵 Rendu de monnaie:", missingCash: "⚠️ Espèces insuffisantes", namePlaceholder: "Votre nom (optionnel)", notesPlaceholder: "Notes pour la cuisine",
+        clubPrompt: "⭐ Membre du Club? Cumulez des tampons:", viewCard: "Voir ma carte", orderTotal: "Total commande:", sendOrder: "Envoyer Commande en Cuisine",
+        sendAddMore: "Ajouter Plats à la Table", houseMenu: "Menu de la Maison", noDishesCat: "Aucun plat dans cette catégorie."
+      },
+      pt: {
+        all: "Todos", mains: "Pratos Principais", top: "🔥 Especialidades", drinks: "Bebidas", desserts: "Sobremesas", starters: "Entradas",
+        swipeUp: "Deslize para cima 👆", addDish: "👆 Adicionar Prato", viewMenu: "Ver Cardápio", orders: "🔥 Pedidos", confirmOrder: "Confirmar Pedido",
+        addMoreDishes: "Adicionar pratos à mesa:", assignedTable: "📍 Mesa:", cash: "Dinheiro", exactPay: "Pagar Exato", calcChange: "Informe valor para troco",
+        changeToGive: "💵 Troco:", missingCash: "⚠️ Dinheiro insuficiente", namePlaceholder: "Seu nome (opcional)", notesPlaceholder: "Observações para a cozinha",
+        clubPrompt: "⭐ Membro do Clube? Acumule selos:", viewCard: "Ver meu cartão", orderTotal: "Total pedido:", sendOrder: "Enviar Pedido à Cozinha",
+        sendAddMore: "Adicionar Pratos à Mesa", houseMenu: "Cardápio da Casa", noDishesCat: "Nenhum prato nesta categoria."
+      },
+      zh: {
+        all: "全部", mains: "主菜", top: "🔥 特色菜", drinks: "饮料与鸡尾酒", desserts: "甜点", starters: "前菜",
+        swipeUp: "向上滑动 👆", addDish: "👆 添加菜品", viewMenu: "查看菜单", orders: "🔥 点单", confirmOrder: "确认点单",
+        addMoreDishes: "加菜到您的餐桌:", assignedTable: "📍 选定桌号:", cash: "现金", exactPay: "整好支付", calcChange: "输入现金找零金额",
+        changeToGive: "💵 找零金额:", missingCash: "⚠️ 现金不足", namePlaceholder: "顾客姓名 (可选)", notesPlaceholder: "厨房备注 (牛排熟度、过敏源等)",
+        clubPrompt: "⭐ 俱乐部会员? 收集印章:", viewCard: "查看会员卡", orderTotal: "总计:", sendOrder: "发送点单至后厨",
+        sendAddMore: "向餐桌加菜", houseMenu: "餐厅菜单", noDishesCat: "该类别暂无菜品。"
+      },
+      ja: {
+        all: "すべて", mains: "メイン料理", top: "🔥 おすすめ", drinks: "ドリンク", desserts: "デザート", starters: "前菜",
+        swipeUp: "上にスワイプ 👆", addDish: "👆 注文に追加", viewMenu: "メニューを見る", orders: "🔥 注文リスト", confirmOrder: "注文を確定",
+        addMoreDishes: "料理を追加:", assignedTable: "📍 テーブル番:", cash: "現金", exactPay: "お釣りなし", calcChange: "お釣り計算のため金額を入力",
+        changeToGive: "💵 お釣り:", missingCash: "⚠️ 金額が不足しています", namePlaceholder: "お名前 (任意)", notesPlaceholder: "調理場へのご要望 (焼き加減、アレルギー等)",
+        clubPrompt: "⭐ クラブ会員様? スタンプを貯める:", viewCard: "カードを見る", orderTotal: "合計金額:", sendOrder: "厨房へ注文を送信",
+        sendAddMore: "追加注文する", houseMenu: "おすすめメニュー", noDishesCat: "このカテゴリの料理はありません。"
+      },
+      ko: {
+        all: "전체", mains: "메인 요리", top: "🔥 스페셜", drinks: "음료 & 칵테일", desserts: "디저트", starters: "전채요리",
+        swipeUp: "위로 넘기기 👆", addDish: "👆 메뉴 추가", viewMenu: "메뉴판 보기", orders: "🔥 주문내역", confirmOrder: "주문 확인",
+        addMoreDishes: "테이블에 메뉴 추가:", assignedTable: "📍 테이블 번호:", cash: "현금", exactPay: "정확한 금액 지불", calcChange: "거스름돈 계산을 위한 금액 입력",
+        changeToGive: "💵 거스름돈:", missingCash: "⚠️ 현금이 부족합니다", namePlaceholder: "주문자 성함 (선택)", notesPlaceholder: "주방 요청사항 (굽기 정도, 알레르기 등)",
+        clubPrompt: "⭐ 클럽 회원이신가요? 스탬프 적립:", viewCard: "내 카드 보기", orderTotal: "주문 총액:", sendOrder: "주방으로 주문 전송",
+        sendAddMore: "테이블에 추가 주문", houseMenu: "매장 메뉴판", noDishesCat: "이 카테고리에 등록된 메뉴가 없습니다."
+      }
+    };
+
     const CATALOGO_DEFAULT = [
       {
         id: "dish-saltado", category: "mains", tag: "Plato Fuerte", precioPEN: 35.00, disponible: true,
@@ -898,7 +1037,14 @@
         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
         i18n: {
           es: { name: "Lomo Saltado", desc: "Trozos de lomo fino salteados al wok con cebolla, tomate, papas fritas y arroz" },
-          en: { name: "Stir-Fried Beef (Lomo Saltado)", desc: "Wok-sautéed tender beef strips with onions, tomatoes, crispy fries, and rice" }
+          en: { name: "Stir-Fried Beef (Lomo Saltado)", desc: "Wok-sautéed tender beef strips with onions, tomatoes, crispy fries, and rice" },
+          de: { name: "Lomo Saltado (Rindfleischstreifen)", desc: "Im Wok gebratenes zartes Rindfleisch mit Zwiebeln, Tomaten, Pommes frites und Reis" },
+          it: { name: "Lomo Saltado", desc: "Bocconcini di manzo saltati al wok con cipolla, pomodoro, patate fritte e riso" },
+          fr: { name: "Lomo Saltado", desc: "Émincé de bœuf sauté au wok avec oignons, tomates, frites croustillantes et riz" },
+          pt: { name: "Lomo Saltado", desc: "Tiras de filé mignon salteadas no wok com cebola, tomate, batatas fritas e arroz" },
+          zh: { name: "秘鲁炒牛肉 (Lomo Saltado)", desc: "嫩牛肉块搭配洋葱、番茄炒制，佐以酥脆薯条与米饭" },
+          ja: { name: "ロモ・サルタード (牛肉の炒め物)", desc: "柔らかい牛肉を玉ねぎやトマトと強火で炒め、フライドポテトとご飯を添えた一品" },
+          ko: { name: "로모 살타도 (소고기 볶음)", desc: "소고기 안심을 양파, 토마토와 함께 웍에 볶아 감자튀김과 밥을 곁들인 페루 전통 요리" }
         }
       },
       {
@@ -907,7 +1053,14 @@
         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
         i18n: {
           es: { name: "Ají de Gallina", desc: "Gallina deshilachada en crema suave de ají amarillo cusqueño con arroz y papas" },
-          en: { name: "Creamy Chicken Stew (Ají de Gallina)", desc: "Shredded chicken in a velvety Peruvian yellow pepper cream sauce with rice" }
+          en: { name: "Creamy Chicken Stew (Ají de Gallina)", desc: "Shredded chicken in a velvety Peruvian yellow pepper cream sauce with rice" },
+          de: { name: "Ají de Gallina (Hühnerfrikassee)", desc: "Zartes Hühnerfleisch in einer cremigen Soße aus gelber Paprika mit Reis und Kartoffeln" },
+          it: { name: "Ají de Gallina", desc: "Pollo sfilacciato in vellutata crema di peperoncino giallo peruviano con riso e patate" },
+          fr: { name: "Ají de Gallina", desc: "Effiloché de poulet dans une sauce crémeuse au piment jaune péruvien avec riz et pommes de terre" },
+          pt: { name: "Ají de Gallina", desc: "Frango desfiado em creme suave de ají amarelo peruano com arroz e batatas" },
+          zh: { name: "黄椒鸡丝浓汤饭 (Ají de Gallina)", desc: "秘鲁黄辣椒制成的丝滑奶香酱汁浸润鲜嫩鸡丝，佐以米饭与马铃薯" },
+          ja: { name: "アヒ・デ・ガジーナ (鶏肉の黄色い唐辛子クリーム煮)", desc: "ほぐした鶏肉をペルー産黄色唐辛子のまろやかなクリームソースで煮込み、ご飯とポテトを添えた料理" },
+          ko: { name: "아히 데 가이나 (닭고기 옐로우 칠리 크림 스튜)", desc: "잘게 찢은 닭가슴살을 부드러운 페루산 옐로우 칠리 크림소스에 버무려 밥과 감자를 곁들인 요리" }
         }
       }
     ];
@@ -935,9 +1088,13 @@
     let cuentaPedidaBloqueada = false;
 
     // ========================================================
-    // MODAL POPUP: MENÚ EN CUADRÍCULA (GRID)
+    // MODAL POPUP: MENÚ EN CUADRÍCULA (GRID DE PLATOS)
     // ========================================================
-    function abrirModalCuadricula() {
+    function abrirModalCuadricula(categoriaOpcional = null) {
+      if (categoriaOpcional) {
+        categoriaFiltroActiva = categoriaOpcional;
+      }
+      renderCategoryChips();
       renderizarPopupCuadricula();
       document.getElementById('modalMenuCuadricula').classList.add('active');
     }
@@ -953,13 +1110,15 @@
       const contenedor = document.getElementById('gridPopupDishes');
       if (!contenedor) return;
 
+      const t = I18N_UI[currentLang] || I18N_UI['es'];
+
       const platosFiltrados = catalogo.filter(item => {
         if (categoriaFiltroActiva === "all") return true;
         return (item.category || "").toLowerCase() === categoriaFiltroActiva.toLowerCase();
       });
 
       if (platosFiltrados.length === 0) {
-        contenedor.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:#aaa; padding:20px;">No hay platos en esta categoría.</p>';
+        contenedor.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:#aaa; padding:20px;">${t.noDishesCat}</p>`;
         return;
       }
 
@@ -980,7 +1139,7 @@
                 <div class="dish-card-price">${formatPrice(item.precioPEN || item.precio || 0)}</div>
               </div>
               <button type="button" class="btn-card-add" onclick="addToOrder('${item.id}')">
-                <i class="fa-solid fa-plus"></i> Añadir
+                <i class="fa-solid fa-plus"></i> ${currentLang === 'es' ? 'Añadir' : 'Add'}
               </button>
             </div>
           </div>
@@ -988,7 +1147,6 @@
       }).join('');
     }
 
-    // Al tocar la foto en el modal, se cierra y salta al video de ese plato en el Feed TikTok
     function seleccionarPlatoDesdeGrid(id) {
       document.getElementById('modalMenuCuadricula').classList.remove('active');
       const index = catalogo.findIndex(d => d.id === id);
@@ -1053,7 +1211,6 @@
       }
     }
 
-    /* RESPUESTA AL MOZO Y APERTURA DE POPUP CON CATÁLOGO COMPLETO */
     async function responderMozo(quiereMas) {
       reproducirSonidoNotificacion();
 
@@ -1314,11 +1471,63 @@
       actualizarBadgeMesaHeader();
     }
 
+    /* ========================================================
+       SISTEMA DE TRADUCCIÓN COMPLETA DE INTERFAZ & PLATOS
+       ======================================================== */
     function cambiarIdiomaGlobal(nuevoLang) {
       currentLang = nuevoLang;
       sessionStorage.setItem("inkabistro_user_lang", nuevoLang);
-      renderFeed();
+
+      const t = I18N_UI[currentLang] || I18N_UI['es'];
+
+      // Traducir elementos estáticos de UI
+      const elSwipe = document.getElementById('lblSwipeUpHint');
+      if (elSwipe) elSwipe.innerText = t.swipeUp;
+
+      const elVerCarta = document.getElementById('lblBtnVerCarta');
+      if (elVerCarta) elVerCarta.innerText = t.viewMenu;
+
+      const elBurbuja = document.getElementById('lblBurbujaPedidos');
+      if (elBurbuja) elBurbuja.innerText = t.orders;
+
+      const elTitPopup = document.getElementById('lblTituloPopup');
+      if (elTitPopup) elTitPopup.innerHTML = `<i class="fa-solid fa-receipt" style="color:var(--modal-green);"></i> ${t.confirmOrder}`;
+
+      const elAddPlatos = document.getElementById('lblAddPlatosTitle');
+      if (elAddPlatos) elAddPlatos.innerHTML = `<i class="fa-solid fa-plus-circle" style="color:var(--modal-green);"></i> ${t.addMoreDishes}`;
+
+      const elMesaHeader = document.getElementById('lblMesaHeaderInfo');
+      if (elMesaHeader) elMesaHeader.innerText = t.assignedTable;
+
+      const elPayEf = document.getElementById('lblPayEfectivo');
+      if (elPayEf) elPayEf.innerText = t.cash;
+
+      const elBtnEx = document.getElementById('lblBtnExacto');
+      if (elBtnEx) elBtnEx.innerText = t.exactPay;
+
+      const elTotalTxt = document.getElementById('lblTotalComandaTxt');
+      if (elTotalTxt) elTotalTxt.innerText = t.orderTotal;
+
+      const elBtnEnviar = document.getElementById('lblBtnEnviar');
+      if (elBtnEnviar) elBtnEnviar.innerText = comandaActivaId ? t.sendAddMore : t.sendOrder;
+
+      const elMenuCasa = document.getElementById('lblMenuCasaTitulo');
+      if (elMenuCasa) elMenuCasa.innerHTML = `<i class="fa-solid fa-book-open"></i> ${t.houseMenu}`;
+
+      const elClubPr = document.getElementById('lblClubPrompt');
+      if (elClubPr) elClubPr.innerText = t.clubPrompt;
+
+      const elVerTarjeta = document.getElementById('lblVerMiTarjeta');
+      if (elVerTarjeta) elVerTarjeta.innerText = t.viewCard;
+
+      const inputNombre = document.getElementById('clientNameInput');
+      if (inputNombre) inputNombre.placeholder = t.namePlaceholder;
+
+      const inputNotas = document.getElementById('notesInput');
+      if (inputNotas) inputNotas.placeholder = t.notesPlaceholder;
+
       renderCategoryChips();
+      renderFeed();
       renderQuickCatalogPopup();
       renderizarPopupCuadricula();
       actualizarVistaPopup();
@@ -1338,7 +1547,7 @@
         const info = getDishInfo(d);
         return `
           <button type="button" class="btn-quick-item" onclick="addToOrder('${d.id}')">
-            <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:115px;">${info.name}</span>
+            <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:110px;">${info.name}</span>
             <b style="color:#15803d; flex-shrink:0;">+ S/ ${(d.precioPEN || d.precio || 0).toFixed(2)}</b>
           </button>
         `;
@@ -1429,11 +1638,13 @@
     function formatSecondaryPrice(pen) { return `≈ $ ${(pen / (CONFIG.exchangeRateUSD || 3.75)).toFixed(2)}`; }
 
     /* ========================================================
-       CHIPS DE CATEGORÍAS 100% DINÁMICOS SEGÚN EL CATÁLOGO
+       CHIPS DE CATEGORÍAS 100% DINÁMICOS -> ABREN EN CUADRITOS
        ======================================================== */
     function renderCategoryChips() {
       const container = document.getElementById('categoryChips');
       if (!container) return;
+
+      const t = I18N_UI[currentLang] || I18N_UI['es'];
 
       // Extrae todas las categorías existentes en el catálogo sin repetir
       const categoriasUnicas = new Set();
@@ -1443,37 +1654,38 @@
         }
       });
 
-      // Diccionario amigable para traducir identificadores conocidos
-      const etiquetasConocidas = {
-        "mains": "Platos Fuertes",
-        "top": "🔥 Especialidades",
-        "drinks": "Bebidas & Cocteles",
-        "desserts": "Postres",
-        "starters": "Entradas & Piques"
-      };
-
-      let html = `<div class="chip ${categoriaFiltroActiva === 'all' ? 'active' : ''}" onclick="filtrarPorCategoria('all')">Todos</div>`;
+      let html = `<div class="chip ${categoriaFiltroActiva === 'all' ? 'active' : ''}" onclick="seleccionarCategoriaChip('all')">${t.all}</div>`;
 
       categoriasUnicas.forEach(catKey => {
-        const label = etiquetasConocidas[catKey.toLowerCase()] || catKey.charAt(0).toUpperCase() + catKey.slice(1);
-        const isActive = (categoriaFiltroActiva.toLowerCase() === catKey.toLowerCase()) ? 'active' : '';
-        html += `<div class="chip ${isActive}" onclick="filtrarPorCategoria('${catKey}')">${label}</div>`;
+        const catLower = catKey.toLowerCase();
+        let label = t[catLower] || catKey.charAt(0).toUpperCase() + catKey.slice(1);
+        if (catLower === 'top' && !label.includes('🔥')) label = '🔥 ' + label;
+
+        const isActive = (categoriaFiltroActiva.toLowerCase() === catLower) ? 'active' : '';
+        html += `<div class="chip ${isActive}" onclick="seleccionarCategoriaChip('${catKey}')">${label}</div>`;
       });
 
       container.innerHTML = html;
     }
 
-    function filtrarPorCategoria(catKey) {
+    function seleccionarCategoriaChip(catKey) {
       categoriaFiltroActiva = catKey;
       renderCategoryChips();
       renderFeed();
-      renderizarPopupCuadricula();
+
+      // Si hace clic en una categoría específica (Platos fuertes, bebidas, etc.), abre directamente en cuadritos
+      if (catKey !== 'all') {
+        abrirModalCuadricula(catKey);
+      } else {
+        cerrarModalCuadricula();
+      }
     }
 
     function renderFeed() {
       const feed = document.getElementById('feedContainer');
 
-      // Aplica el filtro de categoría activo
+      const t = I18N_UI[currentLang] || I18N_UI['es'];
+
       const platosFiltrados = catalogo.filter(item => {
         if (categoriaFiltroActiva === "all") return true;
         return (item.category || "").toLowerCase() === categoriaFiltroActiva.toLowerCase();
@@ -1482,7 +1694,7 @@
       if (platosFiltrados.length === 0) {
         feed.innerHTML = `
           <div style="height:100dvh; display:flex; align-items:center; justify-content:center; text-align:center; padding:20px;">
-            <p style="color:#aaa; font-size:14px;">No hay platos disponibles en esta categoría.</p>
+            <p style="color:#aaa; font-size:14px;">${t.noDishesCat}</p>
           </div>
         `;
         return;
@@ -1504,7 +1716,7 @@
               </div>
               <button class="btn-quick-add" onclick="addToOrder('${item.id}')">
                 <i class="fa-solid fa-hand-pointer finger-tap-icon"></i>
-                <span>👆 Añadir Plato</span>
+                <span>${t.addDish}</span>
               </button>
             </div>
           </div>
@@ -1582,11 +1794,12 @@
       renderizarCuadriculaMesas();
       renderQuickCatalogPopup();
 
+      const t = I18N_UI[currentLang] || I18N_UI['es'];
       const lblEnviar = document.getElementById('lblBtnEnviar');
       if (esAdicion || comandaActivaId) {
-        lblEnviar.innerText = "Añadir Platos a mi Mesa";
+        lblEnviar.innerText = t.sendAddMore;
       } else {
-        lblEnviar.innerText = "Enviar Comanda a Cocina";
+        lblEnviar.innerText = t.sendOrder;
       }
 
       document.getElementById('ordersPopupModal').classList.add('active');
@@ -1622,21 +1835,22 @@
       const box = document.getElementById('cajaRespuestaVuelto');
       const txt = document.getElementById('textoDetalleVuelto');
       const montoTxt = document.getElementById('montoCalculadoVuelto');
+      const t = I18N_UI[currentLang] || I18N_UI['es'];
 
       if (isNaN(pagaCon) || pagaCon <= 0) {
         box.className = "vuelto-badge-box";
-        txt.innerText = "Ingresa monto en efectivo para vuelto";
+        txt.innerText = t.calcChange;
         montoTxt.innerText = "";
         return;
       }
       const v = pagaCon - ultimoTotalPagarPEN;
       if (v < 0) {
         box.className = "vuelto-badge-box alerta";
-        txt.innerText = `⚠️ Falta dinero (S/ ${Math.abs(v).toFixed(2)})`;
+        txt.innerText = `${t.missingCash} (S/ ${Math.abs(v).toFixed(2)})`;
         montoTxt.innerText = "";
       } else {
         box.className = "vuelto-badge-box";
-        txt.innerText = "💵 Vuelto a entregar:";
+        txt.innerText = t.changeToGive;
         montoTxt.innerText = `S/ ${v.toFixed(2)}`;
       }
     }
