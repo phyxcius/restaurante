@@ -3,148 +3,160 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>La Cusqueñita | Menú Digital & Comandas</title>
+  <title>La Cusqueñita | Menú Digital & Comandas Enterprise</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
+    /* ==========================================================
+       ARQUITECTURA VISUAL LA CHUSPA TECH ENTERPRISE B2B
+       - Fusión: Azul Royal TuBoleto + Oro Incaico La Chuspa Tech
+       - Tipografía en modales en Negro Carbón (#0f172a) para máxima legibilidad
+       - Oro Inca / Amber Gold: #f59e0b, #d97706, #fbbf24
+       - Azul Royal Fintech: #0056d2, #0284c7, #0b1a33
+       - Verde Transaccional: #10b981 | Rojo Alerta: #dc2626
+       ========================================================== */
     :root {
-      --primary: #c2410c;
-      --accent: #f59e0b;
-      --bg-warm: #18110e;
-      --glass-panel: rgba(38, 28, 24, 0.92);
-      --glass-border: rgba(245, 158, 11, 0.28);
-      --text-main: #fffdfa;
-      --text-muted: #d6cbbf;
+      --primary: #0056d2;
+      --primary-hover: #0043a8;
+      --accent: #0284c7;
+      --accent-glow: rgba(0, 86, 210, 0.4);
+      --chuspa-gold: #f59e0b;
+      --chuspa-gold-glow: rgba(245, 158, 11, 0.35);
+      --chuspa-gold-border: rgba(245, 158, 11, 0.42);
+      
+      --bg-warm: #050d1a;
+      --glass-panel: rgba(11, 26, 51, 0.94);
+      --glass-border: rgba(56, 189, 248, 0.22);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
       --gold-badge: #fbbf24;
 
-      /* PALETA MODAL */
-      --modal-bg: #eab308;
-      --modal-green: #4d7c0f;
-      --modal-green-dark: #365314;
-      --modal-dark: #1c1917;
-      --modal-card-bg: #fef08a;
+      /* PALETA MODAL LUXURY: FONDOS CLAROS CON TEXTO NEGRO VISIBLE */
+      --modal-bg: #f8fafc;
+      --modal-card-bg: #ffffff;
+      --modal-dark: #0f172a;        /* Negro Carbón */
+      --modal-green: #10b981;
+      --modal-green-dark: #065f46;
+      --modal-border: #cbd5e1;
 
-      /* COLOR PÚRPURA / VIOLETA NEÓN PARA PEDIR CUENTA */
+      /* BOTÓN CUENTA Y ACCIÓN RÁPIDA */
       --color-cuenta: #7c3aed;
       --color-cuenta-hover: #9333ea;
       --color-cuenta-glow: rgba(124, 58, 237, 0.65);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; font-family: system-ui, -apple-system, sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
     body, html { width: 100%; height: 100%; overflow: hidden; background-color: var(--bg-warm); color: var(--text-main); }
 
-    /* CUSTOM SCROLLBARS VISIBLES Y ESTILIZADOS */
+    /* CUSTOM SCROLLBARS */
     .custom-scroll {
       scrollbar-width: thin;
-      scrollbar-color: var(--primary) rgba(28, 25, 23, 0.25);
+      scrollbar-color: var(--primary) rgba(11, 26, 51, 0.3);
     }
-    .custom-scroll::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    .custom-scroll::-webkit-scrollbar-track {
-      background: rgba(28, 25, 23, 0.18);
-      border-radius: 8px;
-    }
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: rgba(11, 26, 51, 0.2); border-radius: 8px; }
     .custom-scroll::-webkit-scrollbar-thumb {
-      background: linear-gradient(180deg, var(--primary), var(--accent));
+      background: linear-gradient(180deg, var(--primary), var(--chuspa-gold));
       border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    .custom-scroll::-webkit-scrollbar-thumb:hover {
-      background: var(--primary);
     }
 
     /* PANTALLA DE BLOQUEO DE SEGURIDAD */
     .screen-security-lock {
-      position: fixed; inset: 0; background: #0c0806; z-index: 999999;
-      display: none; flex-direction: column; align-items: center; justify-content: center;
+      position: fixed; inset: 0; background: radial-gradient(circle at center, #0c2042 0%, #020712 100%);
+      z-index: 999999; display: none; flex-direction: column; align-items: center; justify-content: center;
       padding: 24px; text-align: center;
     }
     .security-lock-box {
-      max-width: 390px; width: 100%; background: #1a100d; border: 2px solid var(--accent);
-      border-radius: 24px; padding: 26px 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
-      display: flex; flex-direction: column; align-items: center; gap: 12px;
+      max-width: 400px; width: 100%; background: #0b1a33; border: 1.5px solid var(--chuspa-gold-border);
+      border-radius: 24px; padding: 30px 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.85), 0 0 25px rgba(245, 158, 11, 0.15);
+      display: flex; flex-direction: column; align-items: center; gap: 14px;
     }
-    .security-header-logos {
-      display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 4px;
-    }
+    .security-header-logos { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 4px; }
     .sec-chuspa-badge {
-      width: 62px; height: 62px; border-radius: 50%; background: #fff;
-      border: 2.5px solid var(--gold-badge); overflow: hidden; display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 16px rgba(245, 158, 11, 0.5); flex-shrink: 0; text-decoration: none; cursor: pointer;
-      transition: transform 0.2s ease;
+      width: 64px; height: 64px; border-radius: 50%; background: #fff;
+      border: 2.5px solid var(--chuspa-gold); overflow: hidden; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 18px var(--chuspa-gold-glow); flex-shrink: 0; text-decoration: none; cursor: pointer;
     }
-    .sec-chuspa-badge:active { transform: scale(0.95); }
     .sec-chuspa-badge img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .sec-brand-badge {
-      width: 62px; height: 62px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--primary));
-      border: 2.5px solid var(--gold-badge); overflow: hidden; display: flex; align-items: center; justify-content: center;
-      font-size: 28px; color: #fff; box-shadow: 0 4px 16px rgba(194, 65, 12, 0.5); flex-shrink: 0;
+      width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent));
+      border: 2.5px solid var(--chuspa-gold); overflow: hidden; display: flex; align-items: center; justify-content: center;
+      font-size: 28px; color: #fff; box-shadow: 0 4px 18px rgba(0, 86, 210, 0.5); flex-shrink: 0;
     }
     .sec-brand-badge img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-    .security-lock-icon {
-      font-size: 32px; color: var(--gold-badge); cursor: pointer;
-    }
+    .security-lock-icon { font-size: 34px; color: #fbbf24; cursor: pointer; filter: drop-shadow(0 0 10px var(--chuspa-gold-glow)); }
     .btn-bypass-dev {
-      background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(251, 191, 36, 0.35); color: #fde047;
-      padding: 9px 18px; border-radius: 20px; font-size: 11.5px; font-weight: 800; cursor: pointer; margin-top: 4px;
-      display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease;
+      background: linear-gradient(135deg, rgba(0, 86, 210, 0.15), rgba(245, 158, 11, 0.15));
+      border: 1.5px solid var(--chuspa-gold); color: #fbbf24;
+      padding: 10px 20px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; margin-top: 4px;
+      display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease;
     }
-    .btn-bypass-dev:active { transform: scale(0.96); background: rgba(251, 191, 36, 0.15); }
+    .btn-bypass-dev:active { transform: scale(0.96); }
 
     .app-container { width: 100%; max-width: 480px; height: 100dvh; margin: 0 auto; position: relative; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
     .app-container::-webkit-scrollbar { display: none; }
 
-    /* CABECERA */
+    /* CABECERA PRINCIPAL */
     .top-header {
       position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; z-index: 120;
-      padding: 10px 14px 6px; background: linear-gradient(180deg, rgba(24, 17, 14, 0.98) 0%, rgba(24, 17, 14, 0.7) 75%, transparent 100%);
+      padding: 12px 16px 8px; background: linear-gradient(180deg, rgba(7, 18, 36, 0.98) 0%, rgba(7, 18, 36, 0.8) 75%, transparent 100%);
       display: flex; flex-direction: column; gap: 8px;
     }
     .top-bar-row { display: flex; align-items: center; justify-content: space-between; }
     
-    .brand-section { display: flex; align-items: center; gap: 8px; }
-    .brand-icon { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, var(--accent), var(--primary)); display: flex; align-items: center; justify-content: center; font-size: 17px; color: #fff; overflow: hidden; flex-shrink: 0; border: 1px solid var(--gold-badge); }
+    .brand-section { display: flex; align-items: center; gap: 10px; }
+    .brand-icon {
+      width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex; align-items: center; justify-content: center; font-size: 18px; color: #fff; overflow: hidden; flex-shrink: 0;
+      border: 1.5px solid var(--chuspa-gold); box-shadow: 0 0 10px var(--chuspa-gold-glow);
+    }
     .brand-icon img { width: 100%; height: 100%; object-fit: cover; }
-    .brand-text h1 { font-size: 14px; font-weight: 900; line-height: 1.1; text-transform: uppercase; }
-    .brand-text span { font-size: 9.5px; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+    .brand-text h1 { font-size: 15px; font-weight: 900; line-height: 1.1; text-transform: uppercase; color: #f8fafc; }
+    .brand-text span { font-size: 10px; text-transform: uppercase; color: #38bdf8; font-weight: 800; letter-spacing: 0.5px; }
 
     /* BADGE LA CHUSPA TECH */
     .chuspa-nav-badge {
       display: flex; align-items: center; gap: 6px;
-      background: rgba(254, 252, 232, 0.12); border: 1px solid rgba(234, 179, 8, 0.45);
-      padding: 3px 8px 3px 5px; border-radius: 20px; text-decoration: none; backdrop-filter: blur(8px);
-      max-height: 32px; overflow: hidden; flex-shrink: 0;
+      background: rgba(245, 158, 11, 0.12); border: 1.5px solid var(--chuspa-gold);
+      padding: 4px 10px 4px 5px; border-radius: 20px; text-decoration: none; backdrop-filter: blur(8px);
+      box-shadow: 0 0 12px var(--chuspa-gold-glow);
     }
     .chuspa-nav-badge:active { transform: scale(0.96); }
     .chuspa-nav-img {
-      width: 22px !important; height: 22px !important; min-width: 22px !important; max-width: 22px !important;
-      border-radius: 50% !important; object-fit: cover !important; background: #fff !important;
-      border: 1px solid #ca8a04 !important; display: block !important;
+      width: 22px !important; height: 22px !important; border-radius: 50% !important; object-fit: cover !important;
+      background: #fff !important; border: 1px solid var(--chuspa-gold) !important; display: block !important;
     }
     .chuspa-nav-info { display: flex; flex-direction: column; line-height: 1.1; }
-    .chuspa-nav-title { font-size: 10px; font-weight: 900; color: #fde047; }
-    .chuspa-nav-sub { font-size: 7.5px; font-weight: 700; color: #fed7aa; }
+    .chuspa-nav-title { font-size: 10px; font-weight: 900; color: #fbbf24; }
+    .chuspa-nav-sub { font-size: 7.5px; font-weight: 700; color: #e2e8f0; }
 
-    .header-controls { display: flex; align-items: center; gap: 5px; }
-
+    .header-controls { display: flex; align-items: center; gap: 6px; }
     .select-pill {
-      background: var(--glass-panel); border: 1px solid var(--glass-border); color: #fff;
-      padding: 5px 7px; border-radius: 14px; font-size: 11px; font-weight: 800; outline: none; cursor: pointer;
+      background: #09152a; border: 1px solid var(--glass-border); color: #fff;
+      padding: 6px 8px; border-radius: 12px; font-size: 11px; font-weight: 800; outline: none; cursor: pointer;
     }
-    .select-pill option { background: #241712; color: #fff; }
-    .icon-pill-btn { width: 30px; height: 30px; border-radius: 50%; background: var(--glass-panel); border: 1px solid var(--glass-border); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; }
+    .select-pill option { background: #09152a; color: #fff; }
+    .icon-pill-btn {
+      width: 32px; height: 32px; border-radius: 50%; background: #09152a; border: 1px solid var(--glass-border);
+      color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer;
+    }
 
-    /* FILTROS DINÁMICOS */
+    /* FILTROS / CHIPS */
     .category-chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
-    .chip { background: rgba(43, 31, 26, 0.7); border: 1px solid rgba(251, 191, 36, 0.25); color: var(--text-muted); padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer; }
-    .chip.active { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; font-weight: 800; }
+    .chip {
+      background: rgba(9, 21, 42, 0.85); border: 1px solid rgba(56, 189, 248, 0.25); color: var(--text-muted);
+      padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; white-space: nowrap; cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .chip.active {
+      background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; font-weight: 900;
+      border-color: var(--chuspa-gold); box-shadow: 0 0 12px var(--chuspa-gold-glow);
+    }
 
-    /* MODO REELS (TIKTOK) */
-    .video-slide { width: 100%; height: 100dvh; scroll-snap-align: start; position: relative; background: #1c1411; overflow: hidden; display: flex; align-items: flex-end; }
+    /* REELS TIKTOK VERTICAL */
+    .video-slide { width: 100%; height: 100dvh; scroll-snap-align: start; position: relative; background: #081121; overflow: hidden; display: flex; align-items: flex-end; }
     .video-player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-    .slide-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(24,17,14,0.4) 0%, transparent 50%, rgba(24,17,14,0.92) 100%); }
+    .slide-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,13,26,0.3) 0%, transparent 45%, rgba(5,13,26,0.95) 100%); }
 
     /* DEDO GESTUAL */
     .gesture-hint-overlay {
@@ -152,10 +164,10 @@
       pointer-events: none; display: flex; flex-direction: column; align-items: center; justify-content: center;
       gap: 12px; animation: swipeHandCenterAnimation 2.2s infinite ease-in-out;
     }
-    .gesture-hand-icon { font-size: 54px; color: #fde047; filter: drop-shadow(0 4px 16px rgba(0,0,0,0.95)) drop-shadow(0 0 18px rgba(245, 158, 11, 0.75)); }
+    .gesture-hand-icon { font-size: 54px; color: #fbbf24; filter: drop-shadow(0 4px 16px rgba(0,0,0,0.95)) drop-shadow(0 0 18px var(--chuspa-gold-glow)); }
     .gesture-hint-txt {
-      background: rgba(18, 12, 10, 0.88); color: #fffdfa; padding: 7px 16px; border-radius: 22px;
-      font-size: 13px; font-weight: 900; border: 1.5px solid var(--accent); letter-spacing: 0.5px;
+      background: rgba(7, 18, 36, 0.92); color: #f8fafc; padding: 8px 18px; border-radius: 22px;
+      font-size: 13px; font-weight: 900; border: 1.5px solid var(--chuspa-gold); letter-spacing: 0.5px;
       box-shadow: 0 6px 20px rgba(0,0,0,0.85); backdrop-filter: blur(8px); text-transform: uppercase;
     }
     @keyframes swipeHandCenterAnimation {
@@ -165,150 +177,146 @@
       100% { transform: translate(-50%, -75%); opacity: 0; }
     }
 
-    /* INFORMACIÓN DEL PLATO EN TIKTOK */
+    /* INFORMACIÓN DEL PLATO */
     .dish-info { position: relative; z-index: 10; padding: 0 75px 85px 16px; width: 100%; }
-    .dish-title { font-size: 21px; font-weight: 800; line-height: 1.2; margin-bottom: 4px; }
-    .dish-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; margin-bottom: 8px; }
-    .price-now { font-size: 23px; font-weight: 800; color: #fde047; display: block; margin-bottom: 6px; }
+    .badge-tag {
+      background: rgba(0, 86, 210, 0.35); border: 1px solid var(--chuspa-gold); color: #fbbf24;
+      font-size: 11px; font-weight: 900; padding: 3px 10px; border-radius: 12px; display: inline-block; margin-bottom: 6px;
+    }
+    .dish-title { font-size: 22px; font-weight: 900; line-height: 1.2; margin-bottom: 4px; color: #ffffff; text-shadow: 0 2px 8px rgba(0,0,0,0.8); }
+    .dish-desc { font-size: 13px; color: #cbd5e1; line-height: 1.4; margin-bottom: 8px; text-shadow: 0 2px 6px rgba(0,0,0,0.8); }
+    .price-now { font-size: 24px; font-weight: 900; color: #fbbf24; display: block; margin-bottom: 6px; text-shadow: 0 2px 8px rgba(0,0,0,0.8); }
+    .price-alt { font-size: 12px; color: #94a3b8; font-weight: 700; margin-left: 6px; }
 
     .btn-quick-add {
-      background: linear-gradient(135deg, var(--primary), var(--accent)); border: 1.5px solid var(--gold-badge);
-      color: #fff; padding: 9px 18px; border-radius: 24px; font-weight: 800; font-size: 13px;
-      cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(194, 65, 12, 0.45);
+      background: linear-gradient(135deg, var(--primary), var(--accent)); border: 1.5px solid var(--chuspa-gold);
+      color: #fff; padding: 10px 20px; border-radius: 24px; font-weight: 900; font-size: 13.5px;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 18px rgba(0, 86, 210, 0.5);
+      transition: transform 0.15s ease;
     }
-    .btn-quick-add .finger-tap-icon { font-size: 15px; color: #fde047; animation: fingerTap 1.2s infinite alternate ease-in-out; }
+    .btn-quick-add:active { transform: scale(0.96); }
+    .btn-quick-add .finger-tap-icon { font-size: 15px; color: #fbbf24; animation: fingerTap 1.2s infinite alternate ease-in-out; }
     @keyframes fingerTap { 0% { transform: scale(1) translateY(0); } 100% { transform: scale(1.25) translateY(-3px); } }
 
-    /* BOTÓN FLOTANTE INFERIOR IZQUIERDO: CAMBIAR A MODO CUADRÍCULA */
+    /* BOTÓN CAMBIO A CARTA / CUADRÍCULA */
     .grid-toggle-container {
       position: fixed; bottom: 20px; left: 18px; display: flex; align-items: center; gap: 8px;
       z-index: 99998; cursor: pointer; pointer-events: auto;
     }
     .grid-toggle-btn {
-      width: 52px; height: 52px; background: rgba(28, 19, 14, 0.95);
-      border-radius: 50%; box-shadow: 0 6px 20px rgba(0,0,0,0.65); display: flex; align-items: center;
-      justify-content: center; border: 2px solid var(--accent); color: var(--gold-badge);
-      font-size: 20px; backdrop-filter: blur(8px); transition: transform 0.15s ease;
+      width: 52px; height: 52px; background: #0b1a33; border-radius: 50%;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center;
+      border: 2px solid var(--chuspa-gold); color: #fbbf24; font-size: 20px;
+      backdrop-filter: blur(8px); transition: transform 0.15s ease;
     }
     .grid-toggle-btn:active { transform: scale(0.92); }
     .grid-toggle-label {
-      background: rgba(24, 17, 14, 0.92); color: var(--gold-badge); font-weight: 900; font-size: 11.5px;
-      padding: 7px 12px; border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-      border: 1.5px solid var(--accent); backdrop-filter: blur(6px);
+      background: #081427; color: #fbbf24; font-weight: 900; font-size: 12px;
+      padding: 7px 14px; border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+      border: 1.5px solid var(--chuspa-gold-border);
     }
 
-    /* MODAL POPUP: MENÚ EN CUADRÍCULA (GRID) */
+    /* MODAL DE MENÚ EN CUADRÍCULA */
     .grid-popup-modal {
-      position: fixed; inset: 0; background: rgba(10, 6, 4, 0.88); backdrop-filter: blur(8px);
+      position: fixed; inset: 0; background: rgba(3, 7, 18, 0.88); backdrop-filter: blur(8px);
       z-index: 100001; display: none; align-items: center; justify-content: center; padding: 14px;
     }
     .grid-popup-modal.active { display: flex; }
     .grid-popup-box {
-      background: #19110d; border: 2px solid var(--accent); border-radius: 24px;
+      background: #0b1a33; border: 2px solid var(--chuspa-gold); border-radius: 24px;
       width: 100%; max-width: 460px; max-height: 86dvh; display: flex; flex-direction: column;
-      box-shadow: 0 10px 45px rgba(0,0,0,0.9); overflow: hidden;
+      box-shadow: 0 16px 45px rgba(0,0,0,0.95), 0 0 25px rgba(245, 158, 11, 0.18); overflow: hidden;
     }
     .grid-popup-header {
       padding: 14px 18px 10px; border-bottom: 1px solid rgba(255,255,255,0.1);
       display: flex; justify-content: space-between; align-items: center;
     }
-    .grid-popup-header h3 { font-size: 16px; font-weight: 900; color: var(--gold-badge); display: flex; align-items: center; gap: 8px; }
+    .grid-popup-header h3 { font-size: 17px; font-weight: 900; color: #fbbf24; display: flex; align-items: center; gap: 8px; }
     .grid-popup-header button { background: none; border: none; color: #ddd; font-size: 24px; cursor: pointer; }
-
-    .grid-popup-body {
-      padding: 14px; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
+    .grid-popup-body { padding: 14px; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
     .dish-card-box {
-      background: #241611; border: 1.5px solid rgba(245, 158, 11, 0.22); border-radius: 16px;
+      background: #081427; border: 1.5px solid var(--card-border); border-radius: 16px;
       overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 4px 14px rgba(0,0,0,0.6);
     }
-    .dish-card-media {
-      width: 100%; aspect-ratio: 1; background: #000; position: relative; overflow: hidden; cursor: pointer;
-    }
+    .dish-card-media { width: 100%; aspect-ratio: 1; background: #000; position: relative; overflow: hidden; cursor: pointer; }
     .dish-card-media img { width: 100%; height: 100%; object-fit: cover; }
     .dish-card-tag {
-      position: absolute; top: 6px; left: 6px; background: rgba(0,0,0,0.7); border: 1px solid var(--accent);
-      color: #fde047; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 8px;
+      position: absolute; top: 6px; left: 6px; background: rgba(0,0,0,0.75); border: 1px solid var(--chuspa-gold);
+      color: #fbbf24; font-size: 9.5px; font-weight: 900; padding: 2px 7px; border-radius: 8px;
     }
-    .dish-card-content {
-      padding: 10px; display: flex; flex-direction: column; gap: 4px; flex: 1; justify-content: space-between;
-    }
+    .dish-card-content { padding: 10px; display: flex; flex-direction: column; gap: 4px; flex: 1; justify-content: space-between; }
     .dish-card-name { font-size: 13px; font-weight: 900; color: #fff; line-height: 1.25; }
-    .dish-card-price { font-size: 15px; font-weight: 900; color: #fde047; margin: 2px 0; }
+    .dish-card-price { font-size: 15px; font-weight: 900; color: #fbbf24; margin: 2px 0; }
     .btn-card-add {
-      background: linear-gradient(135deg, var(--primary), var(--accent)); border: 1px solid var(--gold-badge);
-      color: #fff; padding: 7px 6px; border-radius: 10px; font-size: 11.5px; font-weight: 800;
+      background: linear-gradient(135deg, var(--primary), var(--accent)); border: 1px solid var(--chuspa-gold);
+      color: #fff; padding: 8px 6px; border-radius: 10px; font-size: 12px; font-weight: 900;
       cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;
     }
     .btn-card-add:active { transform: scale(0.95); }
 
-    /* BOTÓN FLOTANTE PEDIDOS (SUPERPUESTO ENCIMA DE TODO PARA VER CONTADOR) */
+    /* BURBUJA DE PEDIDOS */
     .chat-bubble-container {
       position: fixed; bottom: 20px; right: 18px; display: flex; align-items: center; gap: 8px;
       z-index: 100002 !important; cursor: pointer; pointer-events: auto;
     }
     .chat-bubble-label {
-      background: linear-gradient(135deg, #fef08a 0%, #fde047 100%);
-      color: #78350f; font-weight: 900; font-size: 13px; padding: 8px 14px;
-      border-radius: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.4); border: 2px solid var(--accent);
+      background: linear-gradient(135deg, #0056d2, #0284c7);
+      color: #fff; font-weight: 900; font-size: 13px; padding: 8px 14px;
+      border-radius: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.4); border: 1.5px solid var(--chuspa-gold);
     }
     .chat-bubble-btn {
       position: relative; width: 56px; height: 56px; background: linear-gradient(135deg, var(--primary), var(--accent));
-      border-radius: 50%; box-shadow: 0 6px 20px rgba(194, 65, 12, 0.5); display: flex; align-items: center;
-      justify-content: center; border: 2px solid #facc15;
+      border-radius: 50%; box-shadow: 0 6px 20px var(--accent-glow); display: flex; align-items: center;
+      justify-content: center; border: 2px solid var(--chuspa-gold);
     }
-    .chat-badge { position: absolute; top: -3px; right: -3px; background-color: #ef4444; color: #fff; font-size: 11px; font-weight: 800; min-width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .chat-badge { position: absolute; top: -3px; right: -3px; background-color: #dc2626; color: #fff; font-size: 11px; font-weight: 900; min-width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
-    /* POPUP DE COMANDA OPTIMIZADO */
-    .popup-modal { position: fixed; inset: 0; background: rgba(18, 12, 10, 0.88); backdrop-filter: blur(6px); z-index: 100003; display: none; align-items: flex-end; justify-content: center; }
+    /* POPUP DE COMANDA ENTERPRISE (LETRAS EN NEGRO Y FONDO BLANCO / LIMPIO) */
+    .popup-modal { position: fixed; inset: 0; background: rgba(3, 7, 18, 0.88); backdrop-filter: blur(8px); z-index: 100003; display: none; align-items: flex-end; justify-content: center; }
     .popup-modal.active { display: flex; }
     .popup-sheet {
       background: var(--modal-bg);
-      background-image: radial-gradient(circle at 10% 10%, rgba(254, 240, 138, 0.35) 0%, transparent 60%);
       color: var(--modal-dark); width: 100%; max-width: 480px; max-height: 88dvh;
-      border-radius: 24px 24px 0 0; padding: 16px 14px 20px; display: flex; flex-direction: column;
-      border-top: 3px solid var(--modal-green); box-shadow: 0 -10px 30px rgba(0,0,0,0.6); overflow-y: auto;
+      border-radius: 24px 24px 0 0; padding: 18px 16px 22px; display: flex; flex-direction: column;
+      border-top: 4px solid var(--primary); box-shadow: 0 -10px 35px rgba(0,0,0,0.6); overflow-y: auto;
     }
 
     .sheet-header {
       display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 8px; border-bottom: 2px solid rgba(28, 25, 23, 0.15); padding-bottom: 6px;
+      margin-bottom: 10px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;
     }
-    .sheet-header h3 { font-size: 16px; font-weight: 900; color: var(--modal-dark); text-transform: uppercase; letter-spacing: 0.5px; }
-    .sheet-header button { background: none; border: none; color: var(--modal-dark); font-size: 24px; font-weight: bold; cursor: pointer; }
+    .sheet-header h3 { font-size: 16px; font-weight: 900; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; }
+    .sheet-header button { background: none; border: none; color: #0f172a; font-size: 24px; font-weight: bold; cursor: pointer; }
     
     .order-items-list {
       max-height: 18dvh; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; flex-shrink: 0; padding-right: 4px;
     }
     .order-item-row {
       display: flex; justify-content: space-between; align-items: center;
-      background: var(--modal-card-bg); padding: 7px 10px; border-radius: 10px;
-      border: 1.5px solid rgba(28, 25, 23, 0.15); color: var(--modal-dark);
+      background: #ffffff; padding: 8px 12px; border-radius: 12px;
+      border: 1px solid var(--modal-border); color: #0f172a; box-shadow: 0 2px 6px rgba(0,0,0,0.04);
     }
-    .order-item-row strong { font-size: 13px; font-weight: 900; color: #1c1917; }
+    .order-item-row strong { font-size: 13.5px; font-weight: 900; color: #0f172a; }
     .btn-qty-ctrl {
-      width: 26px; height: 26px; border-radius: 6px;
-      background: var(--modal-green); color: #fff; border: none; font-weight: 900; cursor: pointer;
+      width: 28px; height: 28px; border-radius: 6px;
+      background: var(--primary); color: #fff; border: none; font-weight: 900; cursor: pointer;
     }
 
     .quick-add-catalog {
-      background: #fff; border-radius: 12px; padding: 10px; margin-bottom: 8px; border: 1.5px solid var(--modal-green);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      background: #ffffff; border-radius: 14px; padding: 10px 12px; margin-bottom: 10px; border: 1.5px solid var(--chuspa-gold-border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
-    .quick-add-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 6px; max-height: 145px; overflow-y: auto; margin-top: 6px; padding-right: 4px;
-    }
+    .quick-add-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; max-height: 140px; overflow-y: auto; margin-top: 6px; padding-right: 4px; }
     .btn-quick-item {
-      background: #fef08a; border: 1px solid #ca8a04; padding: 8px 10px; border-radius: 8px;
+      background: #f8fafc; border: 1px solid #cbd5e1; padding: 8px 10px; border-radius: 8px;
       font-size: 11.5px; font-weight: 800; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
-      color: #1c1917; transition: transform 0.1s ease;
+      color: #0f172a; transition: transform 0.1s ease;
     }
-    .btn-quick-item:active { transform: scale(0.96); background: #fde047; }
+    .btn-quick-item:active { transform: scale(0.96); background: #eef4fc; }
 
     .table-selector-label {
-      font-size: 11.5px; font-weight: 900; text-transform: uppercase; color: var(--modal-dark);
+      font-size: 11.5px; font-weight: 900; text-transform: uppercase; color: #0f172a;
       letter-spacing: 0.5px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;
     }
     .table-grid {
@@ -316,61 +324,61 @@
       gap: 5px; margin-bottom: 8px; max-height: 95px; overflow-y: auto; padding: 2px 4px 2px 2px;
     }
     .table-box-btn {
-      background: #1c1917; border: 1.5px solid #78350f; color: #fed7aa;
+      background: #0f172a; border: 1.5px solid #334155; color: #f8fafc;
       font-weight: 900; font-size: 11px; padding: 7px 2px; border-radius: 8px;
       cursor: pointer; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    .table-box-btn.selected { background: var(--modal-green) !important; border-color: #86efac !important; color: #fff !important; box-shadow: 0 0 10px rgba(77, 124, 15, 0.7); }
-    .table-box-btn.bloqueada { background: #7f1d1d !important; border-color: #dc2626 !important; color: #fca5a5 !important; cursor: not-allowed; }
-    .table-box-btn.deshabilitada-qr { background: #292524 !important; border-color: #57534e !important; color: #a8a29e !important; cursor: not-allowed !important; }
+    .table-box-btn.selected { background: var(--primary) !important; border-color: var(--chuspa-gold) !important; color: #fff !important; box-shadow: 0 0 10px rgba(0, 86, 210, 0.7); }
+    .table-box-btn.bloqueada { background: #fee2e2 !important; border-color: #fca5a5 !important; color: #991b1b !important; cursor: not-allowed; }
+    .table-box-btn.deshabilitada-qr { background: #e2e8f0 !important; border-color: #cbd5e1 !important; color: #64748b !important; cursor: not-allowed !important; }
 
     .grid-payments { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 8px; }
     .btn-pay-option {
-      background: var(--modal-card-bg); border: 1.5px solid rgba(28, 25, 23, 0.25);
-      color: var(--modal-dark); padding: 7px 2px; border-radius: 8px; font-size: 11px; font-weight: 800;
+      background: #ffffff; border: 1.5px solid #cbd5e1;
+      color: #0f172a; padding: 7px 2px; border-radius: 8px; font-size: 11px; font-weight: 800;
       cursor: pointer; text-align: center; transition: all 0.15s ease;
     }
     .btn-pay-option.active {
-      background: var(--modal-dark); border-color: var(--modal-dark); color: #fde047;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      background: var(--primary); border-color: var(--chuspa-gold); color: #fff;
+      box-shadow: 0 2px 8px var(--accent-glow);
     }
 
     .cash-box-drawer {
-      background: var(--modal-card-bg); border: 2px dashed var(--modal-green);
+      background: #ffffff; border: 1.5px dashed var(--primary);
       border-radius: 10px; padding: 8px 10px; margin-bottom: 8px;
     }
     .cash-input {
-      width: 100%; padding: 7px 10px; font-size: 14px; font-weight: 900;
-      border: 1.5px solid var(--modal-green); border-radius: 8px;
-      color: var(--modal-dark); background: #fff; margin-top: 3px; outline: none;
+      width: 100%; padding: 8px 10px; font-size: 14px; font-weight: 900;
+      border: 1.5px solid #cbd5e1; border-radius: 8px;
+      color: #0f172a; background: #fff; margin-top: 3px; outline: none;
     }
     .cash-quick-btns { display: flex; gap: 5px; margin-top: 6px; flex-wrap: wrap; }
     .btn-quick-cash {
-      background: var(--modal-green); border: none; color: #fff;
+      background: #0056d2; border: none; color: #fff;
       font-size: 10.5px; font-weight: 800; padding: 4px 8px; border-radius: 6px; cursor: pointer;
     }
 
     .vuelto-badge-box {
       margin-top: 6px; padding: 6px 8px; border-radius: 6px; font-size: 11.5px; font-weight: 900;
       display: flex; justify-content: space-between; align-items: center;
-      background: rgba(77, 124, 15, 0.18); color: var(--modal-green-dark); border: 1px solid var(--modal-green);
+      background: #dcfce7; color: #166534; border: 1px solid #86efac;
     }
-    .vuelto-badge-box.alerta { background: rgba(220, 38, 38, 0.18); color: #991b1b; border-color: #dc2626; }
+    .vuelto-badge-box.alerta { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
 
     .custom-input {
-      width: 100%; background: #fff; border: 1.5px solid rgba(28, 25, 23, 0.22);
-      border-radius: 8px; color: var(--modal-dark); padding: 8px 10px; font-size: 12px;
-      outline: none; margin-bottom: 6px; font-weight: 600;
+      width: 100%; background: #ffffff; border: 1.5px solid #cbd5e1;
+      border-radius: 8px; color: #0f172a; padding: 8px 10px; font-size: 12px;
+      outline: none; margin-bottom: 6px; font-weight: 700;
     }
 
     .order-total-bar {
       display: flex; justify-content: space-between; align-items: baseline;
-      margin: 6px 0 8px; border-top: 2px dashed rgba(28,25,23,0.25); padding-top: 6px;
+      margin: 6px 0 8px; border-top: 2px dashed #cbd5e1; padding-top: 6px;
     }
     .btn-submit-order {
-      background: var(--modal-green); color: #fff; border: none; padding: 12px; border-radius: 20px;
-      font-size: 14.5px; font-weight: 900; cursor: pointer; display: flex; align-items: center;
-      justify-content: center; gap: 8px; box-shadow: 0 4px 15px rgba(77, 124, 15, 0.4); width: 100%;
+      background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; border: 1px solid var(--chuspa-gold);
+      padding: 13px; border-radius: 20px; font-size: 14.5px; font-weight: 900; cursor: pointer; display: flex; align-items: center;
+      justify-content: center; gap: 8px; box-shadow: 0 4px 18px var(--accent-glow); width: 100%;
     }
 
     /* BOTÓN PEDIR CUENTA */
@@ -384,69 +392,57 @@
     .btn-pedir-cuenta:active { transform: scale(0.98); }
 
     .modal-review-box {
-      background: rgba(0, 0, 0, 0.45); border: 1.5px dashed var(--accent); border-radius: 12px;
+      background: rgba(0, 0, 0, 0.45); border: 1.5px dashed var(--chuspa-gold); border-radius: 12px;
       padding: 12px; margin-top: 10px; margin-bottom: 12px; text-align: left;
     }
-    .modal-stars-row { display: flex; gap: 8px; font-size: 22px; color: #facc15; cursor: pointer; margin: 6px 0; }
+    .modal-stars-row { display: flex; gap: 8px; font-size: 22px; color: #fbbf24; cursor: pointer; margin: 6px 0; }
 
     /* MODAL DE NOTIFICACIÓN CENTRADO */
     .notificacion-modal-overlay {
-      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.76); backdrop-filter: blur(6px);
+      position: fixed; inset: 0; background: rgba(3, 7, 18, 0.82); backdrop-filter: blur(8px);
       display: none; align-items: center; justify-content: center; z-index: 99999; padding: 16px;
     }
     .notificacion-card-fuego {
-      position: relative; width: 92%; max-width: 440px; background: #15110d;
+      position: relative; width: 92%; max-width: 440px; background: #0b1a33;
       border-radius: 22px; padding: 24px 20px; box-sizing: border-box; overflow: hidden;
-      box-shadow: 0 10px 45px rgba(0,0,0,0.85);
-    }
-    .notificacion-card-fuego::before {
-      content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-      background: conic-gradient(transparent, #ff4500, #ff8c00, #ffd700, #fff275, transparent 35%);
-      animation: girarFuego 3.5s linear infinite; z-index: 1;
-    }
-    .notificacion-card-fuego::after {
-      content: ''; position: absolute; inset: 4px; background: #17130e; border-radius: 18px; z-index: 2;
+      border: 2px solid var(--chuspa-gold);
+      box-shadow: 0 12px 45px rgba(0,0,0,0.9), 0 0 25px rgba(245, 158, 11, 0.2);
     }
     .notificacion-contenido { position: relative; z-index: 3; }
-    @keyframes girarFuego { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
     /* PANTALLA AGRADECIMIENTO */
     .screen-agradecimiento-overlay {
-      position: fixed; inset: 0; background: rgba(18, 12, 10, 0.96); backdrop-filter: blur(10px);
+      position: fixed; inset: 0; background: rgba(3, 7, 18, 0.96); backdrop-filter: blur(10px);
       z-index: 200000; display: none; align-items: center; justify-content: center; padding: 20px; text-align: center;
     }
     .screen-agradecimiento-overlay.active { display: flex; }
     .box-agradecimiento {
-      background: #241712; border: 2px solid var(--accent); border-radius: 22px; max-width: 410px; width: 100%;
-      padding: 22px 18px; display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative;
-      max-height: 94dvh; overflow-y: auto;
+      background: #0b1a33; border: 2px solid var(--chuspa-gold); border-radius: 24px; max-width: 410px; width: 100%;
+      padding: 24px 20px; display: flex; flex-direction: column; align-items: center; gap: 12px; position: relative;
+      max-height: 94dvh; overflow-y: auto; box-shadow: 0 16px 45px rgba(0,0,0,0.9), 0 0 25px rgba(245, 158, 11, 0.2);
     }
     .btn-close-modal {
       position: absolute; top: 12px; right: 14px; background: none; border: none;
       color: #aaa; font-size: 24px; font-weight: bold; cursor: pointer;
     }
 
-    .agradece-logos-header {
-      display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 2px;
-    }
+    .agradece-logos-header { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 2px; }
     .agradece-chuspa-wrap {
       width: 60px; height: 60px; border-radius: 50%; overflow: hidden; background: #fff;
-      border: 2px solid var(--gold-badge); display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4); flex-shrink: 0; text-decoration: none;
+      border: 2px solid var(--chuspa-gold); display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px var(--chuspa-gold-glow); flex-shrink: 0; text-decoration: none;
     }
     .agradece-chuspa-wrap img { width: 100%; height: 100%; object-fit: cover; }
 
     .agradece-logo-wrap {
       width: 60px; height: 60px; border-radius: 50%; overflow: hidden;
-      background: linear-gradient(135deg, var(--accent), var(--primary));
-      border: 2px solid var(--gold-badge); display: flex; align-items: center; justify-content: center;
-      font-size: 28px; color: #fff; box-shadow: 0 4px 14px rgba(194, 65, 12, 0.4); flex-shrink: 0;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border: 2px solid var(--chuspa-gold); display: flex; align-items: center; justify-content: center;
+      font-size: 28px; color: #fff; box-shadow: 0 4px 14px rgba(0, 86, 210, 0.5); flex-shrink: 0;
     }
     .agradece-logo-wrap img { width: 100%; height: 100%; object-fit: cover; }
 
-    .social-links-grid {
-      display: flex; justify-content: center; gap: 10px; margin-top: 6px; width: 100%; flex-wrap: wrap;
-    }
+    .social-links-grid { display: flex; justify-content: center; gap: 10px; margin-top: 6px; width: 100%; flex-wrap: wrap; }
     .btn-social-icon {
       width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
       color: #fff; font-size: 18px; text-decoration: none; transition: transform 0.2s ease;
@@ -458,69 +454,70 @@
     .btn-social-tk { background: #000; border: 1px solid #333; }
 
     .chuspa-tech-card-footer {
-      background: rgba(254, 252, 232, 0.08); border: 1px dashed rgba(234, 179, 8, 0.45);
-      border-radius: 12px; padding: 9px 12px; width: 100%; margin-top: 6px;
+      background: rgba(245, 158, 11, 0.1); border: 1px dashed var(--chuspa-gold);
+      border-radius: 12px; padding: 10px 14px; width: 100%; margin-top: 6px;
       display: flex; align-items: center; justify-content: space-between; text-decoration: none;
     }
     .chuspa-tech-footer-left { display: flex; align-items: center; gap: 8px; text-align: left; }
     .chuspa-tech-footer-img {
-      width: 32px !important; height: 32px !important; min-width: 32px !important; max-width: 32px !important;
-      border-radius: 50% !important; object-fit: cover !important; border: 1px solid #ca8a04 !important;
-      background: #fff !important; display: block !important;
+      width: 32px !important; height: 32px !important; border-radius: 50% !important; object-fit: cover !important;
+      border: 1px solid var(--chuspa-gold) !important; background: #fff !important; display: block !important;
     }
 
     .btn-ir-reservas {
-      background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; border: none;
-      padding: 10px 16px; border-radius: 20px; font-weight: 900; font-size: 13px; cursor: pointer;
+      background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; border: 1px solid var(--chuspa-gold);
+      padding: 11px 18px; border-radius: 20px; font-weight: 900; font-size: 13.5px; cursor: pointer;
       display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
+      box-shadow: 0 4px 15px var(--accent-glow);
     }
     .btn-compartir-wa-reservas {
-      background: #15803d; color: #fff; border: 1px solid #4ade80; padding: 10px 16px;
+      background: #15803d; color: #fff; border: 1px solid #4ade80; padding: 11px 16px;
       border-radius: 20px; font-weight: 800; font-size: 12.5px; cursor: pointer; width: 100%;
       display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px;
     }
     .btn-salir-limpiar {
-      background: #374151; color: #f3f4f6; border: 1px solid #4b5563; padding: 10px 16px;
+      background: #1e293b; color: #f8fafc; border: 1px solid #475569; padding: 10px 16px;
       border-radius: 20px; font-weight: 800; font-size: 12.5px; cursor: pointer; width: 100%;
     }
 
     /* MODAL DE RESERVAS */
     .screen-reservas-modal-overlay {
-      position: fixed; inset: 0; background: rgba(10, 6, 4, 0.98); backdrop-filter: blur(12px);
+      position: fixed; inset: 0; background: rgba(3, 7, 18, 0.96); backdrop-filter: blur(12px);
       z-index: 250000; display: none; align-items: center; justify-content: center; padding: 16px;
     }
     .screen-reservas-modal-overlay.active { display: flex; }
     .box-reservas-modal {
-      background: #1e130f; border: 2px solid var(--accent); border-radius: 24px;
-      max-width: 440px; width: 100%; padding: 22px 18px; max-height: 94dvh; overflow-y: auto;
+      background: #0b1a33; border: 2px solid var(--chuspa-gold); border-radius: 24px;
+      max-width: 440px; width: 100%; padding: 24px 20px; max-height: 94dvh; overflow-y: auto;
       display: flex; flex-direction: column; gap: 12px; position: relative; color: #fff;
+      box-shadow: 0 16px 45px rgba(0,0,0,0.9), 0 0 25px rgba(245, 158, 11, 0.2);
     }
     .custom-input-white {
-      width: 100%; background: #ffffff !important; color: #1c1917 !important;
-      border: 1.5px solid #d1d5db; border-radius: 12px; padding: 11px 14px;
-      font-size: 13.5px; font-weight: 600; outline: none; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      width: 100%; background: #ffffff !important; color: #0f172a !important;
+      border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 11px 14px;
+      font-size: 13.5px; font-weight: 700; outline: none; box-shadow: 0 2px 6px rgba(0,0,0,0.06);
     }
   </style>
 </head>
 <body>
 
-  <!-- PANTALLA DE BLOQUEO DE SEGURIDAD (CON LOGOS Y ACCESO RESTRINGIDO PARA ADMIN Y MOZO) -->
+  <!-- PANTALLA DE BLOQUEO DE SEGURIDAD -->
   <div class="screen-security-lock" id="pantallaBloqueoSeguridad">
     <div class="security-lock-box">
       <div class="security-header-logos">
-        <a href="https://www.lachuspaanuncios.com/" target="_blank" rel="noopener noreferrer" class="sec-chuspa-badge" title="Ir a La Chuspa Tech (www.lachuspaanuncios.com)">
+        <a href="https://www.lachuspaanuncios.com/" target="_blank" rel="noopener noreferrer" class="sec-chuspa-badge" title="La Chuspa Tech">
           <img src="CHUSPITA-circulo.png" alt="La Chuspa Tech" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
         </a>
         <div class="sec-brand-badge" id="secBrandBadge" title="Logo del Restaurante">🍽️</div>
       </div>
 
       <div class="security-lock-icon" id="iconLockDev" onclick="clickIconoDesarrollador()"><i class="fa-solid fa-lock"></i></div>
-      <h2 style="color:var(--gold-badge); font-size:20px; font-weight:900;" id="secTitleLocal">La Cusqueñita</h2>
-      <h3 style="color:#ef4444; font-size:15px; font-weight:800;" id="secHeadingTxt">Acceso Restringido a la Carta</h3>
-      <p style="font-size:13px; color:#ddd; line-height:1.5;" id="secDescTxt">
-        Por tu seguridad y exclusividad del servicio, este menú solo está disponible escaneando el <b>código QR físico</b> vigente en tu mesa dentro del restaurante.
+      <h2 style="color:#fbbf24; font-size:21px; font-weight:900;" id="secTitleLocal">La Cusqueñita</h2>
+      <h3 style="color:#dc2626; font-size:15px; font-weight:800;" id="secHeadingTxt">Acceso Restringido a la Carta</h3>
+      <p style="font-size:13px; color:#e2e8f0; line-height:1.5;" id="secDescTxt">
+        Por seguridad y exclusividad del servicio, este menú solo está disponible escaneando el <b>código QR físico</b> vigente en tu mesa dentro del restaurante.
       </p>
-      <div style="background:rgba(255,255,255,0.05); padding:10px 14px; border-radius:10px; font-size:11.5px; color:#aaa;" id="secSubNoteTxt">
+      <div style="background:rgba(255,255,255,0.06); padding:10px 14px; border-radius:10px; font-size:11.5px; color:#94a3b8;" id="secSubNoteTxt">
         Si ya pagaste tu cuenta o estás fuera del local, esta sesión ha expirado automáticamente.
       </div>
       <button type="button" class="btn-bypass-dev" onclick="ingresarClaveBypassDesarrollador()" id="btnDevBypassTxt">
@@ -541,19 +538,18 @@
         <div class="agradece-logo-wrap" id="agradeceLogoWrap" title="Logo del Restaurante">🍽️</div>
       </div>
 
-      <h2 style="color:var(--gold-badge); font-size:20px; font-weight:900;" id="agradeceNombreLocal">La Cusqueñita</h2>
+      <h2 style="color:#fbbf24; font-size:21px; font-weight:900;" id="agradeceNombreLocal">La Cusqueñita</h2>
       
-      <p style="font-size:12.5px; color:#ddd; line-height:1.4;" id="agradeceMensajeTxt">
+      <p style="font-size:13px; color:#cbd5e1; line-height:1.45;" id="agradeceMensajeTxt">
         ¡Muchas gracias por tu visita! Tu comanda ha sido cancelada y la mesa ha quedado libre. Esperamos que hayas disfrutado tu experiencia gastronómica.
       </p>
 
-      <!-- BOTÓN VER SELLOS Y PREMIOS ACUMULADOS EN EL CLUB -->
-      <a id="btnVerSellosAgradecimiento" href="club.html" class="btn-ir-reservas" style="background: linear-gradient(135deg, #ca8a04, #eab308); color: #000; font-weight: 900; text-decoration: none; margin-top: 4px;">
+      <a id="btnVerSellosAgradecimiento" href="club.html" class="btn-ir-reservas" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-weight: 900; text-decoration: none; margin-top: 4px; border:none;">
         🎁 Ver mis Sellos y Premios Acumulados
       </a>
 
       <div style="width:100%; border-top:1px dashed rgba(255,255,255,0.15); padding-top:8px;">
-        <span style="font-size:11.5px; color:#fde047; font-weight:800; display:block;">
+        <span style="font-size:11.5px; color:#fbbf24; font-weight:800; display:block;">
           <i class="fa-solid fa-phone"></i> <span id="lblAgradeceContacto">Contacto:</span> <span id="agradeceContactoTxt">+51 969 773 064</span>
         </span>
         <div class="social-links-grid" id="agradeceSocialLinks">
@@ -565,7 +561,7 @@
       </div>
 
       <div style="background:rgba(255,255,255,0.06); padding:10px; border-radius:12px; width:100%; margin-top:2px;">
-        <span style="font-size:11px; color:#fde047; font-weight:800; display:block; margin-bottom:6px;" id="lblVolverReservarTxt">
+        <span style="font-size:11px; color:#fbbf24; font-weight:800; display:block; margin-bottom:6px;" id="lblVolverReservarTxt">
           ¿Planeas volver? Reserva tu mesa para Eventos o Familias
         </span>
         <button type="button" class="btn-ir-reservas" onclick="abrirModalReservasCliente()" id="btnAbrirModalReservasTxt">
@@ -580,11 +576,11 @@
         <div class="chuspa-tech-footer-left">
           <img src="CHUSPITA-circulo.png" alt="La Chuspa" class="chuspa-tech-footer-img" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
           <div>
-            <div style="font-size:11px; font-weight:900; color:#fde047;">Tecnología La Chuspa Tech</div>
+            <div style="font-size:11px; font-weight:900; color:#fbbf24;">Tecnología La Chuspa Tech</div>
             <div style="font-size:9px; color:#fed7aa;">Digitalización de restaurantes en Cusco</div>
           </div>
         </div>
-        <i class="fa-solid fa-arrow-up-right-from-square" style="color:#fde047; font-size:12px;"></i>
+        <i class="fa-solid fa-arrow-up-right-from-square" style="color:#fbbf24; font-size:12px;"></i>
       </a>
 
       <button type="button" class="btn-salir-limpiar" onclick="reiniciarNavegadorLimpio()" id="btnAgradeceSalirTxt">
@@ -602,16 +598,16 @@
         <div style="display:flex; align-items:center; gap:10px;">
           <div class="agradece-logo-wrap" style="width:44px; height:44px; font-size:22px;" id="reservasLogoLocal">🍽️</div>
           <div>
-            <h3 style="color:var(--gold-badge); font-size:16px;" id="resModalTituloLocal">La Cusqueñita</h3>
-            <span style="font-size:11px; color:#86efac;" id="lblModalReservaSub">Catálogo Oficial de Reservas & Eventos</span>
+            <h3 style="color:#fbbf24; font-size:16px;" id="resModalTituloLocal">La Cusqueñita</h3>
+            <span style="font-size:11px; color:#10b981;" id="lblModalReservaSub">Catálogo Oficial de Reservas & Eventos</span>
           </div>
         </div>
         <a href="https://www.lachuspaanuncios.com/" target="_blank" title="Tecnología La Chuspa Tech">
-          <img src="CHUSPITA-circulo.png" alt="La Chuspa" style="width:28px; height:28px; border-radius:50%; object-fit:cover; border:1px solid var(--gold-badge); background:#fff;" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
+          <img src="CHUSPITA-circulo.png" alt="La Chuspa" style="width:28px; height:28px; border-radius:50%; object-fit:cover; border:1px solid var(--chuspa-gold); background:#fff;" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
         </a>
       </div>
 
-      <p style="font-size:12px; color:#ccc;" id="lblModalReservaDesc">
+      <p style="font-size:12px; color:#cbd5e1;" id="lblModalReservaDesc">
         Completa tus datos para agendar tu mesa familiar, grupo turístico o evento.
       </p>
 
@@ -638,7 +634,7 @@
       </button>
 
       <div style="text-align:center; margin-top:4px;">
-        <span style="font-size:11px; color:#aaa;"><i class="fa-solid fa-phone"></i> Pedidos & Reservas: <span id="resCliTelefonoTxt">+51 969 773 064</span></span>
+        <span style="font-size:11px; color:#94a3b8;"><i class="fa-solid fa-phone"></i> Pedidos & Reservas: <span id="resCliTelefonoTxt">+51 969 773 064</span></span>
         <div class="social-links-grid" style="margin-top:6px;">
           <a href="https://wa.me/51969773064" target="_blank" class="btn-social-icon btn-social-wa" id="linkSocialWa2"><i class="fa-brands fa-whatsapp"></i></a>
           <a href="#" target="_blank" class="btn-social-icon btn-social-fb" id="linkSocialFb2"><i class="fa-brands fa-facebook-f"></i></a>
@@ -669,7 +665,7 @@
         <img src="CHUSPITA-circulo.png" alt="La Chuspa" class="chuspa-nav-img" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
         <div class="chuspa-nav-info">
           <span class="chuspa-nav-title">La Chuspa Tech</span>
-          <span class="chuspa-nav-sub">by La Chuspa</span>
+          <span class="chuspa-nav-sub">Enterprise</span>
         </div>
       </a>
 
@@ -690,7 +686,7 @@
       </div>
     </div>
 
-    <!-- CHIPS DE CATEGORÍAS CARGADOS SEGÚN EL CATÁLOGO -->
+    <!-- CHIPS DE CATEGORÍAS -->
     <div class="category-chips" id="categoryChips"></div>
   </div>
 
@@ -724,7 +720,7 @@
     </div>
   </div>
 
-  <!-- BOTÓN FLOTANTE PEDIDOS (SUPERPUESTO ENCIMA DE TODO PARA VER CONTADOR) -->
+  <!-- BOTÓN FLOTANTE PEDIDOS -->
   <div class="chat-bubble-container" onclick="openOrdersPopup()">
     <div class="chat-bubble-label" onclick="openOrdersPopup()"><span id="lblBurbujaPedidos">🔥 Pedidos</span></div>
     <div class="chat-bubble-btn" onclick="openOrdersPopup()">
@@ -733,31 +729,31 @@
     </div>
   </div>
 
-  <!-- POPUP DE COMANDA OPTIMIZADO -->
+  <!-- POPUP DE COMANDA ENTERPRISE (LETRAS EN NEGRO Y FONDOS CLAROS DE ALTO CONTRASTE) -->
   <div class="popup-modal" id="ordersPopupModal" onclick="closeOrdersPopup(event)">
     <div class="popup-sheet custom-scroll" onclick="event.stopPropagation()">
       <div class="sheet-header">
-        <h3 id="lblTituloPopup"><i class="fa-solid fa-receipt" style="color:var(--modal-green);"></i> Confirmar Comanda</h3>
+        <h3 id="lblTituloPopup"><i class="fa-solid fa-receipt" style="color:var(--primary);"></i> Confirmar Comanda</h3>
         <button type="button" onclick="closeOrdersPopup()">&times;</button>
       </div>
 
       <div class="order-items-list custom-scroll" id="orderItemsList"></div>
 
-      <!-- CATÁLOGO AMPLIADO Y CÓMODO EN EL POPUP -->
+      <!-- CATÁLOGO AMPLIADO EN EL POPUP -->
       <div class="quick-add-catalog">
-        <div style="font-size:12px; font-weight:900; color:var(--modal-dark);" id="lblAddPlatosTitle">
-          <i class="fa-solid fa-plus-circle" style="color:var(--modal-green);"></i> Añadir platos a tu mesa:
+        <div style="font-size:12px; font-weight:900; color:#0f172a;" id="lblAddPlatosTitle">
+          <i class="fa-solid fa-plus-circle" style="color:var(--primary);"></i> Añadir platos a tu mesa:
         </div>
         <div class="quick-add-grid custom-scroll" id="quickAddCatalogGrid"></div>
       </div>
 
-      <!-- MESA ASIGNADA CON CLARIDAD -->
+      <!-- MESA ASIGNADA -->
       <div class="table-selector-label">
         <span id="lblMesaHeaderInfo">📍 Mesa Asignada:</span>
-        <span id="selectedTableBadge" style="color:var(--modal-green-dark); font-size:12.5px; font-weight:900;">Mesa 01 🔒</span>
+        <span id="selectedTableBadge" style="color:#0056d2; font-size:13px; font-weight:900;">Mesa 01 🔒</span>
       </div>
       
-      <!-- CONTENEDOR DE MESAS CON CUSTOM SCROLLBAR -->
+      <!-- CONTENEDOR DE MESAS -->
       <div id="wrapperSelectorMesas">
         <div class="table-grid custom-scroll" id="tableGridContainer"></div>
       </div>
@@ -772,7 +768,7 @@
 
       <!-- CAJÓN DE EFECTIVO & VUELTO -->
       <div class="cash-box-drawer" id="cajaEfectivoDesplegable">
-        <div style="font-size: 11.5px; font-weight: 900; color: var(--modal-dark);" id="lblCuantoPagasTxt">💵 ¿Con cuánto en efectivo pagarás?</div>
+        <div style="font-size: 11.5px; font-weight: 900; color: #0f172a;" id="lblCuantoPagasTxt">💵 ¿Con cuánto en efectivo pagarás?</div>
         <input type="number" id="montoEfectivoIngresado" class="cash-input" placeholder="Ej. 100" min="0" step="5" oninput="calcularVueltoEfectivo()"/>
         <div class="cash-quick-btns">
           <button type="button" class="btn-quick-cash" onclick="setMontoEfectivoRapido('exacto')" id="lblBtnExacto">Pagar Exacto</button>
@@ -791,12 +787,12 @@
       <input type="text" id="notesInput" class="custom-input" placeholder="Notas para cocina (término de carne, alergias, etc.)" />
 
       <!-- CAMPO DNI PARA CLUB DE RECOMPENSAS -->
-      <div style="background: rgba(245, 158, 11, 0.15); border: 1.5px dashed #b45309; border-radius: 12px; padding: 10px 12px; margin-bottom: 8px;">
+      <div style="background: #eff6ff; border: 1.5px dashed var(--primary); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-          <span style="font-size: 12px; font-weight: 900; color: #78350f;" id="lblClubPrompt">
+          <span style="font-size: 12px; font-weight: 900; color: #0056d2;" id="lblClubPrompt">
             ⭐ ¿Eres socio del Club? Acumula sellos:
           </span>
-          <button type="button" onclick="irAClubDesdeIndex()" style="background: none; border: none; color: #b45309; font-size: 11.5px; font-weight: 900; cursor: pointer; text-decoration: underline;" id="lblVerMiTarjeta">
+          <button type="button" onclick="irAClubDesdeIndex()" style="background: none; border: none; color: #0056d2; font-size: 11.5px; font-weight: 900; cursor: pointer; text-decoration: underline;" id="lblVerMiTarjeta">
             Ver mi tarjeta
           </button>
         </div>
@@ -813,63 +809,61 @@
 
       <!-- TOTAL COMANDA -->
       <div class="order-total-bar">
-        <span style="font-weight:900; color:var(--modal-dark); font-size:14px;" id="lblTotalComandaTxt">Total comanda:</span>
+        <span style="font-weight:900; color:#0f172a; font-size:14px;" id="lblTotalComandaTxt">Total comanda:</span>
         <div>
-          <span style="font-size:21px; font-weight:900; color:var(--modal-dark);" id="orderTotalPrice">S/ 0.00</span>
-          <div style="font-size:11px; color:#57534e; text-align:right; font-weight:bold;" id="orderSecondaryPrice">≈ $ 0.00</div>
+          <span style="font-size:22px; font-weight:900; color:#0056d2;" id="orderTotalPrice">S/ 0.00</span>
+          <div style="font-size:11px; color:#475569; text-align:right; font-weight:800;" id="orderSecondaryPrice">≈ $ 0.00</div>
         </div>
       </div>
 
       <button class="btn-submit-order" id="btnEnviarComanda" onclick="enviarComandaDirectaAlPanel()">
         <i class="fa-solid fa-bell-concierge"></i> <span id="lblBtnEnviar">Enviar Comanda a Cocina</span>
       </button>
-      <div id="orderStatusMsg" style="text-align:center; font-size:12px; margin-top:6px; color:var(--modal-green-dark); font-weight:900;"></div>
+      <div id="orderStatusMsg" style="text-align:center; font-size:12px; margin-top:6px; color:#10b981; font-weight:900;"></div>
     </div>
   </div>
 
-  <!-- MODAL DE NOTIFICACIÓN CENTRADO TOTAL EN EL MEDIO DEL CATÁLOGO -->
+  <!-- MODAL DE NOTIFICACIÓN CENTRADO -->
   <div id="modalNotificacion" class="notificacion-modal-overlay">
     <div class="notificacion-card-fuego">
       <div class="notificacion-contenido">
         
-        <!-- Badge de Estado Dinámico -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-          <span id="notifModalBadge" style="background: #eab308; color: #000; font-weight: 900; font-size: 12px; padding: 4px 12px; border-radius: 20px;">
+          <span id="notifModalBadge" style="background: var(--chuspa-gold); color: #000; font-weight: 900; font-size: 12px; padding: 4px 12px; border-radius: 20px;">
             🟡 1. POR CONFIRMAR
           </span>
-          <span id="notifTurnoTxt" style="font-size: 11.5px; color: #fde047; font-weight: 800;">Turno #--</span>
+          <span id="notifTurnoTxt" style="font-size: 11.5px; color: #fbbf24; font-weight: 900;">Turno #--</span>
         </div>
 
-        <!-- Mensaje principal del estado -->
-        <p id="notifModalMensaje" style="color: #f3f4f6; font-size: 13.5px; line-height: 1.45; margin-bottom: 14px;">
+        <p id="notifModalMensaje" style="color: #f8fafc; font-size: 13.5px; line-height: 1.45; margin-bottom: 14px;">
           Tu pedido fue enviado. El mozo o cocina lo está verificando en el panel...
         </p>
 
-        <!-- Caja interactiva: Pregunta del Mozo -->
-        <div id="cajaPreguntaMozo" style="display: none; background: #facc15; color: #1f2937; padding: 14px; border-radius: 12px; font-weight: 700; margin-bottom: 14px;">
-          <div style="font-size: 13.5px; margin-bottom: 10px;">
+        <!-- Pregunta interactiva del Mozo -->
+        <div id="cajaPreguntaMozo" style="display: none; background: #0056d2; color: #ffffff; padding: 14px; border-radius: 12px; font-weight: 700; margin-bottom: 14px; border: 1.5px solid var(--chuspa-gold);">
+          <div style="font-size: 13.5px; margin-bottom: 10px; color: #fbbf24; font-weight: 900;">
             🔔 El mozo pregunta: ¿Deseas ordenar algo más para tu mesa?
           </div>
           <div style="display: flex; gap: 8px;">
-            <button type="button" onclick="responderMozo(true)" style="flex: 1.2; background: #15803d; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 12px;">
+            <button type="button" onclick="responderMozo(true)" style="flex: 1.2; background: #10b981; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 900; cursor: pointer; font-size: 12px;">
               + Sí, agregar platos
             </button>
-            <button type="button" onclick="responderMozo(false)" style="flex: 1; background: #78350f; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 12px;">
+            <button type="button" onclick="responderMozo(false)" style="flex: 1; background: #1e293b; color: white; border: 1px solid #475569; padding: 10px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 12px;">
               No, gracias
             </button>
           </div>
         </div>
 
-        <!-- Botón de Pedir Cuenta cuando ya está servido -->
+        <!-- Botón de Pedir Cuenta -->
         <div id="cajaBotonPedirCuenta" style="display: none; margin-bottom: 12px;">
           <button type="button" class="btn-pedir-cuenta" id="btnPedirCuentaModal" onclick="solicitarCuentaEnCaja()">
             <i class="fa-solid fa-person-walking"></i> <span>💵 Pedir Cuenta y Pagar en Caja</span>
           </button>
         </div>
 
-        <!-- Sección de Reseña y Comentario cuando ya está servido -->
+        <!-- Reseña y Comentario -->
         <div id="cajaResenaServicio" class="modal-review-box" style="display: none;">
-          <span style="font-size: 11.5px; color: #fde047; font-weight: 800; display: block;">⭐ Califica nuestro servicio y producto:</span>
+          <span style="font-size: 11.5px; color: #fbbf24; font-weight: 800; display: block;">⭐ Califica nuestro servicio y producto:</span>
           <div class="modal-stars-row" id="starsRowModal">
             <span onclick="setRating(1)">★</span>
             <span onclick="setRating(2)">★</span>
@@ -878,15 +872,14 @@
             <span onclick="setRating(5)">★</span>
           </div>
           <input type="text" id="reviewModalInput" class="custom-input" placeholder="Escribe un breve comentario (opcional)..." style="margin-bottom: 8px;" />
-          <button type="button" onclick="enviarResenaFirebaseDesdeModal()" style="width: 100%; background: #4d7c0f; color: #fff; border: none; padding: 8px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 12px;">
+          <button type="button" onclick="enviarResenaFirebaseDesdeModal()" style="width: 100%; background: #10b981; color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: 900; cursor: pointer; font-size: 12px;">
             Enviar Calificación
           </button>
         </div>
 
-        <!-- Info en el pie: Mesa y Total -->
-        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 10px; color: #bbb; font-size: 12.5px;">
-          <span id="notifModalMesaTxt" style="font-weight: 800; color: #fff;">Mesa 01</span>
-          <span id="notifModalTotalTxt" style="font-weight: 900; color: #fde047;">S/ 0.00</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 10px; color: #94a3b8; font-size: 12.5px;">
+          <span id="notifModalMesaTxt" style="font-weight: 900; color: #fff;">Mesa 01</span>
+          <span id="notifModalTotalTxt" style="font-weight: 900; color: #fbbf24;">S/ 0.00</span>
         </div>
 
       </div>
@@ -898,7 +891,6 @@
     const CLAVE_MAESTRA_DEV = "42423549";
     const canalPedidos = new BroadcastChannel('canal_inka_pedidos');
 
-    // RECEPTOR EN TIEMPO REAL DESDE ADMIN.HTML
     canalPedidos.onmessage = (event) => {
       if (event.data?.tipo === 'ESTADO_ACTUALIZADO') {
         verificarEstadoComandaEnVivo();
@@ -916,64 +908,25 @@
       exchangeRateUSD: 3.75
     };
 
-    // DICCIONARIO COMPLETO DE TRADUCCIÓN MULTI-IDIOMA
     const I18N_UI = {
       es: {
-        all: "Todos",
-        mains: "Platos Fuertes",
-        top: "🔥 Especialidades",
-        drinks: "Bebidas & Cocteles",
-        desserts: "Postres",
-        starters: "Entradas",
-        swipeUp: "Desliza hacia arriba 👆",
-        addDish: "👆 Añadir Plato",
-        viewMenu: "Ver Carta",
-        orders: "🔥 Pedidos",
-        confirmOrder: "Confirmar Comanda",
-        addMoreDishes: "Añadir platos a tu mesa:",
-        assignedTable: "📍 Mesa Asignada:",
-        cash: "Efectivo",
-        exactPay: "Pagar Exacto",
-        calcChange: "Ingresa monto en efectivo para vuelto",
-        changeToGive: "💵 Vuelto a entregar:",
-        missingCash: "⚠️ Falta dinero",
-        namePlaceholder: "Nombre de quien pide (opcional)",
-        notesPlaceholder: "Notas para cocina (término de carne, alergias, etc.)",
-        clubPrompt: "⭐ ¿Eres socio del Club? Acumula sellos:",
-        viewCard: "Ver mi tarjeta",
-        orderTotal: "Total comanda:",
-        sendOrder: "Enviar Comanda a Cocina",
-        sendAddMore: "Añadir Platos a mi Mesa",
-        houseMenu: "Menú de la Casa",
+        all: "Todos", mains: "Platos Fuertes", top: "🔥 Especialidades", drinks: "Bebidas & Cocteles", desserts: "Postres", starters: "Entradas",
+        swipeUp: "Desliza hacia arriba 👆", addDish: "👆 Añadir Plato", viewMenu: "Ver Carta", orders: "🔥 Pedidos", confirmOrder: "Confirmar Comanda",
+        addMoreDishes: "Añadir platos a tu mesa:", assignedTable: "📍 Mesa Asignada:", cash: "Efectivo", exactPay: "Pagar Exacto",
+        calcChange: "Ingresa monto en efectivo para vuelto", changeToGive: "💵 Vuelto a entregar:", missingCash: "⚠️ Falta dinero",
+        namePlaceholder: "Nombre de quien pide (opcional)", notesPlaceholder: "Notas para cocina (término de carne, alergias, etc.)",
+        clubPrompt: "⭐ ¿Eres socio del Club? Acumula sellos:", viewCard: "Ver mi tarjeta", orderTotal: "Total comanda:",
+        sendOrder: "Enviar Comanda a Cocina", sendAddMore: "Añadir Platos a mi Mesa", houseMenu: "Menú de la Casa",
         noDishesCat: "No hay platos disponibles en esta categoría."
       },
       en: {
-        all: "All",
-        mains: "Main Courses",
-        top: "🔥 Specials",
-        drinks: "Drinks & Cocktails",
-        desserts: "Desserts",
-        starters: "Starters",
-        swipeUp: "Swipe up 👆",
-        addDish: "👆 Add Dish",
-        viewMenu: "View Menu",
-        orders: "🔥 Orders",
-        confirmOrder: "Confirm Order",
-        addMoreDishes: "Add dishes to your table:",
-        assignedTable: "📍 Assigned Table:",
-        cash: "Cash",
-        exactPay: "Exact Cash",
-        calcChange: "Enter cash amount for change",
-        changeToGive: "💵 Change to return:",
-        missingCash: "⚠️ Insufficient cash",
-        namePlaceholder: "Your name (optional)",
-        notesPlaceholder: "Notes for the kitchen (meat temp, allergies, etc.)",
-        clubPrompt: "⭐ Club Member? Collect loyalty stamps:",
-        viewCard: "View my card",
-        orderTotal: "Order total:",
-        sendOrder: "Send Order to Kitchen",
-        sendAddMore: "Add Dishes to my Table",
-        houseMenu: "House Menu",
+        all: "All", mains: "Main Courses", top: "🔥 Specials", drinks: "Drinks & Cocktails", desserts: "Desserts", starters: "Starters",
+        swipeUp: "Swipe up 👆", addDish: "👆 Add Dish", viewMenu: "View Menu", orders: "🔥 Orders", confirmOrder: "Confirm Order",
+        addMoreDishes: "Add dishes to your table:", assignedTable: "📍 Assigned Table:", cash: "Cash", exactPay: "Exact Cash",
+        calcChange: "Enter cash amount for change", changeToGive: "💵 Change to return:", missingCash: "⚠️ Insufficient cash",
+        namePlaceholder: "Your name (optional)", notesPlaceholder: "Notes for the kitchen (meat temp, allergies, etc.)",
+        clubPrompt: "⭐ Club Member? Collect loyalty stamps:", viewCard: "View my card", orderTotal: "Order total:",
+        sendOrder: "Send Order to Kitchen", sendAddMore: "Add Dishes to my Table", houseMenu: "House Menu",
         noDishesCat: "No dishes available in this category."
       },
       de: {
@@ -1091,9 +1044,6 @@
     let ultimoEstadoRegistrado = null;
     let cuentaPedidaBloqueada = false;
 
-    // ========================================================
-    // MODAL POPUP: MENÚ EN CUADRÍCULA (GRID DE PLATOS)
-    // ========================================================
     function abrirModalCuadricula(categoriaOpcional = null) {
       if (categoriaOpcional) {
         categoriaFiltroActiva = categoriaOpcional;
@@ -1111,7 +1061,6 @@
       document.getElementById('modalMenuCuadricula').classList.remove('active');
     }
 
-    /* ACTUALIZAR TÍTULO SEGÚN LA CATEGORÍA INGRESADA */
     function actualizarTituloModalCuadricula() {
       const headerTitle = document.getElementById('lblMenuCasaTitulo');
       if (!headerTitle) return;
@@ -1119,11 +1068,11 @@
       const t = I18N_UI[currentLang] || I18N_UI['es'];
 
       if (categoriaFiltroActiva === 'all') {
-        headerTitle.innerHTML = `<i class="fa-solid fa-book-open"></i> ${t.houseMenu}`;
+        headerTitle.innerHTML = `<i class="fa-solid fa-book-open" style="color:var(--chuspa-gold);"></i> ${t.houseMenu}`;
       } else {
         const catLower = categoriaFiltroActiva.toLowerCase();
         let catNombre = t[catLower] || (categoriaFiltroActiva.charAt(0).toUpperCase() + categoriaFiltroActiva.slice(1));
-        headerTitle.innerHTML = `<i class="fa-solid fa-utensils"></i> ${catNombre}`;
+        headerTitle.innerHTML = `<i class="fa-solid fa-utensils" style="color:var(--chuspa-gold);"></i> ${catNombre}`;
       }
     }
 
@@ -1139,7 +1088,7 @@
       });
 
       if (platosFiltrados.length === 0) {
-        contenedor.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:#aaa; padding:20px;">${t.noDishesCat}</p>`;
+        contenedor.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:#94a3b8; padding:20px;">${t.noDishesCat}</p>`;
         return;
       }
 
@@ -1232,7 +1181,6 @@
       }
     }
 
-    /* RESPUESTA AL MOZO Y APERTURA DE POPUP CON CATÁLOGO COMPLETO */
     async function responderMozo(quiereMas) {
       reproducirSonidoNotificacion();
 
@@ -1349,20 +1297,17 @@
       }
     }
 
-    /* MODO DESARROLLADOR / APERTURA: EXCLUSIVO PARA ADMINISTRADOR Y MOZO */
     async function ingresarClaveBypassDesarrollador() {
       const clave = prompt("🔐 ACCESO:\nIngresa la contraseña de tu usuario Administrador, Mozo o Clave Maestra:");
       if (!clave) return;
 
       const claveTrim = clave.trim();
 
-      // 1. Validar claves maestras de administración
       if (claveTrim === CLAVE_MAESTRA_DEV || claveTrim === "regocijo123") {
         activarModoDesarrolladorExitoso();
         return;
       }
 
-      // 2. Validar contra usuarios registrados en config/usuarios (SOLO admin y mozo)
       try {
         const res = await fetch(`${FIREBASE_DB_URL}config/usuarios.json?_t=${Date.now()}`);
         if (res.ok) {
@@ -1370,7 +1315,6 @@
           if (usuariosData && typeof usuariosData === 'object') {
             const arr = Object.values(usuariosData);
             
-            // FILTRO ESTRICTO: Solo permite roles 'admin' o 'mozo'. Los cocineros ('cocina') están anulados.
             const usuarioValido = arr.find(u => {
               const r = String(u.rol || '').toLowerCase().trim();
               const p = String(u.pass || '').trim();
@@ -1476,7 +1420,6 @@
       return ocupadas;
     }
 
-    /* RENDER DE MESAS CON ALTO CONTRASTE */
     async function renderizarCuadriculaMesas() {
       const container = document.getElementById("tableGridContainer");
       if (!container) return;
@@ -1531,16 +1474,12 @@
       actualizarBadgeMesaHeader();
     }
 
-    /* ========================================================
-       SISTEMA DE TRADUCCIÓN COMPLETA DE INTERFAZ & PLATOS
-       ======================================================== */
     function cambiarIdiomaGlobal(nuevoLang) {
       currentLang = nuevoLang;
       sessionStorage.setItem("inkabistro_user_lang", nuevoLang);
 
       const t = I18N_UI[currentLang] || I18N_UI['es'];
 
-      // Traducir elementos estáticos de UI
       const elSwipe = document.getElementById('lblSwipeUpHint');
       if (elSwipe) elSwipe.innerText = t.swipeUp;
 
@@ -1551,10 +1490,10 @@
       if (elBurbuja) elBurbuja.innerText = t.orders;
 
       const elTitPopup = document.getElementById('lblTituloPopup');
-      if (elTitPopup) elTitPopup.innerHTML = `<i class="fa-solid fa-receipt" style="color:var(--modal-green);"></i> ${t.confirmOrder}`;
+      if (elTitPopup) elTitPopup.innerHTML = `<i class="fa-solid fa-receipt" style="color:var(--primary);"></i> ${t.confirmOrder}`;
 
       const elAddPlatos = document.getElementById('lblAddPlatosTitle');
-      if (elAddPlatos) elAddPlatos.innerHTML = `<i class="fa-solid fa-plus-circle" style="color:var(--modal-green);"></i> ${t.addMoreDishes}`;
+      if (elAddPlatos) elAddPlatos.innerHTML = `<i class="fa-solid fa-plus-circle" style="color:var(--primary);"></i> ${t.addMoreDishes}`;
 
       const elMesaHeader = document.getElementById('lblMesaHeaderInfo');
       if (elMesaHeader) elMesaHeader.innerText = t.assignedTable;
@@ -1607,14 +1546,13 @@
         return `
           <button type="button" class="btn-quick-item" onclick="addToOrder('${d.id}')">
             <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:110px;">${info.name}</span>
-            <b style="color:#15803d; flex-shrink:0;">+ S/ ${(d.precioPEN || d.precio || 0).toFixed(2)}</b>
+            <b style="color:#0056d2; flex-shrink:0;">+ S/ ${(d.precioPEN || d.precio || 0).toFixed(2)}</b>
           </button>
         `;
       }).join('');
     }
 
     async function cargarDatos() {
-      // Cargar identidad primero para tener el logo y datos del negocio disponibles en el bloqueo
       await cargarIdentidadNegocioDirecta();
 
       const accesoPermitido = await validarAccesoPorTokenQR();
@@ -1622,7 +1560,6 @@
       cargarDatosTrasValidacion();
     }
 
-    /* CARGA TEMPRANA DE IDENTIDAD PARA PANTALLA DE BLOQUEO */
     async function cargarIdentidadNegocioDirecta() {
       try {
         const resConf = await fetch(`${FIREBASE_DB_URL}config/identidad.json?_t=${Date.now()}`);
@@ -1703,9 +1640,6 @@
     function formatPrice(pen) { return `S/ ${pen.toFixed(2)}`; }
     function formatSecondaryPrice(pen) { return `≈ $ ${(pen / (CONFIG.exchangeRateUSD || 3.75)).toFixed(2)}`; }
 
-    /* ========================================================
-       CHIPS DE CATEGORÍAS DINÁMICOS -> ABREN EN CUADRITOS
-       ======================================================== */
     function renderCategoryChips() {
       const container = document.getElementById('categoryChips');
       if (!container) return;
@@ -1738,7 +1672,6 @@
       renderCategoryChips();
       renderFeed();
 
-      // Si hace clic en una categoría específica, abre directamente en cuadritos con su título respectivo
       if (catKey !== 'all') {
         abrirModalCuadricula(catKey);
       } else {
@@ -1748,7 +1681,6 @@
 
     function renderFeed() {
       const feed = document.getElementById('feedContainer');
-
       const t = I18N_UI[currentLang] || I18N_UI['es'];
 
       const platosFiltrados = catalogo.filter(item => {
@@ -1759,7 +1691,7 @@
       if (platosFiltrados.length === 0) {
         feed.innerHTML = `
           <div style="height:100dvh; display:flex; align-items:center; justify-content:center; text-align:center; padding:20px;">
-            <p style="color:#aaa; font-size:14px;">${t.noDishesCat}</p>
+            <p style="color:#94a3b8; font-size:14px;">${t.noDishesCat}</p>
           </div>
         `;
         return;
@@ -1831,11 +1763,11 @@
           <div class="order-item-row">
             <div>
               <strong>${info.name}</strong>
-              <div style="font-size:11px; color:#57534e;">${formatPrice(d.precioPEN || d.precio)} x ${cant} = <b>${formatPrice(sub)}</b></div>
+              <div style="font-size:11.5px; color:#475569; font-weight:700;">${formatPrice(d.precioPEN || d.precio)} x ${cant} = <b>${formatPrice(sub)}</b></div>
             </div>
             <div style="display:flex; gap:6px; align-items:center;">
               <button type="button" class="btn-qty-ctrl" onclick="changeQty('${id}', -1)">-</button>
-              <span style="font-weight:900; font-size:13px; min-width:18px; text-align:center;">${cant}</span>
+              <span style="font-weight:900; font-size:13.5px; min-width:18px; text-align:center; color:#0f172a;">${cant}</span>
               <button type="button" class="btn-qty-ctrl" onclick="changeQty('${id}', 1)">+</button>
             </div>
           </div>
@@ -1843,7 +1775,7 @@
       });
 
       if (totalU === 0) {
-        list.innerHTML = '<p style="text-align:center; color:#57534e; font-size:12.5px; padding:6px 0; font-weight:bold;">Selecciona platos del menú para agregarlos a tu mesa.</p>';
+        list.innerHTML = '<p style="text-align:center; color:#64748b; font-size:12.5px; padding:6px 0; font-weight:700;">Selecciona platos del menú para agregarlos a tu mesa.</p>';
       }
 
       ultimoTotalPagarPEN = totalMonto;
@@ -2069,7 +2001,7 @@
       ratingSeleccionado = n;
       const stars = document.getElementById('starsRowModal').children;
       for (let i = 0; i < 5; i++) {
-        stars[i].style.color = (i < n) ? '#facc15' : '#78716c';
+        stars[i].style.color = (i < n) ? '#fbbf24' : '#64748b';
       }
     }
 
@@ -2100,9 +2032,6 @@
       if (box) box.style.display = "none";
     }
 
-    // ========================================================
-    // MONITOREO DINÁMICO DE ESTADOS AL MEDIO DEL CATÁLOGO
-    // ========================================================
     async function verificarEstadoComandaEnVivo() {
       if (!comandaActivaId) return;
 
@@ -2148,7 +2077,7 @@
       }
 
       if (estado === 'iniciado' || estado === 'por_confirmar') {
-        badge.style.background = "#eab308";
+        badge.style.background = "var(--chuspa-gold)";
         badge.style.color = "#000";
         badge.innerText = "🟡 1. POR CONFIRMAR";
         mensaje.innerText = "Tu pedido fue enviado. El mozo o cocina lo está verificando en el panel...";
@@ -2156,7 +2085,7 @@
         if (cajaResena) cajaResena.style.display = "none";
       }
       else if (estado === 'cocina') {
-        badge.style.background = "#0284c7";
+        badge.style.background = "#0056d2";
         badge.style.color = "#fff";
         badge.innerText = "🔵 2. EN PROCESO (COCINA)";
         mensaje.innerText = "¡Tu pedido está siendo elaborado por el chef en este momento! 🍳";
@@ -2164,7 +2093,7 @@
         if (cajaResena) cajaResena.style.display = "none";
       }
       else if (estado === 'servido') {
-        badge.style.background = "#16a34a";
+        badge.style.background = "#10b981";
         badge.style.color = "#fff";
         badge.innerText = "🟢 3. RECIBIDO EN MESA";
         mensaje.innerText = "¡Buen provecho! Tu pedido ya está servido en tu mesa.";
@@ -2255,6 +2184,10 @@
     function toggleGlobalAudio() {
       isGlobalMuted = !isGlobalMuted;
       document.querySelectorAll('video').forEach(v => v.muted = isGlobalMuted);
+      const icon = document.getElementById('audioIcon');
+      if (icon) {
+        icon.className = isGlobalMuted ? "fa-solid fa-volume-xmark" : "fa-solid fa-volume-high";
+      }
     }
 
     window.addEventListener('DOMContentLoaded', cargarDatos);
