@@ -3,66 +3,67 @@
 <head> 
   <meta charset="UTF-8"> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-  <title>Panel de Control & TPV | La Cusqueñita</title> 
+  <title>Panel de Control & TPV Enterprise | La Cusqueñita</title> 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> 
   <style> 
     /* ==========================================================
-       PALETA INSPIRADA EN SISTEMAS ENTERPRISE / B2B SAAS
-       Azul Ultramar (#0b1e42 / #103576), Rojo Carmesí (#dc2626), 
-       Verde Esmeralda (#10b981) y Cyan Tech (#06b6d4)
+       ARQUITECTURA VISUAL SAAS B2B ENTERPRISE
+       Inspirada en plataformas transaccionales gubernamentales y fintech:
+       Azul Profundo (#08142b), Azul Real Tuboleto (#0056d2 / #0284c7),
+       Verde Éxito (#10b981), Rojo Operativo (#dc2626) y Cyan Tech (#38bdf8)
        ========================================================== */
     :root { 
-      --primary: #1d4ed8; 
-      --primary-hover: #1e40af;
+      --primary: #0056d2; 
+      --primary-hover: #0043a8;
       --accent: #0284c7; 
-      --accent-glow: rgba(2, 132, 199, 0.4);
-      --bg-dark: #070d19; 
-      --sidebar-bg: #0b1528; 
-      --card-bg: #0f1d38; 
-      --card-border: rgba(56, 189, 248, 0.18); 
-      --input-bg: #081121; 
+      --accent-glow: rgba(0, 86, 210, 0.4);
+      --bg-dark: #050d1a; 
+      --sidebar-bg: #09152a; 
+      --card-bg: #0d1e3a; 
+      --card-border: rgba(56, 189, 248, 0.22); 
+      --input-bg: #061122; 
       --text-main: #f8fafc; 
       --text-muted: #94a3b8; 
-      --gold: #38bdf8;          /* Tono cyan/azul luminoso para jerarquía y títulos */
-      --danger: #dc2626;        /* Rojo carmesí distintivo */
-      --success: #10b981;       /* Verde estado arqueado / disponible */
+      --gold: #38bdf8;          /* Cyan tech luminoso para jerarquía y títulos */
+      --danger: #dc2626;        /* Rojo operativo */
+      --success: #10b981;       /* Verde transaccional */
       --blue: #2563eb; 
-      --header-bg: #081224;
-      --metric-bg: #0d1a33;
+      --header-bg: #071326;
+      --metric-bg: #0b1a33;
     } 
 
-    /* MODO CLARO PROFESIONAL (ESTÉTICA MINISTERIAL / ENTERPRISE) */
+    /* MODO CLARO PROFESIONAL (ESTÉTICA TUBOLETO / GOBIERNO B2B) */
     body.light-theme {
-      --bg-dark: #f0f4f9;
+      --bg-dark: #f4f7fb;
       --sidebar-bg: #ffffff;
       --card-bg: #ffffff;
-      --card-border: #cbd5e1;
+      --card-border: #dbe4ef;
       --input-bg: #f8fafc;
       --text-main: #0f172a;
       --text-muted: #475569;
-      --gold: #0369a1;
+      --gold: #0056d2;
       --header-bg: #ffffff;
-      --metric-bg: #f1f5f9;
+      --metric-bg: #eef4fc;
     }
 
     body.light-theme .top-admin-bar {
       background: #ffffff !important;
-      border-bottom: 2px solid #cbd5e1 !important;
-      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05) !important;
+      border-bottom: 2px solid #dbe4ef !important;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05) !important;
     }
     body.light-theme .sidebar {
       background: #ffffff !important;
-      border-right: 1.5px solid #cbd5e1 !important;
+      border-right: 1.5px solid #dbe4ef !important;
     }
     body.light-theme .card,
     body.light-theme .modal-box,
     body.light-theme .card-login {
       background: #ffffff !important;
-      border: 1.5px solid #cbd5e1 !important;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06) !important;
+      border: 1.5px solid #dbe4ef !important;
+      box-shadow: 0 8px 30px rgba(0, 86, 210, 0.06) !important;
     }
     body.light-theme label {
-      color: #0369a1 !important;
+      color: #0056d2 !important;
     }
     body.light-theme input, 
     body.light-theme textarea, 
@@ -73,20 +74,20 @@
     }
     body.light-theme input:focus, 
     body.light-theme select:focus {
-      border-color: #0284c7 !important;
+      border-color: #0056d2 !important;
       background: #ffffff !important;
-      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
+      box-shadow: 0 0 0 3px rgba(0, 86, 210, 0.15) !important;
     }
     body.light-theme .user-session-badge {
       background: #eff6ff !important;
       border: 1px solid #bfdbfe !important;
     }
     body.light-theme .user-session-badge b {
-      color: #1e40af !important;
+      color: #0056d2 !important;
     }
     body.light-theme .custom-table th {
-      background: #e2e8f0 !important;
-      color: #0f172a !important;
+      background: #e9f0f8 !important;
+      color: #003e9c !important;
       border-color: #cbd5e1 !important;
     }
     body.light-theme .custom-table td {
@@ -99,22 +100,22 @@
     }
     body.light-theme .nav-item:hover {
       background: #f1f5f9 !important;
-      color: #0284c7 !important;
+      color: #0056d2 !important;
     }
     body.light-theme .nav-item.active {
-      background: #eff6ff !important;
-      color: #1d4ed8 !important;
+      background: #eef4fc !important;
+      color: #0056d2 !important;
       border-color: #bfdbfe !important;
     }
     body.light-theme .tables-monitor-bar,
     body.light-theme .kds-calendar-bar {
       background: #ffffff !important;
-      border: 1.5px solid #cbd5e1 !important;
+      border: 1.5px solid #dbe4ef !important;
     }
     body.light-theme .metric-pill {
-      background: #f1f5f9 !important;
+      background: #eef4fc !important;
       border: 1px solid #cbd5e1 !important;
-      color: #1e293b !important;
+      color: #0f172a !important;
     }
     body.light-theme .kds-search-bar input {
       background: #ffffff !important;
@@ -127,9 +128,9 @@
       color: #475569 !important;
     }
     body.light-theme .kds-filter-btn.active {
-      background: #1d4ed8 !important;
+      background: #0056d2 !important;
       color: #ffffff !important;
-      border-color: #1e40af !important;
+      border-color: #0043a8 !important;
     }
     body.light-theme .table-pill.libre {
       background: #dcfce7 !important;
@@ -146,12 +147,12 @@
       border-color: #f59e0b !important;
     }
     body.light-theme .order-card.estado-cocina {
-      background: #eff6ff !important;
-      border-color: #2563eb !important;
+      background: #f0f7ff !important;
+      border-color: #0056d2 !important;
     }
     body.light-theme .order-card.estado-servido {
       background: #f0fdf4 !important;
-      border-color: #16a34a !important;
+      border-color: #10b981 !important;
     }
     body.light-theme .order-card.estado-finalizado {
       background: #f8fafc !important;
@@ -174,7 +175,7 @@
       border-color: #93c5fd !important;
     }
     body.light-theme .vault-trigger {
-      color: #1e40af !important;
+      color: #0056d2 !important;
     }
     body.light-theme .vault-content {
       background: #ffffff !important;
@@ -200,7 +201,7 @@
     }
     body.light-theme .alerta-centro-card {
       background: #ffffff !important;
-      border-color: #0284c7 !important;
+      border-color: #0056d2 !important;
       color: #0f172a !important;
     }
     body.light-theme .alerta-centro-card p {
@@ -213,14 +214,14 @@
     /* BOTÓN FLOTANTE TEMA */
     .btn-theme-toggle-floating {
       position: fixed;
-      top: 9px;
+      top: 10px;
       right: 70px;
       width: 36px;
       height: 36px;
       border-radius: 50%;
       cursor: pointer;
       z-index: 9999999;
-      background: linear-gradient(90deg, #ffffff 50%, #0b1528 50%);
+      background: linear-gradient(90deg, #ffffff 50%, #09152a 50%);
       border: 2px solid var(--accent);
       box-shadow: 0 4px 14px rgba(0,0,0,0.5);
       display: flex;
@@ -236,23 +237,23 @@
     }
     body.light-theme .btn-theme-toggle-floating {
       transform: rotate(180deg);
-      border-color: #1d4ed8;
+      border-color: #0056d2;
     }
 
     /* PANTALLA LOGIN */ 
     #pantallaLogin { 
       display: flex; justify-content: center; align-items: center; min-height: 100vh; 
-      padding: 16px; background: radial-gradient(circle at center, #0f244a 0%, #050b14 100%); 
+      padding: 16px; background: radial-gradient(circle at center, #0d254c 0%, #030812 100%); 
     } 
     body.light-theme #pantallaLogin {
-      background: radial-gradient(circle at center, #dbeafe 0%, #e2e8f0 100%);
+      background: radial-gradient(circle at center, #dbeafe 0%, #edf2f7 100%);
     }
     .card-login { 
-      background: var(--card-bg); border: 1.5px solid var(--accent); border-radius: 18px; 
-      max-width: 440px; width: 100%; padding: 28px 24px; box-shadow: 0 16px 45px rgba(0,0,0,0.7); 
+      background: var(--card-bg); border: 1.5px solid var(--card-border); border-radius: 20px; 
+      max-width: 440px; width: 100%; padding: 30px 26px; box-shadow: 0 20px 50px rgba(0,0,0,0.7); 
     } 
-    .card-login h3 { color: var(--gold); text-align: center; margin-bottom: 4px; font-size: 21px; font-weight: 900; letter-spacing: 0.5px; } 
-    .card-login p.sub { font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 18px; } 
+    .card-login h3 { color: var(--gold); text-align: center; margin-bottom: 4px; font-size: 22px; font-weight: 900; letter-spacing: 0.5px; } 
+    .card-login p.sub { font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 20px; } 
 
     .login-logos-header {
       display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 14px;
@@ -267,44 +268,44 @@
 
     .login-brand-logo-wrap {
       width: 66px; height: 66px; border-radius: 50%;
-      background: linear-gradient(135deg, #1d4ed8, #0284c7);
+      background: linear-gradient(135deg, #0056d2, #0284c7);
       border: 2.5px solid var(--gold); overflow: hidden;
       display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 18px rgba(29, 78, 216, 0.5); font-size: 28px; color: #fff; flex-shrink: 0;
+      box-shadow: 0 4px 18px rgba(0, 86, 210, 0.5); font-size: 28px; color: #fff; flex-shrink: 0;
     }
     .login-brand-logo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
     .caja-chica-box { 
-      background: rgba(2, 132, 199, 0.08); border: 1.5px dashed var(--accent); border-radius: 10px; 
-      padding: 12px; margin-top: 12px; 
+      background: rgba(0, 86, 210, 0.08); border: 1.5px dashed var(--accent); border-radius: 12px; 
+      padding: 14px; margin-top: 12px; 
     } 
 
     /* BARRA SUPERIOR */ 
     .top-admin-bar { 
       display: flex; background: var(--header-bg); border-bottom: 1.5px solid var(--card-border); 
-      padding: 10px 16px; align-items: center; justify-content: space-between; 
+      padding: 10px 18px; align-items: center; justify-content: space-between; 
       position: sticky; top: 0; z-index: 150; width: 100%; transition: background-color 0.3s ease; 
     } 
     .top-admin-bar.alerta-nueva-orden { 
-      background-color: #1e3a8a !important; 
+      background-color: #003e9c !important; 
       animation: alertFlash 1s infinite alternate; 
     } 
     @keyframes alertFlash { 0% { border-bottom-color: #dc2626; } 100% { border-bottom-color: #38bdf8; } } 
 
     .btn-toggle-global { 
-      background: linear-gradient(135deg, #1d4ed8, #0284c7); 
+      background: linear-gradient(135deg, #0056d2, #0284c7); 
       color: #fff; border: 1px solid var(--gold); border-radius: 8px; 
-      padding: 7px 14px; font-size: 13px; font-weight: 800; cursor: pointer; 
-      display: inline-flex; align-items: center; gap: 7px; transition: 0.2s;
+      padding: 8px 15px; font-size: 13px; font-weight: 800; cursor: pointer; 
+      display: inline-flex; align-items: center; gap: 8px; transition: 0.2s;
     } 
     .btn-toggle-global:hover {
-      box-shadow: 0 0 12px var(--accent-glow);
+      box-shadow: 0 0 14px var(--accent-glow);
     }
 
     .top-brand-center { display: flex; align-items: center; gap: 12px; } 
     .top-chuspa-badge { 
       display: flex; align-items: center; gap: 6px; 
-      background: rgba(2, 132, 199, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); 
+      background: rgba(0, 86, 210, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); 
       padding: 4px 10px 4px 6px; border-radius: 20px; text-decoration: none; 
     } 
     .top-chuspa-badge img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; background: #fff; } 
@@ -327,7 +328,7 @@
     .brand-left { display: flex; align-items: center; gap: 10px; overflow: hidden; } 
     .brand-avatar { 
       width: 44px; height: 44px; border-radius: 12px; 
-      background: linear-gradient(135deg, #1d4ed8, #0284c7); 
+      background: linear-gradient(135deg, #0056d2, #0284c7); 
       display: flex; align-items: center; justify-content: center; 
       font-size: 22px; color: #fff; overflow: hidden; flex-shrink: 0; 
       border: 1.5px solid var(--gold); 
@@ -335,37 +336,37 @@
     .brand-avatar img { width: 100%; height: 100%; object-fit: cover; } 
 
     .user-session-badge { 
-      background: rgba(2, 132, 199, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); 
-      border-radius: 8px; padding: 8px 11px; font-size: 11.5px; 
+      background: rgba(0, 86, 210, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); 
+      border-radius: 10px; padding: 8px 12px; font-size: 11.5px; 
       display: flex; justify-content: space-between; align-items: center; 
     } 
 
     /* VAULT ACCORDIONS */ 
-    .vault-box { background: #0c1830; border: 1.5px dashed var(--accent); border-radius: 10px; overflow: hidden; margin-bottom: 4px; } 
-    .vault-box.danger-vault { border-color: #ef4444; background: #200f13; } 
-    .vault-trigger { width: 100%; background: none; border: none; padding: 9px 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 800; color: var(--gold); font-size: 11px; } 
+    .vault-box { background: #08162e; border: 1.5px dashed var(--accent); border-radius: 10px; overflow: hidden; margin-bottom: 4px; } 
+    .vault-box.danger-vault { border-color: #ef4444; background: #200d11; } 
+    .vault-trigger { width: 100%; background: none; border: none; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 800; color: var(--gold); font-size: 11px; } 
     .vault-box.danger-vault .vault-trigger { color: #fca5a5; } 
-    .vault-content { display: none; padding: 10px 12px; background: #070e1c; border-top: 1px solid rgba(255,255,255,0.08); } 
-    .vault-content input { width: 100%; padding: 7px; background: #040913; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #fff; font-size: 12px; margin-top: 4px; outline: none; } 
+    .vault-content { display: none; padding: 10px 12px; background: #050e1e; border-top: 1px solid rgba(255,255,255,0.08); } 
+    .vault-content input { width: 100%; padding: 8px; background: #030812; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #fff; font-size: 12px; margin-top: 4px; outline: none; } 
 
     .nav-menu { display: flex; flex-direction: column; gap: 6px; flex: 1; } 
     .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 10px; border: 1px solid transparent; background: transparent; color: var(--text-muted); font-size: 13px; font-weight: 700; cursor: pointer; text-align: left; transition: 0.15s; } 
     .nav-item i { font-size: 15px; width: 20px; text-align: center; color: var(--accent); } 
-    .nav-item:hover { background: #132445; color: #fff; } 
-    .nav-item.active { background: #172d57; color: var(--gold); border-color: var(--card-border); font-weight: 800; } 
+    .nav-item:hover { background: #0d2042; color: #fff; } 
+    .nav-item.active { background: #102954; color: var(--gold); border-color: var(--card-border); font-weight: 800; } 
     .badge-live-orders { background: #dc2626; color: #fff; font-size: 10px; padding: 2px 7px; border-radius: 12px; margin-left: auto; font-weight: 900; } 
 
-    .main-view { padding: 22px 26px; overflow-y: auto; max-height: calc(100vh - 54px); width: 100%; } 
-    .view-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px; border-bottom: 1.5px solid rgba(255,255,255,0.08); padding-bottom: 12px; } 
-    .view-header h1 { font-size: 21px; font-weight: 900; color: var(--gold); } 
+    .main-view { padding: 24px 28px; overflow-y: auto; max-height: calc(100vh - 54px); width: 100%; } 
+    .view-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; border-bottom: 1.5px solid rgba(255,255,255,0.08); padding-bottom: 12px; } 
+    .view-header h1 { font-size: 22px; font-weight: 900; color: var(--gold); } 
 
-    .card { background: var(--card-bg); padding: 20px 22px; border-radius: 14px; border: 1px solid var(--card-border); margin-bottom: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); } 
+    .card { background: var(--card-bg); padding: 22px 24px; border-radius: 16px; border: 1px solid var(--card-border); margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); } 
     label { font-size: 11px; font-weight: 800; color: var(--gold); display: block; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.5px; } 
-    input, textarea, select { width: 100%; padding: 9px 12px; margin-top: 4px; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; font-size: 13.5px; background: var(--input-bg); color: #fff; outline: none; } 
+    input, textarea, select { width: 100%; padding: 10px 13px; margin-top: 4px; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; font-size: 13.5px; background: var(--input-bg); color: #fff; outline: none; } 
 
-    .btn { padding: 9px 15px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 7px; font-size: 13px; transition: 0.15s; } 
-    .btn-save { background: linear-gradient(135deg, #1d4ed8, #0284c7); color: white; } 
-    .btn-save:hover { background: linear-gradient(135deg, #1e40af, #0369a1); }
+    .btn { padding: 10px 16px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 7px; font-size: 13px; transition: 0.15s; } 
+    .btn-save { background: linear-gradient(135deg, #0056d2, #0284c7); color: white; } 
+    .btn-save:hover { background: linear-gradient(135deg, #0043a8, #0369a1); }
     .btn-add { background: var(--success); color: white; } 
     .btn-del { background: #450a0a; color: #fca5a5; border: 1px solid #dc2626; } 
     .btn-print { background: var(--blue); color: #fff; } 
@@ -373,32 +374,32 @@
 
     .kds-calendar-bar { 
       background: var(--card-bg); border: 1.5px solid var(--accent); border-radius: 14px; 
-      padding: 14px 18px; margin-bottom: 16px; display: flex; flex-wrap: wrap; 
+      padding: 14px 18px; margin-bottom: 18px; display: flex; flex-wrap: wrap; 
       justify-content: space-between; align-items: center; gap: 12px; 
     } 
     .kds-date-picker-wrap { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; } 
     .kds-date-input { 
-      padding: 7px 12px; border-radius: 8px; border: 1px solid var(--gold); 
-      background: #091224; color: #38bdf8; font-weight: 900; font-size: 13px; cursor: pointer; 
+      padding: 7px 12px; border-radius: 8px; border: 1.5px solid var(--gold); 
+      background: #061122; color: #38bdf8; font-weight: 900; font-size: 13px; cursor: pointer; 
     } 
     .kds-date-quick-btn { 
-      background: #112347; border: 1px solid rgba(56, 189, 248, 0.35); color: #bae6fd; 
+      background: #0d2042; border: 1px solid rgba(56, 189, 248, 0.35); color: #bae6fd; 
       padding: 6px 12px; border-radius: 6px; font-size: 11.5px; font-weight: 800; cursor: pointer; 
     } 
     .kds-date-quick-btn.active { 
-      background: linear-gradient(135deg, #1d4ed8, #0284c7); color: #fff; border-color: var(--gold); 
+      background: linear-gradient(135deg, #0056d2, #0284c7); color: #fff; border-color: var(--gold); 
     } 
 
     .kds-day-metrics { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; } 
     .metric-pill { 
-      background: var(--metric-bg); border: 1px solid rgba(255,255,255,0.08); padding: 6px 12px; 
-      border-radius: 8px; font-size: 12px; 
+      background: var(--metric-bg); border: 1px solid rgba(255,255,255,0.08); padding: 7px 14px; 
+      border-radius: 10px; font-size: 12px; 
     } 
-    .metric-pill b { color: var(--gold); font-size: 13.5px; } 
+    .metric-pill b { color: var(--gold); font-size: 14px; } 
 
-    .kds-search-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; } 
-    .kds-search-bar input { flex: 2; min-width: 200px; padding: 10px; border-radius: 8px; border: 1px solid var(--accent); background: var(--input-bg); color: #fff; } 
-    .kds-filter-btn { padding: 8px 14px; border-radius: 8px; border: 1px solid #334155; background: #11203d; color: #cbd5e1; font-size: 12px; font-weight: bold; cursor: pointer; } 
+    .kds-search-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; } 
+    .kds-search-bar input { flex: 2; min-width: 200px; padding: 11px; border-radius: 8px; border: 1px solid var(--accent); background: var(--input-bg); color: #fff; } 
+    .kds-filter-btn { padding: 9px 15px; border-radius: 8px; border: 1px solid #334155; background: #0f2244; color: #cbd5e1; font-size: 12px; font-weight: bold; cursor: pointer; } 
     .kds-filter-btn.active { background: var(--primary); color: #fff; border-color: var(--gold); } 
 
     .tables-monitor-bar { 
@@ -428,18 +429,18 @@
 
     .live-orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; min-height: 60px; } 
     .order-card { 
-      border-radius: 14px; border: 2px solid transparent; 
-      padding: 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 18px rgba(0,0,0,0.4); 
+      border-radius: 16px; border: 2px solid transparent; 
+      padding: 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.4); 
       position: relative; transition: all 0.3s ease; 
     } 
     .order-card.estado-iniciado { background: #1c1917; border-color: #f59e0b; } 
-    .order-card.estado-cocina { background: #0c2144; border-color: #2563eb; } 
-    .order-card.estado-servido { background: #062b1a; border-color: #10b981; } 
-    .order-card.estado-finalizado { background: #131a29; border-color: #475569; opacity: 0.88; } 
+    .order-card.estado-cocina { background: #091b38; border-color: #0056d2; } 
+    .order-card.estado-servido { background: #052617; border-color: #10b981; } 
+    .order-card.estado-finalizado { background: #111a28; border-color: #475569; opacity: 0.88; } 
 
     .order-card.cliente-pagando { 
       border-color: #ec4899 !important; 
-      box-shadow: 0 0 25px rgba(236, 72, 153, 0.6), 0 0 10px rgba(59, 130, 246, 0.6) !important; 
+      box-shadow: 0 0 25px rgba(236, 72, 153, 0.6), 0 0 10px rgba(0, 86, 210, 0.6) !important; 
       animation: rainbowSpin 3s linear infinite alternate; 
     } 
     @keyframes rainbowSpin { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } } 
@@ -447,12 +448,12 @@
     .order-card-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px dashed rgba(255,255,255,0.12); padding-bottom: 8px; } 
     .order-status-badge { font-size: 11px; font-weight: 900; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; } 
     .badge-iniciado { background: #f59e0b; color: #000; } 
-    .badge-cocina { background: #1d4ed8; color: #fff; } 
+    .badge-cocina { background: #0056d2; color: #fff; } 
     .badge-servido { background: #10b981; color: #fff; } 
     .badge-finalizado { background: #475569; color: #e2e8f0; } 
 
     .chef-order-priority-badge { 
-      background: #172554; color: #93c5fd; border: 1.5px solid #3b82f6; 
+      background: #003e9c; color: #bae6fd; border: 1px solid #38bdf8; 
       font-size: 11px; font-weight: 900; padding: 3px 8px; border-radius: 8px; display: inline-flex; align-items: center; gap: 4px; 
     } 
 
@@ -461,15 +462,15 @@
     .order-bottom-bar { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 8px; font-size: 12.5px; } 
 
     .order-actions-container { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; } 
-    .btn-action-confirm { flex: 1; background: linear-gradient(135deg, #1d4ed8, #0284c7); color: #fff; padding: 9px; font-size: 12px; border-radius: 8px; border: none; font-weight: 800; cursor: pointer; } 
-    .btn-action-serve { flex: 1; background: linear-gradient(135deg, #10b981, #059669); color: #fff; padding: 9px; font-size: 12px; border-radius: 8px; border: none; font-weight: 800; cursor: pointer; } 
-    .btn-action-cobrar { flex: 1; background: linear-gradient(135deg, #dc2626, #ea580c); color: #fff; padding: 9px; font-size: 12px; border-radius: 8px; border: none; font-weight: 900; cursor: pointer; } 
+    .btn-action-confirm { flex: 1; background: linear-gradient(135deg, #0056d2, #0284c7); color: #fff; padding: 10px; font-size: 12px; border-radius: 8px; border: none; font-weight: 800; cursor: pointer; } 
+    .btn-action-serve { flex: 1; background: linear-gradient(135deg, #10b981, #059669); color: #fff; padding: 10px; font-size: 12px; border-radius: 8px; border: none; font-weight: 800; cursor: pointer; } 
+    .btn-action-cobrar { flex: 1; background: linear-gradient(135deg, #dc2626, #ea580c); color: #fff; padding: 10px; font-size: 12px; border-radius: 8px; border: none; font-weight: 900; cursor: pointer; } 
     .btn-action-ask-more { width: 100%; background: #0284c7; color: #fff; padding: 8px; font-size: 12px; border-radius: 7px; border: none; font-weight: 800; cursor: pointer; } 
     .btn-action-print-chef { width: 100%; background: #2563eb; color: #fff; padding: 8px; font-size: 12px; border-radius: 7px; border: none; font-weight: 800; cursor: pointer; } 
 
     .custom-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; } 
-    .custom-table th, .custom-table td { border: 1px solid rgba(255,255,255,0.1); padding: 8px 10px; } 
-    .custom-table th { background: #132448; color: var(--gold); } 
+    .custom-table th, .custom-table td { border: 1px solid rgba(255,255,255,0.1); padding: 9px 11px; } 
+    .custom-table th { background: #0a1c38; color: var(--gold); } 
 
     .dishes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; } 
     .dish-card-visual { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; } 
@@ -492,8 +493,8 @@
     } 
     .modal-box { 
       background: var(--card-bg) !important; border: 1.5px solid var(--accent) !important; 
-      border-radius: 16px !important; max-width: 520px !important; width: 100% !important; 
-      max-height: 90vh !important; overflow-y: auto !important; padding: 22px !important; 
+      border-radius: 18px !important; max-width: 520px !important; width: 100% !important; 
+      max-height: 90vh !important; overflow-y: auto !important; padding: 24px !important; 
       display: flex !important; flex-direction: column !important; gap: 12px !important; 
       box-shadow: 0 20px 50px rgba(0,0,0,0.9) !important; 
     } 
@@ -514,7 +515,7 @@
     .alerta-centro-overlay.active { display: flex; } 
     .alerta-centro-card { 
       position: relative; width: 100%; max-width: 440px; 
-      background: #0f1d38; border-radius: 20px; padding: 24px; 
+      background: #0d1e3a; border-radius: 20px; padding: 24px; 
       overflow: hidden; box-shadow: 0 12px 45px rgba(0,0,0,0.9); 
       border: 2px solid var(--gold); 
       animation: alertPulseGlow 2.5s infinite alternate ease-in-out; 
@@ -526,14 +527,14 @@
     } 
     .alerta-icono-wrap { 
       width: 64px; height: 64px; border-radius: 50%; 
-      background: rgba(2, 132, 199, 0.15); border: 2px solid var(--gold); 
+      background: rgba(0, 86, 210, 0.15); border: 2px solid var(--gold); 
       margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; 
       font-size: 30px; color: var(--gold); 
     } 
     .btn-alerta-entendido { 
-      background: linear-gradient(135deg, #1d4ed8, #0284c7); 
+      background: linear-gradient(135deg, #0056d2, #0284c7); 
       color: #fff; font-weight: 900; font-size: 13.5px; border: none; 
-      border-radius: 12px; padding: 11px 24px; cursor: pointer; margin-top: 14px; 
+      border-radius: 12px; padding: 12px 24px; cursor: pointer; margin-top: 14px; 
       width: 100%; box-shadow: 0 4px 15px var(--accent-glow); 
     } 
 
@@ -574,7 +575,7 @@
         </div>
       </div>
       <h3 id="loginTitlePreview">La Cusqueñita</h3> 
-      <p class="sub">Sistema Integral de Operaciones & TPV</p> 
+      <p class="sub">Plataforma Cloud de Gestión & TPV Comercial</p> 
        
       <form onsubmit="verificarLoginSistema(event)"> 
         <label>Usuario / Rol:</label> 
@@ -755,7 +756,7 @@
           <div class="view-header"> 
             <div> 
               <h1>🛎️ Pantalla KDS: Control de Comandas</h1> 
-              <p>Comandas por orden de llegada para el Chef e impresión de tickets.</p> 
+              <p>Monitoreo operativo de cocina en tiempo real y despacho por prioridad.</p> 
             </div> 
             <button class="btn btn-add" onclick="cargarComandasEnVivo()"><i class="fa-solid fa-rotate"></i> Actualizar</button> 
           </div> 
@@ -808,69 +809,69 @@
 
         <!-- 2. CLUB & SOCIOS FRECUENTES -->
         <section id="viewSocios" style="display:none;">
-          <div class="view-header">
-            <div>
-              <h1>⭐ Club de Recompensas: Consulta de Socios</h1>
-              <p>Ingresa el DNI del comensal para ver su tarjeta de sellos acumulados y canjear premios.</p>
-            </div>
-            <button class="btn btn-add" onclick="cargarListaCompletaSocios()"><i class="fa-solid fa-rotate"></i> Actualizar Lista</button>
-          </div>
+          <div class="view-header"> 
+            <div> 
+              <h1>⭐ Club de Recompensas: Consulta de Socios</h1> 
+              <p>Ingresa el DNI del comensal para ver su tarjeta de sellos acumulados y canjear premios.</p> 
+            </div> 
+            <button class="btn btn-add" onclick="cargarListaCompletaSocios()"><i class="fa-solid fa-rotate"></i> Actualizar Lista</button> 
+          </div> 
 
-          <div class="card">
-            <strong style="color:var(--gold); font-size:14px;"><i class="fa-solid fa-id-card"></i> Buscar Socio por DNI o Escaneo:</strong>
-            <div style="display:flex; gap:10px; margin-top:8px;">
-              <input type="tel" id="inputBuscarDniSocio" placeholder="Ingresa DNI del cliente..." style="font-size:15px; font-weight:900;" maxlength="10">
-              <button type="button" class="btn btn-save" onclick="buscarSocioPorDniDirecto()"><i class="fa-solid fa-magnifying-glass"></i> Consultar</button>
-            </div>
+          <div class="card"> 
+            <strong style="color:var(--gold); font-size:14px;"><i class="fa-solid fa-id-card"></i> Buscar Socio por DNI o Escaneo:</strong> 
+            <div style="display:flex; gap:10px; margin-top:8px;"> 
+              <input type="tel" id="inputBuscarDniSocio" placeholder="Ingresa DNI del cliente..." style="font-size:15px; font-weight:900;" maxlength="10"> 
+              <button type="button" class="btn btn-save" onclick="buscarSocioPorDniDirecto()"><i class="fa-solid fa-magnifying-glass"></i> Consultar</button> 
+            </div> 
 
-            <div id="resultadoSocioBox" style="background:#09152b; border:1.5px solid var(--accent); border-radius:14px; padding:16px; display:none; flex-direction:column; gap:10px; margin-top:14px;">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                  <h3 id="resSocioNombre" style="color:#fff; font-size:17px; font-weight:900;">--</h3>
-                  <span style="font-size:12px; color:#94a3b8;">DNI: <b id="resSocioDni" style="color:var(--gold);">--</b></span>
-                </div>
-                <span id="resSocioBadgePremio" style="background:#10b981; color:#fff; font-size:11px; font-weight:900; padding:4px 10px; border-radius:12px; display:none;">
-                  🎁 ¡TIENE PREMIO LISTO!
-                </span>
-              </div>
+            <div id="resultadoSocioBox" style="background:#09152b; border:1.5px solid var(--accent); border-radius:14px; padding:16px; display:none; flex-direction:column; gap:10px; margin-top:14px;"> 
+              <div style="display:flex; justify-content:space-between; align-items:center;"> 
+                <div> 
+                  <h3 id="resSocioNombre" style="color:#fff; font-size:17px; font-weight:900;">--</h3> 
+                  <span style="font-size:12px; color:#94a3b8;">DNI: <b id="resSocioDni" style="color:var(--gold);">--</b></span> 
+                </div> 
+                <span id="resSocioBadgePremio" style="background:#10b981; color:#fff; font-size:11px; font-weight:900; padding:4px 10px; border-radius:12px; display:none;"> 
+                  🎁 ¡TIENE PREMIO LISTO! 
+                </span> 
+              </div> 
 
-              <div style="background:#061021; border:1px dashed var(--accent); border-radius:10px; padding:12px; display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                  <span style="font-size:12px; color:#cbd5e1; display:block;">Puntaje Actual:</span>
-                  <b id="resSocioSellos" style="font-size:24px; color:#38bdf8;">0</b> <span style="font-size:12px; color:#94a3b8;">de 10 sellos</span>
-                </div>
-                <div>
-                  <span style="font-size:11px; color:#94a3b8; display:block;">Total Visitas Históricas:</span>
-                  <b id="resSocioVisitas" style="font-size:14px; color:#fff;">0</b>
-                </div>
-              </div>
+              <div style="background:#061021; border:1px dashed var(--accent); border-radius:10px; padding:12px; display:flex; justify-content:space-between; align-items:center;"> 
+                <div> 
+                  <span style="font-size:12px; color:#cbd5e1; display:block;">Puntaje Actual:</span> 
+                  <b id="resSocioSellos" style="font-size:24px; color:#38bdf8;">0</b> <span style="font-size:12px; color:#94a3b8;">de 10 sellos</span> 
+                </div> 
+                <div> 
+                  <span style="font-size:11px; color:#94a3b8; display:block;">Total Visitas Históricas:</span> 
+                  <b id="resSocioVisitas" style="font-size:14px; color:#fff;">0</b> 
+                </div> 
+              </div> 
 
-              <div style="display:flex; gap:8px; margin-top:6px;">
-                <button type="button" class="btn btn-save" style="flex:1;" onclick="sumarSelloManual()"><i class="fa-solid fa-plus"></i> +1 Sello de Consumo</button>
-                <button type="button" class="btn btn-add" id="btnCanjearPremio" style="flex:1; display:none;" onclick="canjearPremioSocio()"><i class="fa-solid fa-gift"></i> Entregar Premio y Reiniciar</button>
-              </div>
-            </div>
-          </div>
+              <div style="display:flex; gap:8px; margin-top:6px;"> 
+                <button type="button" class="btn btn-save" style="flex:1;" onclick="sumarSelloManual()"><i class="fa-solid fa-plus"></i> +1 Sello de Consumo</button> 
+                <button type="button" class="btn btn-add" id="btnCanjearPremio" style="flex:1; display:none;" onclick="canjearPremioSocio()"><i class="fa-solid fa-gift"></i> Entregar Premio y Reiniciar</button> 
+              </div> 
+            </div> 
+          </div> 
 
-          <div class="card">
-            <strong style="color:var(--gold); font-size:14px; display:block; margin-bottom:8px;">
-              Historial de Socios Registrados (<span id="totalSociosRegistradosTxt">0</span>):
-            </strong>
-            <table class="custom-table">
-              <thead>
-                <tr>
-                  <th>DNI</th>
-                  <th>Nombre del Cliente</th>
-                  <th>Sellos Actuales</th>
-                  <th>Total Visitas</th>
-                  <th>Acción Rápida</th>
-                </tr>
-              </thead>
-              <tbody id="tablaSociosBody">
-                <tr><td colspan="5" style="text-align:center; color:#888;">Cargando socios...</td></tr>
-              </tbody>
-            </table>
-          </div>
+          <div class="card"> 
+            <strong style="color:var(--gold); font-size:14px; display:block; margin-bottom:8px;"> 
+              Historial de Socios Registrados (<span id="totalSociosRegistradosTxt">0</span>): 
+            </strong> 
+            <table class="custom-table"> 
+              <thead> 
+                <tr> 
+                  <th>DNI</th> 
+                  <th>Nombre del Cliente</th> 
+                  <th>Sellos Actuales</th> 
+                  <th>Total Visitas</th> 
+                  <th>Acción Rápida</th> 
+                </tr> 
+              </thead> 
+              <tbody id="tablaSociosBody"> 
+                <tr><td colspan="5" style="text-align:center; color:#888;">Cargando socios...</td></tr> 
+              </tbody> 
+            </table> 
+          </div> 
         </section> 
 
         <!-- 3. GESTIÓN DE USUARIOS --> 
@@ -878,7 +879,7 @@
           <div class="view-header"> 
             <div> 
               <h1>👥 Gestión de Usuarios y Permisos</h1> 
-              <p>Crea cuentas para tu personal con control de accesos por rol.</p> 
+              <p>Control de accesos y roles operativos para cajeros, mozos y administradores.</p> 
             </div> 
             <button class="btn btn-add" onclick="cargarUsuariosDesdeFirebase()"><i class="fa-solid fa-rotate"></i> Actualizar</button> 
           </div> 
@@ -943,7 +944,7 @@
           <div class="view-header"> 
             <div> 
               <h1>🍽️ Catálogo Visual de la Carta</h1> 
-              <p>Edita nombres, precios, fotos y videos directamente desde tu panel.</p> 
+              <p>Edita nombres, precios, fotos y videos sincronizados en la nube.</p> 
             </div> 
             <button class="btn btn-add" onclick="abrirModalPlato()"><i class="fa-solid fa-plus"></i> Nuevo Plato</button> 
           </div> 
@@ -955,7 +956,7 @@
           <div class="view-header"> 
             <div> 
               <h1>📅 Generación & Control de Reservas</h1> 
-              <p>Crea reservas bloqueando mesas para la fecha y datos del grupo.</p> 
+              <p>Bloqueo dinámico de mesas por turnos y comensales.</p> 
             </div> 
             <button class="btn btn-add" onclick="cargarReservasFirebase()"><i class="fa-solid fa-rotate"></i> Actualizar</button> 
           </div> 
@@ -1000,7 +1001,7 @@
 
         <!-- 6. IDENTIDAD, SUNAT Y REDES SOCIALES --> 
         <section id="viewIdentidad" style="display:none;"> 
-          <div class="view-header"><h1>🏪 Identidad del Negocio & Redes Sociales</h1></div> 
+          <div class="view-header"><h1>🏪 Identidad del Negocio & Parámetros Fiscales</h1></div> 
           <div class="card"> 
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;"> 
               <div> 
@@ -1028,7 +1029,7 @@
             </div> 
 
             <div style="border-top:1px dashed rgba(255,255,255,0.15); margin-top:14px; padding-top:10px;"> 
-              <strong style="color:var(--gold); font-size:13px;"><i class="fa-solid fa-share-nodes"></i> Redes Sociales & Contacto:</strong> 
+              <strong style="color:var(--gold); font-size:13px;"><i class="fa-solid fa-share-nodes"></i> Canales Oficiales & Contacto:</strong> 
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px;"> 
                 <div> 
                   <label>WhatsApp Oficial:</label> 
@@ -1049,22 +1050,22 @@
               </div> 
             </div> 
 
-            <div style="background:#09152b; padding:14px; border-radius:12px; border:1px dashed var(--accent); margin-top:14px;">
-              <strong style="color:var(--gold); font-size:12.5px; display:block; margin-bottom:8px;">
-                <i class="fa-solid fa-image"></i> Logotipo del Restaurante:
-              </strong>
+            <div style="background:#061122; padding:14px; border-radius:12px; border:1px dashed var(--accent); margin-top:14px;"> 
+              <strong style="color:var(--gold); font-size:12.5px; display:block; margin-bottom:8px;"> 
+                <i class="fa-solid fa-image"></i> Logotipo Corporativo del Restaurante: 
+              </strong> 
               
               <label style="margin-top:0;">Opción A: Subir imagen desde tu dispositivo (PNG o JPG):</label> 
               <input type="file" id="cfgLogoFileInput" accept="image/*" onchange="convertirLogoABase64(event)"> 
               
-              <label style="margin-top:8px;">Opción B: O pega directamente el enlace web del logo (https://...):</label>
-              <input type="url" id="cfgLogoUrlInput" placeholder="https://ejemplo.com/mi-logo.png" oninput="actualizarLogoPorUrl(this.value)">
+              <label style="margin-top:8px;">Opción B: O pega directamente el enlace web del logo (https://...):</label> 
+              <input type="url" id="cfgLogoUrlInput" placeholder="https://ejemplo.com/mi-logo.png" oninput="actualizarLogoPorUrl(this.value)"> 
 
               <div style="margin-top:10px; display:flex; align-items:center; gap:12px;"> 
                 <span style="font-size:12px; color:#94a3b8;">Vista previa del Logo:</span> 
                 <div id="previewCurrentLogo" class="brand-avatar" style="width:52px; height:52px;">🍽️</div> 
               </div> 
-            </div>
+            </div> 
 
             <button class="btn btn-save" style="margin-top:16px; width:100%;" onclick="guardarIdentidadFirebase()"><i class="fa-solid fa-floppy-disk"></i> Guardar Identidad, Logo & Redes</button> 
           </div> 
@@ -1077,17 +1078,17 @@
               <h1>📊 Reporte Contable & Auditoría SUNAT</h1> 
               <p>Historial y registro auditable de comprobantes emitidos.</p> 
             </div> 
-            <div style="display:flex; gap:8px;">
-              <button class="btn btn-add" onclick="cargarVentasDesdeFirebase()"><i class="fa-solid fa-rotate"></i> Actualizar Ventas</button>
+            <div style="display:flex; gap:8px;"> 
+              <button class="btn btn-add" onclick="cargarVentasDesdeFirebase()"><i class="fa-solid fa-rotate"></i> Actualizar Ventas</button> 
               <button class="btn btn-print no-print" onclick="window.print()"><i class="fa-solid fa-print"></i> Imprimir Reporte Formal</button> 
-            </div>
+            </div> 
           </div> 
 
           <div class="card" id="areaImpresionReporte"> 
-            <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:14px; font-weight:900; flex-wrap:wrap; gap:8px;">
-              <span>Total Ventas Cobradas: <b style="color:#10b981;" id="repMontoTotalAcumulado">S/ 0.00</b></span>
-              <span>Total Comprobantes: <b style="color:var(--gold);" id="repCantidadVentas">0</b></span>
-            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:14px; font-weight:900; flex-wrap:wrap; gap:8px;"> 
+              <span>Total Ventas Cobradas: <b style="color:#10b981;" id="repMontoTotalAcumulado">S/ 0.00</b></span> 
+              <span>Total Comprobantes: <b style="color:var(--gold);" id="repCantidadVentas">0</b></span> 
+            </div> 
 
             <div style="border-bottom:2px solid #334155; padding-bottom:8px; margin-bottom:12px;"> 
               <h2 id="repLocalRazonSocial" style="color:var(--gold); font-size:18px;">LA CUSQUEÑITA</h2> 
@@ -1112,8 +1113,8 @@
                   <th>Total</th> 
                 </tr> 
               </thead> 
-              <tbody id="tablaVentasBody">
-                <tr><td colspan="8" style="text-align:center; color:#aaa;">Cargando historial de ventas...</td></tr>
+              <tbody id="tablaVentasBody"> 
+                <tr><td colspan="8" style="text-align:center; color:#aaa;">Cargando historial de ventas...</td></tr> 
               </tbody> 
             </table> 
           </div> 
@@ -1148,13 +1149,13 @@
               </button> 
             </div> 
 
-            <div id="tarjetaQRImpresionCentrada" style="border:2px dashed #0284c7; border-radius:18px; max-width:320px; margin:20px auto; padding:24px 18px; background:#fff; color:#000; text-align:center; box-shadow:0 8px 25px rgba(0,0,0,0.15);"> 
+            <div id="tarjetaQRImpresionCentrada" style="border:2px dashed #0056d2; border-radius:18px; max-width:320px; margin:20px auto; padding:24px 18px; background:#fff; color:#000; text-align:center; box-shadow:0 8px 25px rgba(0,0,0,0.15);"> 
               <h2 id="qrPrintTituloLocal" style="font-size:22px; font-weight:900; letter-spacing:0.5px; margin-bottom:2px; color:#0f172a;">LA CUSQUEÑITA</h2> 
               <p style="font-size:12px; color:#64748b; margin-bottom:12px;">Cusco • Gourmet</p> 
                
               <img id="imgQRVisualCentrado" src="" alt="QR" style="width:210px; height:210px; margin:0 auto; display:block;"> 
                
-              <h1 id="qrPrintNumeroMesa" style="font-size:26px; font-weight:900; margin-top:12px; margin-bottom:4px; color:#1d4ed8;">MESA 01</h1> 
+              <h1 id="qrPrintNumeroMesa" style="font-size:26px; font-weight:900; margin-top:12px; margin-bottom:4px; color:#0056d2;">MESA 01</h1> 
               <p style="font-size:12px; color:#475569; margin-bottom:4px;">Escanea con tu celular para ver la carta y pedir</p> 
               <p id="qrPrintTelefonoContacto" style="font-size:12px; font-weight:bold; color:#0f172a;">Pedidos: +51969773064</p> 
             </div> 
@@ -1168,7 +1169,7 @@
           <div class="view-header"> 
             <div> 
               <h1>⭐ Reseñas & Comentarios por Plato</h1> 
-              <p>Opiniones y calificaciones de los clientes.</p> 
+              <p>Opiniones y calificaciones de los clientes para fidelización.</p> 
             </div> 
             <button class="btn btn-add" onclick="cargarResenasFirebase()"><i class="fa-solid fa-rotate"></i> Actualizar Opiniones</button> 
           </div> 
@@ -1187,7 +1188,7 @@
       </div> 
       <h2 style="color:var(--gold); font-size:18px; font-weight:900; margin-bottom:6px;" id="alertaTituloCentro">¡Notificación del Salón!</h2> 
       <p style="font-size:14px; color:#f8fafc; line-height:1.45; margin-bottom:10px;" id="alertaMensajeCentro">Mensaje de alerta del cliente...</p> 
-      <div style="background:#07101f; border:1px dashed var(--accent); border-radius:10px; padding:10px; font-size:13px; color:#38bdf8;" id="alertaDetalleCentro">Mesa --</div> 
+      <div style="background:#051022; border:1px dashed var(--accent); border-radius:10px; padding:10px; font-size:13px; color:#38bdf8;" id="alertaDetalleCentro">Mesa --</div> 
       <button type="button" class="btn-alerta-entendido" onclick="cerrarAlertaCentro()"> 
         <i class="fa-solid fa-check"></i> Entendido / Cerrar Aviso 
       </button> 
@@ -1223,13 +1224,13 @@
         </div> 
       </div> 
 
-      <div style="background:#09152b; padding:10px; border-radius:8px; border:1px dashed #334155; margin-top:6px;"> 
+      <div style="background:#061122; padding:10px; border-radius:8px; border:1px dashed #334155; margin-top:6px;"> 
         <label style="margin-top:0;">1. Foto / Portada del Plato:</label> 
         <input type="file" id="fileDishPoster" accept="image/*" onchange="convertirFotoPlato(event)"> 
         <input type="text" id="platoImagenUrl" placeholder="https://ejemplo.com/foto-plato.jpg" style="margin-top:6px;"> 
       </div> 
 
-      <div class="form-group" style="background:#09152b; padding:10px; border-radius:8px; border:1px dashed #334155; margin-top:8px;"> 
+      <div class="form-group" style="background:#061122; padding:10px; border-radius:8px; border:1px dashed #334155; margin-top:8px;"> 
         <label style="font-weight: bold; color: #fff; margin-top:0;">2. Video del Plato (Opcional):</label> 
         <input type="file" id="fileDishVideo" accept="video/mp4,video/webm" onchange="convertirVideoPlato(event)"> 
         <input  
@@ -1257,7 +1258,7 @@
         <button type="button" style="background:none; border:none; color:#ccc; font-size:24px; font-weight:bold; cursor:pointer;" onclick="cerrarModalCobro()">&times;</button> 
       </div> 
 
-      <div style="background:#09152b; padding:12px; border-radius:10px; border:1px solid var(--accent); margin:6px 0;"> 
+      <div style="background:#061122; padding:12px; border-radius:10px; border:1px solid var(--accent); margin:6px 0;"> 
         <div style="display:flex; justify-content:space-between; font-size:13px;"> 
           <span>Mesa / Cliente:</span> 
           <b id="cobroClienteTxt">Mesa 01</b> 
@@ -1287,7 +1288,7 @@
         </div> 
       </div> 
 
-      <div id="cajaDatosFactura" style="display:none; background:#09152b; padding:8px; border-radius:8px; border:1px dashed #334155;"> 
+      <div id="cajaDatosFactura" style="display:none; background:#061122; padding:8px; border-radius:8px; border:1px dashed #334155;"> 
         <label style="margin-top:0;">RUC del Cliente:</label> 
         <input type="text" id="cobroRucCliente" placeholder="20..."> 
         <label>Razón Social:</label> 
@@ -1600,122 +1601,122 @@
       if (s === 'socios') cargarListaCompletaSocios(); 
     } 
 
-    async function buscarSocioPorDniDirecto() {
-      const dni = document.getElementById('inputBuscarDniSocio').value.trim();
-      if (!dni) return alert("Por favor ingresa un número de DNI.");
+    async function buscarSocioPorDniDirecto() { 
+      const dni = document.getElementById('inputBuscarDniSocio').value.trim(); 
+      if (!dni) return alert("Por favor ingresa un número de DNI."); 
 
-      try {
-        const res = await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${dni}.json?_t=${Date.now()}`);
-        const data = await res.json();
+      try { 
+        const res = await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${dni}.json?_t=${Date.now()}`); 
+        const data = await res.json(); 
 
-        if (data && data.dni) {
-          mostrarFichaSocio(data);
-        } else {
-          if (confirm(`El DNI ${dni} no está registrado en el Club. ¿Deseas afiliarlo ahora?`)) {
-            const nom = prompt("Nombre completo del comensal:");
-            if (nom) {
-              const nuevo = { dni: dni, nombre: nom.trim(), sellos: 1, totalVisitas: 1 };
-              await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${dni}.json`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(nuevo)
-              });
-              mostrarFichaSocio(nuevo);
-              cargarListaCompletaSocios();
-            }
-          }
-        }
-      } catch (e) {
-        alert("Error al conectar con la base de datos.");
-      }
-    }
+        if (data && data.dni) { 
+          mostrarFichaSocio(data); 
+        } else { 
+          if (confirm(`El DNI ${dni} no está registrado en el Club. ¿Deseas afiliarlo ahora?`)) { 
+            const nom = prompt("Nombre completo del comensal:"); 
+            if (nom) { 
+              const nuevo = { dni: dni, nombre: nom.trim(), sellos: 1, totalVisitas: 1 }; 
+              await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${dni}.json`, { 
+                method: 'PUT', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify(nuevo) 
+              }); 
+              mostrarFichaSocio(nuevo); 
+              cargarListaCompletaSocios(); 
+            } 
+          } 
+        } 
+      } catch (e) { 
+        alert("Error al conectar con la base de datos."); 
+      } 
+    } 
 
-    function mostrarFichaSocio(socio) {
-      socioConsultadoActual = socio;
-      const box = document.getElementById('resultadoSocioBox');
-      document.getElementById('resSocioNombre').innerText = socio.nombre || "Socio Frecuente";
-      document.getElementById('resSocioDni').innerText = socio.dni;
-      document.getElementById('resSocioSellos').innerText = (socio.sellos || 0) % 10;
-      document.getElementById('resSocioVisitas').innerText = socio.totalVisitas || 1;
+    function mostrarFichaSocio(socio) { 
+      socioConsultadoActual = socio; 
+      const box = document.getElementById('resultadoSocioBox'); 
+      document.getElementById('resSocioNombre').innerText = socio.nombre || "Socio Frecuente"; 
+      document.getElementById('resSocioDni').innerText = socio.dni; 
+      document.getElementById('resSocioSellos').innerText = (socio.sellos || 0) % 10; 
+      document.getElementById('resSocioVisitas').innerText = socio.totalVisitas || 1; 
 
-      const tienePremio = (socio.sellos >= 10);
-      document.getElementById('resSocioBadgePremio').style.display = tienePremio ? 'inline-block' : 'none';
-      document.getElementById('btnCanjearPremio').style.display = tienePremio ? 'inline-flex' : 'none';
+      const tienePremio = (socio.sellos >= 10); 
+      document.getElementById('resSocioBadgePremio').style.display = tienePremio ? 'inline-block' : 'none'; 
+      document.getElementById('btnCanjearPremio').style.display = tienePremio ? 'inline-flex' : 'none'; 
 
-      box.style.display = 'flex';
-    }
+      box.style.display = 'flex'; 
+    } 
 
-    async function sumarSelloManual() {
-      if (!socioConsultadoActual) return;
-      socioConsultadoActual.sellos = (socioConsultadoActual.sellos || 0) + 1;
-      socioConsultadoActual.totalVisitas = (socioConsultadoActual.totalVisitas || 0) + 1;
+    async function sumarSelloManual() { 
+      if (!socioConsultadoActual) return; 
+      socioConsultadoActual.sellos = (socioConsultadoActual.sellos || 0) + 1; 
+      socioConsultadoActual.totalVisitas = (socioConsultadoActual.totalVisitas || 0) + 1; 
 
-      await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${socioConsultadoActual.dni}.json`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(socioConsultadoActual)
-      });
+      await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${socioConsultadoActual.dni}.json`, { 
+        method: 'PUT', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify(socioConsultadoActual) 
+      }); 
 
-      alert(`✔ ¡Sello sumado a ${socioConsultadoActual.nombre}!`);
-      mostrarFichaSocio(socioConsultadoActual);
-      cargarListaCompletaSocios();
-    }
+      alert(`✔ ¡Sello sumado a ${socioConsultadoActual.nombre}!`); 
+      mostrarFichaSocio(socioConsultadoActual); 
+      cargarListaCompletaSocios(); 
+    } 
 
-    async function canjearPremioSocio() {
-      if (!socioConsultadoActual) return;
-      if (confirm(`¿Entregar premio gratis a ${socioConsultadoActual.nombre} y reiniciar sus sellos?`)) {
-        socioConsultadoActual.sellos = Math.max(0, (socioConsultadoActual.sellos || 10) - 10);
+    async function canjearPremioSocio() { 
+      if (!socioConsultadoActual) return; 
+      if (confirm(`¿Entregar premio gratis a ${socioConsultadoActual.nombre} y reiniciar sus sellos?`)) { 
+        socioConsultadoActual.sellos = Math.max(0, (socioConsultadoActual.sellos || 10) - 10); 
 
-        await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${socioConsultadoActual.dni}.json`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(socioConsultadoActual)
-        });
+        await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${socioConsultadoActual.dni}.json`, { 
+          method: 'PUT', 
+          headers: { 'Content-Type': 'application/json' }, 
+          body: JSON.stringify(socioConsultadoActual) 
+        }); 
 
-        alert("✔ Premio canjeado con éxito.");
-        mostrarFichaSocio(socioConsultadoActual);
-        cargarListaCompletaSocios();
-      }
-    }
+        alert("✔ Premio canjeado con éxito."); 
+        mostrarFichaSocio(socioConsultadoActual); 
+        cargarListaCompletaSocios(); 
+      } 
+    } 
 
-    async function cargarListaCompletaSocios() {
-      const tbody = document.getElementById('tablaSociosBody');
-      const count = document.getElementById('totalSociosRegistradosTxt');
-      if (!tbody) return;
+    async function cargarListaCompletaSocios() { 
+      const tbody = document.getElementById('tablaSociosBody'); 
+      const count = document.getElementById('totalSociosRegistradosTxt'); 
+      if (!tbody) return; 
 
-      try {
-        const res = await fetch(`${FIREBASE_DB_URL}fidelidad_clientes.json?_t=${Date.now()}`);
-        const data = await res.json();
+      try { 
+        const res = await fetch(`${FIREBASE_DB_URL}fidelidad_clientes.json?_t=${Date.now()}`); 
+        const data = await res.json(); 
 
-        if (data && typeof data === 'object') {
-          const lista = Object.values(data);
-          if (count) count.innerText = lista.length;
+        if (data && typeof data === 'object') { 
+          const lista = Object.values(data); 
+          if (count) count.innerText = lista.length; 
 
-          tbody.innerHTML = lista.map(s => `
-            <tr>
-              <td><b style="color:var(--gold);">${s.dni}</b></td>
-              <td>${s.nombre || 'Socio'}</td>
-              <td><b>${(s.sellos || 0) % 10} / 10</b> ${s.sellos >= 10 ? '🎁 <span style="color:#10b981; font-weight:bold;">¡Premio listo!</span>' : ''}</td>
-              <td>${s.totalVisitas || 1}</td>
-              <td>
-                <button class="btn btn-save" style="padding:4px 8px; font-size:11px;" onclick="cargarSocioDirecto('${s.dni}')">
-                  Ver Ficha
-                </button>
-              </td>
-            </tr>
-          `).join('');
-          return;
-        }
-      } catch (e) {}
+          tbody.innerHTML = lista.map(s => ` 
+            <tr> 
+              <td><b style="color:var(--gold);">${s.dni}</b></td> 
+              <td>${s.nombre || 'Socio'}</td> 
+              <td><b>${(s.sellos || 0) % 10} / 10</b> ${s.sellos >= 10 ? '🎁 <span style="color:#10b981; font-weight:bold;">¡Premio listo!</span>' : ''}</td> 
+              <td>${s.totalVisitas || 1}</td> 
+              <td> 
+                <button class="btn btn-save" style="padding:4px 8px; font-size:11px;" onclick="cargarSocioDirecto('${s.dni}')"> 
+                  Ver Ficha 
+                </button> 
+              </td> 
+            </tr> 
+          `).join(''); 
+          return; 
+        } 
+      } catch (e) {} 
 
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888;">No hay socios registrados aún.</td></tr>';
-    }
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888;">No hay socios registrados aún.</td></tr>'; 
+    } 
 
-    function cargarSocioDirecto(dni) {
-      document.getElementById('inputBuscarDniSocio').value = dni;
-      buscarSocioPorDniDirecto();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    function cargarSocioDirecto(dni) { 
+      document.getElementById('inputBuscarDniSocio').value = dni; 
+      buscarSocioPorDniDirecto(); 
+      window.scrollTo({ top: 0, behavior: 'smooth' }); 
+    } 
 
     function toggleAcordeonClave(tipo) { 
       if (tipo === 'token') { 
@@ -1816,7 +1817,7 @@
 
       tbody.innerHTML = listaUsuariosFirebase.map(u => { 
         const esCreadorOAdminPrincipal = (u.id === "usr-admin-principal" || u.nombre.toLowerCase() === "administrador"); 
-        let badgeColor = "#2563eb"; 
+        let badgeColor = "#0056d2"; 
         if (u.rol === 'admin') badgeColor = "#dc2626"; 
         else if (u.rol === 'mozo') badgeColor = "#10b981"; 
         else if (u.rol === 'cocina') badgeColor = "#f59e0b"; 
@@ -2138,16 +2139,16 @@
         }) 
       }); 
 
-      try {
-        canalPedidos.postMessage({
-          tipo: 'ESTADO_ACTUALIZADO',
-          id: comandaCobrandoActual.id,
-          estado: 'finalizado',
-          agradecimientoFinal: true
-        });
-      } catch (e) {}
+      try { 
+        canalPedidos.postMessage({ 
+          tipo: 'ESTADO_ACTUALIZADO', 
+          id: comandaCobrandoActual.id, 
+          estado: 'finalizado', 
+          agradecimientoFinal: true 
+        }); 
+      } catch (e) {} 
 
-      const dniCliente = docCliente || (comandaCobrandoActual.dni || '').trim();
+      const dniCliente = docCliente || (comandaCobrandoActual.dni || '').trim(); 
       if (dniCliente && dniCliente.length >= 8) { 
         try { 
           const resSocio = await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${dniCliente}.json`); 
@@ -2266,13 +2267,13 @@
         }) 
       }); 
 
-      try {
-        canalPedidos.postMessage({
-          tipo: 'ESTADO_ACTUALIZADO',
-          id: idComanda,
-          estado: 'cocina'
-        });
-      } catch (e) {}
+      try { 
+        canalPedidos.postMessage({ 
+          tipo: 'ESTADO_ACTUALIZADO', 
+          id: idComanda, 
+          estado: 'cocina' 
+        }); 
+      } catch (e) {} 
 
       await cargarComandasEnVivo(); 
     } 
@@ -2284,13 +2285,13 @@
         body: JSON.stringify({ estado: nuevoEstado, clientePidiendoCuenta: false }) 
       }); 
 
-      try {
-        canalPedidos.postMessage({
-          tipo: 'ESTADO_ACTUALIZADO',
-          id: idComanda,
-          estado: nuevoEstado
-        });
-      } catch (e) {}
+      try { 
+        canalPedidos.postMessage({ 
+          tipo: 'ESTADO_ACTUALIZADO', 
+          id: idComanda, 
+          estado: nuevoEstado 
+        }); 
+      } catch (e) {} 
 
       await cargarComandasEnVivo(); 
     } 
@@ -2302,13 +2303,13 @@
         body: JSON.stringify({ mozoPregunta: true }) 
       }); 
 
-      try {
-        canalPedidos.postMessage({
-          tipo: 'ESTADO_ACTUALIZADO',
-          id: idComanda,
-          mozoPregunta: true
-        });
-      } catch (e) {}
+      try { 
+        canalPedidos.postMessage({ 
+          tipo: 'ESTADO_ACTUALIZADO', 
+          id: idComanda, 
+          mozoPregunta: true 
+        }); 
+      } catch (e) {} 
 
       alert("✔ Notificación enviada al celular del cliente: '¿Deseas agregar algo más?'"); 
     } 
@@ -2611,20 +2612,20 @@
     function actualizarRenderLogoVisual(logoData) { 
       const av = document.getElementById('headerAvatar'); 
       const prev = document.getElementById('previewCurrentLogo'); 
-      const loginBrandLogo = document.getElementById('loginBrandLogoWrap');
+      const loginBrandLogo = document.getElementById('loginBrandLogoWrap'); 
       const inpUrl = document.getElementById('cfgLogoUrlInput'); 
 
       if (logoData && (logoData.startsWith('data:image') || logoData.startsWith('http'))) { 
-        const imgHtml = `<img src="${logoData}" alt="Logo">`;
+        const imgHtml = `<img src="${logoData}" alt="Logo">`; 
         av.innerHTML = imgHtml; 
         prev.innerHTML = imgHtml; 
-        if (loginBrandLogo) loginBrandLogo.innerHTML = imgHtml;
+        if (loginBrandLogo) loginBrandLogo.innerHTML = imgHtml; 
         if (inpUrl && logoData.startsWith('http')) inpUrl.value = logoData; 
       } else { 
-        const txt = logoData || "🍽️";
+        const txt = logoData || "🍽️"; 
         av.innerText = txt; 
         prev.innerText = txt; 
-        if (loginBrandLogo) loginBrandLogo.innerText = txt;
+        if (loginBrandLogo) loginBrandLogo.innerText = txt; 
       } 
     } 
 
@@ -2690,10 +2691,10 @@
         <style> 
           @page { margin: 0; size: auto; } 
           body { font-family: -apple-system, system-ui, sans-serif; margin: 0; padding: 30px 20px; display: flex; justify-content: center; background: #fff; } 
-          .card { border: 2.5px dashed #1d4ed8; border-radius: 26px; padding: 30px 24px; width: 340px; text-align: center; } 
+          .card { border: 2.5px dashed #0056d2; border-radius: 26px; padding: 30px 24px; width: 340px; text-align: center; } 
           img { width: 230px; height: 230px; margin: 0 auto; display: block; } 
           h2 { margin: 0 0 4px; font-size: 22px; font-weight: 900; letter-spacing: 0.5px; color: #0f172a; } 
-          h1 { margin: 14px 0 4px; font-size: 30px; font-weight: 900; color: #1d4ed8; } 
+          h1 { margin: 14px 0 4px; font-size: 30px; font-weight: 900; color: #0056d2; } 
           p { margin: 4px 0; font-size: 13px; color: #475569; } 
         </style></head><body> 
           <div class="card"> 
@@ -3031,16 +3032,16 @@
     } 
 
     function cerrarTurno() { 
-      if (confirm("¿Cerrar sesión y turno?")) {
+      if (confirm("¿Cerrar sesión y turno?")) { 
         sessionStorage.clear(); 
         window.location.reload(); 
-      }
+      } 
     } 
     function cerrarSesionAdmin() { sessionStorage.clear(); window.location.reload(); } 
 
     window.onload = async () => { 
       await cargarIdentidadFirebase(); 
-      if (sessionStorage.getItem("auth_rest") === "true") {
+      if (sessionStorage.getItem("auth_rest") === "true") { 
         mostrarPanelAdmin(); 
       } else { 
         document.getElementById('pantallaLogin').style.display = 'flex'; 
