@@ -9,10 +9,9 @@
     /* ==========================================================
        ARQUITECTURA VISUAL LA CHUSPA TECH ENTERPRISE B2B
        - Fusión: Azul Royal TuBoleto + Oro Incaico La Chuspa Tech
-       - Tipografía en modales en Negro Carbón (#0f172a) para máxima legibilidad
-       - Oro Inca / Amber Gold: #f59e0b, #d97706, #fbbf24
-       - Azul Royal Fintech: #0056d2, #0284c7, #0b1a33
-       - Verde Transaccional: #10b981 | Rojo Alerta: #dc2626
+       - Blanco Mármol en Notificaciones, Agradecimiento y Bloqueo
+       - Resplandor Fuego Giratorio (Oro #fbbf24 + Rojo Fuego #dc2626)
+       - Botón Reel Añadir Plato: #FF5A5F
        ========================================================== */
     :root {
       --primary: #0056d2;
@@ -30,10 +29,17 @@
       --text-muted: #94a3b8;
       --gold-badge: #fbbf24;
 
-      /* PALETA MODAL LUXURY: FONDOS CLAROS CON TEXTO NEGRO VISIBLE */
+      /* BLANCO MÁRMOL LUXURY */
+      --marble-white: #fbfcfd;
+      --marble-white-card: #ffffff;
+      --marble-border: #e2e8f0;
+      --marble-text: #0f172a;        /* Negro Carbón */
+      --marble-muted: #475569;
+
+      /* PALETA MODAL */
       --modal-bg: #f8fafc;
       --modal-card-bg: #ffffff;
-      --modal-dark: #0f172a;        /* Negro Carbón */
+      --modal-dark: #0f172a;
       --modal-green: #10b981;
       --modal-green-dark: #065f46;
       --modal-border: #cbd5e1;
@@ -42,6 +48,7 @@
       --color-cuenta: #7c3aed;
       --color-cuenta-hover: #9333ea;
       --color-cuenta-glow: rgba(124, 58, 237, 0.65);
+      --reel-add-btn: #FF5A5F;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
@@ -59,16 +66,20 @@
       border-radius: 8px;
     }
 
-    /* PANTALLA DE BLOQUEO DE SEGURIDAD */
+    /* PANTALLA DE BLOQUEO DE SEGURIDAD - FONDO BLANCO MÁRMOL */
     .screen-security-lock {
-      position: fixed; inset: 0; background: radial-gradient(circle at center, #0c2042 0%, #020712 100%);
+      position: fixed; inset: 0; 
+      background: radial-gradient(circle at center, #ffffff 0%, #edf2f7 100%);
       z-index: 999999; display: none; flex-direction: column; align-items: center; justify-content: center;
       padding: 24px; text-align: center;
     }
     .security-lock-box {
-      max-width: 400px; width: 100%; background: #0b1a33; border: 1.5px solid var(--chuspa-gold-border);
-      border-radius: 24px; padding: 30px 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.85), 0 0 25px rgba(245, 158, 11, 0.15);
+      max-width: 400px; width: 100%; background: var(--marble-white-card); 
+      border: 1.5px solid var(--chuspa-gold-border);
+      border-radius: 24px; padding: 32px 26px; 
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08), 0 0 25px rgba(245, 158, 11, 0.15);
       display: flex; flex-direction: column; align-items: center; gap: 14px;
+      color: var(--marble-text);
     }
     .security-header-logos { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 4px; }
     .sec-chuspa-badge {
@@ -80,16 +91,17 @@
     .sec-brand-badge {
       width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent));
       border: 2.5px solid var(--chuspa-gold); overflow: hidden; display: flex; align-items: center; justify-content: center;
-      font-size: 28px; color: #fff; box-shadow: 0 4px 18px rgba(0, 86, 210, 0.5); flex-shrink: 0;
+      font-size: 28px; color: #fff; box-shadow: 0 4px 18px rgba(0, 86, 210, 0.35); flex-shrink: 0;
     }
     .sec-brand-badge img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-    .security-lock-icon { font-size: 34px; color: #fbbf24; cursor: pointer; filter: drop-shadow(0 0 10px var(--chuspa-gold-glow)); }
+    .security-lock-icon { font-size: 34px; color: var(--chuspa-gold); cursor: pointer; filter: drop-shadow(0 0 8px var(--chuspa-gold-glow)); }
     .btn-bypass-dev {
-      background: linear-gradient(135deg, rgba(0, 86, 210, 0.15), rgba(245, 158, 11, 0.15));
-      border: 1.5px solid var(--chuspa-gold); color: #fbbf24;
-      padding: 10px 20px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; margin-top: 4px;
+      background: #f8fafc;
+      border: 1.5px solid var(--chuspa-gold); color: #0f172a;
+      padding: 11px 22px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; margin-top: 4px;
       display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
     .btn-bypass-dev:active { transform: scale(0.96); }
 
@@ -188,14 +200,17 @@
     .price-now { font-size: 24px; font-weight: 900; color: #fbbf24; display: block; margin-bottom: 6px; text-shadow: 0 2px 8px rgba(0,0,0,0.8); }
     .price-alt { font-size: 12px; color: #94a3b8; font-weight: 700; margin-left: 6px; }
 
+    /* BOTÓN AÑADIR PLATO DEL REEL - COLOR #FF5A5F */
     .btn-quick-add {
-      background: linear-gradient(135deg, var(--primary), var(--accent)); border: 1.5px solid var(--chuspa-gold);
+      background: linear-gradient(135deg, #FF5A5F, #e0484d); 
+      border: 1.5px solid #ffe4e6;
       color: #fff; padding: 10px 20px; border-radius: 24px; font-weight: 900; font-size: 13.5px;
-      cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 18px rgba(0, 86, 210, 0.5);
-      transition: transform 0.15s ease;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 8px; 
+      box-shadow: 0 4px 18px rgba(255, 90, 95, 0.45);
+      transition: transform 0.15s ease, box-shadow 0.2s ease;
     }
     .btn-quick-add:active { transform: scale(0.96); }
-    .btn-quick-add .finger-tap-icon { font-size: 15px; color: #fbbf24; animation: fingerTap 1.2s infinite alternate ease-in-out; }
+    .btn-quick-add .finger-tap-icon { font-size: 15px; color: #fff; animation: fingerTap 1.2s infinite alternate ease-in-out; }
     @keyframes fingerTap { 0% { transform: scale(1) translateY(0); } 100% { transform: scale(1.25) translateY(-3px); } }
 
     /* BOTÓN CAMBIO A CARTA / CUADRÍCULA */
@@ -216,7 +231,7 @@
       border: 1.5px solid var(--chuspa-gold-border);
     }
 
-    /* MODAL DE MENÚ EN CUADRÍCULA */
+    /* MODAL DE MENÚ EN CUADRÍCULA CON CATEGORIZACIÓN */
     .grid-popup-modal {
       position: fixed; inset: 0; background: rgba(3, 7, 18, 0.88); backdrop-filter: blur(8px);
       z-index: 100001; display: none; align-items: center; justify-content: center; padding: 14px;
@@ -233,7 +248,17 @@
     }
     .grid-popup-header h3 { font-size: 17px; font-weight: 900; color: #fbbf24; display: flex; align-items: center; gap: 8px; }
     .grid-popup-header button { background: none; border: none; color: #ddd; font-size: 24px; cursor: pointer; }
-    .grid-popup-body { padding: 14px; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    
+    .grid-popup-body { padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+    .grid-category-block { display: flex; flex-direction: column; gap: 10px; }
+    .grid-category-title {
+      font-size: 13px; font-weight: 900; color: #fbbf24; text-transform: uppercase;
+      letter-spacing: 0.5px; border-bottom: 1.5px solid rgba(245, 158, 11, 0.35); padding-bottom: 4px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .grid-cards-subgrid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    }
 
     .dish-card-box {
       background: #081427; border: 1.5px solid var(--card-border); border-radius: 16px;
@@ -272,7 +297,7 @@
     }
     .chat-badge { position: absolute; top: -3px; right: -3px; background-color: #dc2626; color: #fff; font-size: 11px; font-weight: 900; min-width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
-    /* POPUP DE COMANDA ENTERPRISE (LETRAS EN NEGRO Y FONDO BLANCO / LIMPIO) */
+    /* POPUP DE COMANDA ENTERPRISE */
     .popup-modal { position: fixed; inset: 0; background: rgba(3, 7, 18, 0.88); backdrop-filter: blur(8px); z-index: 100003; display: none; align-items: flex-end; justify-content: center; }
     .popup-modal.active { display: flex; }
     .popup-sheet {
@@ -392,53 +417,78 @@
     .btn-pedir-cuenta:active { transform: scale(0.98); }
 
     .modal-review-box {
-      background: rgba(0, 0, 0, 0.45); border: 1.5px dashed var(--chuspa-gold); border-radius: 12px;
+      background: #f8fafc; border: 1.5px dashed var(--chuspa-gold); border-radius: 12px;
       padding: 12px; margin-top: 10px; margin-bottom: 12px; text-align: left;
     }
     .modal-stars-row { display: flex; gap: 8px; font-size: 22px; color: #fbbf24; cursor: pointer; margin: 6px 0; }
 
-    /* MODAL DE NOTIFICACIÓN CENTRADO */
+    /* ==========================================================
+       MODAL DE NOTIFICACIÓN: RESPLANDOR GIRATORIO ORO + FUEGO
+       Y FONDO BLANCO MÁRMOL CON TEXTOS EN NEGRO CARBÓN
+       ========================================================== */
     .notificacion-modal-overlay {
-      position: fixed; inset: 0; background: rgba(3, 7, 18, 0.82); backdrop-filter: blur(8px);
+      position: fixed; inset: 0; 
+      background: rgba(15, 23, 42, 0.72); 
+      backdrop-filter: blur(8px);
       display: none; align-items: center; justify-content: center; z-index: 99999; padding: 16px;
     }
     .notificacion-card-fuego {
-      position: relative; width: 92%; max-width: 440px; background: #0b1a33;
-      border-radius: 22px; padding: 24px 20px; box-sizing: border-box; overflow: hidden;
-      border: 2px solid var(--chuspa-gold);
-      box-shadow: 0 12px 45px rgba(0,0,0,0.9), 0 0 25px rgba(245, 158, 11, 0.2);
+      position: relative; width: 92%; max-width: 440px;
+      background: transparent;
+      border-radius: 26px; padding: 4px; box-sizing: border-box; overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 35px rgba(245, 158, 11, 0.45);
     }
-    .notificacion-contenido { position: relative; z-index: 3; }
+    /* BORDE GIRATORIO RESPLANDECIENTE: ORO INCAICO + ROJO FUEGO */
+    .notificacion-card-fuego::before {
+      content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+      background: conic-gradient(transparent, #dc2626, #f59e0b, #fbbf24, #ef4444, transparent 40%);
+      animation: rotarBordeFuego 3s linear infinite; z-index: 1;
+    }
+    .notificacion-contenido {
+      position: relative; z-index: 2;
+      background: var(--marble-white);
+      background-image: radial-gradient(circle at 10% 10%, rgba(245, 158, 11, 0.05) 0%, #ffffff 80%);
+      border-radius: 22px; padding: 24px 22px; color: var(--marble-text);
+      box-shadow: inset 0 0 15px rgba(0,0,0,0.03);
+    }
+    @keyframes rotarBordeFuego {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
 
-    /* PANTALLA AGRADECIMIENTO */
+    /* PANTALLA AGRADECIMIENTO - FONDO BLANCO MÁRMOL */
     .screen-agradecimiento-overlay {
-      position: fixed; inset: 0; background: rgba(3, 7, 18, 0.96); backdrop-filter: blur(10px);
+      position: fixed; inset: 0; background: rgba(15, 23, 42, 0.78); backdrop-filter: blur(10px);
       z-index: 200000; display: none; align-items: center; justify-content: center; padding: 20px; text-align: center;
     }
     .screen-agradecimiento-overlay.active { display: flex; }
     .box-agradecimiento {
-      background: #0b1a33; border: 2px solid var(--chuspa-gold); border-radius: 24px; max-width: 410px; width: 100%;
-      padding: 24px 20px; display: flex; flex-direction: column; align-items: center; gap: 12px; position: relative;
-      max-height: 94dvh; overflow-y: auto; box-shadow: 0 16px 45px rgba(0,0,0,0.9), 0 0 25px rgba(245, 158, 11, 0.2);
+      background: var(--marble-white);
+      background-image: radial-gradient(circle at 10% 10%, rgba(245, 158, 11, 0.06) 0%, #ffffff 75%);
+      border: 2px solid var(--chuspa-gold); border-radius: 24px; max-width: 410px; width: 100%;
+      padding: 26px 22px; display: flex; flex-direction: column; align-items: center; gap: 12px; position: relative;
+      max-height: 94dvh; overflow-y: auto; 
+      box-shadow: 0 20px 45px rgba(0,0,0,0.25), 0 0 25px rgba(245, 158, 11, 0.25);
+      color: var(--marble-text);
     }
     .btn-close-modal {
       position: absolute; top: 12px; right: 14px; background: none; border: none;
-      color: #aaa; font-size: 24px; font-weight: bold; cursor: pointer;
+      color: #64748b; font-size: 24px; font-weight: bold; cursor: pointer;
     }
 
     .agradece-logos-header { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 2px; }
     .agradece-chuspa-wrap {
-      width: 60px; height: 60px; border-radius: 50%; overflow: hidden; background: #fff;
+      width: 62px; height: 62px; border-radius: 50%; overflow: hidden; background: #fff;
       border: 2px solid var(--chuspa-gold); display: flex; align-items: center; justify-content: center;
       box-shadow: 0 4px 14px var(--chuspa-gold-glow); flex-shrink: 0; text-decoration: none;
     }
     .agradece-chuspa-wrap img { width: 100%; height: 100%; object-fit: cover; }
 
     .agradece-logo-wrap {
-      width: 60px; height: 60px; border-radius: 50%; overflow: hidden;
+      width: 62px; height: 62px; border-radius: 50%; overflow: hidden;
       background: linear-gradient(135deg, var(--primary), var(--accent));
       border: 2px solid var(--chuspa-gold); display: flex; align-items: center; justify-content: center;
-      font-size: 28px; color: #fff; box-shadow: 0 4px 14px rgba(0, 86, 210, 0.5); flex-shrink: 0;
+      font-size: 28px; color: #fff; box-shadow: 0 4px 14px rgba(0, 86, 210, 0.35); flex-shrink: 0;
     }
     .agradece-logo-wrap img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -454,7 +504,7 @@
     .btn-social-tk { background: #000; border: 1px solid #333; }
 
     .chuspa-tech-card-footer {
-      background: rgba(245, 158, 11, 0.1); border: 1px dashed var(--chuspa-gold);
+      background: #f8fafc; border: 1px dashed var(--chuspa-gold);
       border-radius: 12px; padding: 10px 14px; width: 100%; margin-top: 6px;
       display: flex; align-items: center; justify-content: space-between; text-decoration: none;
     }
@@ -466,7 +516,7 @@
 
     .btn-ir-reservas {
       background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; border: 1px solid var(--chuspa-gold);
-      padding: 11px 18px; border-radius: 20px; font-weight: 900; font-size: 13.5px; cursor: pointer;
+      padding: 12px 18px; border-radius: 20px; font-weight: 900; font-size: 13.5px; cursor: pointer;
       display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
       box-shadow: 0 4px 15px var(--accent-glow);
     }
@@ -476,32 +526,33 @@
       display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px;
     }
     .btn-salir-limpiar {
-      background: #1e293b; color: #f8fafc; border: 1px solid #475569; padding: 10px 16px;
+      background: #f1f5f9; color: #0f172a; border: 1.5px solid #cbd5e1; padding: 10px 16px;
       border-radius: 20px; font-weight: 800; font-size: 12.5px; cursor: pointer; width: 100%;
     }
 
-    /* MODAL DE RESERVAS */
+    /* MODAL DE RESERVAS - BLANCO MÁRMOL */
     .screen-reservas-modal-overlay {
-      position: fixed; inset: 0; background: rgba(3, 7, 18, 0.96); backdrop-filter: blur(12px);
+      position: fixed; inset: 0; background: rgba(15, 23, 42, 0.78); backdrop-filter: blur(12px);
       z-index: 250000; display: none; align-items: center; justify-content: center; padding: 16px;
     }
     .screen-reservas-modal-overlay.active { display: flex; }
     .box-reservas-modal {
-      background: #0b1a33; border: 2px solid var(--chuspa-gold); border-radius: 24px;
-      max-width: 440px; width: 100%; padding: 24px 20px; max-height: 94dvh; overflow-y: auto;
-      display: flex; flex-direction: column; gap: 12px; position: relative; color: #fff;
-      box-shadow: 0 16px 45px rgba(0,0,0,0.9), 0 0 25px rgba(245, 158, 11, 0.2);
+      background: var(--marble-white);
+      border: 2px solid var(--chuspa-gold); border-radius: 24px;
+      max-width: 440px; width: 100%; padding: 26px 22px; max-height: 94dvh; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 12px; position: relative; color: var(--marble-text);
+      box-shadow: 0 16px 45px rgba(0,0,0,0.25), 0 0 25px rgba(245, 158, 11, 0.2);
     }
     .custom-input-white {
       width: 100%; background: #ffffff !important; color: #0f172a !important;
       border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 11px 14px;
-      font-size: 13.5px; font-weight: 700; outline: none; box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      font-size: 13.5px; font-weight: 700; outline: none; box-shadow: 0 2px 6px rgba(0,0,0,0.04);
     }
   </style>
 </head>
 <body>
 
-  <!-- PANTALLA DE BLOQUEO DE SEGURIDAD -->
+  <!-- PANTALLA DE BLOQUEO DE SEGURIDAD (BLANCO MÁRMOL) -->
   <div class="screen-security-lock" id="pantallaBloqueoSeguridad">
     <div class="security-lock-box">
       <div class="security-header-logos">
@@ -512,21 +563,21 @@
       </div>
 
       <div class="security-lock-icon" id="iconLockDev" onclick="clickIconoDesarrollador()"><i class="fa-solid fa-lock"></i></div>
-      <h2 style="color:#fbbf24; font-size:21px; font-weight:900;" id="secTitleLocal">La Cusqueñita</h2>
-      <h3 style="color:#dc2626; font-size:15px; font-weight:800;" id="secHeadingTxt">Acceso Restringido a la Carta</h3>
-      <p style="font-size:13px; color:#e2e8f0; line-height:1.5;" id="secDescTxt">
+      <h2 style="color:#0f172a; font-size:22px; font-weight:900;" id="secTitleLocal">La Cusqueñita</h2>
+      <h3 style="color:#dc2626; font-size:15px; font-weight:900;" id="secHeadingTxt">Acceso Restringido a la Carta</h3>
+      <p style="font-size:13.5px; color:#475569; line-height:1.5;" id="secDescTxt">
         Por seguridad y exclusividad del servicio, este menú solo está disponible escaneando el <b>código QR físico</b> vigente en tu mesa dentro del restaurante.
       </p>
-      <div style="background:rgba(255,255,255,0.06); padding:10px 14px; border-radius:10px; font-size:11.5px; color:#94a3b8;" id="secSubNoteTxt">
+      <div style="background:#f1f5f9; padding:10px 14px; border-radius:12px; font-size:12px; color:#64748b; font-weight:700;" id="secSubNoteTxt">
         Si ya pagaste tu cuenta o estás fuera del local, esta sesión ha expirado automáticamente.
       </div>
       <button type="button" class="btn-bypass-dev" onclick="ingresarClaveBypassDesarrollador()" id="btnDevBypassTxt">
-        <i class="fa-solid fa-key"></i> Acceso Administrador / Mozo
+        <i class="fa-solid fa-key" style="color:var(--chuspa-gold);"></i> Acceso Administrador / Mozo
       </button>
     </div>
   </div>
 
-  <!-- PANTALLA AGRADECIMIENTO TRAS COBRO -->
+  <!-- PANTALLA AGRADECIMIENTO TRAS COBRO (BLANCO MÁRMOL) -->
   <div class="screen-agradecimiento-overlay" id="pantallaAgradecimiento">
     <div class="box-agradecimiento">
       <button type="button" class="btn-close-modal" onclick="reiniciarNavegadorLimpio()" title="Cerrar">&times;</button>
@@ -538,9 +589,9 @@
         <div class="agradece-logo-wrap" id="agradeceLogoWrap" title="Logo del Restaurante">🍽️</div>
       </div>
 
-      <h2 style="color:#fbbf24; font-size:21px; font-weight:900;" id="agradeceNombreLocal">La Cusqueñita</h2>
+      <h2 style="color:#0f172a; font-size:22px; font-weight:900;" id="agradeceNombreLocal">La Cusqueñita</h2>
       
-      <p style="font-size:13px; color:#cbd5e1; line-height:1.45;" id="agradeceMensajeTxt">
+      <p style="font-size:13.5px; color:#334155; line-height:1.45;" id="agradeceMensajeTxt">
         ¡Muchas gracias por tu visita! Tu comanda ha sido cancelada y la mesa ha quedado libre. Esperamos que hayas disfrutado tu experiencia gastronómica.
       </p>
 
@@ -548,8 +599,8 @@
         🎁 Ver mis Sellos y Premios Acumulados
       </a>
 
-      <div style="width:100%; border-top:1px dashed rgba(255,255,255,0.15); padding-top:8px;">
-        <span style="font-size:11.5px; color:#fbbf24; font-weight:800; display:block;">
+      <div style="width:100%; border-top:1.5px dashed #cbd5e1; padding-top:10px;">
+        <span style="font-size:12px; color:#0056d2; font-weight:900; display:block;">
           <i class="fa-solid fa-phone"></i> <span id="lblAgradeceContacto">Contacto:</span> <span id="agradeceContactoTxt">+51 969 773 064</span>
         </span>
         <div class="social-links-grid" id="agradeceSocialLinks">
@@ -560,8 +611,8 @@
         </div>
       </div>
 
-      <div style="background:rgba(255,255,255,0.06); padding:10px; border-radius:12px; width:100%; margin-top:2px;">
-        <span style="font-size:11px; color:#fbbf24; font-weight:800; display:block; margin-bottom:6px;" id="lblVolverReservarTxt">
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:12px; border-radius:14px; width:100%; margin-top:4px;">
+        <span style="font-size:11.5px; color:#0f172a; font-weight:900; display:block; margin-bottom:8px;" id="lblVolverReservarTxt">
           ¿Planeas volver? Reserva tu mesa para Eventos o Familias
         </span>
         <button type="button" class="btn-ir-reservas" onclick="abrirModalReservasCliente()" id="btnAbrirModalReservasTxt">
@@ -576,11 +627,11 @@
         <div class="chuspa-tech-footer-left">
           <img src="CHUSPITA-circulo.png" alt="La Chuspa" class="chuspa-tech-footer-img" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
           <div>
-            <div style="font-size:11px; font-weight:900; color:#fbbf24;">Tecnología La Chuspa Tech</div>
-            <div style="font-size:9px; color:#fed7aa;">Digitalización de restaurantes en Cusco</div>
+            <div style="font-size:11.5px; font-weight:900; color:#0f172a;">Tecnología La Chuspa Tech</div>
+            <div style="font-size:9.5px; color:#64748b; font-weight:700;">Digitalización de restaurantes en Cusco</div>
           </div>
         </div>
-        <i class="fa-solid fa-arrow-up-right-from-square" style="color:#fbbf24; font-size:12px;"></i>
+        <i class="fa-solid fa-arrow-up-right-from-square" style="color:var(--chuspa-gold); font-size:13px;"></i>
       </a>
 
       <button type="button" class="btn-salir-limpiar" onclick="reiniciarNavegadorLimpio()" id="btnAgradeceSalirTxt">
@@ -589,17 +640,17 @@
     </div>
   </div>
 
-  <!-- VENTANA MODAL DE RESERVAS -->
+  <!-- VENTANA MODAL DE RESERVAS (BLANCO MÁRMOL) -->
   <div class="screen-reservas-modal-overlay" id="modalReservasCliente">
     <div class="box-reservas-modal">
       <button type="button" class="btn-close-modal" onclick="cerrarModalReservasCliente()" title="Cerrar ventana">&times;</button>
 
-      <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:1.5px solid #e2e8f0; padding-bottom:8px;">
         <div style="display:flex; align-items:center; gap:10px;">
           <div class="agradece-logo-wrap" style="width:44px; height:44px; font-size:22px;" id="reservasLogoLocal">🍽️</div>
           <div>
-            <h3 style="color:#fbbf24; font-size:16px;" id="resModalTituloLocal">La Cusqueñita</h3>
-            <span style="font-size:11px; color:#10b981;" id="lblModalReservaSub">Catálogo Oficial de Reservas & Eventos</span>
+            <h3 style="color:#0f172a; font-size:16px; font-weight:900;" id="resModalTituloLocal">La Cusqueñita</h3>
+            <span style="font-size:11.5px; color:#10b981; font-weight:800;" id="lblModalReservaSub">Catálogo Oficial de Reservas & Eventos</span>
           </div>
         </div>
         <a href="https://www.lachuspaanuncios.com/" target="_blank" title="Tecnología La Chuspa Tech">
@@ -607,7 +658,7 @@
         </a>
       </div>
 
-      <p style="font-size:12px; color:#cbd5e1;" id="lblModalReservaDesc">
+      <p style="font-size:12.5px; color:#475569;" id="lblModalReservaDesc">
         Completa tus datos para agendar tu mesa familiar, grupo turístico o evento.
       </p>
 
@@ -634,7 +685,7 @@
       </button>
 
       <div style="text-align:center; margin-top:4px;">
-        <span style="font-size:11px; color:#94a3b8;"><i class="fa-solid fa-phone"></i> Pedidos & Reservas: <span id="resCliTelefonoTxt">+51 969 773 064</span></span>
+        <span style="font-size:11.5px; color:#475569; font-weight:800;"><i class="fa-solid fa-phone"></i> Pedidos & Reservas: <span id="resCliTelefonoTxt">+51 969 773 064</span></span>
         <div class="social-links-grid" style="margin-top:6px;">
           <a href="https://wa.me/51969773064" target="_blank" class="btn-social-icon btn-social-wa" id="linkSocialWa2"><i class="fa-brands fa-whatsapp"></i></a>
           <a href="#" target="_blank" class="btn-social-icon btn-social-fb" id="linkSocialFb2"><i class="fa-brands fa-facebook-f"></i></a>
@@ -709,11 +760,11 @@
     </div>
   </div>
 
-  <!-- MODAL POPUP: MENÚ EN CUADRÍCULA (GRID DE PLATOS) -->
+  <!-- MODAL POPUP: MENÚ EN CUADRÍCULA CON CATEGORIZACIÓN (PLATOS FUERTES, BEBIDAS, ETC.) -->
   <div class="grid-popup-modal" id="modalMenuCuadricula" onclick="cerrarModalCuadricula(event)">
     <div class="grid-popup-box" onclick="event.stopPropagation()">
       <div class="grid-popup-header">
-        <h3 id="lblMenuCasaTitulo"><i class="fa-solid fa-book-open"></i> Menú de la Casa</h3>
+        <h3 id="lblMenuCasaTitulo"><i class="fa-solid fa-book-open" style="color:var(--chuspa-gold);"></i> Menú de la Casa</h3>
         <button type="button" onclick="cerrarModalCuadricula()">&times;</button>
       </div>
       <div class="grid-popup-body custom-scroll" id="gridPopupDishes"></div>
@@ -729,7 +780,7 @@
     </div>
   </div>
 
-  <!-- POPUP DE COMANDA ENTERPRISE (LETRAS EN NEGRO Y FONDOS CLAROS DE ALTO CONTRASTE) -->
+  <!-- POPUP DE COMANDA ENTERPRISE (LETRAS EN NEGRO Y FONDOS CLAROS) -->
   <div class="popup-modal" id="ordersPopupModal" onclick="closeOrdersPopup(event)">
     <div class="popup-sheet custom-scroll" onclick="event.stopPropagation()">
       <div class="sheet-header">
@@ -823,32 +874,32 @@
     </div>
   </div>
 
-  <!-- MODAL DE NOTIFICACIÓN CENTRADO -->
+  <!-- MODAL DE NOTIFICACIÓN CENTRADO: RESPLANDOR GIRATORIO ORO + ROJO FUEGO Y BLANCO MÁRMOL -->
   <div id="modalNotificacion" class="notificacion-modal-overlay">
     <div class="notificacion-card-fuego">
       <div class="notificacion-contenido">
         
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-          <span id="notifModalBadge" style="background: var(--chuspa-gold); color: #000; font-weight: 900; font-size: 12px; padding: 4px 12px; border-radius: 20px;">
+          <span id="notifModalBadge" style="background: #0056d2; color: #fff; font-weight: 900; font-size: 12px; padding: 4px 12px; border-radius: 20px;">
             🟡 1. POR CONFIRMAR
           </span>
-          <span id="notifTurnoTxt" style="font-size: 11.5px; color: #fbbf24; font-weight: 900;">Turno #--</span>
+          <span id="notifTurnoTxt" style="font-size: 12px; color: #d97706; font-weight: 900;">Turno #--</span>
         </div>
 
-        <p id="notifModalMensaje" style="color: #f8fafc; font-size: 13.5px; line-height: 1.45; margin-bottom: 14px;">
+        <p id="notifModalMensaje" style="color: #0f172a; font-size: 14px; line-height: 1.45; margin-bottom: 14px; font-weight: 700;">
           Tu pedido fue enviado. El mozo o cocina lo está verificando en el panel...
         </p>
 
         <!-- Pregunta interactiva del Mozo -->
-        <div id="cajaPreguntaMozo" style="display: none; background: #0056d2; color: #ffffff; padding: 14px; border-radius: 12px; font-weight: 700; margin-bottom: 14px; border: 1.5px solid var(--chuspa-gold);">
-          <div style="font-size: 13.5px; margin-bottom: 10px; color: #fbbf24; font-weight: 900;">
+        <div id="cajaPreguntaMozo" style="display: none; background: #f0f7ff; color: #0f172a; padding: 14px; border-radius: 12px; font-weight: 700; margin-bottom: 14px; border: 1.5px solid var(--primary);">
+          <div style="font-size: 13.5px; margin-bottom: 10px; color: #0056d2; font-weight: 900;">
             🔔 El mozo pregunta: ¿Deseas ordenar algo más para tu mesa?
           </div>
           <div style="display: flex; gap: 8px;">
             <button type="button" onclick="responderMozo(true)" style="flex: 1.2; background: #10b981; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 900; cursor: pointer; font-size: 12px;">
               + Sí, agregar platos
             </button>
-            <button type="button" onclick="responderMozo(false)" style="flex: 1; background: #1e293b; color: white; border: 1px solid #475569; padding: 10px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 12px;">
+            <button type="button" onclick="responderMozo(false)" style="flex: 1; background: #e2e8f0; color: #334155; border: 1px solid #cbd5e1; padding: 10px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 12px;">
               No, gracias
             </button>
           </div>
@@ -863,7 +914,7 @@
 
         <!-- Reseña y Comentario -->
         <div id="cajaResenaServicio" class="modal-review-box" style="display: none;">
-          <span style="font-size: 11.5px; color: #fbbf24; font-weight: 800; display: block;">⭐ Califica nuestro servicio y producto:</span>
+          <span style="font-size: 12px; color: #0f172a; font-weight: 900; display: block;">⭐ Califica nuestro servicio y producto:</span>
           <div class="modal-stars-row" id="starsRowModal">
             <span onclick="setRating(1)">★</span>
             <span onclick="setRating(2)">★</span>
@@ -877,9 +928,9 @@
           </button>
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 10px; color: #94a3b8; font-size: 12.5px;">
-          <span id="notifModalMesaTxt" style="font-weight: 900; color: #fff;">Mesa 01</span>
-          <span id="notifModalTotalTxt" style="font-weight: 900; color: #fbbf24;">S/ 0.00</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1.5px dashed #cbd5e1; padding-top: 10px; color: #475569; font-size: 13px;">
+          <span id="notifModalMesaTxt" style="font-weight: 900; color: #0f172a;">Mesa 01</span>
+          <span id="notifModalTotalTxt" style="font-weight: 900; color: #0056d2;">S/ 0.00</span>
         </div>
 
       </div>
@@ -910,7 +961,7 @@
 
     const I18N_UI = {
       es: {
-        all: "Todos", mains: "Platos Fuertes", top: "🔥 Especialidades", drinks: "Bebidas & Cocteles", desserts: "Postres", starters: "Entradas",
+        all: "Todos", mains: "Platos Fuertes", top: "🔥 Especialidades", drinks: "Bebidas & Cócteles", desserts: "Postres", starters: "Entradas",
         swipeUp: "Desliza hacia arriba 👆", addDish: "👆 Añadir Plato", viewMenu: "Ver Carta", orders: "🔥 Pedidos", confirmOrder: "Confirmar Comanda",
         addMoreDishes: "Añadir platos a tu mesa:", assignedTable: "📍 Mesa Asignada:", cash: "Efectivo", exactPay: "Pagar Exacto",
         calcChange: "Ingresa monto en efectivo para vuelto", changeToGive: "💵 Vuelto a entregar:", missingCash: "⚠️ Falta dinero",
@@ -930,7 +981,7 @@
         noDishesCat: "No dishes available in this category."
       },
       de: {
-        all: "Alle", mains: "Hauptgerichte", top: "🔥 Spezialitäten", drinks: "Getränke", desserts: "Desserts", starters: "Vorspeisen",
+        all: "Alle", mains: "Hauptgerichte", top: "🔥 Spezialitäten", drinks: "Getränke & Cocktails", desserts: "Desserts", starters: "Vorspeisen",
         swipeUp: "Nach oben wischen 👆", addDish: "👆 Gericht hinzufügen", viewMenu: "Speisekarte", orders: "🔥 Bestellungen", confirmOrder: "Bestellung bestätigen",
         addMoreDishes: "Gerichte hinzufügen:", assignedTable: "📍 Tisch:", cash: "Bargeld", exactPay: "Passend zahlen", calcChange: "Bargeld für Rückgeld eingeben",
         changeToGive: "💵 Rückgeld:", missingCash: "⚠️ Zu wenig Bargeld", namePlaceholder: "Name (optional)", notesPlaceholder: "Notizen für die Küche",
@@ -938,7 +989,7 @@
         sendAddMore: "Gerichte hinzufügen", houseMenu: "Speisekarte", noDishesCat: "Keine Gerichte in dieser Kategorie."
       },
       it: {
-        all: "Tutti", mains: "Piatti Principali", top: "🔥 Specialità", drinks: "Bevande", desserts: "Dolci", starters: "Antipasti",
+        all: "Tutti", mains: "Piatti Principali", top: "🔥 Specialità", drinks: "Bevande & Cocktail", desserts: "Dolci", starters: "Antipasti",
         swipeUp: "Scorri verso l'alto 👆", addDish: "👆 Aggiungi Piatto", viewMenu: "Visualizza Menu", orders: "🔥 Ordini", confirmOrder: "Conferma Comanda",
         addMoreDishes: "Aggiungi piatti al tuo tavolo:", assignedTable: "📍 Tavolo Assegnato:", cash: "Contanti", exactPay: "Paga Esatto", calcChange: "Inserisci contanti per il resto",
         changeToGive: "💵 Resto da dare:", missingCash: "⚠️ Denaro insufficiente", namePlaceholder: "Nome (opzionale)", notesPlaceholder: "Note per la cucina",
@@ -946,7 +997,7 @@
         sendAddMore: "Aggiungi Piatti al Tavolo", houseMenu: "Menu della Casa", noDishesCat: "Nessun piatto in questa categoria."
       },
       fr: {
-        all: "Tous", mains: "Plats Principaux", top: "🔥 Spécialités", drinks: "Boissons", desserts: "Desserts", starters: "Entrées",
+        all: "Tous", mains: "Plats Principaux", top: "🔥 Spécialités", drinks: "Boissons & Cocktails", desserts: "Desserts", starters: "Entrées",
         swipeUp: "Glissez vers le haut 👆", addDish: "👆 Ajouter Plat", viewMenu: "Voir le Menu", orders: "🔥 Commandes", confirmOrder: "Confirmer Commande",
         addMoreDishes: "Ajouter des plats à votre table:", assignedTable: "📍 Table Assignée:", cash: "Espèces", exactPay: "Montant Exact", calcChange: "Entrez le montant en espèces",
         changeToGive: "💵 Rendu de monnaie:", missingCash: "⚠️ Espèces insuffisantes", namePlaceholder: "Votre nom (optionnel)", notesPlaceholder: "Notes pour la cuisine",
@@ -954,7 +1005,7 @@
         sendAddMore: "Ajouter Plats à la Table", houseMenu: "Menu de la Maison", noDishesCat: "Aucun plat dans cette catégorie."
       },
       pt: {
-        all: "Todos", mains: "Pratos Principais", top: "🔥 Especialidades", drinks: "Bebidas", desserts: "Sobremesas", starters: "Entradas",
+        all: "Todos", mains: "Pratos Principais", top: "🔥 Especialidades", drinks: "Bebidas & Coquetéis", desserts: "Sobremesas", starters: "Entradas",
         swipeUp: "Deslize para cima 👆", addDish: "👆 Adicionar Prato", viewMenu: "Ver Cardápio", orders: "🔥 Pedidos", confirmOrder: "Confirmar Pedido",
         addMoreDishes: "Adicionar pratos à mesa:", assignedTable: "📍 Mesa:", cash: "Dinheiro", exactPay: "Pagar Exato", calcChange: "Informe valor para troco",
         changeToGive: "💵 Troco:", missingCash: "⚠️ Dinheiro insuficiente", namePlaceholder: "Seu nome (opcional)", notesPlaceholder: "Observações para a cozinha",
@@ -970,7 +1021,7 @@
         sendAddMore: "向餐桌加菜", houseMenu: "餐厅菜单", noDishesCat: "该类别暂无菜品。"
       },
       ja: {
-        all: "すべて", mains: "メイン料理", top: "🔥 おすすめ", drinks: "ドリンク", desserts: "デザート", starters: "前菜",
+        all: "すべて", mains: "メイン料理", top: "🔥 おすすめ", drinks: "ドリンク＆カクテル", desserts: "デザート", starters: "前菜",
         swipeUp: "上にスワイプ 👆", addDish: "👆 注文に追加", viewMenu: "メニューを見る", orders: "🔥 注文リスト", confirmOrder: "注文を確定",
         addMoreDishes: "料理を追加:", assignedTable: "📍 テーブル番:", cash: "現金", exactPay: "お釣りなし", calcChange: "お釣り計算のため金額を入力",
         changeToGive: "💵 お釣り:", missingCash: "⚠️ 金額が不足しています", namePlaceholder: "お名前 (任意)", notesPlaceholder: "調理場へのご要望 (焼き加減、アレルギー等)",
@@ -1044,6 +1095,10 @@
     let ultimoEstadoRegistrado = null;
     let cuentaPedidaBloqueada = false;
 
+    /* ========================================================
+       MODAL POPUP: MENÚ EN CUADRÍCULA CON CATEGORIZACIÓN
+       (PLATOS FUERTES, BEBIDAS & CÓCTELES, ETC.)
+       ======================================================== */
     function abrirModalCuadricula(categoriaOpcional = null) {
       if (categoriaOpcional) {
         categoriaFiltroActiva = categoriaOpcional;
@@ -1082,39 +1137,86 @@
 
       const t = I18N_UI[currentLang] || I18N_UI['es'];
 
-      const platosFiltrados = catalogo.filter(item => {
-        if (categoriaFiltroActiva === "all") return true;
-        return (item.category || "").toLowerCase() === categoriaFiltroActiva.toLowerCase();
-      });
+      // Si se seleccionó una categoría específica
+      if (categoriaFiltroActiva !== "all") {
+        const platosFiltrados = catalogo.filter(item => (item.category || "").toLowerCase() === categoriaFiltroActiva.toLowerCase());
+        
+        if (platosFiltrados.length === 0) {
+          contenedor.innerHTML = `<p style="text-align:center; color:#94a3b8; padding:20px;">${t.noDishesCat}</p>`;
+          return;
+        }
 
-      if (platosFiltrados.length === 0) {
-        contenedor.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:#94a3b8; padding:20px;">${t.noDishesCat}</p>`;
+        contenedor.innerHTML = `
+          <div class="grid-cards-subgrid">
+            ${platosFiltrados.map(item => renderPlatoCardBox(item)).join('')}
+          </div>
+        `;
         return;
       }
 
-      contenedor.innerHTML = platosFiltrados.map(item => {
-        const info = getDishInfo(item);
-        const imagenSrc = item.posterUrl || item.imagen || 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500';
+      // Si es "Todos" (Menú de la Casa): agrupar visualmente por categorías
+      const gruposCategorias = {};
+      catalogo.forEach(item => {
+        const cKey = (item.category && item.category.trim()) ? item.category.trim().toLowerCase() : 'mains';
+        if (!gruposCategorias[cKey]) gruposCategorias[cKey] = [];
+        gruposCategorias[cKey].push(item);
+      });
+
+      const ordenDeseado = ['mains', 'drinks', 'top', 'starters', 'desserts'];
+      const categoriasPresentes = Object.keys(gruposCategorias).sort((a, b) => {
+        let idxA = ordenDeseado.indexOf(a);
+        let idxB = ordenDeseado.indexOf(b);
+        if (idxA === -1) idxA = 99;
+        if (idxB === -1) idxB = 99;
+        return idxA - idxB;
+      });
+
+      if (categoriasPresentes.length === 0) {
+        contenedor.innerHTML = `<p style="text-align:center; color:#94a3b8; padding:20px;">${t.noDishesCat}</p>`;
+        return;
+      }
+
+      contenedor.innerHTML = categoriasPresentes.map(cKey => {
+        let labelCat = t[cKey] || (cKey.charAt(0).toUpperCase() + cKey.slice(1));
+        if (cKey === 'mains' && !labelCat.includes('🍲')) labelCat = '🍲 ' + labelCat;
+        if (cKey === 'drinks' && !labelCat.includes('🍹')) labelCat = '🍹 ' + labelCat;
+        if (cKey === 'top' && !labelCat.includes('🔥')) labelCat = '🔥 ' + labelCat;
+
+        const platosDelGrupo = gruposCategorias[cKey];
 
         return `
-          <div class="dish-card-box">
-            <div class="dish-card-media" onclick="seleccionarPlatoDesdeGrid('${item.id}')">
-              <img src="${imagenSrc}" alt="${info.name}" loading="lazy">
-              ${item.tag ? `<span class="dish-card-tag">${item.tag}</span>` : ''}
-              ${item.videoUrl ? `<span style="position:absolute; bottom:6px; right:6px; background:rgba(0,0,0,0.7); color:#fff; font-size:10px; padding:3px 6px; border-radius:6px;"><i class="fa-solid fa-play"></i></span>` : ''}
-            </div>
-            <div class="dish-card-content">
-              <div>
-                <div class="dish-card-name">${info.name}</div>
-                <div class="dish-card-price">${formatPrice(item.precioPEN || item.precio || 0)}</div>
-              </div>
-              <button type="button" class="btn-card-add" onclick="addToOrder('${item.id}')">
-                <i class="fa-solid fa-plus"></i> ${currentLang === 'es' ? 'Añadir' : 'Add'}
-              </button>
+          <div class="grid-category-block">
+            <div class="grid-category-title">${labelCat}</div>
+            <div class="grid-cards-subgrid">
+              ${platosDelGrupo.map(item => renderPlatoCardBox(item)).join('')}
             </div>
           </div>
         `;
       }).join('');
+    }
+
+    function renderPlatoCardBox(item) {
+      const info = getDishInfo(item);
+      const imagenSrc = item.posterUrl || item.imagen || 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500';
+
+      return `
+        <div class="dish-card-box">
+          <div class="dish-card-media" onclick="seleccionarPlatoDesdeGrid('${item.id}')">
+            <img src="${imagenSrc}" alt="${info.name}" loading="lazy">
+            ${item.tag ? `<span class="dish-card-tag">${item.tag}</span>` : ''}
+            ${item.videoUrl ? `<span style="position:absolute; bottom:6px; right:6px; background:rgba(0,0,0,0.7); color:#fff; font-size:10px; padding:3px 6px; border-radius:6px;"><i class="fa-solid fa-play"></i></span>` : ''}
+          </div>
+          <div class="dish-card-content">
+            <div>
+              <div class="dish-card-name">${info.name}</div>
+              <div class="dish-card-price">${formatPrice(item.precioPEN || item.precio || 0)}</div>
+            </div>
+            <button type="button" class="btn-card-add" onclick="addToOrder('${item.id}')">
+              <i class="fa-solid fa-plus"></i> ${currentLang === 'es' ? 'Añadir' : 'Add'}
+            </button>
+          </div>
+        </div>
+      `;
     }
 
     function seleccionarPlatoDesdeGrid(id) {
@@ -1474,6 +1576,9 @@
       actualizarBadgeMesaHeader();
     }
 
+    /* ========================================================
+       SISTEMA DE TRADUCCIÓN COMPLETA DE INTERFAZ & PLATOS
+       ======================================================== */
     function cambiarIdiomaGlobal(nuevoLang) {
       currentLang = nuevoLang;
       sessionStorage.setItem("inkabistro_user_lang", nuevoLang);
@@ -2001,7 +2106,7 @@
       ratingSeleccionado = n;
       const stars = document.getElementById('starsRowModal').children;
       for (let i = 0; i < 5; i++) {
-        stars[i].style.color = (i < n) ? '#fbbf24' : '#64748b';
+        stars[i].style.color = (i < n) ? '#fbbf24' : '#cbd5e1';
       }
     }
 
@@ -2077,15 +2182,15 @@
       }
 
       if (estado === 'iniciado' || estado === 'por_confirmar') {
-        badge.style.background = "var(--chuspa-gold)";
-        badge.style.color = "#000";
+        badge.style.background = "#0056d2";
+        badge.style.color = "#fff";
         badge.innerText = "🟡 1. POR CONFIRMAR";
         mensaje.innerText = "Tu pedido fue enviado. El mozo o cocina lo está verificando en el panel...";
         cajaPedirCuenta.style.display = "none";
         if (cajaResena) cajaResena.style.display = "none";
       }
       else if (estado === 'cocina') {
-        badge.style.background = "#0056d2";
+        badge.style.background = "#0284c7";
         badge.style.color = "#fff";
         badge.innerText = "🔵 2. EN PROCESO (COCINA)";
         mensaje.innerText = "¡Tu pedido está siendo elaborado por el chef en este momento! 🍳";
