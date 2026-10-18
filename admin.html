@@ -6,52 +6,63 @@
   <title>Panel de Control & TPV | La Cusqueñita</title> 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> 
   <style> 
+    /* ==========================================================
+       PALETA INSPIRADA EN SISTEMAS ENTERPRISE / B2B SAAS
+       Azul Ultramar (#0b1e42 / #103576), Rojo Carmesí (#dc2626), 
+       Verde Esmeralda (#10b981) y Cyan Tech (#06b6d4)
+       ========================================================== */
     :root { 
-      --primary: #c2410c; 
-      --accent: #f59e0b; 
-      --bg-dark: #120c0a; 
-      --sidebar-bg: #1c1310; 
-      --card-bg: #221814; 
-      --card-border: rgba(245, 158, 11, 0.22); 
-      --input-bg: #160e0b; 
-      --text-main: #fffdfa; 
-      --text-muted: #d1c7be; 
-      --gold: #fbbf24; 
-      --danger: #ef4444; 
-      --success: #16a34a; 
-      --blue: #0284c7; 
+      --primary: #1d4ed8; 
+      --primary-hover: #1e40af;
+      --accent: #0284c7; 
+      --accent-glow: rgba(2, 132, 199, 0.4);
+      --bg-dark: #070d19; 
+      --sidebar-bg: #0b1528; 
+      --card-bg: #0f1d38; 
+      --card-border: rgba(56, 189, 248, 0.18); 
+      --input-bg: #081121; 
+      --text-main: #f8fafc; 
+      --text-muted: #94a3b8; 
+      --gold: #38bdf8;          /* Tono cyan/azul luminoso para jerarquía y títulos */
+      --danger: #dc2626;        /* Rojo carmesí distintivo */
+      --success: #10b981;       /* Verde estado arqueado / disponible */
+      --blue: #2563eb; 
+      --header-bg: #081224;
+      --metric-bg: #0d1a33;
     } 
 
-    /* PALETA PROFESIONAL MODO CLARO (ARMONIOSA, SIN CONTRASTES PLANOS) */
+    /* MODO CLARO PROFESIONAL (ESTÉTICA MINISTERIAL / ENTERPRISE) */
     body.light-theme {
-      --bg-dark: #f8fafc;
+      --bg-dark: #f0f4f9;
       --sidebar-bg: #ffffff;
       --card-bg: #ffffff;
-      --card-border: #e2e8f0;
-      --input-bg: #f1f5f9;
+      --card-border: #cbd5e1;
+      --input-bg: #f8fafc;
       --text-main: #0f172a;
-      --text-muted: #64748b;
-      --gold: #b45309;
+      --text-muted: #475569;
+      --gold: #0369a1;
+      --header-bg: #ffffff;
+      --metric-bg: #f1f5f9;
     }
 
     body.light-theme .top-admin-bar {
       background: #ffffff !important;
-      border-bottom: 1.5px solid #e2e8f0 !important;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.04) !important;
+      border-bottom: 2px solid #cbd5e1 !important;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05) !important;
     }
     body.light-theme .sidebar {
       background: #ffffff !important;
-      border-right: 1.5px solid #e2e8f0 !important;
+      border-right: 1.5px solid #cbd5e1 !important;
     }
     body.light-theme .card,
     body.light-theme .modal-box,
     body.light-theme .card-login {
       background: #ffffff !important;
-      border: 1.5px solid #e2e8f0 !important;
-      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05) !important;
+      border: 1.5px solid #cbd5e1 !important;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06) !important;
     }
     body.light-theme label {
-      color: #b45309 !important;
+      color: #0369a1 !important;
     }
     body.light-theme input, 
     body.light-theme textarea, 
@@ -62,19 +73,20 @@
     }
     body.light-theme input:focus, 
     body.light-theme select:focus {
-      border-color: #ea580c !important;
+      border-color: #0284c7 !important;
       background: #ffffff !important;
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
     }
     body.light-theme .user-session-badge {
-      background: #fff7ed !important;
-      border: 1px solid #fed7aa !important;
+      background: #eff6ff !important;
+      border: 1px solid #bfdbfe !important;
     }
     body.light-theme .user-session-badge b {
-      color: #9a3412 !important;
+      color: #1e40af !important;
     }
     body.light-theme .custom-table th {
-      background: #f1f5f9 !important;
-      color: #9a3412 !important;
+      background: #e2e8f0 !important;
+      color: #0f172a !important;
       border-color: #cbd5e1 !important;
     }
     body.light-theme .custom-table td {
@@ -87,22 +99,22 @@
     }
     body.light-theme .nav-item:hover {
       background: #f1f5f9 !important;
-      color: #0f172a !important;
+      color: #0284c7 !important;
     }
     body.light-theme .nav-item.active {
-      background: #ffedd5 !important;
-      color: #c2410c !important;
-      border-color: #fdba74 !important;
+      background: #eff6ff !important;
+      color: #1d4ed8 !important;
+      border-color: #bfdbfe !important;
     }
     body.light-theme .tables-monitor-bar,
     body.light-theme .kds-calendar-bar {
       background: #ffffff !important;
-      border: 1.5px solid #e2e8f0 !important;
+      border: 1.5px solid #cbd5e1 !important;
     }
     body.light-theme .metric-pill {
-      background: #f8fafc !important;
+      background: #f1f5f9 !important;
       border: 1px solid #cbd5e1 !important;
-      color: #334155 !important;
+      color: #1e293b !important;
     }
     body.light-theme .kds-search-bar input {
       background: #ffffff !important;
@@ -115,9 +127,9 @@
       color: #475569 !important;
     }
     body.light-theme .kds-filter-btn.active {
-      background: #c2410c !important;
+      background: #1d4ed8 !important;
       color: #ffffff !important;
-      border-color: #ea580c !important;
+      border-color: #1e40af !important;
     }
     body.light-theme .table-pill.libre {
       background: #dcfce7 !important;
@@ -126,7 +138,7 @@
     }
     body.light-theme .table-pill.ocupada {
       background: #fee2e2 !important;
-      color: #b91c1c !important;
+      color: #991b1b !important;
       border-color: #fca5a5 !important;
     }
     body.light-theme .order-card.estado-iniciado {
@@ -134,8 +146,8 @@
       border-color: #f59e0b !important;
     }
     body.light-theme .order-card.estado-cocina {
-      background: #f0f9ff !important;
-      border-color: #0284c7 !important;
+      background: #eff6ff !important;
+      border-color: #2563eb !important;
     }
     body.light-theme .order-card.estado-servido {
       background: #f0fdf4 !important;
@@ -150,55 +162,55 @@
     }
     body.light-theme .order-notes-tag {
       background: #fef2f2 !important;
-      color: #b91c1c !important;
-      border-left-color: #ef4444 !important;
+      color: #991b1b !important;
+      border-left-color: #dc2626 !important;
     }
     body.light-theme .order-bottom-bar {
       color: #334155 !important;
-      border-top-color: #e2e8f0 !important;
+      border-top-color: #cbd5e1 !important;
     }
     body.light-theme .vault-box {
-      background: #fff7ed !important;
-      border-color: #fdba74 !important;
+      background: #eff6ff !important;
+      border-color: #93c5fd !important;
     }
     body.light-theme .vault-trigger {
-      color: #9a3412 !important;
+      color: #1e40af !important;
     }
     body.light-theme .vault-content {
       background: #ffffff !important;
-      border-top-color: #fed7aa !important;
+      border-top-color: #bfdbfe !important;
     }
     body.light-theme .vault-box.danger-vault {
       background: #fef2f2 !important;
       border-color: #fca5a5 !important;
     }
     body.light-theme .vault-box.danger-vault .vault-trigger {
-      color: #b91c1c !important;
+      color: #dc2626 !important;
     }
     body.light-theme .dish-card-visual {
       background: #ffffff !important;
-      border: 1.5px solid #e2e8f0 !important;
+      border: 1.5px solid #cbd5e1 !important;
     }
     body.light-theme #resultadoSocioBox {
-      background: #fffbeb !important;
-      border-color: #f59e0b !important;
+      background: #f0fdf4 !important;
+      border-color: #10b981 !important;
     }
     body.light-theme #resultadoSocioBox h3 {
-      color: #78350f !important;
+      color: #065f46 !important;
     }
     body.light-theme .alerta-centro-card {
       background: #ffffff !important;
-      border-color: #f59e0b !important;
+      border-color: #0284c7 !important;
       color: #0f172a !important;
     }
     body.light-theme .alerta-centro-card p {
       color: #334155 !important;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; } 
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; } 
     body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; transition: background-color 0.25s ease, color 0.25s ease; } 
 
-    /* BOTÓN FLOTANTE DE MEDIA LUNA BICOLOR BLANCO / NEGRO */
+    /* BOTÓN FLOTANTE TEMA */
     .btn-theme-toggle-floating {
       position: fixed;
       top: 9px;
@@ -208,9 +220,9 @@
       border-radius: 50%;
       cursor: pointer;
       z-index: 9999999;
-      background: linear-gradient(90deg, #ffffff 50%, #0f172a 50%);
+      background: linear-gradient(90deg, #ffffff 50%, #0b1528 50%);
       border: 2px solid var(--accent);
-      box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.5);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -220,84 +232,80 @@
     }
     .btn-theme-toggle-floating:hover {
       transform: scale(1.12);
-      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6);
-    }
-    .btn-theme-toggle-floating:active {
-      transform: scale(0.92);
+      box-shadow: 0 6px 20px var(--accent-glow);
     }
     body.light-theme .btn-theme-toggle-floating {
       transform: rotate(180deg);
-      border-color: #c2410c;
-    }
-    body.light-theme .btn-theme-toggle-floating:hover {
-      transform: rotate(180deg) scale(1.12);
+      border-color: #1d4ed8;
     }
 
     /* PANTALLA LOGIN */ 
     #pantallaLogin { 
       display: flex; justify-content: center; align-items: center; min-height: 100vh; 
-      padding: 16px; background: radial-gradient(circle at center, #241611 0%, #0d0806 100%); 
+      padding: 16px; background: radial-gradient(circle at center, #0f244a 0%, #050b14 100%); 
     } 
     body.light-theme #pantallaLogin {
-      background: radial-gradient(circle at center, #ffedd5 0%, #f1f5f9 100%);
+      background: radial-gradient(circle at center, #dbeafe 0%, #e2e8f0 100%);
     }
     .card-login { 
       background: var(--card-bg); border: 1.5px solid var(--accent); border-radius: 18px; 
-      max-width: 430px; width: 100%; padding: 26px 22px; box-shadow: 0 10px 35px rgba(0,0,0,0.8); 
+      max-width: 440px; width: 100%; padding: 28px 24px; box-shadow: 0 16px 45px rgba(0,0,0,0.7); 
     } 
-    .card-login h3 { color: var(--gold); text-align: center; margin-bottom: 4px; font-size: 20px; font-weight: 900; } 
-    .card-login p.sub { font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 16px; } 
+    .card-login h3 { color: var(--gold); text-align: center; margin-bottom: 4px; font-size: 21px; font-weight: 900; letter-spacing: 0.5px; } 
+    .card-login p.sub { font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 18px; } 
 
-    /* LOGOS ENCABEZADO LOGIN (CHUSPA TECH + LOCAL) */
     .login-logos-header {
-      display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 12px;
+      display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 14px;
     }
     .login-chuspa-logo-wrap {
       width: 66px; height: 66px; border-radius: 50%;
       background: #fff; border: 2.5px solid var(--gold); overflow: hidden;
       display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 18px rgba(245, 158, 11, 0.45); flex-shrink: 0;
+      box-shadow: 0 4px 18px var(--accent-glow); flex-shrink: 0;
     }
     .login-chuspa-logo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
     .login-brand-logo-wrap {
       width: 66px; height: 66px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), var(--primary));
+      background: linear-gradient(135deg, #1d4ed8, #0284c7);
       border: 2.5px solid var(--gold); overflow: hidden;
       display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 18px rgba(194, 65, 12, 0.45); font-size: 28px; color: #fff; flex-shrink: 0;
+      box-shadow: 0 4px 18px rgba(29, 78, 216, 0.5); font-size: 28px; color: #fff; flex-shrink: 0;
     }
     .login-brand-logo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
     .caja-chica-box { 
-      background: #180e0a; border: 1.5px dashed var(--accent); border-radius: 10px; 
-      padding: 12px; margin-top: 10px; 
+      background: rgba(2, 132, 199, 0.08); border: 1.5px dashed var(--accent); border-radius: 10px; 
+      padding: 12px; margin-top: 12px; 
     } 
 
     /* BARRA SUPERIOR */ 
     .top-admin-bar { 
-      display: flex; background: #190f0c; border-bottom: 1.5px solid var(--card-border); 
-      padding: 8px 14px; align-items: center; justify-content: space-between; 
-      position: sticky; top: 0; z-index: 150; width: 100%; transition: background-color 0.4s ease; 
+      display: flex; background: var(--header-bg); border-bottom: 1.5px solid var(--card-border); 
+      padding: 10px 16px; align-items: center; justify-content: space-between; 
+      position: sticky; top: 0; z-index: 150; width: 100%; transition: background-color 0.3s ease; 
     } 
     .top-admin-bar.alerta-nueva-orden { 
-      background-color: #854d0e !important; 
+      background-color: #1e3a8a !important; 
       animation: alertFlash 1s infinite alternate; 
     } 
-    @keyframes alertFlash { 0% { border-bottom-color: #ef4444; } 100% { border-bottom-color: #fde047; } } 
+    @keyframes alertFlash { 0% { border-bottom-color: #dc2626; } 100% { border-bottom-color: #38bdf8; } } 
 
     .btn-toggle-global { 
-      background: linear-gradient(135deg, var(--primary), var(--accent)); 
+      background: linear-gradient(135deg, #1d4ed8, #0284c7); 
       color: #fff; border: 1px solid var(--gold); border-radius: 8px; 
-      padding: 7px 12px; font-size: 13px; font-weight: 800; cursor: pointer; 
-      display: inline-flex; align-items: center; gap: 6px; 
+      padding: 7px 14px; font-size: 13px; font-weight: 800; cursor: pointer; 
+      display: inline-flex; align-items: center; gap: 7px; transition: 0.2s;
     } 
+    .btn-toggle-global:hover {
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
 
-    .top-brand-center { display: flex; align-items: center; gap: 10px; } 
+    .top-brand-center { display: flex; align-items: center; gap: 12px; } 
     .top-chuspa-badge { 
       display: flex; align-items: center; gap: 6px; 
-      background: rgba(254, 252, 232, 0.12); border: 1px solid rgba(234, 179, 8, 0.45); 
-      padding: 3px 8px 3px 5px; border-radius: 20px; text-decoration: none; 
+      background: rgba(2, 132, 199, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); 
+      padding: 4px 10px 4px 6px; border-radius: 20px; text-decoration: none; 
     } 
     .top-chuspa-badge img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; background: #fff; } 
 
@@ -319,7 +327,7 @@
     .brand-left { display: flex; align-items: center; gap: 10px; overflow: hidden; } 
     .brand-avatar { 
       width: 44px; height: 44px; border-radius: 12px; 
-      background: linear-gradient(135deg, var(--accent), var(--primary)); 
+      background: linear-gradient(135deg, #1d4ed8, #0284c7); 
       display: flex; align-items: center; justify-content: center; 
       font-size: 22px; color: #fff; overflow: hidden; flex-shrink: 0; 
       border: 1.5px solid var(--gold); 
@@ -327,74 +335,75 @@
     .brand-avatar img { width: 100%; height: 100%; object-fit: cover; } 
 
     .user-session-badge { 
-      background: rgba(245, 158, 11, 0.12); border: 1px solid var(--card-border); 
-      border-radius: 8px; padding: 7px 10px; font-size: 11.5px; 
+      background: rgba(2, 132, 199, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); 
+      border-radius: 8px; padding: 8px 11px; font-size: 11.5px; 
       display: flex; justify-content: space-between; align-items: center; 
     } 
 
-    /* ACORDEONES DEL VAULT */ 
-    .vault-box { background: #251a15; border: 1.5px dashed var(--accent); border-radius: 10px; overflow: hidden; margin-bottom: 4px; } 
-    .vault-box.danger-vault { border-color: #ef4444; background: #221212; } 
+    /* VAULT ACCORDIONS */ 
+    .vault-box { background: #0c1830; border: 1.5px dashed var(--accent); border-radius: 10px; overflow: hidden; margin-bottom: 4px; } 
+    .vault-box.danger-vault { border-color: #ef4444; background: #200f13; } 
     .vault-trigger { width: 100%; background: none; border: none; padding: 9px 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 800; color: var(--gold); font-size: 11px; } 
     .vault-box.danger-vault .vault-trigger { color: #fca5a5; } 
-    .vault-content { display: none; padding: 10px 12px; background: #18100c; border-top: 1px solid rgba(255,255,255,0.08); } 
-    .vault-content input { width: 100%; padding: 7px; background: #110907; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #fff; font-size: 12px; margin-top: 4px; outline: none; } 
+    .vault-content { display: none; padding: 10px 12px; background: #070e1c; border-top: 1px solid rgba(255,255,255,0.08); } 
+    .vault-content input { width: 100%; padding: 7px; background: #040913; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #fff; font-size: 12px; margin-top: 4px; outline: none; } 
 
     .nav-menu { display: flex; flex-direction: column; gap: 6px; flex: 1; } 
-    .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 10px; border: 1px solid transparent; background: transparent; color: var(--text-muted); font-size: 13px; font-weight: 700; cursor: pointer; text-align: left; } 
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 10px; border: 1px solid transparent; background: transparent; color: var(--text-muted); font-size: 13px; font-weight: 700; cursor: pointer; text-align: left; transition: 0.15s; } 
     .nav-item i { font-size: 15px; width: 20px; text-align: center; color: var(--accent); } 
-    .nav-item:hover { background: #281c17; color: #fff; } 
-    .nav-item.active { background: #38241b; color: var(--gold); border-color: var(--card-border); } 
-    .badge-live-orders { background: #ef4444; color: #fff; font-size: 10px; padding: 2px 7px; border-radius: 12px; margin-left: auto; } 
+    .nav-item:hover { background: #132445; color: #fff; } 
+    .nav-item.active { background: #172d57; color: var(--gold); border-color: var(--card-border); font-weight: 800; } 
+    .badge-live-orders { background: #dc2626; color: #fff; font-size: 10px; padding: 2px 7px; border-radius: 12px; margin-left: auto; font-weight: 900; } 
 
-    .main-view { padding: 20px 24px; overflow-y: auto; max-height: calc(100vh - 54px); width: 100%; } 
-    .view-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; border-bottom: 1.5px solid rgba(255,255,255,0.08); padding-bottom: 12px; } 
+    .main-view { padding: 22px 26px; overflow-y: auto; max-height: calc(100vh - 54px); width: 100%; } 
+    .view-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px; border-bottom: 1.5px solid rgba(255,255,255,0.08); padding-bottom: 12px; } 
     .view-header h1 { font-size: 21px; font-weight: 900; color: var(--gold); } 
 
-    .card { background: var(--card-bg); padding: 18px 20px; border-radius: 14px; border: 1px solid var(--card-border); margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.25); } 
-    label { font-size: 11px; font-weight: 800; color: var(--gold); display: block; margin-top: 8px; text-transform: uppercase; } 
+    .card { background: var(--card-bg); padding: 20px 22px; border-radius: 14px; border: 1px solid var(--card-border); margin-bottom: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); } 
+    label { font-size: 11px; font-weight: 800; color: var(--gold); display: block; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.5px; } 
     input, textarea, select { width: 100%; padding: 9px 12px; margin-top: 4px; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; font-size: 13.5px; background: var(--input-bg); color: #fff; outline: none; } 
 
-    .btn { padding: 9px 14px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 7px; font-size: 13px; } 
-    .btn-save { background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; } 
+    .btn { padding: 9px 15px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 7px; font-size: 13px; transition: 0.15s; } 
+    .btn-save { background: linear-gradient(135deg, #1d4ed8, #0284c7); color: white; } 
+    .btn-save:hover { background: linear-gradient(135deg, #1e40af, #0369a1); }
     .btn-add { background: var(--success); color: white; } 
-    .btn-del { background: #451a1a; color: #fca5a5; border: 1px solid #dc2626; } 
+    .btn-del { background: #450a0a; color: #fca5a5; border: 1px solid #dc2626; } 
     .btn-print { background: var(--blue); color: #fff; } 
-    .btn-wa { background: #15803d; color: #fff; border: 1px solid #4ade80; }
+    .btn-wa { background: #059669; color: #fff; border: 1px solid #34d399; }
 
     .kds-calendar-bar { 
-      background: #180e0a; border: 1.5px solid var(--accent); border-radius: 14px; 
-      padding: 12px 16px; margin-bottom: 14px; display: flex; flex-wrap: wrap; 
+      background: var(--card-bg); border: 1.5px solid var(--accent); border-radius: 14px; 
+      padding: 14px 18px; margin-bottom: 16px; display: flex; flex-wrap: wrap; 
       justify-content: space-between; align-items: center; gap: 12px; 
     } 
-    .kds-date-picker-wrap { display: flex; align-items: center; gap: 8px; } 
+    .kds-date-picker-wrap { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; } 
     .kds-date-input { 
       padding: 7px 12px; border-radius: 8px; border: 1px solid var(--gold); 
-      background: #110907; color: #fde047; font-weight: 900; font-size: 13px; cursor: pointer; 
+      background: #091224; color: #38bdf8; font-weight: 900; font-size: 13px; cursor: pointer; 
     } 
     .kds-date-quick-btn { 
-      background: #2b1c16; border: 1px solid rgba(245, 158, 11, 0.35); color: #fed7aa; 
-      padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; 
+      background: #112347; border: 1px solid rgba(56, 189, 248, 0.35); color: #bae6fd; 
+      padding: 6px 12px; border-radius: 6px; font-size: 11.5px; font-weight: 800; cursor: pointer; 
     } 
     .kds-date-quick-btn.active { 
-      background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; border-color: var(--gold); 
+      background: linear-gradient(135deg, #1d4ed8, #0284c7); color: #fff; border-color: var(--gold); 
     } 
 
-    .kds-day-metrics { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; } 
+    .kds-day-metrics { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; } 
     .metric-pill { 
-      background: #221510; border: 1px solid rgba(255,255,255,0.08); padding: 5px 10px; 
-      border-radius: 8px; font-size: 11.5px; 
+      background: var(--metric-bg); border: 1px solid rgba(255,255,255,0.08); padding: 6px 12px; 
+      border-radius: 8px; font-size: 12px; 
     } 
-    .metric-pill b { color: var(--gold); font-size: 13px; } 
+    .metric-pill b { color: var(--gold); font-size: 13.5px; } 
 
     .kds-search-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; } 
-    .kds-search-bar input { flex: 2; min-width: 200px; padding: 10px; border-radius: 8px; border: 1px solid var(--accent); background: #180e0a; color: #fff; } 
-    .kds-filter-btn { padding: 8px 12px; border-radius: 8px; border: 1px solid #555; background: #221814; color: #ddd; font-size: 12px; font-weight: bold; cursor: pointer; } 
-    .kds-filter-btn.active { background: var(--primary); color: #fff; border-color: var(--accent); } 
+    .kds-search-bar input { flex: 2; min-width: 200px; padding: 10px; border-radius: 8px; border: 1px solid var(--accent); background: var(--input-bg); color: #fff; } 
+    .kds-filter-btn { padding: 8px 14px; border-radius: 8px; border: 1px solid #334155; background: #11203d; color: #cbd5e1; font-size: 12px; font-weight: bold; cursor: pointer; } 
+    .kds-filter-btn.active { background: var(--primary); color: #fff; border-color: var(--gold); } 
 
     .tables-monitor-bar { 
-      background: #1a110e; border: 1.5px solid var(--card-border); border-radius: 14px; 
-      padding: 12px 14px; margin-bottom: 16px; 
+      background: var(--card-bg); border: 1.5px solid var(--card-border); border-radius: 14px; 
+      padding: 14px; margin-bottom: 18px; 
     } 
     .tables-monitor-header { 
       display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; 
@@ -405,32 +414,32 @@
       display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 6px; min-height: 40px; 
     } 
     .table-pill { 
-      padding: 7px 4px; text-align: center; border-radius: 7px; font-size: 11.5px; font-weight: 800; 
+      padding: 8px 4px; text-align: center; border-radius: 7px; font-size: 11.5px; font-weight: 800; 
       border: 1.5px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; 
       gap: 4px; position: relative; transition: transform 0.15s ease; 
     } 
     .table-pill:hover { transform: scale(1.03); } 
-    .table-pill.libre { background: rgba(22, 163, 74, 0.15); border-color: #16a34a; color: #86efac; } 
-    .table-pill.ocupada { background: rgba(220, 38, 38, 0.25); border-color: #dc2626; color: #fca5a5; } 
+    .table-pill.libre { background: rgba(16, 185, 129, 0.18); border-color: #10b981; color: #6ee7b7; } 
+    .table-pill.ocupada { background: rgba(220, 38, 38, 0.22); border-color: #dc2626; color: #fca5a5; } 
     .btn-remove-pill { 
-      background: #ef4444; color: #fff; border: none; border-radius: 50%; width: 16px; height: 16px; 
+      background: #dc2626; color: #fff; border: none; border-radius: 50%; width: 16px; height: 16px; 
       display: inline-flex; align-items: center; justify-content: center; font-size: 9px; cursor: pointer; 
     } 
 
     .live-orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; min-height: 60px; } 
     .order-card { 
-      border-radius: 14px; border: 2.5px solid transparent; 
-      padding: 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); 
+      border-radius: 14px; border: 2px solid transparent; 
+      padding: 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 18px rgba(0,0,0,0.4); 
       position: relative; transition: all 0.3s ease; 
     } 
-    .order-card.estado-iniciado { background: #2b1f0c; border-color: #f59e0b; } 
-    .order-card.estado-cocina { background: #0f2333; border-color: #0284c7; } 
-    .order-card.estado-servido { background: #0e2918; border-color: #16a34a; } 
-    .order-card.estado-finalizado { background: #1e1e1e; border-color: #6b7280; opacity: 0.88; } 
+    .order-card.estado-iniciado { background: #1c1917; border-color: #f59e0b; } 
+    .order-card.estado-cocina { background: #0c2144; border-color: #2563eb; } 
+    .order-card.estado-servido { background: #062b1a; border-color: #10b981; } 
+    .order-card.estado-finalizado { background: #131a29; border-color: #475569; opacity: 0.88; } 
 
     .order-card.cliente-pagando { 
       border-color: #ec4899 !important; 
-      box-shadow: 0 0 25px #ec4899, 0 0 10px #3b82f6 !important; 
+      box-shadow: 0 0 25px rgba(236, 72, 153, 0.6), 0 0 10px rgba(59, 130, 246, 0.6) !important; 
       animation: rainbowSpin 3s linear infinite alternate; 
     } 
     @keyframes rainbowSpin { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } } 
@@ -438,43 +447,43 @@
     .order-card-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px dashed rgba(255,255,255,0.12); padding-bottom: 8px; } 
     .order-status-badge { font-size: 11px; font-weight: 900; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; } 
     .badge-iniciado { background: #f59e0b; color: #000; } 
-    .badge-cocina { background: #0284c7; color: #fff; } 
-    .badge-servido { background: #16a34a; color: #fff; } 
-    .badge-finalizado { background: #4b5563; color: #e5e7eb; } 
+    .badge-cocina { background: #1d4ed8; color: #fff; } 
+    .badge-servido { background: #10b981; color: #fff; } 
+    .badge-finalizado { background: #475569; color: #e2e8f0; } 
 
     .chef-order-priority-badge { 
-      background: #78350f; color: #fde047; border: 1.5px solid #f59e0b; 
+      background: #172554; color: #93c5fd; border: 1.5px solid #3b82f6; 
       font-size: 11px; font-weight: 900; padding: 3px 8px; border-radius: 8px; display: inline-flex; align-items: center; gap: 4px; 
     } 
 
-    .order-items-box { font-size: 14px; font-weight: 800; color: #fde047; line-height: 1.4; padding: 4px 0; } 
-    .order-notes-tag { font-size: 12px; color: #fca5a5; background: rgba(0,0,0,0.3); padding: 5px 8px; border-radius: 6px; border-left: 3px solid #f87171; } 
+    .order-items-box { font-size: 14px; font-weight: 800; color: #e0f2fe; line-height: 1.4; padding: 4px 0; } 
+    .order-notes-tag { font-size: 12px; color: #fca5a5; background: rgba(0,0,0,0.3); padding: 5px 8px; border-radius: 6px; border-left: 3px solid #dc2626; } 
     .order-bottom-bar { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 8px; font-size: 12.5px; } 
 
     .order-actions-container { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; } 
-    .btn-action-confirm { flex: 1; background: linear-gradient(135deg, #0284c7, #38bdf8); color: #fff; padding: 9px; font-size: 12px; border-radius: 8px; border: none; font-weight: 800; cursor: pointer; } 
-    .btn-action-serve { flex: 1; background: linear-gradient(135deg, #16a34a, #22c55e); color: #fff; padding: 9px; font-size: 12px; border-radius: 8px; border: none; font-weight: 800; cursor: pointer; } 
-    .btn-action-cobrar { flex: 1; background: linear-gradient(135deg, #b45309, #f59e0b); color: #000; padding: 9px; font-size: 12px; border-radius: 8px; border: none; font-weight: 900; cursor: pointer; } 
-    .btn-action-ask-more { width: 100%; background: #ca8a04; color: #fff; padding: 8px; font-size: 12px; border-radius: 7px; border: none; font-weight: 800; cursor: pointer; } 
-    .btn-action-print-chef { width: 100%; background: #0284c7; color: #fff; padding: 8px; font-size: 12px; border-radius: 7px; border: none; font-weight: 800; cursor: pointer; } 
+    .btn-action-confirm { flex: 1; background: linear-gradient(135deg, #1d4ed8, #0284c7); color: #fff; padding: 9px; font-size: 12px; border-radius: 8px; border: none; font-weight: 800; cursor: pointer; } 
+    .btn-action-serve { flex: 1; background: linear-gradient(135deg, #10b981, #059669); color: #fff; padding: 9px; font-size: 12px; border-radius: 8px; border: none; font-weight: 800; cursor: pointer; } 
+    .btn-action-cobrar { flex: 1; background: linear-gradient(135deg, #dc2626, #ea580c); color: #fff; padding: 9px; font-size: 12px; border-radius: 8px; border: none; font-weight: 900; cursor: pointer; } 
+    .btn-action-ask-more { width: 100%; background: #0284c7; color: #fff; padding: 8px; font-size: 12px; border-radius: 7px; border: none; font-weight: 800; cursor: pointer; } 
+    .btn-action-print-chef { width: 100%; background: #2563eb; color: #fff; padding: 8px; font-size: 12px; border-radius: 7px; border: none; font-weight: 800; cursor: pointer; } 
 
     .custom-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; } 
     .custom-table th, .custom-table td { border: 1px solid rgba(255,255,255,0.1); padding: 8px 10px; } 
-    .custom-table th { background: #2f221c; color: var(--gold); } 
+    .custom-table th { background: #132448; color: var(--gold); } 
 
     .dishes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; } 
     .dish-card-visual { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; } 
     .dish-media { height: 160px; background: #000; overflow: hidden; position: relative; } 
     .dish-media img, .dish-media video { width: 100%; height: 100%; object-fit: cover; } 
-    .badge-media-type { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.7); color: #fde047; font-size: 10px; padding: 3px 8px; border-radius: 12px; font-weight: bold; border: 1px solid var(--accent); } 
+    .badge-media-type { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.7); color: #38bdf8; font-size: 10px; padding: 3px 8px; border-radius: 12px; font-weight: bold; border: 1px solid var(--accent); } 
     .switch-btn { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; border: none; cursor: pointer; } 
-    .switch-btn.btn-to-off { background: #451a1a; color: #fca5a5; border: 1px solid #dc2626; } 
-    .switch-btn.btn-to-on { background: #14532d; color: #86efac; border: 1px solid #16a34a; } 
+    .switch-btn.btn-to-off { background: #450a0a; color: #fca5a5; border: 1px solid #dc2626; } 
+    .switch-btn.btn-to-on { background: #064e3b; color: #6ee7b7; border: 1px solid #10b981; } 
 
-    /* MODALES FLOTANTES */ 
+    /* MODALES */ 
     .modal-overlay { 
-      position: fixed !important; inset: 0 !important; background: rgba(0,0,0,0.85) !important; 
-      backdrop-filter: blur(6px) !important; z-index: 999999 !important; 
+      position: fixed !important; inset: 0 !important; background: rgba(3, 7, 18, 0.85) !important; 
+      backdrop-filter: blur(8px) !important; z-index: 999999 !important; 
       display: none !important; align-items: center !important; justify-content: center !important; 
       padding: 16px !important; 
     } 
@@ -482,11 +491,11 @@
       display: flex !important; 
     } 
     .modal-box { 
-      background: var(--card-bg) !important; border: 1.5px solid var(--card-border) !important; 
+      background: var(--card-bg) !important; border: 1.5px solid var(--accent) !important; 
       border-radius: 16px !important; max-width: 520px !important; width: 100% !important; 
       max-height: 90vh !important; overflow-y: auto !important; padding: 22px !important; 
       display: flex !important; flex-direction: column !important; gap: 12px !important; 
-      box-shadow: 0 10px 40px rgba(0,0,0,0.95) !important; 
+      box-shadow: 0 20px 50px rgba(0,0,0,0.9) !important; 
     } 
 
     .sidebar-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 180; } 
@@ -494,7 +503,7 @@
     /* MODAL DE ALERTA CENTRADO */ 
     .alerta-centro-overlay { 
       position: fixed; inset: 0; 
-      background: rgba(0, 0, 0, 0.78); 
+      background: rgba(3, 7, 18, 0.82); 
       backdrop-filter: blur(6px); 
       z-index: 1000000; 
       display: none; 
@@ -505,27 +514,27 @@
     .alerta-centro-overlay.active { display: flex; } 
     .alerta-centro-card { 
       position: relative; width: 100%; max-width: 440px; 
-      background: #19120e; border-radius: 20px; padding: 22px; 
-      overflow: hidden; box-shadow: 0 10px 45px rgba(0,0,0,0.9); 
+      background: #0f1d38; border-radius: 20px; padding: 24px; 
+      overflow: hidden; box-shadow: 0 12px 45px rgba(0,0,0,0.9); 
       border: 2px solid var(--gold); 
       animation: alertPulseGlow 2.5s infinite alternate ease-in-out; 
       text-align: center; 
     } 
     @keyframes alertPulseGlow { 
-      0% { box-shadow: 0 0 18px rgba(245, 158, 11, 0.4), 0 0 35px rgba(239, 68, 68, 0.2); } 
-      100% { box-shadow: 0 0 38px rgba(245, 158, 11, 0.8), 0 0 60px rgba(239, 68, 68, 0.5); } 
+      0% { box-shadow: 0 0 18px rgba(56, 189, 248, 0.3), 0 0 35px rgba(220, 38, 38, 0.2); } 
+      100% { box-shadow: 0 0 38px rgba(56, 189, 248, 0.7), 0 0 60px rgba(220, 38, 38, 0.4); } 
     } 
     .alerta-icono-wrap { 
       width: 64px; height: 64px; border-radius: 50%; 
-      background: rgba(245, 158, 11, 0.15); border: 2px solid var(--gold); 
+      background: rgba(2, 132, 199, 0.15); border: 2px solid var(--gold); 
       margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; 
       font-size: 30px; color: var(--gold); 
     } 
     .btn-alerta-entendido { 
-      background: linear-gradient(135deg, var(--primary), var(--accent)); 
+      background: linear-gradient(135deg, #1d4ed8, #0284c7); 
       color: #fff; font-weight: 900; font-size: 13.5px; border: none; 
       border-radius: 12px; padding: 11px 24px; cursor: pointer; margin-top: 14px; 
-      width: 100%; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4); 
+      width: 100%; box-shadow: 0 4px 15px var(--accent-glow); 
     } 
 
     @media (max-width: 860px) { 
@@ -550,7 +559,7 @@
 </head> 
 <body> 
 
-  <!-- BOTÓN FLOTANTE SUPERIOR MEDIA LUNA BICOLOR BLANCO / NEGRO -->
+  <!-- BOTÓN FLOTANTE TEMA -->
   <button type="button" class="btn-theme-toggle-floating" id="btnToggleTheme" onclick="alternarTemaVisual()" title="Cambiar a Modo Claro / Oscuro"></button>
 
   <!-- PANTALLA LOGIN DINÁMICO --> 
@@ -565,7 +574,7 @@
         </div>
       </div>
       <h3 id="loginTitlePreview">La Cusqueñita</h3> 
-      <p class="sub">Inicio de Sesión & Apertura de Turno</p> 
+      <p class="sub">Sistema Integral de Operaciones & TPV</p> 
        
       <form onsubmit="verificarLoginSistema(event)"> 
         <label>Usuario / Rol:</label> 
@@ -614,7 +623,7 @@
         <div style="font-weight:900; font-size:14px; color:var(--gold);" id="topBarTitle">La Cusqueñita</div> 
         <a href="https://www.lachuspaanuncios.com/" target="_blank" class="top-chuspa-badge" title="La Chuspa Tech"> 
           <img src="CHUSPITA-circulo.png" alt="La Chuspa" onerror="this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png'"> 
-          <span style="font-size:10px; font-weight:900; color:#fde047;">La Chuspa Tech</span> 
+          <span style="font-size:10px; font-weight:900; color:#38bdf8;">La Chuspa Tech</span> 
         </a> 
       </div> 
 
@@ -630,7 +639,7 @@
             <div class="brand-avatar" id="headerAvatar">🍽️</div> 
             <div> 
               <h2 id="headerBusinessName" style="font-size:15px; color:var(--gold); white-space:nowrap; overflow:hidden; max-width:145px;">La Cusqueñita</h2> 
-              <span id="headerBusinessSlogan" style="font-size:10.5px; color:#aaa; display:block;">Cusco • Gourmet</span> 
+              <span id="headerBusinessSlogan" style="font-size:10.5px; color:#94a3b8; display:block;">Cusco • Gourmet</span> 
             </div> 
           </div> 
           <button type="button" class="btn btn-del" style="padding:4px 8px; font-size:11px;" onclick="cerrarMenuMovil()" title="Cerrar"><i class="fa-solid fa-xmark"></i></button> 
@@ -639,8 +648,8 @@
         <div class="user-session-badge"> 
           <div> 
             <b id="lblSesionUsuario">Admin</b> 
-            <span style="font-size:9.5px; color:#aaa; display:block;" id="lblSesionTurno">Turno Mañana</span> 
-            <span style="font-size:9.5px; color:#86efac; display:block;" id="lblSesionCajaChica">Caja: S/ 100.00</span> 
+            <span style="font-size:9.5px; color:#94a3b8; display:block;" id="lblSesionTurno">Turno Mañana</span> 
+            <span style="font-size:9.5px; color:#10b981; display:block; font-weight:bold;" id="lblSesionCajaChica">Caja: S/ 100.00</span> 
           </div> 
           <button type="button" class="btn btn-del" style="padding:4px 7px; font-size:10px;" onclick="cerrarTurno()">Cerrar Caja</button> 
         </div> 
@@ -755,7 +764,7 @@
             <div class="kds-date-picker-wrap"> 
               <span style="font-size:12px; font-weight:900; color:var(--gold);"><i class="fa-solid fa-calendar-day"></i> Ver Comandas:</span> 
               <input type="date" id="kdsFechaSeleccionada" class="kds-date-input" onchange="cambiarFechaKDS(this.value)"> 
-              <button type="button" class="kds-date-quick-btn active" id="btnKdsTodas" onclick="setKdsFechaRapida('todas')">Ver Todas (Recomendado)</button> 
+              <button type="button" class="kds-date-quick-btn active" id="btnKdsTodas" onclick="setKdsFechaRapida('todas')">Ver Todas</button> 
               <button type="button" class="kds-date-quick-btn" id="btnKdsHoy" onclick="setKdsFechaRapida('hoy')">Solo Hoy</button> 
               <button type="button" class="kds-date-quick-btn" id="btnKdsAyer" onclick="setKdsFechaRapida('ayer')">Ayer</button> 
             </div> 
@@ -763,8 +772,8 @@
             <div class="kds-day-metrics"> 
               <div class="metric-pill">Comandas: <b id="metricDiaTotal">0</b></div> 
               <div class="metric-pill">En Curso: <b id="metricDiaActivas" style="color:#38bdf8;">0</b></div> 
-              <div class="metric-pill">Cobradas: <b id="metricDiaFinalizadas" style="color:#86efac;">0</b></div> 
-              <div class="metric-pill">Total: <b id="metricDiaTotalPEN" style="color:#fde047;">S/ 0.00</b></div> 
+              <div class="metric-pill">Cobradas: <b id="metricDiaFinalizadas" style="color:#10b981;">0</b></div> 
+              <div class="metric-pill">Total: <b id="metricDiaTotalPEN" style="color:#38bdf8;">S/ 0.00</b></div> 
             </div> 
           </div> 
 
@@ -780,14 +789,14 @@
             <div class="tables-monitor-header"> 
               <span>📍 Monitor de Mesas (Rojo = Ocupada | Verde = Libre):</span> 
               <div class="tables-monitor-actions"> 
-                <button type="button" class="btn btn-save" style="padding:4px 8px; font-size:11px;" onclick="abrirPromptAgregarMesa()"> 
-                  <i class="fa-solid fa-plus"></i> ➕ Agregar Mesa 
+                <button type="button" class="btn btn-save" style="padding:4px 10px; font-size:11px;" onclick="abrirPromptAgregarMesa()"> 
+                  <i class="fa-solid fa-plus"></i> Agregar Mesa 
                 </button> 
-                <button type="button" class="btn btn-del" style="padding:4px 8px; font-size:11px;" onclick="toggleModoEliminarMesas()"> 
-                  <i class="fa-solid fa-trash"></i> <span id="lblBtnModoEliminar">🗑️ Modo Eliminar</span> 
+                <button type="button" class="btn btn-del" style="padding:4px 10px; font-size:11px;" onclick="toggleModoEliminarMesas()"> 
+                  <i class="fa-solid fa-trash"></i> <span id="lblBtnModoEliminar">Modo Eliminar</span> 
                 </button> 
-                <button type="button" class="btn btn-del" style="padding:4px 8px; font-size:11px; background:#7c2d12; border-color:#ea580c;" onclick="abrirPromptDesbloquearMesaManual()"> 
-                  <i class="fa-solid fa-lock-open"></i> 🔓 Desbloquear Mesa por N° 
+                <button type="button" class="btn btn-del" style="padding:4px 10px; font-size:11px; background:#1e293b; border-color:#475569; color:#f8fafc;" onclick="abrirPromptDesbloquearMesaManual()"> 
+                  <i class="fa-solid fa-lock-open"></i> Desbloquear N° 
                 </button> 
               </div> 
             </div> 
@@ -797,7 +806,7 @@
           <div class="live-orders-grid" id="liveOrdersGrid"></div> 
         </section> 
 
-        <!-- MÓDULO CLUB & SOCIOS FRECUENTES -->
+        <!-- 2. CLUB & SOCIOS FRECUENTES -->
         <section id="viewSocios" style="display:none;">
           <div class="view-header">
             <div>
@@ -807,7 +816,6 @@
             <button class="btn btn-add" onclick="cargarListaCompletaSocios()"><i class="fa-solid fa-rotate"></i> Actualizar Lista</button>
           </div>
 
-          <!-- BUSCADOR POR DNI -->
           <div class="card">
             <strong style="color:var(--gold); font-size:14px;"><i class="fa-solid fa-id-card"></i> Buscar Socio por DNI o Escaneo:</strong>
             <div style="display:flex; gap:10px; margin-top:8px;">
@@ -815,25 +823,24 @@
               <button type="button" class="btn btn-save" onclick="buscarSocioPorDniDirecto()"><i class="fa-solid fa-magnifying-glass"></i> Consultar</button>
             </div>
 
-            <!-- FICHA DEL SOCIO ENCONTRADO -->
-            <div id="resultadoSocioBox" style="background:#19100d; border:1.5px solid var(--gold); border-radius:14px; padding:16px; display:none; flex-direction:column; gap:10px; margin-top:14px;">
+            <div id="resultadoSocioBox" style="background:#09152b; border:1.5px solid var(--accent); border-radius:14px; padding:16px; display:none; flex-direction:column; gap:10px; margin-top:14px;">
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <div>
                   <h3 id="resSocioNombre" style="color:#fff; font-size:17px; font-weight:900;">--</h3>
-                  <span style="font-size:12px; color:#aaa;">DNI: <b id="resSocioDni" style="color:var(--gold);">--</b></span>
+                  <span style="font-size:12px; color:#94a3b8;">DNI: <b id="resSocioDni" style="color:var(--gold);">--</b></span>
                 </div>
-                <span id="resSocioBadgePremio" style="background:#16a34a; color:#fff; font-size:11px; font-weight:900; padding:4px 10px; border-radius:12px; display:none;">
+                <span id="resSocioBadgePremio" style="background:#10b981; color:#fff; font-size:11px; font-weight:900; padding:4px 10px; border-radius:12px; display:none;">
                   🎁 ¡TIENE PREMIO LISTO!
                 </span>
               </div>
 
-              <div style="background:#241612; border:1px dashed var(--accent); border-radius:10px; padding:12px; display:flex; justify-content:space-between; align-items:center;">
+              <div style="background:#061021; border:1px dashed var(--accent); border-radius:10px; padding:12px; display:flex; justify-content:space-between; align-items:center;">
                 <div>
-                  <span style="font-size:12px; color:#ddd; display:block;">Puntaje Actual:</span>
-                  <b id="resSocioSellos" style="font-size:24px; color:#fde047;">0</b> <span style="font-size:12px; color:#aaa;">de 10 sellos</span>
+                  <span style="font-size:12px; color:#cbd5e1; display:block;">Puntaje Actual:</span>
+                  <b id="resSocioSellos" style="font-size:24px; color:#38bdf8;">0</b> <span style="font-size:12px; color:#94a3b8;">de 10 sellos</span>
                 </div>
                 <div>
-                  <span style="font-size:11px; color:#aaa; display:block;">Total Visitas Históricas:</span>
+                  <span style="font-size:11px; color:#94a3b8; display:block;">Total Visitas Históricas:</span>
                   <b id="resSocioVisitas" style="font-size:14px; color:#fff;">0</b>
                 </div>
               </div>
@@ -845,7 +852,6 @@
             </div>
           </div>
 
-          <!-- TABLA GENERAL DE SOCIOS REGISTRADOS -->
           <div class="card">
             <strong style="color:var(--gold); font-size:14px; display:block; margin-bottom:8px;">
               Historial de Socios Registrados (<span id="totalSociosRegistradosTxt">0</span>):
@@ -867,12 +873,12 @@
           </div>
         </section> 
 
-        <!-- 2. GESTIÓN DE USUARIOS --> 
+        <!-- 3. GESTIÓN DE USUARIOS --> 
         <section id="viewUsuarios" style="display:none;"> 
           <div class="view-header"> 
             <div> 
               <h1>👥 Gestión de Usuarios y Permisos</h1> 
-              <p>Crea cuentas para tu personal. El administrador principal queda protegido contra borrado.</p> 
+              <p>Crea cuentas para tu personal con control de accesos por rol.</p> 
             </div> 
             <button class="btn btn-add" onclick="cargarUsuariosDesdeFirebase()"><i class="fa-solid fa-rotate"></i> Actualizar</button> 
           </div> 
@@ -932,19 +938,19 @@
           </div> 
         </section> 
 
-        <!-- 3. CATÁLOGO DE PLATOS --> 
+        <!-- 4. CATÁLOGO DE PLATOS --> 
         <section id="viewPlatos" style="display:none;"> 
           <div class="view-header"> 
             <div> 
               <h1>🍽️ Catálogo Visual de la Carta</h1> 
-              <p>Edita nombres, precios, fotos y videos directamente desde tu celular o laptop.</p> 
+              <p>Edita nombres, precios, fotos y videos directamente desde tu panel.</p> 
             </div> 
             <button class="btn btn-add" onclick="abrirModalPlato()"><i class="fa-solid fa-plus"></i> Nuevo Plato</button> 
           </div> 
           <div class="dishes-grid" id="dishesVisualGrid"></div> 
         </section> 
 
-        <!-- 4. GENERACIÓN DE RESERVAS --> 
+        <!-- 5. GENERACIÓN DE RESERVAS --> 
         <section id="viewReservas" style="display:none;"> 
           <div class="view-header"> 
             <div> 
@@ -992,7 +998,7 @@
           <div id="contenedorReservasAdminList" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:14px;"></div> 
         </section> 
 
-        <!-- 5. IDENTIDAD, SUNAT Y REDES SOCIALES --> 
+        <!-- 6. IDENTIDAD, SUNAT Y REDES SOCIALES --> 
         <section id="viewIdentidad" style="display:none;"> 
           <div class="view-header"><h1>🏪 Identidad del Negocio & Redes Sociales</h1></div> 
           <div class="card"> 
@@ -1043,8 +1049,7 @@
               </div> 
             </div> 
 
-            <!-- CARGA DE LOGOTIPO -->
-            <div style="background:#180f0c; padding:14px; border-radius:12px; border:1px dashed var(--accent); margin-top:14px;">
+            <div style="background:#09152b; padding:14px; border-radius:12px; border:1px dashed var(--accent); margin-top:14px;">
               <strong style="color:var(--gold); font-size:12.5px; display:block; margin-bottom:8px;">
                 <i class="fa-solid fa-image"></i> Logotipo del Restaurante:
               </strong>
@@ -1056,7 +1061,7 @@
               <input type="url" id="cfgLogoUrlInput" placeholder="https://ejemplo.com/mi-logo.png" oninput="actualizarLogoPorUrl(this.value)">
 
               <div style="margin-top:10px; display:flex; align-items:center; gap:12px;"> 
-                <span style="font-size:12px; color:#aaa;">Vista previa del Logo:</span> 
+                <span style="font-size:12px; color:#94a3b8;">Vista previa del Logo:</span> 
                 <div id="previewCurrentLogo" class="brand-avatar" style="width:52px; height:52px;">🍽️</div> 
               </div> 
             </div>
@@ -1065,12 +1070,12 @@
           </div> 
         </section> 
 
-        <!-- 6. REPORTE CONTABLE --> 
+        <!-- 7. REPORTE CONTABLE --> 
         <section id="viewReportes" style="display:none;"> 
           <div class="view-header"> 
             <div> 
               <h1>📊 Reporte Contable & Auditoría SUNAT</h1> 
-              <p>Historial y registro auditable de comprobantes cobrados.</p> 
+              <p>Historial y registro auditable de comprobantes emitidos.</p> 
             </div> 
             <div style="display:flex; gap:8px;">
               <button class="btn btn-add" onclick="cargarVentasDesdeFirebase()"><i class="fa-solid fa-rotate"></i> Actualizar Ventas</button>
@@ -1080,17 +1085,17 @@
 
           <div class="card" id="areaImpresionReporte"> 
             <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:14px; font-weight:900; flex-wrap:wrap; gap:8px;">
-              <span>Total Ventas Cobradas: <b style="color:#86efac;" id="repMontoTotalAcumulado">S/ 0.00</b></span>
+              <span>Total Ventas Cobradas: <b style="color:#10b981;" id="repMontoTotalAcumulado">S/ 0.00</b></span>
               <span>Total Comprobantes: <b style="color:var(--gold);" id="repCantidadVentas">0</b></span>
             </div>
 
-            <div style="border-bottom:2px solid #555; padding-bottom:8px; margin-bottom:12px;"> 
+            <div style="border-bottom:2px solid #334155; padding-bottom:8px; margin-bottom:12px;"> 
               <h2 id="repLocalRazonSocial" style="color:var(--gold); font-size:18px;">LA CUSQUEÑITA</h2> 
               <div style="font-size:12px; color:var(--text-muted);"> 
                 <span id="repLocalRuc">RUC: 20601234567</span> | <span id="repLocalDireccion">Portal de Carnes 214, Cusco</span> 
               </div> 
-              <div style="font-size:11px; color:#aaa; margin-top:2px;"> 
-                REGISTRO AUDITABLE DE VENTAS SUNAT • FECHA: <span id="repFechaHoy"></span> 
+              <div style="font-size:11px; color:#94a3b8; margin-top:2px;"> 
+                REGISTRO AUDITABLE DE VENTAS • FECHA: <span id="repFechaHoy"></span> 
               </div> 
             </div> 
 
@@ -1114,7 +1119,7 @@
           </div> 
         </section> 
 
-        <!-- 7. QR MESAS --> 
+        <!-- 8. QR MESAS --> 
         <section id="viewMesas" style="display:none;"> 
           <div class="view-header"> 
             <div> 
@@ -1136,29 +1141,29 @@
 
             <div style="display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;"> 
               <button type="button" class="btn btn-save" style="flex:1;" onclick="abrirMenuConTokenActivo()"> 
-                <i class="fa-solid fa-arrow-up-right-from-square"></i> 🔗 Probar Menú con Token Activo 
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> Probar Menú con Token Activo 
               </button> 
               <button type="button" class="btn btn-add" style="flex:1;" onclick="copiarEnlaceMesaToken()"> 
-                <i class="fa-solid fa-copy"></i> 📋 Copiar Enlace Válido 
+                <i class="fa-solid fa-copy"></i> Copiar Enlace Válido 
               </button> 
             </div> 
 
-            <div id="tarjetaQRImpresionCentrada" style="border:2px dashed #444; border-radius:18px; max-width:320px; margin:20px auto; padding:24px 18px; background:#fff; color:#000; text-align:center; box-shadow:0 4px 15px rgba(0,0,0,0.3);"> 
-              <h2 id="qrPrintTituloLocal" style="font-size:22px; font-weight:900; letter-spacing:0.5px; margin-bottom:2px;">LA CUSQUEÑITA</h2> 
-              <p style="font-size:12px; color:#555; margin-bottom:12px;">Cusco • Gourmet</p> 
+            <div id="tarjetaQRImpresionCentrada" style="border:2px dashed #0284c7; border-radius:18px; max-width:320px; margin:20px auto; padding:24px 18px; background:#fff; color:#000; text-align:center; box-shadow:0 8px 25px rgba(0,0,0,0.15);"> 
+              <h2 id="qrPrintTituloLocal" style="font-size:22px; font-weight:900; letter-spacing:0.5px; margin-bottom:2px; color:#0f172a;">LA CUSQUEÑITA</h2> 
+              <p style="font-size:12px; color:#64748b; margin-bottom:12px;">Cusco • Gourmet</p> 
                
               <img id="imgQRVisualCentrado" src="" alt="QR" style="width:210px; height:210px; margin:0 auto; display:block;"> 
                
-              <h1 id="qrPrintNumeroMesa" style="font-size:26px; font-weight:900; margin-top:12px; margin-bottom:4px;">MESA 01</h1> 
-              <p style="font-size:12px; color:#444; margin-bottom:4px;">Escanea con tu celular para ver la carta y pedir</p> 
-              <p id="qrPrintTelefonoContacto" style="font-size:12px; font-weight:bold; color:#000;">Pedidos: +51969773064</p> 
+              <h1 id="qrPrintNumeroMesa" style="font-size:26px; font-weight:900; margin-top:12px; margin-bottom:4px; color:#1d4ed8;">MESA 01</h1> 
+              <p style="font-size:12px; color:#475569; margin-bottom:4px;">Escanea con tu celular para ver la carta y pedir</p> 
+              <p id="qrPrintTelefonoContacto" style="font-size:12px; font-weight:bold; color:#0f172a;">Pedidos: +51969773064</p> 
             </div> 
 
             <button class="btn btn-add" style="width:100%; font-size:15px;" onclick="imprimirTarjetaMesaQR()"><i class="fa-solid fa-print"></i> Imprimir QR de esta Mesa</button> 
           </div> 
         </section> 
 
-        <!-- 8. RESEÑAS --> 
+        <!-- 9. RESEÑAS --> 
         <section id="viewResenas" style="display:none;"> 
           <div class="view-header"> 
             <div> 
@@ -1174,22 +1179,22 @@
     </div> 
   </div> 
 
-  <!-- MODAL DE ALERTA CENTRADO EN SEGUNDO PLANO --> 
+  <!-- MODAL DE ALERTA CENTRADO --> 
   <div class="alerta-centro-overlay" id="alertaCentroOverlay" onclick="cerrarAlertaCentro()"> 
     <div class="alerta-centro-card" onclick="event.stopPropagation()"> 
       <div class="alerta-icono-wrap" id="alertaIconoWrap"> 
         <i class="fa-solid fa-bell" id="alertaIconoInterior"></i> 
       </div> 
       <h2 style="color:var(--gold); font-size:18px; font-weight:900; margin-bottom:6px;" id="alertaTituloCentro">¡Notificación del Salón!</h2> 
-      <p style="font-size:14px; color:#f3f4f6; line-height:1.45; margin-bottom:10px;" id="alertaMensajeCentro">Mensaje de alerta del cliente...</p> 
-      <div style="background:#110907; border:1px dashed var(--accent); border-radius:10px; padding:10px; font-size:13px; color:#fde047;" id="alertaDetalleCentro">Mesa --</div> 
+      <p style="font-size:14px; color:#f8fafc; line-height:1.45; margin-bottom:10px;" id="alertaMensajeCentro">Mensaje de alerta del cliente...</p> 
+      <div style="background:#07101f; border:1px dashed var(--accent); border-radius:10px; padding:10px; font-size:13px; color:#38bdf8;" id="alertaDetalleCentro">Mesa --</div> 
       <button type="button" class="btn-alerta-entendido" onclick="cerrarAlertaCentro()"> 
         <i class="fa-solid fa-check"></i> Entendido / Cerrar Aviso 
       </button> 
     </div> 
   </div> 
 
-  <!-- MODAL FLOTANTE 1: EDICIÓN DE PLATOS CON CAMPO Y SOPORTE DE VIDEO --> 
+  <!-- MODAL FLOTANTE: PLATOS --> 
   <div class="modal-overlay" id="dishModal" onclick="cerrarModalPlato()"> 
     <div class="modal-box" onclick="event.stopPropagation()"> 
       <div style="display:flex; justify-content:space-between; align-items:center;"> 
@@ -1218,13 +1223,13 @@
         </div> 
       </div> 
 
-      <div style="background:#180f0c; padding:10px; border-radius:8px; border:1px dashed #555; margin-top:6px;"> 
+      <div style="background:#09152b; padding:10px; border-radius:8px; border:1px dashed #334155; margin-top:6px;"> 
         <label style="margin-top:0;">1. Foto / Portada del Plato:</label> 
         <input type="file" id="fileDishPoster" accept="image/*" onchange="convertirFotoPlato(event)"> 
         <input type="text" id="platoImagenUrl" placeholder="https://ejemplo.com/foto-plato.jpg" style="margin-top:6px;"> 
       </div> 
 
-      <div class="form-group" style="background:#180f0c; padding:10px; border-radius:8px; border:1px dashed #555; margin-top:8px;"> 
+      <div class="form-group" style="background:#09152b; padding:10px; border-radius:8px; border:1px dashed #334155; margin-top:8px;"> 
         <label style="font-weight: bold; color: #fff; margin-top:0;">2. Video del Plato (Opcional):</label> 
         <input type="file" id="fileDishVideo" accept="video/mp4,video/webm" onchange="convertirVideoPlato(event)"> 
         <input  
@@ -1234,7 +1239,7 @@
           class="form-control" 
           style="width: 100%; padding: 8px; border-radius: 6px; margin-top:6px;" 
         > 
-        <small style="color: #bbb; display:block; margin-top:4px;">Formato recomendado: MP4 (H.264), máx. 5MB, vertical/cuadrado en bucle.</small> 
+        <small style="color: #94a3b8; display:block; margin-top:4px;">Formato recomendado: MP4 (H.264), máx. 5MB, vertical/cuadrado en bucle.</small> 
       </div> 
 
       <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;"> 
@@ -1244,7 +1249,7 @@
     </div> 
   </div> 
 
-  <!-- MODAL FLOTANTE 2: COBRO DE MESA --> 
+  <!-- MODAL FLOTANTE: COBRO --> 
   <div class="modal-overlay" id="modalCobroMesa" onclick="cerrarModalCobro()"> 
     <div class="modal-box" onclick="event.stopPropagation()"> 
       <div style="display:flex; justify-content:space-between; align-items:center;"> 
@@ -1252,12 +1257,12 @@
         <button type="button" style="background:none; border:none; color:#ccc; font-size:24px; font-weight:bold; cursor:pointer;" onclick="cerrarModalCobro()">&times;</button> 
       </div> 
 
-      <div style="background:#180f0c; padding:12px; border-radius:10px; border:1px solid var(--accent); margin:6px 0;"> 
+      <div style="background:#09152b; padding:12px; border-radius:10px; border:1px solid var(--accent); margin:6px 0;"> 
         <div style="display:flex; justify-content:space-between; font-size:13px;"> 
           <span>Mesa / Cliente:</span> 
           <b id="cobroClienteTxt">Mesa 01</b> 
         </div> 
-        <div style="display:flex; justify-content:space-between; font-size:16px; font-weight:900; color:#86efac; margin-top:6px;"> 
+        <div style="display:flex; justify-content:space-between; font-size:16px; font-weight:900; color:#10b981; margin-top:6px;"> 
           <span>Total Acumulado a Pagar:</span> 
           <span id="cobroTotalTxt">S/ 0.00</span> 
         </div> 
@@ -1282,7 +1287,7 @@
         </div> 
       </div> 
 
-      <div id="cajaDatosFactura" style="display:none; background:#180f0c; padding:8px; border-radius:8px; border:1px dashed #555;"> 
+      <div id="cajaDatosFactura" style="display:none; background:#09152b; padding:8px; border-radius:8px; border:1px dashed #334155;"> 
         <label style="margin-top:0;">RUC del Cliente:</label> 
         <input type="text" id="cobroRucCliente" placeholder="20..."> 
         <label>Razón Social:</label> 
@@ -1291,7 +1296,7 @@
 
       <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;"> 
         <button type="button" class="btn btn-del" onclick="cerrarModalCobro()">Cancelar</button> 
-        <button type="button" class="btn btn-save" style="background:linear-gradient(135deg, #15803d, #22c55e); width:100%;" onclick="confirmarCobroFinalizado()"> 
+        <button type="button" class="btn btn-save" style="background:linear-gradient(135deg, #10b981, #059669); width:100%;" onclick="confirmarCobroFinalizado()"> 
           <i class="fa-solid fa-print"></i> Cobrar e Imprimir Comprobante Fiscal 
         </button> 
       </div> 
@@ -1303,7 +1308,7 @@
     const PASSWORD_MAESTRA_VAULT = "42423549"; 
     const canalPedidos = new BroadcastChannel('canal_inka_pedidos'); 
 
-    /* CANAL BROADCAST PARA SINCRONIZAR MODO OSCURO / CLARO EN TIEMPO REAL */
+    /* SINCRONIZACIÓN MODO OSCURO / CLARO */
     const canalTheme = new BroadcastChannel('canal_app_theme');
     canalTheme.onmessage = (event) => {
       if (event.data && event.data.theme) {
@@ -1330,7 +1335,6 @@
       }
     }
 
-    // Inicialización inmediata del tema guardado
     (function inicializarTema() {
       const temaGuardado = localStorage.getItem('app_theme') || 'dark';
       aplicarTemaVisual(temaGuardado, false);
@@ -1429,8 +1433,7 @@
     } 
     function probarSonidoCampanaCocina() { reproducirSonidoCampanaCocina(); } 
 
-    /* GESTOR DE ALERTAS VISUALES EN PANTALLA COMPLETA */ 
-    function dispararAlertaCentro(titulo, mensaje, detalle, icono = 'fa-bell', colorIcono = '#fbbf24') { 
+    function dispararAlertaCentro(titulo, mensaje, detalle, icono = 'fa-bell', colorIcono = '#38bdf8') { 
       reproducirSonidoCampanaCocina(); 
       const overlay = document.getElementById('alertaCentroOverlay'); 
       const t = document.getElementById('alertaTituloCentro'); 
@@ -1455,7 +1458,6 @@
       if (overlay) overlay.classList.remove('active'); 
     } 
 
-    /* ESCUCHA EN TIEMPO REAL ENTRE PESTAÑAS (INDEX.HTML -> ADMIN.HTML) */ 
     canalPedidos.onmessage = (event) => { 
       if (event.data && event.data.tipo === 'RESPUESTA_CLIENTE') { 
         const respuesta = event.data.respuesta || ''; 
@@ -1468,7 +1470,7 @@
             `El cliente en la <b>${mesa}</b> indicó que <b>NO le interesa agregar nada más</b> a su comanda.`, 
             `Hora: ${hora}`, 
             'fa-circle-xmark', 
-            '#f87171' 
+            '#dc2626' 
           ); 
         } else if (respuesta.toLowerCase().includes('pagar') || respuesta.toLowerCase().includes('cuenta')) { 
           dispararAlertaCentro( 
@@ -1484,14 +1486,13 @@
             `El cliente en la <b>${mesa}</b> confirmó que <b>va a ordenar más platos</b> a su mesa.`, 
             `Hora: ${hora}`, 
             'fa-circle-plus', 
-            '#4ade80' 
+            '#10b981' 
           ); 
         } 
         cargarComandasEnVivo(); 
       } 
     }; 
 
-    /* INICIO DE SESIÓN COMPLETO */ 
     async function verificarLoginSistema(e) { 
       e.preventDefault(); 
       const rolSeleccionado = document.getElementById('loginUsuarioSelector').value; 
@@ -1527,7 +1528,7 @@
 
         mostrarPanelAdmin(); 
       } else { 
-        alert("⛔ Nombre de operador o contraseña incorrectos. Usa regocijo123 para ingresar."); 
+        alert("⛔ Nombre de operador o contraseña incorrectos."); 
       } 
     } 
 
@@ -1599,7 +1600,6 @@
       if (s === 'socios') cargarListaCompletaSocios(); 
     } 
 
-    /* MÓDULO CLUB & SOCIOS FRECUENTES - FUNCIONES JS */
     async function buscarSocioPorDniDirecto() {
       const dni = document.getElementById('inputBuscarDniSocio').value.trim();
       if (!dni) return alert("Por favor ingresa un número de DNI.");
@@ -1695,7 +1695,7 @@
             <tr>
               <td><b style="color:var(--gold);">${s.dni}</b></td>
               <td>${s.nombre || 'Socio'}</td>
-              <td><b>${(s.sellos || 0) % 10} / 10</b> ${s.sellos >= 10 ? '🎁 <span style="color:#86efac; font-weight:bold;">¡Premio listo!</span>' : ''}</td>
+              <td><b>${(s.sellos || 0) % 10} / 10</b> ${s.sellos >= 10 ? '🎁 <span style="color:#10b981; font-weight:bold;">¡Premio listo!</span>' : ''}</td>
               <td>${s.totalVisitas || 1}</td>
               <td>
                 <button class="btn btn-save" style="padding:4px 8px; font-size:11px;" onclick="cargarSocioDirecto('${s.dni}')">
@@ -1816,9 +1816,9 @@
 
       tbody.innerHTML = listaUsuariosFirebase.map(u => { 
         const esCreadorOAdminPrincipal = (u.id === "usr-admin-principal" || u.nombre.toLowerCase() === "administrador"); 
-        let badgeColor = "#0284c7"; 
-        if (u.rol === 'admin') badgeColor = "#ef4444"; 
-        else if (u.rol === 'mozo') badgeColor = "#16a34a"; 
+        let badgeColor = "#2563eb"; 
+        if (u.rol === 'admin') badgeColor = "#dc2626"; 
+        else if (u.rol === 'mozo') badgeColor = "#10b981"; 
         else if (u.rol === 'cocina') badgeColor = "#f59e0b"; 
 
         return ` 
@@ -1829,7 +1829,7 @@
                 ${u.rol} 
               </span> 
             </td> 
-            <td><span style="font-family:monospace; color:#aaa;">••••••••</span></td> 
+            <td><span style="font-family:monospace; color:#94a3b8;">••••••••</span></td> 
             <td>${u.fecha || 'Activo'}</td> 
             <td style="text-align:center; white-space:nowrap;"> 
               <button class="btn btn-save" style="padding:4px 8px; font-size:11px;" onclick="cargarDatosParaEditarUsuario('${u.id}')" title="Editar"> 
@@ -1839,7 +1839,7 @@
                 <button class="btn btn-del" style="padding:4px 8px; font-size:11px; margin-left:4px;" onclick="eliminarUsuarioFirebase('${u.id}', '${u.nombre}')" title="Eliminar"> 
                   <i class="fa-solid fa-trash"></i> Eliminar 
                 </button> 
-              ` : '<span style="font-size:11px; color:#fbbf24; font-weight:bold; margin-left:6px;">🔒 Creador Protegido</span>'} 
+              ` : '<span style="font-size:11px; color:#38bdf8; font-weight:bold; margin-left:6px;">🔒 Creador Protegido</span>'} 
             </td> 
           </tr> 
         `; 
@@ -2050,7 +2050,7 @@
               <div style="font-size:18px; font-weight:900; color:var(--gold); margin-top:4px;">S/ ${(dish.precioPEN || dish.precio || 0).toFixed(2)}</div> 
                
               <div style="display:flex; justify-content:space-between; align-items:center; background:var(--input-bg); padding:6px 10px; border-radius:6px; margin-top:8px;"> 
-                <span style="font-size:11px; font-weight:bold; color:${disp ? '#16a34a' : '#ef4444'};">${disp ? '🟢 Disponible' : '🔴 Agotado'}</span> 
+                <span style="font-size:11px; font-weight:bold; color:${disp ? '#10b981' : '#dc2626'};">${disp ? '🟢 Disponible' : '🔴 Agotado'}</span> 
                 <button class="switch-btn ${disp ? 'btn-to-off' : 'btn-to-on'}" onclick="toggleStock(${idx})">${disp ? 'Agotar' : 'Activar'}</button> 
               </div> 
 
@@ -2094,7 +2094,6 @@
       document.getElementById('cajaDatosFactura').style.display = (tipo === 'Factura') ? 'block' : 'none'; 
     } 
 
-    /* COBRO DE COMANDA */ 
     async function confirmarCobroFinalizado() { 
       if (!comandaCobrandoActual) return; 
 
@@ -2255,7 +2254,6 @@
       ventana.document.close(); 
     } 
 
-    /* CAMBIAR A COCINA (SINCRONIZACIÓN INMEDIATA) */
     async function cambiarEstadoCocinaConOperador(idComanda) { 
       const operadorActual = sessionStorage.getItem("nombre_operador") || "Personal Salón"; 
       await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, { 
@@ -2279,7 +2277,6 @@
       await cargarComandasEnVivo(); 
     } 
 
-    /* RECIBIDO EN MESA (SINCRONIZACIÓN INMEDIATA BIDIRECCIONAL CORREGIDA) */
     async function cambiarEstadoFirebase(idComanda, nuevoEstado) { 
       await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, { 
         method: 'PATCH', 
@@ -2298,7 +2295,6 @@
       await cargarComandasEnVivo(); 
     } 
 
-    /* PREGUNTA DEL MOZO: ¿DESEA AGREGAR ALGO MÁS? */
     async function enviarMensajeAgregarMas(idComanda) { 
       await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, { 
         method: 'PATCH', 
@@ -2317,7 +2313,6 @@
       alert("✔ Notificación enviada al celular del cliente: '¿Deseas agregar algo más?'"); 
     } 
 
-    /* CARGA DE COMANDAS EN VIVO Y MONITOREO INTELIGENTE DE ALERTAS */ 
     async function cargarComandasEnVivo() { 
       const grid = document.getElementById('liveOrdersGrid'); 
       const monitorGrid = document.getElementById('tablesMonitorGrid'); 
@@ -2343,7 +2338,6 @@
       comandas.sort((a, b) => (a.timestampOrden || 0) - (b.timestampOrden || 0)); 
       todasLasComandasCache = comandas; 
 
-      // DETECCIÓN DE ALERTAS EN TIEMPO REAL 
       comandas.forEach(c => { 
         const previo = estadosConocidosComandas[c.id]; 
         const estadoActual = String(c.estado || '').toLowerCase(); 
@@ -2355,7 +2349,7 @@
               `Se acaba de registrar un nuevo pedido para <b>${c.mesa || 'Mesa'}</b> (${c.cliente || 'Comensal'}).`, 
               `Platos: ${c.productos || 'Plato nuevo'} • Total: S/ ${(c.totalPEN || c.total || 0).toFixed(2)}`, 
               'fa-bell-concierge', 
-              '#fbbf24' 
+              '#38bdf8' 
             ); 
           } 
         } 
@@ -2377,7 +2371,7 @@
               `En la <b>${c.mesa || 'Mesa'}</b> respondieron que <b>no desean nada más</b> por el momento.`, 
               `Estado comanda: ${estadoActual}`, 
               'fa-circle-xmark', 
-              '#f87171' 
+              '#dc2626' 
             ); 
           } 
         } 
@@ -2473,7 +2467,7 @@
         const numTurno = c.numeroTurno || (index + 1); 
 
         let badgeTexto = "Iniciado", badgeClase = "badge-iniciado"; 
-        if (estado === 'cocina') { badgeTexto = "🍳 En Proceso (Cocina)"; badgeClase = "badge-cocina"; } 
+        if (estado === 'cocina') { badgeTexto = "🍳 En Cocina"; badgeClase = "badge-cocina"; } 
         else if (estado === 'servido') { badgeTexto = "✅ Recibido en Mesa"; badgeClase = "badge-servido"; } 
         else if (estado === 'finalizado') { badgeTexto = "🏁 Finalizado"; badgeClase = "badge-finalizado"; } 
 
@@ -2486,7 +2480,7 @@
                   <strong style="font-size:16px;">${cliente}</strong> 
                 </div> 
                 <div style="font-size:11px; color:var(--text-muted); margin-top:2px;"> 
-                  ${c.id} • ${c.fecha || ''} ${c.operador ? `• <b style="color:#16a34a;">Op: ${c.operador}</b>` : ''} 
+                  ${c.id} • ${c.fecha || ''} ${c.operador ? `• <b style="color:#10b981;">Op: ${c.operador}</b>` : ''} 
                 </div> 
               </div> 
               <span class="order-status-badge ${badgeClase}">${badgeTexto}</span> 
@@ -2503,7 +2497,7 @@
 
             <div class="order-bottom-bar"> 
               <span>Pago: <b>${c.pago || 'Efectivo'}</b></span> 
-              <span style="font-size:16px; font-weight:900; color:#16a34a;">S/ ${total}</span> 
+              <span style="font-size:16px; font-weight:900; color:#10b981;">S/ ${total}</span> 
             </div> 
 
             <div class="order-actions-container"> 
@@ -2526,15 +2520,15 @@
               ` : ''} 
 
               <button type="button" class="btn-action-print-chef" onclick="imprimirComandaChef('${c.id}')"> 
-                <i class="fa-solid fa-print"></i> 🖨️ Imprimir Ticket Cocina 
+                <i class="fa-solid fa-print"></i> 🖨️ Ticket Cocina 
               </button> 
 
               ${(estado !== 'finalizado') ? ` 
                 <button type="button" class="btn-action-cobrar" onclick="abrirModalCobroComanda('${c.id}')"> 
-                  <i class="fa-solid fa-cash-register"></i> 💳 Cobrar Total (S/ ${total}) 
+                  <i class="fa-solid fa-cash-register"></i> 💳 Cobrar (S/ ${total}) 
                 </button> 
                 <button type="button" class="btn-action-ask-more" onclick="enviarMensajeAgregarMas('${c.id}')"> 
-                  <i class="fa-solid fa-bell"></i> 💬 ¿Desea agregar algo más? 
+                  <i class="fa-solid fa-bell"></i> 💬 ¿Desea más platos? 
                 </button> 
               ` : ` 
                 <button type="button" class="btn btn-print" style="width:100%;" onclick="reimprimirComprobanteFinalizado('${c.id}')"> 
@@ -2584,7 +2578,6 @@
       renderizarListaKDSFiltrada(); 
     } 
 
-    /* CARGA Y CONFIGURACIÓN DEL LOGO (SINCRONIZADO EN LOGIN Y PANEL) */ 
     async function cargarIdentidadFirebase() { 
       try { 
         const res = await fetch(`${FIREBASE_DB_URL}config/identidad.json?_t=${Date.now()}`); 
@@ -2669,11 +2662,10 @@
         headers: { 'Content-Type': 'application/json' }, 
         body: JSON.stringify(configRestaurante) 
       }); 
-      alert("✔ Identidad y Logo actualizados en todo el restaurante."); 
+      alert("✔ Identidad y Logo actualizados."); 
       cargarIdentidadFirebase(); 
     } 
 
-    /* IMPRESIÓN DE CÓDIGOS QR */ 
     async function actualizarQRVisualDirecto(mesaManual = null) { 
       const selector = document.getElementById('qrMesaSelectorDinamico'); 
       const mesa = mesaManual || (selector ? selector.value : (listaMesasDinamicas[0] || "Mesa 01")); 
@@ -2698,19 +2690,19 @@
         <style> 
           @page { margin: 0; size: auto; } 
           body { font-family: -apple-system, system-ui, sans-serif; margin: 0; padding: 30px 20px; display: flex; justify-content: center; background: #fff; } 
-          .card { border: 2.5px dashed #000; border-radius: 26px; padding: 30px 24px; width: 340px; text-align: center; } 
+          .card { border: 2.5px dashed #1d4ed8; border-radius: 26px; padding: 30px 24px; width: 340px; text-align: center; } 
           img { width: 230px; height: 230px; margin: 0 auto; display: block; } 
-          h2 { margin: 0 0 4px; font-size: 22px; font-weight: 900; letter-spacing: 0.5px; } 
-          h1 { margin: 14px 0 4px; font-size: 30px; font-weight: 900; } 
-          p { margin: 4px 0; font-size: 13px; color: #333; } 
+          h2 { margin: 0 0 4px; font-size: 22px; font-weight: 900; letter-spacing: 0.5px; color: #0f172a; } 
+          h1 { margin: 14px 0 4px; font-size: 30px; font-weight: 900; color: #1d4ed8; } 
+          p { margin: 4px 0; font-size: 13px; color: #475569; } 
         </style></head><body> 
           <div class="card"> 
             <h2>${configRestaurante.nombre.toUpperCase()}</h2> 
-            <p style="color:#666; font-size:12px; margin-bottom:12px;">${configRestaurante.eslogan || 'Cusco • Gourmet'}</p> 
+            <p style="color:#64748b; font-size:12px; margin-bottom:12px;">${configRestaurante.eslogan || 'Cusco • Gourmet'}</p> 
             <img id="qrPrintImg" src="${qrImgSrc}"> 
             <h1>${mesa.toUpperCase()}</h1> 
             <p>Escanea con tu celular para ver la carta y pedir</p> 
-            <p style="font-weight:bold; margin-top:8px;">Pedidos: ${tel}</p> 
+            <p style="font-weight:bold; margin-top:8px; color:#0f172a;">Pedidos: ${tel}</p> 
           </div> 
           <script> 
             window.onload = function() { 
@@ -2728,7 +2720,6 @@
       ventana.document.close(); 
     } 
 
-    /* CONTROL DE RESERVAS */ 
     async function crearNuevaReservaAdmin(e) { 
       e.preventDefault(); 
       const id = "RES-" + Date.now(); 
@@ -2778,7 +2769,7 @@
             reservasCache = lista; 
 
             cont.innerHTML = lista.map(r => ` 
-              <div style="background:var(--card-bg); border:1.5px solid var(--accent); border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:6px;"> 
+              <div style="background:var(--card-bg); border:1.5px solid var(--card-border); border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:6px;"> 
                 <div style="display:flex; justify-content:space-between; align-items:center;"> 
                   <strong style="color:var(--text-main); font-size:14px;">${r.cliente}</strong> 
                   <span style="background:var(--primary); color:#fff; font-size:10px; padding:3px 7px; border-radius:4px; font-weight:bold;">${r.mesaAsignada || 'Mesa'}</span> 
@@ -2795,7 +2786,6 @@
       cont.innerHTML = '<p style="color:var(--text-muted); font-size:13px;">No hay reservas registradas.</p>'; 
     } 
 
-    /* REPORTE CONTABLE Y VENTAS */ 
     async function cargarVentasDesdeFirebase() { 
       const tbody = document.getElementById('tablaVentasBody'); 
       if (!tbody) return; 
@@ -2823,7 +2813,7 @@
                   <td>${v.pago || 'Efectivo'}</td> 
                   <td>S/ ${base.toFixed(2)}</td> 
                   <td>S/ ${igv.toFixed(2)}</td> 
-                  <td style="font-weight:900; color:#16a34a;">S/ ${total.toFixed(2)}</td> 
+                  <td style="font-weight:900; color:#10b981;">S/ ${total.toFixed(2)}</td> 
                 </tr> 
               `; 
             }).join(''); 
@@ -2838,7 +2828,6 @@
       tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--text-muted);">No se encontraron registros de ventas.</td></tr>'; 
     } 
 
-    /* RESEÑAS POR PLATO */ 
     async function cargarResenasFirebase() { 
       const cont = document.getElementById('contenedorResenasAdmin'); 
       if (!cont) return; 
@@ -2855,7 +2844,7 @@
                   <strong style="color:var(--gold);">${r.autor || 'Cliente'} (${'⭐'.repeat(r.rating || 5)})</strong> 
                   <span style="font-size:11px; color:var(--text-muted);">${r.fecha || ''}</span> 
                 </div> 
-                ${r.plato ? `<div style="font-size:11.5px; color:#16a34a; margin-top:2px;"><b>Plato:</b> ${r.plato}</div>` : ''} 
+                ${r.plato ? `<div style="font-size:11.5px; color:#10b981; margin-top:2px;"><b>Plato:</b> ${r.plato}</div>` : ''} 
                 <p style="font-size:12.5px; color:var(--text-main); margin-top:4px;">"${r.texto || ''}"</p> 
               </div> 
             `).join(''); 
@@ -2975,7 +2964,7 @@
 
     function toggleModoEliminarMesas() { 
       modoEliminarMesasActivo = !modoEliminarMesasActivo; 
-      document.getElementById('lblBtnModoEliminar').innerText = modoEliminarMesasActivo ? "✅ Finalizar Edición" : "🗑️ Modo Eliminar"; 
+      document.getElementById('lblBtnModoEliminar').innerText = modoEliminarMesasActivo ? "Finalizar Edición" : "Modo Eliminar"; 
       cargarComandasEnVivo(); 
     } 
 
