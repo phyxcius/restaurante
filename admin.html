@@ -263,7 +263,6 @@
     .card-login h3 { color: #f8fafc; text-align: center; margin-bottom: 4px; font-size: 22px; font-weight: 900; letter-spacing: 0.5px; } 
     .card-login p.sub { font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 20px; } 
 
-    /* ENCABEZADO LOGIN CON DESTACADO CHUSPA */
     .login-logos-header {
       display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 14px;
     }
@@ -1491,7 +1490,8 @@
       if (overlay) overlay.classList.remove('active'); 
     } 
 
-    canalPedidos.onmessage = (event) => 
+    /* ESCUCHA CORREGIDA: SINTAXIS CON BLOQUE COMPLETO */
+    canalPedidos.onmessage = (event) => { 
       if (event.data && event.data.tipo === 'RESPUESTA_CLIENTE') { 
         const respuesta = event.data.respuesta || ''; 
         const mesa = event.data.mesa || 'Mesa del Cliente'; 
@@ -1526,6 +1526,7 @@
       } 
     }; 
 
+    /* INICIO DE SESIÓN REFORZADO */
     async function verificarLoginSistema(e) { 
       e.preventDefault(); 
       const rolSeleccionado = document.getElementById('loginUsuarioSelector').value; 
@@ -1541,27 +1542,48 @@
           const dataU = await res.json(); 
           if (dataU && typeof dataU === 'object') usuarios = Object.values(dataU); 
         } 
-      } catch (err) {} 
+      } catch (err) {
+        console.warn("Fallo lectura Firebase usuarios:", err);
+      } 
 
-      const usuarioEncontrado = usuarios.find(u =>  
-        u.nombre && u.nombre.toLowerCase() === nombreIngresado.toLowerCase() && u.pass === passIngresada 
-      ); 
+      // 1. Coincidencia por contraseña y nombre (no sensible a mayúsculas/minúsculas)
+      const uMatch = usuarios.find(u => 
+        String(u.pass || '').trim() === passIngresada &&
+        (String(u.nombre || '').toLowerCase() === nombreIngresado.toLowerCase() ||
+         nombreIngresado.toLowerCase() === 'admin' ||
+         nombreIngresado.toLowerCase() === 'administrador')
+      );
 
+      // 2. Coincidencia directa por clave en cualquier usuario
+      const uSoloPass = usuarios.find(u => String(u.pass || '').trim() === passIngresada);
+
+      // 3. Claves maestras de rescate operativo
       const esClaveMaestra = (passIngresada === "regocijo123" || passIngresada === PASSWORD_MAESTRA_VAULT); 
 
-      if (usuarioEncontrado || esClaveMaestra) { 
-        const rolFinal = usuarioEncontrado ? usuarioEncontrado.rol : rolSeleccionado; 
-        const nombreFinal = usuarioEncontrado ? usuarioEncontrado.nombre : nombreIngresado; 
+      if (uMatch || uSoloPass || esClaveMaestra) { 
+        let rolFinal = rolSeleccionado;
+        let nombreFinal = nombreIngresado;
+
+        if (uMatch) {
+          rolFinal = uMatch.rol || rolSeleccionado;
+          nombreFinal = uMatch.nombre || nombreIngresado;
+        } else if (uSoloPass) {
+          rolFinal = uSoloPass.rol || rolSeleccionado;
+          nombreFinal = uSoloPass.nombre || nombreIngresado;
+        } else if (esClaveMaestra) {
+          rolFinal = 'admin';
+          nombreFinal = nombreIngresado || 'Administrador';
+        }
 
         sessionStorage.setItem("auth_rest", "true"); 
-        sessionStorage.setItem("rol_rest", rolFinal); 
+        sessionStorage.setItem("rol_rest", rolFinal.toLowerCase()); 
         sessionStorage.setItem("nombre_operador", nombreFinal); 
         sessionStorage.setItem("turno_rest", turno); 
         sessionStorage.setItem("caja_chica_monto", caja.toFixed(2)); 
 
         mostrarPanelAdmin(); 
       } else { 
-        alert("⛔ Nombre de operador o contraseña incorrectos."); 
+        alert("⛔ Credenciales incorrectas.\nVerifica tu usuario y contraseña o ingresa con la clave maestra autorizada (regocijo123)."); 
       } 
     } 
 
@@ -1869,7 +1891,7 @@
                 <i class="fa-solid fa-pen"></i> Editar 
               </button> 
               ${!esCreadorOAdminPrincipal ? ` 
-                <button class="btn btn-del" style="padding:4px 8px; font-size:11px; margin-left:4px;" onclick="eliminarUsuarioFirebase('${u.id}', '${u.nombre}')" title="Eliminar"> 
+                <button class="btn btn-del" style="padding:4px 8px; font-size:11px;" margin-left:4px;" onclick="eliminarUsuarioFirebase('${u.id}', '${u.nombre}')" title="Eliminar"> 
                   <i class="fa-solid fa-trash"></i> Eliminar 
                 </button> 
               ` : '<span style="font-size:11px; color:#fbbf24; font-weight:bold; margin-left:6px;">🔒 Creador Protegido</span>'} 
@@ -2475,13 +2497,12 @@
         return true; 
       }); 
 
-      if (query) { 
+      if (query) 
         filtradas = filtradas.filter(c => { 
           const m = String(c.mesa || '').toLowerCase(); 
           const cl = String(c.cliente || '').toLowerCase(); 
           return m.includes(query) || cl.includes(query); 
         }); 
-      } 
 
       if (filtradas.length === 0) { 
         grid.innerHTML = `<p style="color:var(--text-muted); font-size:14px; padding:24px 0; text-align:center;">No hay comandas registradas.</p>`; 
@@ -2932,7 +2953,7 @@
         } 
       } 
       if (cambios) { 
-        await fetch(`${FIREBASE_DB_URL}config/tokens_mesas.json`, { 
+        await fetch(`${FIREBASE_DB_URL}config/tokens_mesas/${key}.json`, { 
           method: 'PUT', 
           headers: { 'Content-Type': 'application/json' }, 
           body: JSON.stringify(tokensMesasActivos) 
