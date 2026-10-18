@@ -6,47 +6,175 @@
   <title>Pantalla KDS Cocina | La Cusqueñita</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    /* ==========================================================
+       PALETA ENTERPRISE / B2B SAAS (SINCRONIZADA CON ADMIN)
+       Azul Ultramar (#070d19 / #0f1d38), Cyan Tech (#38bdf8), 
+       Azul Eléctrico (#1d4ed8), Verde Esmeralda (#10b981)
+       ========================================================== */
     :root {
-      --bg-kds: #0b0705;
-      --card-bg: #1c130e;
-      --card-border: rgba(245, 158, 11, 0.35);
-      --gold: #fbbf24;
-      --gold-glow: rgba(251, 191, 36, 0.65);
-      --orange: #ea580c;
-      --blue: #0284c7;
-      --green: #16a34a;
-      --red: #ef4444;
-      --text: #fffdfa;
-      --muted: #a8a29e;
+      --primary: #1d4ed8;
+      --primary-hover: #1e40af;
+      --accent: #0284c7;
+      --accent-glow: rgba(2, 132, 199, 0.4);
+      --bg-kds: #070d19;
+      --header-bg: #081224;
+      --card-bg: #0f1d38;
+      --card-border: rgba(56, 189, 248, 0.22);
+      --input-bg: #081121;
+      --metric-bg: #0d1a33;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --gold: #38bdf8;          /* Cyan tech para destacar jerarquías */
+      --gold-glow: rgba(56, 189, 248, 0.6);
+      --danger: #dc2626;        /* Rojo carmesí alertas */
+      --success: #10b981;       /* Verde estado despachado / listo */
+      --blue: #2563eb;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; user-select: none; }
-    body { background-color: var(--bg-kds); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+    /* MODO CLARO PROFESIONAL (ESTÉTICA MINISTERIAL / ENTERPRISE) */
+    body.light-theme {
+      --bg-kds: #f0f4f9;
+      --header-bg: #ffffff;
+      --card-bg: #ffffff;
+      --card-border: #cbd5e1;
+      --input-bg: #f8fafc;
+      --metric-bg: #f1f5f9;
+      --text: #0f172a;
+      --muted: #475569;
+      --gold: #0369a1;
+      --gold-glow: rgba(3, 105, 161, 0.25);
+    }
 
-    /* MODAL DE ACCESO RESTRINGIDO A COCINA */
+    body.light-theme .kds-header {
+      background: #ffffff !important;
+      border-bottom: 2px solid #cbd5e1 !important;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05) !important;
+    }
+    body.light-theme .kds-control-bar {
+      background: #ffffff !important;
+      border-bottom: 1px solid #cbd5e1 !important;
+    }
+    body.light-theme .kds-live-clock {
+      background: #f1f5f9 !important;
+      border: 1.5px solid #cbd5e1 !important;
+      color: #0369a1 !important;
+      box-shadow: none !important;
+    }
+    body.light-theme .badge-metric {
+      background: #f1f5f9 !important;
+      border: 1px solid #cbd5e1 !important;
+      color: #1e293b !important;
+    }
+    body.light-theme .btn-top-action {
+      background: #f8fafc !important;
+      border-color: #cbd5e1 !important;
+      color: #0f172a !important;
+    }
+    body.light-theme .kds-card {
+      background: #ffffff !important;
+      border-color: #cbd5e1 !important;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06) !important;
+    }
+    body.light-theme .plato-item-row {
+      color: #0f172a !important;
+      border-bottom-color: #e2e8f0 !important;
+    }
+    body.light-theme .card-timer-bar {
+      background: #f8fafc !important;
+      color: #475569 !important;
+      border-bottom-color: #e2e8f0 !important;
+    }
+    body.light-theme .card-actions {
+      background: #f8fafc !important;
+      border-top-color: #e2e8f0 !important;
+    }
+    body.light-theme .kds-date-input {
+      background: #ffffff !important;
+      color: #0f172a !important;
+      border-color: #cbd5e1 !important;
+    }
+    body.light-theme .btn-quick-date {
+      background: #f1f5f9 !important;
+      border-color: #cbd5e1 !important;
+      color: #475569 !important;
+    }
+    body.light-theme .btn-state-filter {
+      background: #f1f5f9 !important;
+      border-color: #cbd5e1 !important;
+      color: #475569 !important;
+    }
+    body.light-theme .kds-modal-box {
+      background: #ffffff !important;
+      border-color: #0284c7 !important;
+      color: #0f172a !important;
+    }
+    body.light-theme .kds-table-stats th {
+      color: #0369a1 !important;
+    }
+    body.light-theme .kds-table-stats td {
+      border-bottom-color: #e2e8f0 !important;
+      color: #1e293b !important;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; user-select: none; }
+    body { background-color: var(--bg-kds); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; transition: background-color 0.25s ease, color 0.25s ease; }
+
+    /* BOTÓN FLOTANTE MODO CLARO / OSCURO */
+    .btn-theme-toggle-floating {
+      position: fixed;
+      top: 10px;
+      right: 14px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 9999999;
+      background: linear-gradient(90deg, #ffffff 50%, #0b1528 50%);
+      border: 2px solid var(--accent);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.4s ease, box-shadow 0.3s ease;
+      outline: none;
+      padding: 0;
+    }
+    .btn-theme-toggle-floating:hover {
+      transform: scale(1.12);
+      box-shadow: 0 6px 20px var(--accent-glow);
+    }
+    body.light-theme .btn-theme-toggle-floating {
+      transform: rotate(180deg);
+      border-color: #1d4ed8;
+    }
+
+    /* MODAL DE ACCESO A COCINA */
     #authOverlayKDS {
       position: fixed;
       inset: 0;
-      background: radial-gradient(circle at center, #1f120c, #070403 92%);
+      background: radial-gradient(circle at center, #0f244a 0%, #050b14 100%);
       z-index: 999999;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 16px;
     }
+    body.light-theme #authOverlayKDS {
+      background: radial-gradient(circle at center, #dbeafe 0%, #e2e8f0 100%);
+    }
     .auth-card-kds {
-      background: #180e0a;
-      border: 2px solid var(--gold);
+      background: var(--card-bg);
+      border: 1.5px solid var(--accent);
       border-radius: 20px;
       width: 100%;
-      max-width: 380px;
-      padding: 28px 24px;
+      max-width: 400px;
+      padding: 30px 26px;
       text-align: center;
-      box-shadow: 0 10px 45px rgba(0,0,0,0.95);
+      box-shadow: 0 16px 45px rgba(0,0,0,0.8);
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
     }
     .auth-logos-header {
       display: flex;
@@ -56,19 +184,8 @@
       margin-bottom: 4px;
       width: 100%;
     }
-    .auth-logo-local {
-      max-height: 50px;
-      max-width: 130px;
-      object-fit: contain;
-    }
-    .auth-logo-tech {
-      max-height: 36px;
-      max-width: 110px;
-      object-fit: contain;
-      opacity: 0.9;
-    }
     .auth-card-kds h2 {
-      font-size: 20px;
+      font-size: 21px;
       color: var(--gold);
       font-weight: 900;
       letter-spacing: 0.5px;
@@ -76,24 +193,24 @@
     .auth-card-kds p {
       font-size: 13px;
       color: var(--muted);
-      line-height: 1.3;
+      line-height: 1.35;
     }
     .auth-select-user {
       width: 100%;
-      background: #0d0604;
-      border: 1.5px solid rgba(251, 191, 36, 0.4);
+      background: var(--input-bg);
+      border: 1.5px solid var(--card-border);
       border-radius: 10px;
-      padding: 10px 12px;
+      padding: 11px 12px;
       font-size: 14px;
-      color: #fde047;
+      color: var(--gold);
       font-weight: 800;
       outline: none;
       cursor: pointer;
     }
     .auth-pin-input {
       width: 100%;
-      background: #0d0604;
-      border: 2px solid rgba(251, 191, 36, 0.5);
+      background: var(--input-bg);
+      border: 2px solid var(--card-border);
       border-radius: 12px;
       padding: 13px;
       font-size: 20px;
@@ -104,40 +221,52 @@
       font-weight: 900;
     }
     .auth-pin-input:focus {
-      border-color: var(--gold);
-      box-shadow: 0 0 16px rgba(251, 191, 36, 0.4);
+      border-color: var(--accent);
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+    body.light-theme .auth-pin-input {
+      color: #0f172a;
     }
     .auth-btn-enter {
       width: 100%;
       padding: 14px;
-      background: linear-gradient(135deg, var(--orange), var(--gold));
+      background: linear-gradient(135deg, #1d4ed8, #0284c7);
       color: #fff;
       border: none;
       border-radius: 12px;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 900;
       text-transform: uppercase;
       cursor: pointer;
-      box-shadow: 0 4px 15px rgba(234, 88, 12, 0.4);
+      box-shadow: 0 4px 15px var(--accent-glow);
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
+      transition: 0.2s;
+    }
+    .auth-btn-enter:hover {
+      box-shadow: 0 6px 20px rgba(29, 78, 216, 0.6);
     }
     .auth-btn-enter:active { transform: scale(0.97); }
     .auth-btn-enter:disabled { opacity: 0.6; cursor: not-allowed; }
     .auth-error-msg {
-      color: #ef4444;
-      font-size: 13px;
+      color: #fca5a5;
+      background: rgba(220, 38, 38, 0.2);
+      border: 1px solid var(--danger);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12.5px;
       font-weight: 800;
       display: none;
       line-height: 1.3;
+      width: 100%;
     }
 
-    /* BARRA SUPERIOR */
+    /* BARRA SUPERIOR KDS */
     .kds-header {
-      background: #180e0a;
-      border-bottom: 2.5px solid var(--orange);
+      background: var(--header-bg);
+      border-bottom: 2px solid var(--card-border);
       padding: 10px 18px;
       display: flex;
       justify-content: space-between;
@@ -147,133 +276,135 @@
       z-index: 100;
       flex-wrap: wrap;
       gap: 10px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+      padding-right: 60px; /* Margen para botón de tema */
     }
     .kds-brand-block { display: flex; align-items: center; gap: 12px; }
     .chef-avatar-wrap {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--orange), var(--gold));
-      border: 2px solid var(--gold);
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #1d4ed8, #0284c7);
+      border: 1.5px solid var(--gold);
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 26px;
+      font-size: 22px;
       color: #fff;
-      box-shadow: 0 0 14px var(--gold-glow);
+      box-shadow: 0 0 14px var(--accent-glow);
       flex-shrink: 0;
     }
     .chef-avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
     .kds-title-text h1 {
-      font-size: 19px;
+      font-size: 18px;
       font-weight: 900;
       color: var(--gold);
       letter-spacing: 0.5px;
       line-height: 1.1;
     }
-    .kds-title-text span { font-size: 11px; color: #ddd; font-weight: 700; }
+    .kds-title-text span { font-size: 11px; color: var(--muted); font-weight: 700; }
     .chuspa-tech-badge {
       display: flex;
       align-items: center;
       gap: 6px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(251, 191, 36, 0.25);
+      background: rgba(2, 132, 199, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.35);
       padding: 4px 10px;
-      border-radius: 8px;
+      border-radius: 20px;
       font-size: 11px;
-      font-weight: 700;
-      color: #e5e7eb;
+      font-weight: 800;
+      color: #38bdf8;
     }
-    .chuspa-tech-badge img { max-height: 22px; object-fit: contain; }
+    .chuspa-tech-badge img { max-height: 20px; object-fit: contain; }
     .kds-live-clock {
-      background: #110805;
-      border: 1.5px solid rgba(251, 191, 36, 0.4);
+      background: #081121;
+      border: 1.5px solid var(--card-border);
       padding: 6px 14px;
       border-radius: 10px;
       display: flex;
       align-items: center;
       gap: 8px;
       font-family: monospace;
-      font-size: 19px;
+      font-size: 18px;
       font-weight: 900;
-      color: #fde047;
+      color: #38bdf8;
       letter-spacing: 1px;
-      box-shadow: inset 0 0 8px rgba(0,0,0,0.8);
     }
     .kds-header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
     .badge-metric {
-      background: #24140e;
+      background: var(--metric-bg);
       border: 1px solid var(--card-border);
       padding: 6px 12px;
       border-radius: 8px;
-      font-size: 12.5px;
+      font-size: 12px;
       font-weight: 800;
     }
-    .badge-metric b { font-size: 16px; margin-left: 4px; }
+    .badge-metric b { font-size: 14px; margin-left: 4px; }
     .btn-top-action {
-      background: #261611;
-      border: 1.5px solid var(--gold);
-      color: var(--gold);
+      background: linear-gradient(135deg, #1d4ed8, #0284c7);
+      border: 1px solid var(--gold);
+      color: #fff;
       padding: 6px 12px;
       border-radius: 8px;
       font-weight: 800;
-      font-size: 12.5px;
+      font-size: 12px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      transition: 0.15s;
     }
     .btn-top-action:active { transform: scale(0.96); }
-    .btn-lock-kds { background: #3b110e; border: 1.5px solid var(--red); color: #fca5a5; }
+    .btn-lock-kds { background: #450a0a !important; border: 1.5px solid var(--danger) !important; color: #fca5a5 !important; }
 
     /* FILTROS */
     .kds-control-bar {
-      background: #140b07;
-      border-bottom: 1px solid var(--card-border);
-      padding: 8px 18px;
+      background: var(--card-bg);
+      border-bottom: 1.5px solid var(--card-border);
+      padding: 10px 18px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
       gap: 10px;
     }
-    .kds-date-selector { display: flex; align-items: center; gap: 8px; }
+    .kds-date-selector { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .kds-date-input {
-      padding: 6px 10px;
+      padding: 6px 12px;
       border-radius: 8px;
-      border: 1.5px solid var(--gold);
-      background: #090403;
-      color: #fde047;
+      border: 1px solid var(--gold);
+      background: #081121;
+      color: #38bdf8;
       font-weight: 900;
-      font-size: 13px;
+      font-size: 12.5px;
       cursor: pointer;
       outline: none;
     }
     .btn-quick-date {
-      background: #24140e;
-      border: 1px solid rgba(255,255,255,0.15);
-      color: #ddd;
-      padding: 5px 10px;
+      background: #112347;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #bae6fd;
+      padding: 6px 12px;
       border-radius: 6px;
       font-size: 11.5px;
       font-weight: 800;
       cursor: pointer;
     }
-    .btn-quick-date.active { background: var(--orange); border-color: var(--gold); color: #fff; }
-    .kds-state-filters { display: flex; gap: 6px; }
+    .btn-quick-date.active { background: linear-gradient(135deg, #1d4ed8, #0284c7); border-color: var(--gold); color: #fff; }
+    
+    .kds-state-filters { display: flex; gap: 6px; flex-wrap: wrap; }
     .btn-state-filter {
-      background: #1f120c;
-      border: 1px solid rgba(255,255,255,0.15);
-      color: #bbb;
-      padding: 5px 10px;
-      border-radius: 6px;
-      font-size: 11.5px;
-      font-weight: 800;
+      background: #11203d;
+      border: 1px solid #334155;
+      color: #cbd5e1;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: bold;
       cursor: pointer;
     }
-    .btn-state-filter.active { background: var(--blue); color: #fff; border-color: #38bdf8; }
+    .btn-state-filter.active { background: var(--primary); color: #fff; border-color: var(--gold); }
 
     /* GRID COMANDAS */
     .kds-grid {
@@ -287,85 +418,94 @@
     .kds-card {
       background: var(--card-bg);
       border-radius: 16px;
-      border: 2.5px solid var(--card-border);
+      border: 2px solid var(--card-border);
       display: flex;
       flex-direction: column;
-      box-shadow: 0 6px 25px rgba(0,0,0,0.7);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
       overflow: hidden;
       position: relative;
       transition: transform 0.15s ease, box-shadow 0.2s ease;
     }
     .kds-card.glow-pulso {
-      border-color: #f59e0b !important;
-      animation: resplandorBrillante 1.8s infinite alternate ease-in-out;
+      border-color: #38bdf8 !important;
+      animation: resplandorBrillante 2s infinite alternate ease-in-out;
     }
     @keyframes resplandorBrillante {
-      0% { box-shadow: 0 0 14px rgba(245, 158, 11, 0.4), inset 0 0 10px rgba(245, 158, 11, 0.2); border-color: #f59e0b; }
-      100% { box-shadow: 0 0 35px rgba(245, 158, 11, 0.95), inset 0 0 20px rgba(245, 158, 11, 0.5); border-color: #fde047; }
+      0% { box-shadow: 0 0 12px rgba(56, 189, 248, 0.3), inset 0 0 10px rgba(56, 189, 248, 0.15); border-color: #0284c7; }
+      100% { box-shadow: 0 0 30px rgba(56, 189, 248, 0.8), inset 0 0 20px rgba(56, 189, 248, 0.35); border-color: #38bdf8; }
     }
-    .kds-card.estado-iniciado .card-top { background: #78350f; color: #fde047; }
-    .kds-card.estado-cocina { border-color: #0284c7 !important; }
-    .kds-card.estado-cocina .card-top { background: #0369a1; color: #fff; }
-    .kds-card.estado-servido { border-color: #15803d !important; opacity: 0.88; }
-    .kds-card.estado-servido .card-top { background: #166534; color: #bbf7d0; }
-    .kds-card.estado-finalizado { border-color: #444 !important; opacity: 0.72; }
-    .kds-card.estado-finalizado .card-top { background: #262626; color: #aaa; }
+    
+    /* ESTADOS KDS PROFESIONALES */
+    .kds-card.estado-iniciado { border-color: #f59e0b !important; }
+    .kds-card.estado-iniciado .card-top { background: #1c1917; color: #fde047; border-bottom: 2px solid #f59e0b; }
+    
+    .kds-card.estado-cocina { border-color: #2563eb !important; }
+    .kds-card.estado-cocina .card-top { background: #0c2144; color: #93c5fd; border-bottom: 2px solid #2563eb; }
+    
+    .kds-card.estado-servido { border-color: #10b981 !important; opacity: 0.9; }
+    .kds-card.estado-servido .card-top { background: #062b1a; color: #a7f3d0; border-bottom: 2px solid #10b981; }
+    
+    .kds-card.estado-finalizado { border-color: #475569 !important; opacity: 0.75; }
+    .kds-card.estado-finalizado .card-top { background: #131a29; color: #94a3b8; border-bottom: 2px solid #475569; }
 
     .card-top { padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; font-weight: 900; }
-    .card-mesa-title { font-size: 20px; display: flex; align-items: center; gap: 8px; }
+    .card-mesa-title { font-size: 19px; display: flex; align-items: center; gap: 8px; }
     .card-order-seq {
-      background: rgba(0,0,0,0.45);
-      border: 1px solid rgba(255,255,255,0.2);
-      font-size: 13px;
+      background: #172554;
+      border: 1px solid #3b82f6;
+      color: #93c5fd;
+      font-size: 12px;
       padding: 3px 8px;
       border-radius: 6px;
       letter-spacing: 0.5px;
+      font-weight: 900;
     }
     .card-timer-bar {
-      background: rgba(0,0,0,0.45);
-      padding: 6px 16px;
-      font-size: 13px;
-      color: #bbb;
+      background: rgba(8, 17, 33, 0.6);
+      padding: 7px 16px;
+      font-size: 12.5px;
+      color: var(--muted);
       display: flex;
       justify-content: space-between;
-      border-bottom: 1px dashed rgba(255,255,255,0.12);
+      border-bottom: 1px dashed rgba(255,255,255,0.08);
     }
     .timer-alert { color: #f87171 !important; font-weight: 900; }
-    .card-body { padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 12px; }
+    .card-body { padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
     .plato-item-row {
-      font-size: 18px;
-      font-weight: 900;
+      font-size: 17px;
+      font-weight: 800;
       line-height: 1.35;
-      color: #fff;
+      color: #f8fafc;
       display: flex;
       align-items: flex-start;
-      gap: 8px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-      padding-bottom: 6px;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding-bottom: 8px;
     }
     .plato-qty-badge {
-      background: #7c2d12;
-      color: #fde047;
-      padding: 2px 7px;
+      background: #172554;
+      color: #38bdf8;
+      padding: 2px 8px;
       border-radius: 6px;
-      font-size: 16px;
-      border: 1px solid var(--orange);
+      font-size: 15px;
+      font-weight: 900;
+      border: 1px solid #0284c7;
       flex-shrink: 0;
     }
     .card-notas-box {
-      background: rgba(239, 68, 68, 0.18);
-      border-left: 4px solid var(--red);
+      background: rgba(220, 38, 38, 0.15);
+      border-left: 4px solid var(--danger);
       color: #fca5a5;
       padding: 8px 12px;
       border-radius: 6px;
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 800;
       margin-top: 4px;
     }
     .card-actions {
       padding: 12px 14px;
-      background: rgba(0,0,0,0.35);
-      border-top: 1px solid rgba(255,255,255,0.1);
+      background: rgba(8, 17, 33, 0.4);
+      border-top: 1px solid rgba(255,255,255,0.08);
       display: flex;
       gap: 8px;
     }
@@ -374,7 +514,7 @@
       padding: 12px 8px;
       border: none;
       border-radius: 10px;
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 900;
       cursor: pointer;
       display: flex;
@@ -382,61 +522,66 @@
       justify-content: center;
       gap: 6px;
       text-transform: uppercase;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      transition: 0.15s;
     }
     .btn-action-kds:active { transform: scale(0.97); }
-    .btn-kds-cook { background: linear-gradient(135deg, #0284c7, #38bdf8); color: #fff; }
-    .btn-kds-ready { background: linear-gradient(135deg, #16a34a, #22c55e); color: #fff; }
-    .btn-kds-print { background: #374151; color: #e5e7eb; border: 1px solid #4b5563; flex: 0.55; }
+    .btn-kds-cook { background: linear-gradient(135deg, #1d4ed8, #0284c7); color: #fff; }
+    .btn-kds-cook:hover { background: linear-gradient(135deg, #1e40af, #0369a1); }
+    .btn-kds-ready { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
+    .btn-kds-ready:hover { background: linear-gradient(135deg, #059669, #047857); }
+    .btn-kds-print { background: #1e293b; color: #cbd5e1; border: 1px solid #475569; flex: 0.45; }
+    .btn-kds-print:hover { background: #334155; color: #fff; }
 
     /* MODAL CONTABILIDAD */
     .kds-modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+      position: fixed; inset: 0; background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(8px);
       z-index: 99999; display: none; align-items: center; justify-content: center; padding: 16px;
     }
     .kds-modal-overlay.active { display: flex; }
     .kds-modal-box {
-      background: #1c130e; border: 2px solid var(--gold); border-radius: 20px;
-      max-width: 580px; width: 100%; max-height: 88vh; overflow-y: auto; padding: 22px;
-      display: flex; flex-direction: column; gap: 14px; box-shadow: 0 10px 45px rgba(0,0,0,0.9);
+      background: var(--card-bg); border: 2px solid var(--accent); border-radius: 20px;
+      max-width: 580px; width: 100%; max-height: 88vh; overflow-y: auto; padding: 24px;
+      display: flex; flex-direction: column; gap: 14px; box-shadow: 0 16px 45px rgba(0,0,0,0.9);
     }
     .kds-table-stats { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
-    .kds-table-stats th, .kds-table-stats td { padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.08); }
-    .kds-table-stats th { color: var(--gold); text-transform: uppercase; font-size: 11.5px; }
+    .kds-table-stats th, .kds-table-stats td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .kds-table-stats th { color: var(--gold); text-transform: uppercase; font-size: 12px; }
 
     .kds-empty-msg {
       grid-column: 1 / -1;
       text-align: center;
       padding: 80px 20px;
-      color: #666;
+      color: var(--muted);
     }
-    .kds-empty-msg i { font-size: 58px; margin-bottom: 14px; color: #444; }
+    .kds-empty-msg i { font-size: 56px; margin-bottom: 14px; color: #334155; }
   </style>
 </head>
 <body>
 
-  <!-- MODAL DE INGRESO CON VALIDACIÓN EN VIVO DESDE CONFIG/USUARIOS -->
+  <!-- BOTÓN FLOTANTE TEMA -->
+  <button type="button" class="btn-theme-toggle-floating" id="btnToggleTheme" onclick="alternarTemaVisual()" title="Cambiar a Modo Claro / Oscuro"></button>
+
+  <!-- MODAL DE ACCESO A COCINA -->
   <div id="authOverlayKDS">
     <div class="auth-card-kds">
       <div class="auth-logos-header">
-        <div class="chef-avatar-wrap" id="loginBrandLogoWrap" style="width:48px; height:48px;">
+        <div class="chef-avatar-wrap" id="loginBrandLogoWrap">
           🍽️
         </div>
         <div class="chuspa-tech-badge">
           <img src="CHUSPITA-circulo.png" alt="La Chuspa" onerror="this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png'">
-          <span style="color:var(--gold);">La Chuspa Tech</span>
+          <span>La Chuspa Tech</span>
         </div>
       </div>
 
       <h2>ACCESO A COCINA</h2>
-      <p>Selecciona tu usuario de cocina e ingresa tu contraseña del panel</p>
+      <p>Selecciona tu cuenta de cocina e ingresa la contraseña registrada en el panel</p>
 
-      <!-- Selector de usuario traído directamente de config/usuarios -->
       <select id="selectCocineroKDS" class="auth-select-user">
         <option value="">Cargando usuarios de cocina...</option>
       </select>
 
-      <input type="password" id="inputClaveCocinero" class="auth-pin-input" placeholder="Contraseña" autofocus autocomplete="off" />
+      <input type="password" id="inputClaveCocinero" class="auth-pin-input" placeholder="••••••••" autofocus autocomplete="off" />
 
       <button type="button" id="btnIngresarKDS" class="auth-btn-enter" onclick="validarIngresoCocinero()">
         <i class="fa-solid fa-unlock-keyhole"></i> Abrir Tablero
@@ -444,8 +589,8 @@
 
       <div id="authErrorMsg" class="auth-error-msg">Contraseña incorrecta para el usuario seleccionado.</div>
 
-      <div style="font-size:11px; color:#777; margin-top:4px;">
-        Sincronizado con <b>Panel de Control • La Chuspa Tech</b>
+      <div style="font-size:11.5px; color:var(--muted); margin-top:4px;">
+        Sincronizado en tiempo real con <b>Panel Central • La Chuspa Tech</b>
       </div>
     </div>
   </div>
@@ -463,23 +608,23 @@
     </div>
 
     <div class="kds-live-clock" id="kdsClockDisplay">
-      <i class="fa-regular fa-clock" style="font-size:15px; color:var(--orange);"></i>
+      <i class="fa-regular fa-clock" style="font-size:15px; color:var(--accent);"></i>
       <span id="relojHoraActual">--:--:--</span>
     </div>
 
     <div class="kds-header-actions">
       <div class="chuspa-tech-badge" title="Powered by La Chuspa Tech">
         <img src="CHUSPITA-circulo.png" alt="La Chuspa" onerror="this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png'">
-        <span style="color:#fde047;">La Chuspa Tech</span>
+        <span>La Chuspa Tech</span>
       </div>
 
       <div class="badge-metric" title="Cocinero Activo">
-        <i class="fa-solid fa-user-check" style="color:var(--gold);"></i> <span id="labelCocineroActivo">martin</span>
+        <i class="fa-solid fa-user-check" style="color:var(--gold);"></i> <span id="labelCocineroActivo">Operador</span>
       </div>
 
-      <div class="badge-metric">Por Preparar: <b id="cntPendientes" style="color:var(--gold);">0</b></div>
-      <div class="badge-metric">En Fuego: <b id="cntEnCocina" style="color:#38bdf8;">0</b></div>
-      <div class="badge-metric">Servidos: <b id="cntServidos" style="color:#86efac;">0</b></div>
+      <div class="badge-metric">Pendientes: <b id="cntPendientes" style="color:var(--gold);">0</b></div>
+      <div class="badge-metric">En Cocina: <b id="cntEnCocina" style="color:#38bdf8;">0</b></div>
+      <div class="badge-metric">Servidos: <b id="cntServidos" style="color:var(--success);">0</b></div>
 
       <button type="button" class="btn-top-action" onclick="abrirModalContabilidad()">
         <i class="fa-solid fa-chart-pie"></i> Contabilidad Platos
@@ -517,21 +662,21 @@
     <div class="kds-empty-msg">
       <i class="fa-solid fa-utensils"></i>
       <h2>Cocina en Espera</h2>
-      <p>Esperando órdenes entrantes del salón...</p>
+      <p>Esperando comandas entrantes del salón...</p>
     </div>
   </main>
 
   <!-- MODAL: CONTABILIDAD -->
   <div class="kds-modal-overlay" id="modalContabilidadKDS" onclick="cerrarModalContabilidad()">
     <div class="kds-modal-box" onclick="event.stopPropagation()">
-      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid rgba(255,255,255,0.1); padding-bottom:8px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid rgba(255,255,255,0.1); padding-bottom:10px;">
         <h3 style="color:var(--gold); font-size:17px; font-weight:900;"><i class="fa-solid fa-calculator"></i> Conteo y Contabilidad de Platos</h3>
         <button type="button" style="background:none; border:none; color:#ccc; font-size:24px; font-weight:bold; cursor:pointer;" onclick="cerrarModalContabilidad()">&times;</button>
       </div>
 
-      <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:800; background:#110805; padding:10px; border-radius:10px;">
-        <span>Total de Platos Marchados: <b style="color:#fde047;" id="statTotalPorciones">0</b></span>
-        <span>Comandas Procesadas: <b style="color:#86efac;" id="statTotalComandas">0</b></span>
+      <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:800; background:var(--input-bg); padding:12px; border-radius:10px; border:1px solid var(--card-border);">
+        <span>Total Platos Marchados: <b style="color:var(--gold);" id="statTotalPorciones">0</b></span>
+        <span>Comandas Procesadas: <b style="color:var(--success);" id="statTotalComandas">0</b></span>
       </div>
 
       <div style="max-height:55vh; overflow-y:auto;">
@@ -539,7 +684,7 @@
           <thead>
             <tr>
               <th>Plato / Detalle</th>
-              <th style="text-align:right;">Cantidad</th>
+              <th style="text-align:right;">Cantidad Total</th>
             </tr>
           </thead>
           <tbody id="tablaConteoPlatosBody">
@@ -548,7 +693,7 @@
         </table>
       </div>
 
-      <button type="button" class="btn-action-kds btn-kds-cook" onclick="cerrarModalContabilidad()">
+      <button type="button" class="btn-action-kds btn-kds-cook" style="padding:12px;" onclick="cerrarModalContabilidad()">
         Entendido / Volver al Tablero
       </button>
     </div>
@@ -557,6 +702,40 @@
   <script>
     const FIREBASE_DB_URL = "https://restaurante1-695f7-default-rtdb.firebaseio.com/";
     const canalPedidos = new BroadcastChannel('canal_inka_pedidos');
+    const canalTheme = new BroadcastChannel('canal_app_theme');
+
+    /* ========================================================
+       SINCRONIZACIÓN MODO OSCURO / CLARO
+       ======================================================== */
+    canalTheme.onmessage = (event) => {
+      if (event.data && event.data.theme) {
+        aplicarTemaVisual(event.data.theme, false);
+      }
+    };
+
+    function alternarTemaVisual() {
+      const temaActual = document.body.classList.contains('light-theme') ? 'light' : 'dark';
+      const nuevoTema = (temaActual === 'dark') ? 'light' : 'dark';
+      aplicarTemaVisual(nuevoTema, true);
+    }
+
+    function aplicarTemaVisual(tema, emitirCanal = true) {
+      if (tema === 'light') {
+        document.body.classList.add('light-theme');
+      } else {
+        document.body.classList.remove('light-theme');
+      }
+      localStorage.setItem('app_theme', tema);
+
+      if (emitirCanal) {
+        canalTheme.postMessage({ theme: tema });
+      }
+    }
+
+    (function inicializarTema() {
+      const temaGuardado = localStorage.getItem('app_theme') || 'dark';
+      aplicarTemaVisual(temaGuardado, false);
+    })();
 
     let audioCtx = null;
     let comandasCache = [];
@@ -567,19 +746,17 @@
     let listaUsuariosCocina = [];
 
     /* ========================================================
-       SINCRONIZACIÓN EXACTA CON CONFIG/USUARIOS (PANEL ADMIN)
+       SINCRONIZACIÓN CON CONFIG/USUARIOS (PANEL ADMIN)
        ======================================================== */
     async function sincronizarUsuariosDesdePanel() {
       const select = document.getElementById('selectCocineroKDS');
       try {
-        // RUTA EXACTA DEL PANEL DE CONTROL: config/usuarios.json
         const res = await fetch(`${FIREBASE_DB_URL}config/usuarios.json?_t=${Date.now()}`);
         if (res.ok) {
           const data = await res.json();
           if (data && typeof data === 'object') {
             const arr = Object.keys(data).map(k => Object.assign({ id: k }, data[k]));
 
-            // Filtrar únicamente los usuarios autorizados (cocina o admin)
             listaUsuariosCocina = arr.filter(u => {
               const r = String(u.rol || '').toLowerCase().trim();
               return r === 'cocina' || r === 'admin';
@@ -590,7 +767,6 @@
         console.warn("Error leyendo config/usuarios:", e);
       }
 
-      // Si por alguna razón la lista viene vacía, permitir acceso de emergencia para martin
       if (listaUsuariosCocina.length === 0) {
         listaUsuariosCocina = [
           { id: "usr-martin", nombre: "martin", rol: "cocina", pass: "" },
@@ -598,13 +774,11 @@
         ];
       }
 
-      // Llenar el selector
       if (select) {
         select.innerHTML = listaUsuariosCocina.map(u => 
           `<option value="${u.id}">${u.nombre} (${(u.rol || 'COCINA').toUpperCase()})</option>`
         ).join('');
 
-        // Si existe martin, preseleccionarlo por defecto
         const martinUser = listaUsuariosCocina.find(u => u.nombre.toLowerCase() === 'martin');
         if (martinUser) select.value = martinUser.id;
       }
@@ -626,16 +800,12 @@
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verificando...';
       errorMsg.style.display = 'none';
 
-      // 1. Recargar en vivo para tener la contraseña más fresca guardada en el panel
       await sincronizarUsuariosDesdePanel();
 
       const usuarioId = select.value;
       const usuarioSeleccionado = listaUsuariosCocina.find(u => u.id === usuarioId);
-
-      // Verificación exacta con el campo 'pass' que guarda admin.html
       const passGuardada = usuarioSeleccionado ? String(usuarioSeleccionado.pass || '').trim() : '';
 
-      // También permite la clave maestra "regocijo123" o coincidencia directa
       const esCorrecta = (usuarioSeleccionado && passGuardada === passIngresada) || 
                          (passIngresada === "regocijo123") || 
                          (passIngresada === "42423549");
@@ -650,7 +820,7 @@
 
         desbloquearPantallaCocina(nombreOperador);
       } else {
-        errorMsg.innerText = "Contraseña incorrecta. Ingresa la contraseña asignada en el panel.";
+        errorMsg.innerText = "Contraseña incorrecta. Ingresa la clave asignada en el panel de control.";
         errorMsg.style.display = 'block';
         inputPass.value = '';
         inputPass.focus();
@@ -699,7 +869,7 @@
     });
 
     /* ========================================================
-       IDENTIDAD Y LOGOS (SINCRONIZADO CON ADMIN.HTML)
+       IDENTIDAD Y LOGOS
        ======================================================== */
     async function cargarIdentidad() {
       try {
@@ -714,7 +884,7 @@
             const loginLogo = document.getElementById('loginBrandLogoWrap');
 
             if (logoData && (logoData.startsWith('data:image') || logoData.startsWith('http'))) {
-              const imgHtml = `<img src="${logoData}" alt="Logo" style="width:100%; height:100%; object-fit:cover;">`;
+              const imgHtml = `<img src="${logoData}" alt="Logo">`;
               if (headerAvatar) headerAvatar.innerHTML = imgHtml;
               if (loginLogo) loginLogo.innerHTML = imgHtml;
             }
@@ -868,7 +1038,7 @@
         const numTurno = c.numeroTurno || (index + 1);
 
         let badgeEstadoTexto = "🟡 1. PENDIENTE";
-        if (estado === 'cocina') badgeEstadoTexto = "🔵 2. EN FUEGO";
+        if (estado === 'cocina') badgeEstadoTexto = "🔵 2. EN PROCESO";
         else if (estado === 'servido') badgeEstadoTexto = "🟢 3. SERVIDO";
         else if (estado === 'finalizado') badgeEstadoTexto = "🏁 COBRADO";
 
@@ -921,7 +1091,7 @@
               ` : ''}
 
               ${estado === 'servido' ? `
-                <button type="button" class="btn-action-kds" style="background:#27272a; color:#86efac; cursor:default;">
+                <button type="button" class="btn-action-kds" style="background:#172554; color:#38bdf8; cursor:default; border:1px solid #0284c7;">
                   <i class="fa-solid fa-circle-check"></i> Ya en Mesa
                 </button>
               ` : ''}
@@ -980,7 +1150,7 @@
           <hr>
           <p style="font-size:11px;">Prioridad por orden de llegada</p>
           <script>window.onload = function(){ window.print(); window.close(); }<\/script>
-        </body></html>
+        </body></html> 
       `);
       ventana.document.close();
     }
@@ -1016,7 +1186,7 @@
       } else {
         tbody.innerHTML = nombresOrdenados.map(nombre => `
           <tr>
-            <td><b style="color:#fff;">${nombre}</b></td>
+            <td><b style="color:var(--text);">${nombre}</b></td>
             <td style="text-align:right; font-weight:900; color:var(--gold); font-size:16px;">${conteoPlatos[nombre]} u.</td>
           </tr>
         `).join('');
