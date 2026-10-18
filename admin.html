@@ -7,10 +7,11 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> 
   <style> 
     /* ==========================================================
-       ARQUITECTURA VISUAL LA CHUSPA TECH ENTERPRISE B2B
-       - Fusión: Azul Royal TuBoleto + Oro Incaico La Chuspa
+       ARQUITECTURA VISUAL LUXURY ENTERPRISE B2B
+       - Fusión: Azul Royal TuBoleto + Oro Incaico La Chuspa Tech
+       - Tipografía en modo claro corregida a Negro Carbón (#0f172a)
        - Oro Inca / Amber Gold: #f59e0b, #d97706, #fbbf24
-       - Azul Royal Fintech: #0056d2, #0284c7, #0d2042
+       - Azul Royal Fintech: #0056d2, #0284c7, #0b1a33
        - Verde Transaccional: #10b981 | Rojo Alerta: #dc2626
        ========================================================== */
     :root { 
@@ -36,36 +37,48 @@
       --metric-bg: #0a172e;
     } 
 
-    /* MODO CLARO PROFESIONAL (ESTÉTICA MINISTERIAL / TUBOLETO) */
+    /* MODO CLARO PROFESIONAL LUXURY: TEXTOS 100% VISIBLES EN NEGRO */
     body.light-theme {
       --bg-dark: #f4f7fb;
       --sidebar-bg: #ffffff;
       --card-bg: #ffffff;
-      --card-border: #dbe4ef;
-      --chuspa-gold-border: rgba(217, 119, 6, 0.35);
+      --card-border: #cbd5e1;
+      --chuspa-gold-border: rgba(217, 119, 6, 0.45);
       --input-bg: #f8fafc;
-      --text-main: #0f172a;
-      --text-muted: #475569;
-      --gold: #0056d2;
+      --text-main: #0f172a;       /* Negro Carbón */
+      --text-muted: #334155;      /* Grafito legible */
+      --gold: #0056d2;            /* Azul Royal de jerarquía */
       --header-bg: #ffffff;
       --metric-bg: #eef4fc;
     }
 
     body.light-theme .top-admin-bar {
       background: #ffffff !important;
-      border-bottom: 2px solid #dbe4ef !important;
+      border-bottom: 2px solid #cbd5e1 !important;
       box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05) !important;
+    }
+    body.light-theme #topBarTitle,
+    body.light-theme #headerBusinessName,
+    body.light-theme .view-header h1,
+    body.light-theme .card-login h3 {
+      color: #0f172a !important;   /* Letras en negro */
+      font-weight: 900 !important;
+    }
+    body.light-theme #headerBusinessSlogan,
+    body.light-theme .view-header p,
+    body.light-theme .card-login p.sub {
+      color: #475569 !important;
     }
     body.light-theme .sidebar {
       background: #ffffff !important;
-      border-right: 1.5px solid #dbe4ef !important;
+      border-right: 1.5px solid #cbd5e1 !important;
     }
     body.light-theme .card,
     body.light-theme .modal-box,
     body.light-theme .card-login {
       background: #ffffff !important;
-      border: 1.5px solid #dbe4ef !important;
-      box-shadow: 0 8px 30px rgba(0, 86, 210, 0.06) !important;
+      border: 1.5px solid #cbd5e1 !important;
+      box-shadow: 0 10px 30px rgba(0, 86, 210, 0.06) !important;
     }
     body.light-theme label {
       color: #0056d2 !important;
@@ -73,7 +86,7 @@
     body.light-theme input, 
     body.light-theme textarea, 
     body.light-theme select {
-      background: #f8fafc !important;
+      background: #ffffff !important;
       color: #0f172a !important;
       border: 1.5px solid #cbd5e1 !important;
     }
@@ -84,11 +97,11 @@
       box-shadow: 0 0 0 3px rgba(0, 86, 210, 0.15) !important;
     }
     body.light-theme .user-session-badge {
-      background: #eff6ff !important;
-      border: 1px solid #bfdbfe !important;
+      background: #f8fafc !important;
+      border: 1px solid #cbd5e1 !important;
     }
     body.light-theme .user-session-badge b {
-      color: #0056d2 !important;
+      color: #0f172a !important;
     }
     body.light-theme .custom-table th {
       background: #e9f0f8 !important;
@@ -96,12 +109,12 @@
       border-color: #cbd5e1 !important;
     }
     body.light-theme .custom-table td {
-      border-color: #e2e8f0 !important;
-      color: #1e293b !important;
+      border-color: #cbd5e1 !important;
+      color: #0f172a !important;
       background: #ffffff !important;
     }
     body.light-theme .nav-item {
-      color: #475569 !important;
+      color: #334155 !important;
     }
     body.light-theme .nav-item:hover {
       background: #f1f5f9 !important;
@@ -115,12 +128,15 @@
     body.light-theme .tables-monitor-bar,
     body.light-theme .kds-calendar-bar {
       background: #ffffff !important;
-      border: 1.5px solid #dbe4ef !important;
+      border: 1.5px solid #cbd5e1 !important;
     }
     body.light-theme .metric-pill {
       background: #eef4fc !important;
       border: 1px solid #cbd5e1 !important;
       color: #0f172a !important;
+    }
+    body.light-theme .metric-pill b {
+      color: #0056d2 !important;
     }
     body.light-theme .kds-search-bar input {
       background: #ffffff !important;
@@ -130,7 +146,7 @@
     body.light-theme .kds-filter-btn {
       background: #f1f5f9 !important;
       border-color: #cbd5e1 !important;
-      color: #475569 !important;
+      color: #334155 !important;
     }
     body.light-theme .kds-filter-btn.active {
       background: #0056d2 !important;
@@ -172,7 +188,7 @@
       border-left-color: #dc2626 !important;
     }
     body.light-theme .order-bottom-bar {
-      color: #334155 !important;
+      color: #0f172a !important;
       border-top-color: #cbd5e1 !important;
     }
     body.light-theme .vault-box {
@@ -186,16 +202,13 @@
       background: #ffffff !important;
       border-top-color: #bfdbfe !important;
     }
-    body.light-theme .vault-box.danger-vault {
-      background: #fef2f2 !important;
-      border-color: #fca5a5 !important;
-    }
-    body.light-theme .vault-box.danger-vault .vault-trigger {
-      color: #dc2626 !important;
-    }
     body.light-theme .dish-card-visual {
       background: #ffffff !important;
       border: 1.5px solid #cbd5e1 !important;
+      color: #0f172a !important;
+    }
+    body.light-theme .dish-card-visual strong {
+      color: #0f172a !important;
     }
     body.light-theme #resultadoSocioBox {
       background: #f0fdf4 !important;
@@ -1490,7 +1503,6 @@
       if (overlay) overlay.classList.remove('active'); 
     } 
 
-    /* ESCUCHA CORREGIDA: SINTAXIS CON BLOQUE COMPLETO */
     canalPedidos.onmessage = (event) => { 
       if (event.data && event.data.tipo === 'RESPUESTA_CLIENTE') { 
         const respuesta = event.data.respuesta || ''; 
@@ -1526,7 +1538,7 @@
       } 
     }; 
 
-    /* INICIO DE SESIÓN REFORZADO */
+    /* INICIO DE SESIÓN REFORZADO Y BLINDADO */
     async function verificarLoginSistema(e) { 
       e.preventDefault(); 
       const rolSeleccionado = document.getElementById('loginUsuarioSelector').value; 
@@ -1546,7 +1558,6 @@
         console.warn("Fallo lectura Firebase usuarios:", err);
       } 
 
-      // 1. Coincidencia por contraseña y nombre (no sensible a mayúsculas/minúsculas)
       const uMatch = usuarios.find(u => 
         String(u.pass || '').trim() === passIngresada &&
         (String(u.nombre || '').toLowerCase() === nombreIngresado.toLowerCase() ||
@@ -1554,10 +1565,7 @@
          nombreIngresado.toLowerCase() === 'administrador')
       );
 
-      // 2. Coincidencia directa por clave en cualquier usuario
       const uSoloPass = usuarios.find(u => String(u.pass || '').trim() === passIngresada);
-
-      // 3. Claves maestras de rescate operativo
       const esClaveMaestra = (passIngresada === "regocijo123" || passIngresada === PASSWORD_MAESTRA_VAULT); 
 
       if (uMatch || uSoloPass || esClaveMaestra) { 
@@ -1891,7 +1899,7 @@
                 <i class="fa-solid fa-pen"></i> Editar 
               </button> 
               ${!esCreadorOAdminPrincipal ? ` 
-                <button class="btn btn-del" style="padding:4px 8px; font-size:11px;" margin-left:4px;" onclick="eliminarUsuarioFirebase('${u.id}', '${u.nombre}')" title="Eliminar"> 
+                <button class="btn btn-del" style="padding:4px 8px; font-size:11px; margin-left:4px;" onclick="eliminarUsuarioFirebase('${u.id}', '${u.nombre}')" title="Eliminar"> 
                   <i class="fa-solid fa-trash"></i> Eliminar 
                 </button> 
               ` : '<span style="font-size:11px; color:#fbbf24; font-weight:bold; margin-left:6px;">🔒 Creador Protegido</span>'} 
