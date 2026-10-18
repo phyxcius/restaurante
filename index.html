@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>La Cusqueñita | Menú Digital & Comandas Enterprise</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Tipografía Latina Elegante para Mensajes Clave -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Plus+Jakarta+Sans:wght@500;700;800;900&display=swap" rel="stylesheet">
+
   <style>
     /* ==========================================================
        ARQUITECTURA VISUAL LA CHUSPA TECH ENTERPRISE B2B
@@ -12,6 +17,8 @@
        - Blanco Mármol en Notificaciones, Agradecimiento y Bloqueo
        - Resplandor Fuego Giratorio (Oro #fbbf24 + Rojo Fuego #dc2626)
        - Botón Reel Añadir Plato: #FF5A5F
+       - Bloques añadir platos: #F5D300
+       - Mesa bloqueada: #FF5A5F
        ========================================================== */
     :root {
       --primary: #0056d2;
@@ -44,15 +51,23 @@
       --modal-green-dark: #065f46;
       --modal-border: #cbd5e1;
 
-      /* BOTÓN CUENTA Y ACCIÓN RÁPIDA */
+      /* COLORES PERSONALIZADOS */
       --color-cuenta: #7c3aed;
       --color-cuenta-hover: #9333ea;
       --color-cuenta-glow: rgba(124, 58, 237, 0.65);
       --reel-add-btn: #FF5A5F;
+      --block-yellow: #F5D300;
+      --mesa-bloqueada-color: #FF5A5F;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body, html { width: 100%; height: 100%; overflow: hidden; background-color: var(--bg-warm); color: var(--text-main); }
+
+    /* TIPOGRAFÍA LATINA ELEGANTE */
+    .font-latina-luxury {
+      font-family: 'Playfair Display', Georgia, 'Times New Roman', serif !important;
+      letter-spacing: 0.2px;
+    }
 
     /* CUSTOM SCROLLBARS */
     .custom-scroll {
@@ -333,12 +348,18 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
     .quick-add-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; max-height: 140px; overflow-y: auto; margin-top: 6px; padding-right: 4px; }
+    
+    /* BLOQUECITOS DE PLATO CON FONDO AMARILLO #F5D300 */
     .btn-quick-item {
-      background: #f8fafc; border: 1px solid #cbd5e1; padding: 8px 10px; border-radius: 8px;
-      font-size: 11.5px; font-weight: 800; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
-      color: #0f172a; transition: transform 0.1s ease;
+      background: var(--block-yellow) !important;
+      border: 1.5px solid #d4b500 !important;
+      padding: 9px 10px; border-radius: 9px;
+      font-size: 11.5px; font-weight: 900; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+      color: #0f172a !important; transition: transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.08);
     }
-    .btn-quick-item:active { transform: scale(0.96); background: #eef4fc; }
+    .btn-quick-item:active { transform: scale(0.96); filter: brightness(0.95); }
+    .btn-quick-item b { color: #0056d2 !important; font-weight: 900; }
 
     .table-selector-label {
       font-size: 11.5px; font-weight: 900; text-transform: uppercase; color: #0f172a;
@@ -424,7 +445,7 @@
 
     /* ==========================================================
        MODAL DE NOTIFICACIÓN: RESPLANDOR GIRATORIO ORO + FUEGO
-       Y FONDO BLANCO MÁRMOL CON TEXTOS EN NEGRO CARBÓN
+       Y FONDO BLANCO MÁRMOL
        ========================================================== */
     .notificacion-modal-overlay {
       position: fixed; inset: 0; 
@@ -448,12 +469,30 @@
       position: relative; z-index: 2;
       background: var(--marble-white);
       background-image: radial-gradient(circle at 10% 10%, rgba(245, 158, 11, 0.05) 0%, #ffffff 80%);
-      border-radius: 22px; padding: 24px 22px; color: var(--marble-text);
+      border-radius: 22px; padding: 26px 22px; color: var(--marble-text);
       box-shadow: inset 0 0 15px rgba(0,0,0,0.03);
     }
     @keyframes rotarBordeFuego {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
+    }
+
+    /* ESTILO LATINO GRANDE PARA FRASES CLAVE EN ALERTAS */
+    .alerta-mensaje-destacado {
+      font-size: 19px !important;
+      line-height: 1.35 !important;
+      font-weight: 900 !important;
+      color: #0f172a !important;
+      margin-bottom: 14px !important;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    }
+    .alerta-mensaje-destacado span.sub-detalle {
+      display: block;
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #475569;
+      margin-top: 6px;
+      font-family: 'Plus Jakarta Sans', sans-serif !important;
     }
 
     /* PANTALLA AGRADECIMIENTO - FONDO BLANCO MÁRMOL */
@@ -790,7 +829,7 @@
 
       <div class="order-items-list custom-scroll" id="orderItemsList"></div>
 
-      <!-- CATÁLOGO AMPLIADO EN EL POPUP -->
+      <!-- CATÁLOGO AMPLIADO EN EL POPUP CON BLOQUECITOS AMARILLOS #F5D300 -->
       <div class="quick-add-catalog">
         <div style="font-size:12px; font-weight:900; color:#0f172a;" id="lblAddPlatosTitle">
           <i class="fa-solid fa-plus-circle" style="color:var(--primary);"></i> Añadir platos a tu mesa:
@@ -798,10 +837,10 @@
         <div class="quick-add-grid custom-scroll" id="quickAddCatalogGrid"></div>
       </div>
 
-      <!-- MESA ASIGNADA -->
+      <!-- MESA ASIGNADA: ROJO #FF5A5F CUANDO ESTÁ BLOQUEADA -->
       <div class="table-selector-label">
         <span id="lblMesaHeaderInfo">📍 Mesa Asignada:</span>
-        <span id="selectedTableBadge" style="color:#0056d2; font-size:13px; font-weight:900;">Mesa 01 🔒</span>
+        <span id="selectedTableBadge" style="color:var(--mesa-bloqueada-color); font-size:13.5px; font-weight:900;">Mesa 01 🔒</span>
       </div>
       
       <!-- CONTENEDOR DE MESAS -->
@@ -880,15 +919,16 @@
       <div class="notificacion-contenido">
         
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-          <span id="notifModalBadge" style="background: #0056d2; color: #fff; font-weight: 900; font-size: 12px; padding: 4px 12px; border-radius: 20px;">
+          <span id="notifModalBadge" style="background: #0056d2; color: #fff; font-weight: 900; font-size: 12px; padding: 5px 14px; border-radius: 20px; text-transform: uppercase;">
             🟡 1. POR CONFIRMAR
           </span>
           <span id="notifTurnoTxt" style="font-size: 12px; color: #d97706; font-weight: 900;">Turno #--</span>
         </div>
 
-        <p id="notifModalMensaje" style="color: #0f172a; font-size: 14px; line-height: 1.45; margin-bottom: 14px; font-weight: 700;">
+        <!-- Mensaje principal del estado con Tipografía Latina Elegante y Ampliada -->
+        <div id="notifModalMensaje" class="font-latina-luxury alerta-mensaje-destacado">
           Tu pedido fue enviado. El mozo o cocina lo está verificando en el panel...
-        </p>
+        </div>
 
         <!-- Pregunta interactiva del Mozo -->
         <div id="cajaPreguntaMozo" style="display: none; background: #f0f7ff; color: #0f172a; padding: 14px; border-radius: 12px; font-weight: 700; margin-bottom: 14px; border: 1.5px solid var(--primary);">
@@ -1095,10 +1135,7 @@
     let ultimoEstadoRegistrado = null;
     let cuentaPedidaBloqueada = false;
 
-    /* ========================================================
-       MODAL POPUP: MENÚ EN CUADRÍCULA CON CATEGORIZACIÓN
-       (PLATOS FUERTES, BEBIDAS & CÓCTELES, ETC.)
-       ======================================================== */
+    /* MODAL POPUP: MENÚ EN CUADRÍCULA CON CATEGORIZACIÓN */
     function abrirModalCuadricula(categoriaOpcional = null) {
       if (categoriaOpcional) {
         categoriaFiltroActiva = categoriaOpcional;
@@ -1137,7 +1174,6 @@
 
       const t = I18N_UI[currentLang] || I18N_UI['es'];
 
-      // Si se seleccionó una categoría específica
       if (categoriaFiltroActiva !== "all") {
         const platosFiltrados = catalogo.filter(item => (item.category || "").toLowerCase() === categoriaFiltroActiva.toLowerCase());
         
@@ -1154,7 +1190,6 @@
         return;
       }
 
-      // Si es "Todos" (Menú de la Casa): agrupar visualmente por categorías
       const gruposCategorias = {};
       catalogo.forEach(item => {
         const cKey = (item.category && item.category.trim()) ? item.category.trim().toLowerCase() : 'mains';
@@ -1469,10 +1504,12 @@
       actualizarBadgeMesaHeader();
     }
 
+    /* ACTUALIZAR INDICADOR DE MESA ASIGNADA: ROJO #FF5A5F AL ESTAR FIJADA */
     function actualizarBadgeMesaHeader() {
       const badge = document.getElementById('selectedTableBadge');
       if (badge) {
         badge.innerText = mesaFijadaPorQR ? `${mesaSeleccionada} 🔒` : mesaSeleccionada;
+        badge.style.color = mesaFijadaPorQR ? "var(--mesa-bloqueada-color)" : "#0056d2";
       }
       const notifMesa = document.getElementById('notifModalMesaTxt');
       if (notifMesa) {
@@ -1576,9 +1613,7 @@
       actualizarBadgeMesaHeader();
     }
 
-    /* ========================================================
-       SISTEMA DE TRADUCCIÓN COMPLETA DE INTERFAZ & PLATOS
-       ======================================================== */
+    /* SISTEMA DE TRADUCCIÓN COMPLETA DE INTERFAZ & PLATOS */
     function cambiarIdiomaGlobal(nuevoLang) {
       currentLang = nuevoLang;
       sessionStorage.setItem("inkabistro_user_lang", nuevoLang);
@@ -1643,6 +1678,7 @@
       return { name: dish.nombre || "Plato", desc: dish.descripcion || "" };
     }
 
+    /* RENDER DE BLOQUECITOS CON FONDO #F5D300 */
     function renderQuickCatalogPopup() {
       const box = document.getElementById('quickAddCatalogGrid');
       if (!box) return;
@@ -1650,8 +1686,8 @@
         const info = getDishInfo(d);
         return `
           <button type="button" class="btn-quick-item" onclick="addToOrder('${d.id}')">
-            <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:110px;">${info.name}</span>
-            <b style="color:#0056d2; flex-shrink:0;">+ S/ ${(d.precioPEN || d.precio || 0).toFixed(2)}</b>
+            <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:105px;">${info.name}</span>
+            <b style="flex-shrink:0;">+ S/ ${(d.precioPEN || d.precio || 0).toFixed(2)}</b>
           </button>
         `;
       }).join('');
@@ -2137,6 +2173,7 @@
       if (box) box.style.display = "none";
     }
 
+    /* MONITOREO DINÁMICO DE ESTADOS CON AJUSTES SOLICITADOS */
     async function verificarEstadoComandaEnVivo() {
       if (!comandaActivaId) return;
 
@@ -2185,15 +2222,16 @@
         badge.style.background = "#0056d2";
         badge.style.color = "#fff";
         badge.innerText = "🟡 1. POR CONFIRMAR";
-        mensaje.innerText = "Tu pedido fue enviado. El mozo o cocina lo está verificando en el panel...";
+        mensaje.innerHTML = `Tu pedido fue enviado.<br><span class="sub-detalle">El mozo o cocina lo está verificando en el panel...</span>`;
         cajaPedirCuenta.style.display = "none";
         if (cajaResena) cajaResena.style.display = "none";
       }
       else if (estado === 'cocina') {
-        badge.style.background = "#0284c7";
-        badge.style.color = "#fff";
-        badge.innerText = "🔵 2. EN PROCESO (COCINA)";
-        mensaje.innerText = "¡Tu pedido está siendo elaborado por el chef en este momento! 🍳";
+        /* ESTADO EN PROCESO COCINA EN AMARILLO #F5D300 */
+        badge.style.background = "var(--block-yellow)";
+        badge.style.color = "#0f172a";
+        badge.innerText = "🍳 2. EN PROCESO (COCINA)";
+        mensaje.innerHTML = `¡Tu pedido está en fuego!<br><span class="sub-detalle">El chef lo está elaborando con el mayor cuidado en este momento.</span>`;
         cajaPedirCuenta.style.display = "none";
         if (cajaResena) cajaResena.style.display = "none";
       }
@@ -2201,7 +2239,8 @@
         badge.style.background = "#10b981";
         badge.style.color = "#fff";
         badge.innerText = "🟢 3. RECIBIDO EN MESA";
-        mensaje.innerText = "¡Buen provecho! Tu pedido ya está servido en tu mesa.";
+        /* FRASE BUEN PROVECHO AGRANDADA Y EN LETRA LATINA VISTOSA */
+        mensaje.innerHTML = `¡Buen provecho!<br><span style="font-size: 16px; font-weight: 800; color: #0056d2; display: block; margin-top: 4px;">Tu pedido ya está servido en tu mesa.</span>`;
         cajaPedirCuenta.style.display = "block";
 
         if (cajaResena && !miComanda.resenaEnviada) {
@@ -2214,7 +2253,8 @@
         badge.style.background = "#ec4899";
         badge.style.color = "#fff";
         badge.innerText = "🚶‍♂️ VOY EN CAMINO A CAJA";
-        mensaje.innerHTML = "<b>¡Aviso recibido en caja!</b> Dirígete a la recepción para cancelar tu cuenta.";
+        /* FRASE AVISO RECIBIDO EN CAJA AGRANDADA Y LATINA */
+        mensaje.innerHTML = `¡Aviso recibido en caja!<br><span style="font-size: 15.5px; font-weight: 800; color: #0056d2; display: block; margin-top: 4px;">Dirígete a la recepción para cancelar tu cuenta.</span>`;
         cajaPedirCuenta.style.display = "none";
         if (cajaResena) cajaResena.style.display = "none";
       }
