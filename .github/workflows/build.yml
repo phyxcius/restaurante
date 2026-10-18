@@ -1,14 +1,15 @@
-
 name: Build Android APK
 
 on:
-  workflow_dispatch: # Permite ejecutar la compilación manualmente con un botón
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Descargar repositorio
+      - name: Descargar codigo
         uses: actions/checkout@v4
 
       - name: Configurar Java
@@ -17,14 +18,9 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Dar permisos de ejecución a Gradle
+      - name: Dar permisos de ejecucion a gradlew
         run: chmod +x gradlew
+        continue-on-error: true
 
-      - name: Compilar APK (Debug)
+      - name: Compilar APK
         run: ./gradlew assembleDebug
-
-      - name: Subir APK generado
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-debug
-          path: app/build/outputs/apk/debug/*.apk
