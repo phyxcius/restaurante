@@ -46,6 +46,8 @@
       --color-cuenta-hover: #9333ea;
       --color-cuenta-glow: rgba(124, 58, 237, 0.65);
       --reel-add-btn: #FF5A5F;
+      --btn-enviar-rojo: #FF6B6B;
+      --btn-enviar-rojo-hover: #fa5252;
       --block-yellow: #F5D300;
       --mesa-bloqueada-color: #FF5A5F;
     }
@@ -69,22 +71,38 @@
       border-radius: 8px;
     }
 
+    /* RESPLANDOR GIRATORIO ORO + FUEGO REUTILIZABLE */
+    .notificacion-card-fuego {
+      position: relative; width: 92%; max-width: 440px;
+      background: transparent;
+      border-radius: 26px; padding: 4px; box-sizing: border-box; overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 35px rgba(245, 158, 11, 0.45);
+    }
+    .notificacion-card-fuego::before {
+      content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+      background: conic-gradient(transparent, #dc2626, #f59e0b, #fbbf24, #ef4444, transparent 40%);
+      animation: rotarBordeFuego 3s linear infinite; z-index: 1;
+    }
+    .notificacion-contenido {
+      position: relative; z-index: 2;
+      background: var(--marble-white);
+      background-image: radial-gradient(circle at 10% 10%, rgba(245, 158, 11, 0.05) 0%, #ffffff 80%);
+      border-radius: 22px; padding: 24px 20px; color: var(--marble-text);
+      box-shadow: inset 0 0 15px rgba(0,0,0,0.03);
+    }
+    @keyframes rotarBordeFuego {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
     /* PANTALLA DE BLOQUEO DE SEGURIDAD */
     .screen-security-lock {
       position: fixed; inset: 0; 
-      background: radial-gradient(circle at center, #ffffff 0%, #edf2f7 100%);
-      z-index: 999999; display: none; flex-direction: column; align-items: center; justify-content: center;
+      background: rgba(15, 23, 42, 0.78); backdrop-filter: blur(10px);
+      z-index: 999999; display: none; align-items: center; justify-content: center;
       padding: 24px; text-align: center;
     }
-    .security-lock-box {
-      max-width: 400px; width: 100%; background: var(--marble-white-card); 
-      border: 1.5px solid var(--chuspa-gold-border);
-      border-radius: 24px; padding: 32px 26px; 
-      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08), 0 0 25px rgba(245, 158, 11, 0.15);
-      display: flex; flex-direction: column; align-items: center; gap: 14px;
-      color: var(--marble-text);
-    }
-    .security-header-logos { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 4px; }
+    .security-header-logos { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 8px; }
     .sec-chuspa-badge {
       width: 64px; height: 64px; border-radius: 50%; background: #fff;
       border: 2.5px solid var(--chuspa-gold); overflow: hidden; display: flex; align-items: center; justify-content: center;
@@ -98,11 +116,10 @@
     }
     .sec-brand-badge img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-    .security-lock-icon { font-size: 34px; color: var(--chuspa-gold); cursor: pointer; filter: drop-shadow(0 0 8px var(--chuspa-gold-glow)); }
+    .security-lock-icon { font-size: 34px; color: var(--chuspa-gold); cursor: pointer; filter: drop-shadow(0 0 8px var(--chuspa-gold-glow)); margin: 4px 0; }
     .btn-bypass-dev {
-      background: #f8fafc;
-      border: 1.5px solid var(--chuspa-gold); color: #0f172a;
-      padding: 11px 22px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; margin-top: 4px;
+      background: #f8fafc; border: 1.5px solid var(--chuspa-gold); color: #0f172a;
+      padding: 11px 22px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; margin-top: 8px;
       display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
@@ -353,6 +370,11 @@
     .table-box-btn.bloqueada { background: #fee2e2 !important; border-color: #fca5a5 !important; color: #991b1b !important; cursor: not-allowed; }
     .table-box-btn.deshabilitada-qr { background: #e2e8f0 !important; border-color: #cbd5e1 !important; color: #64748b !important; cursor: not-allowed !important; }
 
+    /* SECCIÓN MÉTODOS DE PAGO EN EL POPUP */
+    .payment-section-title {
+      font-size: 12px; font-weight: 900; color: #0f172a; text-transform: uppercase;
+      letter-spacing: 0.5px; margin: 8px 0 6px; display: flex; align-items: center; gap: 6px;
+    }
     .grid-payments { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 8px; }
     .btn-pay-option {
       background: #ffffff; border: 1.5px solid #cbd5e1;
@@ -396,11 +418,23 @@
       display: flex; justify-content: space-between; align-items: baseline;
       margin: 6px 0 8px; border-top: 2px dashed #cbd5e1; padding-top: 6px;
     }
-    .btn-submit-order {
-      background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; border: 1px solid var(--chuspa-gold);
-      padding: 13px; border-radius: 20px; font-size: 14.5px; font-weight: 900; cursor: pointer; display: flex; align-items: center;
-      justify-content: center; gap: 8px; box-shadow: 0 4px 18px var(--accent-glow); width: 100%;
+
+    /* MENSAJE DE CONFIRMACIÓN SEGURA EN POPUP */
+    .order-safety-notice {
+      background: #fffbeb; border: 1px solid #fde68a; color: #92400e;
+      border-radius: 10px; padding: 6px 10px; font-size: 11px; font-weight: 800;
+      display: flex; align-items: center; gap: 6px; margin-bottom: 4px; line-height: 1.3;
     }
+
+    /* BOTÓN ENVIAR COMANDA CON ROJO #FF6B6B */
+    .btn-submit-order {
+      background: linear-gradient(135deg, var(--btn-enviar-rojo), var(--btn-enviar-rojo-hover));
+      color: #fff; border: 1.5px solid #ffe3e3;
+      padding: 13px; border-radius: 20px; font-size: 14.5px; font-weight: 900; cursor: pointer; display: flex; align-items: center;
+      justify-content: center; gap: 8px; box-shadow: 0 4px 18px rgba(255, 107, 107, 0.45); width: 100%;
+      transition: transform 0.15s ease, box-shadow 0.2s ease;
+    }
+    .btn-submit-order:active { transform: scale(0.98); }
 
     .btn-pedir-cuenta {
       background: linear-gradient(135deg, var(--color-cuenta), var(--color-cuenta-hover)) !important;
@@ -417,66 +451,88 @@
     }
     .modal-stars-row { display: flex; gap: 8px; font-size: 22px; color: #fbbf24; cursor: pointer; margin: 6px 0; }
 
-    .notificacion-modal-overlay {
-      position: fixed; inset: 0; 
-      background: rgba(15, 23, 42, 0.72); 
-      backdrop-filter: blur(8px);
-      display: none; align-items: center; justify-content: center; z-index: 99999; padding: 16px;
+    /* BURBUJA DE CONEXIÓN MULTIUSUARIO EN TIEMPO REAL */
+    .users-live-bubble {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: #e0f2fe; border: 1px solid #7dd3fc; color: #0369a1;
+      padding: 3px 9px; border-radius: 14px; font-size: 11px; font-weight: 900;
     }
-    .notificacion-card-fuego {
-      position: relative; width: 92%; max-width: 440px;
-      background: transparent;
-      border-radius: 26px; padding: 4px; box-sizing: border-box; overflow: hidden;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 35px rgba(245, 158, 11, 0.45);
+    .users-live-bubble .live-pulse-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: #10b981;
+      animation: pulseLiveDot 1.4s infinite;
     }
-    .notificacion-card-fuego::before {
-      content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-      background: conic-gradient(transparent, #dc2626, #f59e0b, #fbbf24, #ef4444, transparent 40%);
-      animation: rotarBordeFuego 3s linear infinite; z-index: 1;
-    }
-    .notificacion-contenido {
-      position: relative; z-index: 2;
-      background: var(--marble-white);
-      background-image: radial-gradient(circle at 10% 10%, rgba(245, 158, 11, 0.05) 0%, #ffffff 80%);
-      border-radius: 22px; padding: 26px 22px; color: var(--marble-text);
-      box-shadow: inset 0 0 15px rgba(0,0,0,0.03);
-    }
-    @keyframes rotarBordeFuego {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    @keyframes pulseLiveDot {
+      0% { transform: scale(0.9); opacity: 0.7; }
+      50% { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.7; }
     }
 
-    .alerta-mensaje-destacado {
-      font-size: 19px !important;
-      line-height: 1.35 !important;
-      font-weight: 900 !important;
-      color: #0f172a !important;
-      margin-bottom: 14px !important;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.06);
-    }
-    .alerta-mensaje-destacado span.sub-detalle {
-      display: block;
-      font-size: 14.5px;
-      font-weight: 700;
-      color: #475569;
-      margin-top: 6px;
-      font-family: 'Plus Jakarta Sans', sans-serif !important;
+    /* BURBUJA DE ANIMACIÓN INFERIOR EN NOTIFICACIONES */
+    .notif-bottom-animation-bubble {
+      background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 18px;
+      padding: 12px 14px; margin-top: 12px; display: flex; align-items: center;
+      justify-content: center; gap: 12px; box-shadow: inset 0 2px 6px rgba(0,0,0,0.03);
     }
 
+    /* ANIMACIÓN TABLA DEL CHEF (PREPARANDO COMIDA) */
+    .chef-board-anim {
+      display: flex; align-items: center; gap: 10px; font-size: 24px;
+    }
+    .chef-knife-motion {
+      animation: chopKnife 0.8s infinite ease-in-out;
+      display: inline-block;
+      transform-origin: bottom right;
+    }
+    @keyframes chopKnife {
+      0% { transform: rotate(0deg) translateY(0); }
+      50% { transform: rotate(-25deg) translateY(-4px); }
+      100% { transform: rotate(0deg) translateY(0); }
+    }
+
+    .chef-steam-pot {
+      animation: boilingPot 1.2s infinite ease-in-out;
+      display: inline-block;
+    }
+    @keyframes boilingPot {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-3px) scale(1.05); }
+      100% { transform: translateY(0); }
+    }
+
+    .bell-shake-anim {
+      animation: ringBell 1.5s infinite ease-in-out;
+      display: inline-block;
+    }
+    @keyframes ringBell {
+      0%, 100% { transform: rotate(0); }
+      20%, 60% { transform: rotate(15deg); }
+      40%, 80% { transform: rotate(-15deg); }
+    }
+
+    .cloche-serve-anim {
+      animation: floatPlate 2s infinite ease-in-out;
+      display: inline-block;
+    }
+    @keyframes floatPlate {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    .cashier-walk-anim {
+      animation: walkStep 1.2s infinite ease-in-out alternate;
+      display: inline-block;
+    }
+    @keyframes walkStep {
+      0% { transform: translateX(-4px); }
+      100% { transform: translateX(4px); }
+    }
+
+    /* PANTALLA AGRADECIMIENTO */
     .screen-agradecimiento-overlay {
       position: fixed; inset: 0; background: rgba(15, 23, 42, 0.78); backdrop-filter: blur(10px);
       z-index: 200000; display: none; align-items: center; justify-content: center; padding: 20px; text-align: center;
     }
     .screen-agradecimiento-overlay.active { display: flex; }
-    .box-agradecimiento {
-      background: var(--marble-white);
-      background-image: radial-gradient(circle at 10% 10%, rgba(245, 158, 11, 0.06) 0%, #ffffff 75%);
-      border: 2px solid var(--chuspa-gold); border-radius: 24px; max-width: 410px; width: 100%;
-      padding: 26px 22px; display: flex; flex-direction: column; align-items: center; gap: 12px; position: relative;
-      max-height: 94dvh; overflow-y: auto; 
-      box-shadow: 0 20px 45px rgba(0,0,0,0.25), 0 0 25px rgba(245, 158, 11, 0.25);
-      color: var(--marble-text);
-    }
     .btn-close-modal {
       position: absolute; top: 12px; right: 14px; background: none; border: none;
       color: #64748b; font-size: 24px; font-weight: bold; cursor: pointer;
@@ -536,18 +592,12 @@
       border-radius: 20px; font-weight: 800; font-size: 12.5px; cursor: pointer; width: 100%;
     }
 
+    /* MODAL DE RESERVAS */
     .screen-reservas-modal-overlay {
       position: fixed; inset: 0; background: rgba(15, 23, 42, 0.78); backdrop-filter: blur(12px);
       z-index: 250000; display: none; align-items: center; justify-content: center; padding: 16px;
     }
     .screen-reservas-modal-overlay.active { display: flex; }
-    .box-reservas-modal {
-      background: var(--marble-white);
-      border: 2px solid var(--chuspa-gold); border-radius: 24px;
-      max-width: 440px; width: 100%; padding: 26px 22px; max-height: 94dvh; overflow-y: auto;
-      display: flex; flex-direction: column; gap: 12px; position: relative; color: var(--marble-text);
-      box-shadow: 0 16px 45px rgba(0,0,0,0.25), 0 0 25px rgba(245, 158, 11, 0.2);
-    }
     .custom-input-white {
       width: 100%; background: #ffffff !important; color: #0f172a !important;
       border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 11px 14px;
@@ -557,151 +607,157 @@
 </head>
 <body>
 
-  <!-- PANTALLA DE BLOQUEO DE SEGURIDAD -->
+  <!-- PANTALLA DE BLOQUEO DE SEGURIDAD (CON RESPLANDOR GIRATORIO ORO + ROJO) -->
   <div class="screen-security-lock" id="pantallaBloqueoSeguridad">
-    <div class="security-lock-box">
-      <div class="security-header-logos">
-        <a href="https://www.lachuspaanuncios.com/" target="_blank" rel="noopener noreferrer" class="sec-chuspa-badge" title="La Chuspa Tech">
-          <img src="CHUSPITA-circulo.png" alt="La Chuspa Tech" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
-        </a>
-        <div class="sec-brand-badge" id="secBrandBadge" title="Logo del Restaurante">🍽️</div>
-      </div>
+    <div class="notificacion-card-fuego">
+      <div class="notificacion-contenido" style="text-align:center;">
+        <div class="security-header-logos">
+          <a href="https://www.lachuspaanuncios.com/" target="_blank" rel="noopener noreferrer" class="sec-chuspa-badge" title="La Chuspa Tech">
+            <img src="CHUSPITA-circulo.png" alt="La Chuspa Tech" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
+          </a>
+          <div class="sec-brand-badge" id="secBrandBadge" title="Logo del Restaurante">🍽️</div>
+        </div>
 
-      <div class="security-lock-icon" id="iconLockDev" onclick="clickIconoDesarrollador()"><i class="fa-solid fa-lock"></i></div>
-      <h2 style="color:#0f172a; font-size:22px; font-weight:900;" id="secTitleLocal">La Cusqueñita</h2>
-      <h3 style="color:#dc2626; font-size:15px; font-weight:900;" id="secHeadingTxt">Acceso Restringido a la Carta</h3>
-      <p style="font-size:13.5px; color:#475569; line-height:1.5;" id="secDescTxt">
-        Por seguridad y exclusividad del servicio, este menú solo está disponible escaneando el <b>código QR físico</b> vigente en tu mesa dentro del restaurante.
-      </p>
-      <div style="background:#f1f5f9; padding:10px 14px; border-radius:12px; font-size:12px; color:#64748b; font-weight:700;" id="secSubNoteTxt">
-        Si ya pagaste tu cuenta o estás fuera del local, esta sesión ha expirado automáticamente.
+        <div class="security-lock-icon" id="iconLockDev" onclick="clickIconoDesarrollador()"><i class="fa-solid fa-lock"></i></div>
+        <h2 style="color:#0f172a; font-size:22px; font-weight:900;" id="secTitleLocal">La Cusqueñita</h2>
+        <h3 style="color:#dc2626; font-size:15px; font-weight:900;" id="secHeadingTxt">Acceso Restringido a la Carta</h3>
+        <p style="font-size:13.5px; color:#475569; line-height:1.5;" id="secDescTxt">
+          Por seguridad y exclusividad del servicio, este menú solo está disponible escaneando el <b>código QR físico</b> vigente en tu mesa dentro del restaurante.
+        </p>
+        <div style="background:#f1f5f9; padding:10px 14px; border-radius:12px; font-size:12px; color:#64748b; font-weight:700; margin-top:8px;" id="secSubNoteTxt">
+          Si ya pagaste tu cuenta o estás fuera del local, esta sesión ha expirado automáticamente.
+        </div>
+        <button type="button" class="btn-bypass-dev" onclick="ingresarClaveBypassDesarrollador()" id="btnDevBypassTxt">
+          <i class="fa-solid fa-key" style="color:var(--chuspa-gold);"></i> Acceso Administrador / Mozo
+        </button>
       </div>
-      <button type="button" class="btn-bypass-dev" onclick="ingresarClaveBypassDesarrollador()" id="btnDevBypassTxt">
-        <i class="fa-solid fa-key" style="color:var(--chuspa-gold);"></i> Acceso Administrador / Mozo
-      </button>
     </div>
   </div>
 
-  <!-- PANTALLA AGRADECIMIENTO TRAS COBRO -->
+  <!-- PANTALLA AGRADECIMIENTO TRAS COBRO (CON RESPLANDOR GIRATORIO ORO + ROJO) -->
   <div class="screen-agradecimiento-overlay" id="pantallaAgradecimiento">
-    <div class="box-agradecimiento">
-      <button type="button" class="btn-close-modal" onclick="reiniciarNavegadorLimpio()" title="Cerrar">&times;</button>
-      
-      <div class="agradece-logos-header">
-        <a href="https://www.lachuspaanuncios.com/" target="_blank" rel="noopener noreferrer" class="agradece-chuspa-wrap" title="La Chuspa Tech">
-          <img src="CHUSPITA-circulo.png" alt="La Chuspa Tech" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
-        </a>
-        <div class="agradece-logo-wrap" id="agradeceLogoWrap" title="Logo del Restaurante">🍽️</div>
-      </div>
-
-      <h2 style="color:#0f172a; font-size:22px; font-weight:900;" id="agradeceNombreLocal">La Cusqueñita</h2>
-      
-      <p style="font-size:13.5px; color:#334155; line-height:1.45;" id="agradeceMensajeTxt">
-        ¡Muchas gracias por tu visita! Tu comanda ha sido cancelada y la mesa ha quedado libre. Esperamos que hayas disfrutado tu experiencia gastronómica.
-      </p>
-
-      <a id="btnVerSellosAgradecimiento" href="club.html" class="btn-ir-reservas" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-weight: 900; text-decoration: none; margin-top: 4px; border:none;">
-        🎁 Ver mis Sellos y Premios Acumulados
-      </a>
-
-      <div style="width:100%; border-top:1.5px dashed #cbd5e1; padding-top:10px;">
-        <span style="font-size:12px; color:#0056d2; font-weight:900; display:block;">
-          <i class="fa-solid fa-phone"></i> <span id="lblAgradeceContacto">Contacto:</span> <span id="agradeceContactoTxt">+51 969 773 064</span>
-        </span>
-        <div class="social-links-grid" id="agradeceSocialLinks">
-          <a href="https://wa.me/51969773064" target="_blank" class="btn-social-icon btn-social-wa" id="linkSocialWa"><i class="fa-brands fa-whatsapp"></i></a>
-          <a href="#" target="_blank" class="btn-social-icon btn-social-fb" id="linkSocialFb"><i class="fa-brands fa-facebook-f"></i></a>
-          <a href="#" target="_blank" class="btn-social-icon btn-social-ig" id="linkSocialIg"><i class="fa-brands fa-instagram"></i></a>
-          <a href="#" target="_blank" class="btn-social-icon btn-social-tk" id="linkSocialTk"><i class="fa-brands fa-tiktok"></i></a>
+    <div class="notificacion-card-fuego">
+      <div class="notificacion-contenido" style="text-align:center; max-height:90dvh; overflow-y:auto;">
+        <button type="button" class="btn-close-modal" onclick="reiniciarNavegadorLimpio()" title="Cerrar">&times;</button>
+        
+        <div class="agradece-logos-header">
+          <a href="https://www.lachuspaanuncios.com/" target="_blank" rel="noopener noreferrer" class="agradece-chuspa-wrap" title="La Chuspa Tech">
+            <img src="CHUSPITA-circulo.png" alt="La Chuspa Tech" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
+          </a>
+          <div class="agradece-logo-wrap" id="agradeceLogoWrap" title="Logo del Restaurante">🍽️</div>
         </div>
-      </div>
 
-      <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:12px; border-radius:14px; width:100%; margin-top:4px;">
-        <span style="font-size:11.5px; color:#0f172a; font-weight:900; display:block; margin-bottom:8px;" id="lblVolverReservarTxt">
-          ¿Planeas volver? Reserva tu mesa para Eventos o Familias
-        </span>
-        <button type="button" class="btn-ir-reservas" onclick="abrirModalReservasCliente()" id="btnAbrirModalReservasTxt">
-          <i class="fa-solid fa-calendar-check"></i> Ver y Generar Reservas
-        </button>
-        <button type="button" class="btn-compartir-wa-reservas" onclick="compartirLinkReservasWhatsApp()" id="btnCompartirWaReservasTxt">
-          <i class="fa-brands fa-whatsapp"></i> Compartir Catálogo de Reservas por WhatsApp
-        </button>
-      </div>
+        <h2 style="color:#0f172a; font-size:22px; font-weight:900; margin-top:6px;" id="agradeceNombreLocal">La Cusqueñita</h2>
+        
+        <p style="font-size:13.5px; color:#334155; line-height:1.45;" id="agradeceMensajeTxt">
+          ¡Muchas gracias por tu visita! Tu comanda ha sido cancelada y la mesa ha quedado libre. Esperamos que hayas disfrutado tu experiencia gastronómica.
+        </p>
 
-      <a href="https://www.lachuspaanuncios.com/" target="_blank" class="chuspa-tech-card-footer">
-        <div class="chuspa-tech-footer-left">
-          <img src="CHUSPITA-circulo.png" alt="La Chuspa" class="chuspa-tech-footer-img" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
-          <div>
-            <div style="font-size:11.5px; font-weight:900; color:#0f172a;">Tecnología La Chuspa Tech</div>
-            <div style="font-size:9.5px; color:#64748b; font-weight:700;">Digitalización de restaurantes en Cusco</div>
+        <a id="btnVerSellosAgradecimiento" href="club.html" class="btn-ir-reservas" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-weight: 900; text-decoration: none; margin-top: 4px; border:none;">
+          🎁 Ver mis Sellos y Premios Acumulados
+        </a>
+
+        <div style="width:100%; border-top:1.5px dashed #cbd5e1; padding-top:10px; margin-top:6px;">
+          <span style="font-size:12px; color:#0056d2; font-weight:900; display:block;">
+            <i class="fa-solid fa-phone"></i> <span id="lblAgradeceContacto">Contacto:</span> <span id="agradeceContactoTxt">+51 969 773 064</span>
+          </span>
+          <div class="social-links-grid" id="agradeceSocialLinks">
+            <a href="https://wa.me/51969773064" target="_blank" class="btn-social-icon btn-social-wa" id="linkSocialWa"><i class="fa-brands fa-whatsapp"></i></a>
+            <a href="#" target="_blank" class="btn-social-icon btn-social-fb" id="linkSocialFb"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="#" target="_blank" class="btn-social-icon btn-social-ig" id="linkSocialIg"><i class="fa-brands fa-instagram"></i></a>
+            <a href="#" target="_blank" class="btn-social-icon btn-social-tk" id="linkSocialTk"><i class="fa-brands fa-tiktok"></i></a>
           </div>
         </div>
-        <i class="fa-solid fa-arrow-up-right-from-square" style="color:var(--chuspa-gold); font-size:13px;"></i>
-      </a>
 
-      <button type="button" class="btn-salir-limpiar" onclick="reiniciarNavegadorLimpio()" id="btnAgradeceSalirTxt">
-        <i class="fa-solid fa-rotate-right"></i> Finalizar y salir
-      </button>
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:12px; border-radius:14px; width:100%; margin-top:6px;">
+          <span style="font-size:11.5px; color:#0f172a; font-weight:900; display:block; margin-bottom:8px;" id="lblVolverReservarTxt">
+            ¿Planeas volver? Reserva tu mesa para Eventos o Familias
+          </span>
+          <button type="button" class="btn-ir-reservas" onclick="abrirModalReservasCliente()" id="btnAbrirModalReservasTxt">
+            <i class="fa-solid fa-calendar-check"></i> Ver y Generar Reservas
+          </button>
+          <button type="button" class="btn-compartir-wa-reservas" onclick="compartirLinkReservasWhatsApp()" id="btnCompartirWaReservasTxt">
+            <i class="fa-brands fa-whatsapp"></i> Compartir Catálogo de Reservas por WhatsApp
+          </button>
+        </div>
+
+        <a href="https://www.lachuspaanuncios.com/" target="_blank" class="chuspa-tech-card-footer">
+          <div class="chuspa-tech-footer-left">
+            <img src="CHUSPITA-circulo.png" alt="La Chuspa" class="chuspa-tech-footer-img" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
+            <div>
+              <div style="font-size:11.5px; font-weight:900; color:#0f172a;">Tecnología La Chuspa Tech</div>
+              <div style="font-size:9.5px; color:#64748b; font-weight:700;">Digitalización de restaurantes en Cusco</div>
+            </div>
+          </div>
+          <i class="fa-solid fa-arrow-up-right-from-square" style="color:var(--chuspa-gold); font-size:13px;"></i>
+        </a>
+
+        <button type="button" class="btn-salir-limpiar" onclick="reiniciarNavegadorLimpio()" id="btnAgradeceSalirTxt" style="margin-top:6px;">
+          <i class="fa-solid fa-rotate-right"></i> Finalizar y salir
+        </button>
+      </div>
     </div>
   </div>
 
-  <!-- VENTANA MODAL DE RESERVAS -->
+  <!-- VENTANA MODAL DE RESERVAS (CON RESPLANDOR GIRATORIO ORO + ROJO) -->
   <div class="screen-reservas-modal-overlay" id="modalReservasCliente">
-    <div class="box-reservas-modal">
-      <button type="button" class="btn-close-modal" onclick="cerrarModalReservasCliente()" title="Cerrar ventana">&times;</button>
+    <div class="notificacion-card-fuego">
+      <div class="notificacion-contenido" style="max-height:90dvh; overflow-y:auto;">
+        <button type="button" class="btn-close-modal" onclick="cerrarModalReservasCliente()" title="Cerrar ventana">&times;</button>
 
-      <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:1.5px solid #e2e8f0; padding-bottom:8px;">
-        <div style="display:flex; align-items:center; gap:10px;">
-          <div class="agradece-logo-wrap" style="width:44px; height:44px; font-size:22px;" id="reservasLogoLocal">🍽️</div>
-          <div>
-            <h3 style="color:#0f172a; font-size:16px; font-weight:900;" id="resModalTituloLocal">La Cusqueñita</h3>
-            <span style="font-size:11.5px; color:#10b981; font-weight:800;" id="lblModalReservaSub">Catálogo Oficial de Reservas & Eventos</span>
+        <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:1.5px solid #e2e8f0; padding-bottom:8px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div class="agradece-logo-wrap" style="width:44px; height:44px; font-size:22px;" id="reservasLogoLocal">🍽️</div>
+            <div>
+              <h3 style="color:#0f172a; font-size:16px; font-weight:900;" id="resModalTituloLocal">La Cusqueñita</h3>
+              <span style="font-size:11.5px; color:#10b981; font-weight:800;" id="lblModalReservaSub">Catálogo Oficial de Reservas & Eventos</span>
+            </div>
+          </div>
+          <a href="https://www.lachuspaanuncios.com/" target="_blank" title="Tecnología La Chuspa Tech">
+            <img src="CHUSPITA-circulo.png" alt="La Chuspa" style="width:28px; height:28px; border-radius:50%; object-fit:cover; border:1px solid var(--chuspa-gold); background:#fff;" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
+          </a>
+        </div>
+
+        <p style="font-size:12.5px; color:#475569; margin:8px 0;" id="lblModalReservaDesc">
+          Completa tus datos para agendar tu mesa familiar, grupo turístico o evento.
+        </p>
+
+        <form onsubmit="enviarReservaDesdeCliente(event)" style="display:flex; flex-direction:column; gap:8px;">
+          <input type="text" id="resCliNombre" class="custom-input-white" placeholder="Nombre completo" required>
+          <input type="tel" id="resCliWhatsApp" class="custom-input-white" placeholder="WhatsApp de contacto (+51...)" required>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <input type="date" id="resCliFecha" class="custom-input-white" required>
+            <input type="time" id="resCliHora" class="custom-input-white" required>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <input type="number" id="resCliPersonas" class="custom-input-white" placeholder="N° Personas" min="1" value="4" required>
+            <select id="resCliMesaSelect" class="custom-input-white" style="cursor:pointer;"></select>
+          </div>
+          <textarea id="resCliNotas" class="custom-input-white" rows="2" placeholder="Notas (motivo, alergias, requerimientos)..."></textarea>
+          
+          <button type="submit" class="btn-ir-reservas" id="btnEnviarReservaClienteTxt">
+            <i class="fa-solid fa-calendar-check"></i> Confirmar y Agendar Reserva
+          </button>
+        </form>
+
+        <button type="button" class="btn-compartir-wa-reservas" onclick="compartirLinkReservasWhatsApp()">
+          <i class="fa-brands fa-whatsapp"></i> Compartir este link a mi WhatsApp para reservar después
+        </button>
+
+        <div style="text-align:center; margin-top:6px;">
+          <span style="font-size:11.5px; color:#475569; font-weight:800;"><i class="fa-solid fa-phone"></i> Pedidos & Reservas: <span id="resCliTelefonoTxt">+51 969 773 064</span></span>
+          <div class="social-links-grid" style="margin-top:6px;">
+            <a href="https://wa.me/51969773064" target="_blank" class="btn-social-icon btn-social-wa" id="linkSocialWa2"><i class="fa-brands fa-whatsapp"></i></a>
+            <a href="#" target="_blank" class="btn-social-icon btn-social-fb" id="linkSocialFb2"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="#" target="_blank" class="btn-social-icon btn-social-ig" id="linkSocialIg2"><i class="fa-brands fa-instagram"></i></a>
+            <a href="#" target="_blank" class="btn-social-icon btn-social-tk" id="linkSocialTk2"><i class="fa-brands fa-tiktok"></i></a>
           </div>
         </div>
-        <a href="https://www.lachuspaanuncios.com/" target="_blank" title="Tecnología La Chuspa Tech">
-          <img src="CHUSPITA-circulo.png" alt="La Chuspa" style="width:28px; height:28px; border-radius:50%; object-fit:cover; border:1px solid var(--chuspa-gold); background:#fff;" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
-        </a>
-      </div>
 
-      <p style="font-size:12.5px; color:#475569;" id="lblModalReservaDesc">
-        Completa tus datos para agendar tu mesa familiar, grupo turístico o evento.
-      </p>
-
-      <form onsubmit="enviarReservaDesdeCliente(event)" style="display:flex; flex-direction:column; gap:8px;">
-        <input type="text" id="resCliNombre" class="custom-input-white" placeholder="Nombre completo" required>
-        <input type="tel" id="resCliWhatsApp" class="custom-input-white" placeholder="WhatsApp de contacto (+51...)" required>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-          <input type="date" id="resCliFecha" class="custom-input-white" required>
-          <input type="time" id="resCliHora" class="custom-input-white" required>
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-          <input type="number" id="resCliPersonas" class="custom-input-white" placeholder="N° Personas" min="1" value="4" required>
-          <select id="resCliMesaSelect" class="custom-input-white" style="cursor:pointer;"></select>
-        </div>
-        <textarea id="resCliNotas" class="custom-input-white" rows="2" placeholder="Notas (motivo, alergias, requerimientos)..."></textarea>
-        
-        <button type="submit" class="btn-ir-reservas" id="btnEnviarReservaClienteTxt">
-          <i class="fa-solid fa-calendar-check"></i> Confirmar y Agendar Reserva
+        <button type="button" class="btn-salir-limpiar" onclick="cerrarModalReservasCliente()" id="btnCerrarModalResTxt" style="margin-top:6px;">
+          ✕ Cerrar Ventana de Reservas
         </button>
-      </form>
-
-      <button type="button" class="btn-compartir-wa-reservas" onclick="compartirLinkReservasWhatsApp()">
-        <i class="fa-brands fa-whatsapp"></i> Compartir este link a mi WhatsApp para reservar después
-      </button>
-
-      <div style="text-align:center; margin-top:4px;">
-        <span style="font-size:11.5px; color:#475569; font-weight:800;"><i class="fa-solid fa-phone"></i> Pedidos & Reservas: <span id="resCliTelefonoTxt">+51 969 773 064</span></span>
-        <div class="social-links-grid" style="margin-top:6px;">
-          <a href="https://wa.me/51969773064" target="_blank" class="btn-social-icon btn-social-wa" id="linkSocialWa2"><i class="fa-brands fa-whatsapp"></i></a>
-          <a href="#" target="_blank" class="btn-social-icon btn-social-fb" id="linkSocialFb2"><i class="fa-brands fa-facebook-f"></i></a>
-          <a href="#" target="_blank" class="btn-social-icon btn-social-ig" id="linkSocialIg2"><i class="fa-brands fa-instagram"></i></a>
-          <a href="#" target="_blank" class="btn-social-icon btn-social-tk" id="linkSocialTk2"><i class="fa-brands fa-tiktok"></i></a>
-        </div>
       </div>
-
-      <button type="button" class="btn-salir-limpiar" onclick="cerrarModalReservasCliente()" id="btnCerrarModalResTxt">
-        ✕ Cerrar Ventana de Reservas
-      </button>
     </div>
   </div>
 
@@ -795,7 +851,7 @@
 
       <div class="order-items-list custom-scroll" id="orderItemsList"></div>
 
-      <!-- CATÁLOGO AMPLIADO EN EL POPUP CON BLOQUECITOS AMARILLOS #F5D300 -->
+      <!-- CATÁLOGO AMPLIADO EN EL POPUP -->
       <div class="quick-add-catalog">
         <div style="font-size:12px; font-weight:900; color:#0f172a;" id="lblAddPlatosTitle">
           <i class="fa-solid fa-plus-circle" style="color:var(--primary);"></i> Añadir platos a tu mesa:
@@ -803,7 +859,7 @@
         <div class="quick-add-grid custom-scroll" id="quickAddCatalogGrid"></div>
       </div>
 
-      <!-- MESA ASIGNADA: ROJO #FF5A5F CUANDO ESTÁ BLOQUEADA -->
+      <!-- MESA ASIGNADA -->
       <div class="table-selector-label">
         <span id="lblMesaHeaderInfo">📍 Mesa Asignada:</span>
         <span id="selectedTableBadge" style="color:var(--mesa-bloqueada-color); font-size:13.5px; font-weight:900;">Mesa 01 🔒</span>
@@ -812,6 +868,11 @@
       <!-- CONTENEDOR DE MESAS -->
       <div id="wrapperSelectorMesas">
         <div class="table-grid custom-scroll" id="tableGridContainer"></div>
+      </div>
+
+      <!-- TÍTULO MÉTODOS DE PAGO INTEGRADO ENCIMA DE LAS CASILLAS -->
+      <div class="payment-section-title" id="lblMetodosPagoTitle">
+        <i class="fa-solid fa-wallet" style="color:var(--primary);"></i> Métodos de Pago:
       </div>
 
       <!-- MÉTODOS DE PAGO -->
@@ -863,6 +924,12 @@
         />
       </div>
 
+      <!-- AVISO DE SEGURIDAD PARA PEDIDOS SIMULTÁNEOS ENCIMA DE TOTAL COMANDAS -->
+      <div class="order-safety-notice" id="lblSafetyNotice">
+        <i class="fa-solid fa-users" style="color:var(--chuspa-gold); font-size:13px;"></i>
+        <span>Mesa compartida: Enviar cuando estés seguro con tus acompañantes.</span>
+      </div>
+
       <!-- TOTAL COMANDA -->
       <div class="order-total-bar">
         <span style="font-weight:900; color:#0f172a; font-size:14px;" id="lblTotalComandaTxt">Total comanda:</span>
@@ -872,6 +939,7 @@
         </div>
       </div>
 
+      <!-- BOTÓN ENVIAR COMANDA ROJO #FF6B6B -->
       <button class="btn-submit-order" id="btnEnviarComanda" onclick="enviarComandaDirectaAlPanel()">
         <i class="fa-solid fa-bell-concierge"></i> <span id="lblBtnEnviar">Enviar Comanda a Cocina</span>
       </button>
@@ -884,11 +952,18 @@
     <div class="notificacion-card-fuego">
       <div class="notificacion-contenido">
         
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-          <span id="notifModalBadge" style="background: #0056d2; color: #fff; font-weight: 900; font-size: 12px; padding: 5px 14px; border-radius: 20px; text-transform: uppercase;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap:wrap; gap:6px;">
+          <span id="notifModalBadge" style="background: #0056d2; color: #fff; font-weight: 900; font-size: 11.5px; padding: 5px 12px; border-radius: 20px; text-transform: uppercase;">
             🟡 1. POR CONFIRMAR
           </span>
-          <span id="notifTurnoTxt" style="font-size: 12px; color: #d97706; font-weight: 900;">Turno #--</span>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <!-- BURBUJA DE PERSONAS CONECTADAS SIMULTÁNEAMENTE A LA MESA -->
+            <span class="users-live-bubble" id="notifUsersLiveBadge">
+              <span class="live-pulse-dot"></span>
+              <span id="notifUsersCountTxt">3 comensales</span>
+            </span>
+            <span id="notifTurnoTxt" style="font-size: 12px; color: #d97706; font-weight: 900;">Turno #--</span>
+          </div>
         </div>
 
         <div id="notifModalMensaje" class="font-latina-luxury alerta-mensaje-destacado">
@@ -933,7 +1008,18 @@
           </button>
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1.5px dashed #cbd5e1; padding-top: 10px; color: #475569; font-size: 13px;">
+        <!-- BURBUJA DE ANIMACIÓN VISUAL DINÁMICA DEBAJO DE LA NOTIFICACIÓN -->
+        <div class="notif-bottom-animation-bubble" id="notifAnimationBubble">
+          <div id="notifAnimationContent" class="chef-board-anim">
+            <span>🔪</span>
+            <span>🧅</span>
+            <span>🥩</span>
+            <span>🍳</span>
+          </div>
+          <span id="notifAnimationLabel" style="font-size:12px; font-weight:800; color:#0f172a;">Chef preparando tu orden...</span>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1.5px dashed #cbd5e1; padding-top: 10px; margin-top: 12px; color: #475569; font-size: 13px;">
           <span id="notifModalMesaTxt" style="font-weight: 900; color: #0f172a;">Mesa 01</span>
           <span id="notifModalTotalTxt" style="font-weight: 900; color: #0056d2;">S/ 0.00</span>
         </div>
@@ -978,78 +1064,155 @@
       es: {
         all: "Todos", mains: "Platos Fuertes", top: "🔥 Especialidades", drinks: "Bebidas & Cócteles", desserts: "Postres", starters: "Entradas",
         swipeUp: "Desliza hacia arriba 👆", addDish: "👆 Añadir Plato", viewMenu: "Ver Carta", orders: "🔥 Pedidos", confirmOrder: "Confirmar Comanda",
-        addMoreDishes: "Añadir platos a tu mesa:", assignedTable: "📍 Mesa Asignada:", cash: "Efectivo", exactPay: "Pagar Exacto",
+        addMoreDishes: "Añadir platos a tu mesa:", assignedTable: "📍 Mesa Asignada:", paymentMethods: "Métodos de Pago:", cash: "Efectivo", exactPay: "Pagar Exacto",
         calcChange: "Ingresa monto en efectivo para vuelto", changeToGive: "💵 Vuelto a entregar:", missingCash: "⚠️ Falta dinero",
         namePlaceholder: "Nombre de quien pide (opcional)", notesPlaceholder: "Notas para cocina (término de carne, alergias, etc.)",
         clubPrompt: "⭐ ¿Eres socio del Club? Acumula sellos:", viewCard: "Ver mi tarjeta", orderTotal: "Total comanda:",
         sendOrder: "Enviar Comanda a Cocina", sendAddMore: "Añadir Platos a mi Mesa", houseMenu: "Menú de la Casa",
-        noDishesCat: "No hay platos disponibles en esta categoría."
+        noDishesCat: "No hay platos disponibles en esta categoría.",
+        safetyNotice: "Mesa compartida: Enviar cuando estés seguro con tus acompañantes.",
+        liveDiners: "comensales en mesa",
+        statusConfirmedTitle: "Tu pedido fue enviado.",
+        statusConfirmedSub: "El mozo o cocina lo está verificando en el panel...",
+        statusKitchenTitle: "¡Tu pedido está en fuego!",
+        statusKitchenSub: "El chef lo está elaborando en la tabla y fogón en este momento.",
+        statusServedTitle: "¡Buen provecho!",
+        statusServedSub: "Tu pedido ya está servido en tu mesa.",
+        statusCashierTitle: "¡Aviso recibido en caja!",
+        statusCashierSub: "Dirígete a la recepción para cancelar tu cuenta.",
+        animKitchen: "Chef preparando comida en tabla...",
+        animServed: "¡Platos listos en tu mesa!",
+        animCashier: "Recepción esperando tu pago...",
+        animWait: "Verificando orden en cocina..."
       },
       en: {
         all: "All", mains: "Main Courses", top: "🔥 Specials", drinks: "Drinks & Cocktails", desserts: "Desserts", starters: "Starters",
         swipeUp: "Swipe up 👆", addDish: "👆 Add Dish", viewMenu: "View Menu", orders: "🔥 Orders", confirmOrder: "Confirm Order",
-        addMoreDishes: "Add dishes to your table:", assignedTable: "📍 Assigned Table:", cash: "Cash", exactPay: "Exact Cash",
+        addMoreDishes: "Add dishes to your table:", assignedTable: "📍 Assigned Table:", paymentMethods: "Payment Methods:", cash: "Cash", exactPay: "Exact Cash",
         calcChange: "Enter cash amount for change", changeToGive: "💵 Change to return:", missingCash: "⚠️ Insufficient cash",
         namePlaceholder: "Your name (optional)", notesPlaceholder: "Notes for the kitchen (meat temp, allergies, etc.)",
         clubPrompt: "⭐ Club Member? Collect loyalty stamps:", viewCard: "View my card", orderTotal: "Order total:",
         sendOrder: "Send Order to Kitchen", sendAddMore: "Add Dishes to my Table", houseMenu: "House Menu",
-        noDishesCat: "No dishes available in this category."
+        noDishesCat: "No dishes available in this category.",
+        safetyNotice: "Shared table: Submit when all companions agree.",
+        liveDiners: "diners at table",
+        statusConfirmedTitle: "Your order was sent.",
+        statusConfirmedSub: "The waiter or kitchen is verifying it...",
+        statusKitchenTitle: "Your order is cooking!",
+        statusKitchenSub: "The chef is preparing it on the cutting board right now.",
+        statusServedTitle: "Enjoy your meal!",
+        statusServedSub: "Your order is served at your table.",
+        statusCashierTitle: "Cashier notified!",
+        statusCashierSub: "Please head to the front desk to pay.",
+        animKitchen: "Chef cutting & preparing your meal...",
+        animServed: "Dishes served on your table!",
+        animCashier: "Reception waiting for payment...",
+        animWait: "Verifying order in kitchen..."
       },
       de: {
         all: "Alle", mains: "Hauptgerichte", top: "🔥 Spezialitäten", drinks: "Getränke & Cocktails", desserts: "Desserts", starters: "Vorspeisen",
         swipeUp: "Nach oben wischen 👆", addDish: "👆 Gericht hinzufügen", viewMenu: "Speisekarte", orders: "🔥 Bestellungen", confirmOrder: "Bestellung bestätigen",
-        addMoreDishes: "Gerichte hinzufügen:", assignedTable: "📍 Tisch:", cash: "Bargeld", exactPay: "Passend zahlen", calcChange: "Bargeld für Rückgeld eingeben",
-        changeToGive: "💵 Rückgeld:", missingCash: "⚠️ Zu wenig Bargeld", namePlaceholder: "Name (optional)", notesPlaceholder: "Notizen für die Küche",
-        clubPrompt: "⭐ Club-Mitglied? Stempel sammeln:", viewCard: "Karte anzeigen", orderTotal: "Gesamtsumme:", sendOrder: "Bestellung an Küche senden",
-        sendAddMore: "Gerichte hinzufügen", houseMenu: "Speisekarte", noDishesCat: "Keine Gerichte in dieser Kategorie."
+        addMoreDishes: "Gerichte hinzufügen:", assignedTable: "📍 Tisch:", paymentMethods: "Zahlungsarten:", cash: "Bargeld", exactPay: "Passend zahlen",
+        calcChange: "Bargeld für Rückgeld eingeben", changeToGive: "💵 Rückgeld:", missingCash: "⚠️ Zu wenig Bargeld",
+        namePlaceholder: "Name (optional)", notesPlaceholder: "Notizen für die Küche",
+        clubPrompt: "⭐ Club-Mitglied? Stempel sammeln:", viewCard: "Karte anzeigen", orderTotal: "Gesamtsumme:",
+        sendOrder: "Bestellung an Küche senden", sendAddMore: "Gerichte hinzufügen", houseMenu: "Speisekarte",
+        noDishesCat: "Keine Gerichte in dieser Kategorie.", safetyNotice: "Geteilter Tisch: Nur senden, wenn alle fertig sind.",
+        liveDiners: "Gäste am Tisch", statusConfirmedTitle: "Bestellung gesendet.", statusConfirmedSub: "Wird in der Küche überprüft...",
+        statusKitchenTitle: "Wird zubereitet!", statusKitchenSub: "Der Chefkoch kocht gerade frisch.",
+        statusServedTitle: "Guten Appetit!", statusServedSub: "Ihr Essen ist serviert.", statusCashierTitle: "Kasse informiert!",
+        statusCashierSub: "Bitte zur Kasse gehen.", animKitchen: "Küche bereitet Speisen zu...", animServed: "Serviert auf Ihrem Tisch!",
+        animCashier: "Warten an der Kasse...", animWait: "Bestellung wird geprüft..."
       },
       it: {
         all: "Tutti", mains: "Piatti Principali", top: "🔥 Specialità", drinks: "Bevande & Cocktail", desserts: "Dolci", starters: "Antipasti",
         swipeUp: "Scorri verso l'alto 👆", addDish: "👆 Aggiungi Piatto", viewMenu: "Visualizza Menu", orders: "🔥 Ordini", confirmOrder: "Conferma Comanda",
-        addMoreDishes: "Aggiungi piatti al tuo tavolo:", assignedTable: "📍 Tavolo Assegnato:", cash: "Contanti", exactPay: "Paga Esatto", calcChange: "Inserisci contanti per il resto",
-        changeToGive: "💵 Resto da dare:", missingCash: "⚠️ Denaro insufficiente", namePlaceholder: "Nome (opzionale)", notesPlaceholder: "Note per la cucina",
-        clubPrompt: "⭐ Socio del Club? Raccogli timbri:", viewCard: "Vedi la mia carta", orderTotal: "Totale comanda:", sendOrder: "Invia Comanda in Cucina",
-        sendAddMore: "Aggiungi Piatti al Tavolo", houseMenu: "Menu della Casa", noDishesCat: "Nessun piatto in questa categoria."
+        addMoreDishes: "Aggiungi piatti al tuo tavolo:", assignedTable: "📍 Tavolo Assegnato:", paymentMethods: "Metodi di Pagamento:", cash: "Contanti", exactPay: "Paga Esatto",
+        calcChange: "Inserisci contanti per il resto", changeToGive: "💵 Resto da dare:", missingCash: "⚠️ Denaro insufficiente",
+        namePlaceholder: "Nome (opzionale)", notesPlaceholder: "Note per la cucina",
+        clubPrompt: "⭐ Socio del Club? Raccogli timbri:", viewCard: "Vedi la mia carta", orderTotal: "Totale comanda:",
+        sendOrder: "Invia Comanda in Cucina", sendAddMore: "Aggiungi Piatti al Tavolo", houseMenu: "Menu della Casa",
+        noDishesCat: "Nessun piatto in questa categoria.", safetyNotice: "Tavolo condiviso: invia quando tutti sono d'accordo.",
+        liveDiners: "commensali al tavolo", statusConfirmedTitle: "Ordine inviato.", statusConfirmedSub: "Verifica in corso...",
+        statusKitchenTitle: "In preparazione!", statusKitchenSub: "Lo chef sta cucinando ora.",
+        statusServedTitle: "Buon appetito!", statusServedSub: "I piatti sono sul tavolo.", statusCashierTitle: "Cassa notificata!",
+        statusCashierSub: "Puoi andare alla cassa.", animKitchen: "Lo chef sta cucinando...", animServed: "Servito al tuo tavolo!",
+        animCashier: "Cassa in attesa...", animWait: "Verifica ordine..."
       },
       fr: {
         all: "Tous", mains: "Plats Principaux", top: "🔥 Spécialités", drinks: "Boissons & Cocktails", desserts: "Desserts", starters: "Entrées",
         swipeUp: "Glissez vers le haut 👆", addDish: "👆 Ajouter Plat", viewMenu: "Voir le Menu", orders: "🔥 Commandes", confirmOrder: "Confirmer Commande",
-        addMoreDishes: "Ajouter des plats à votre table:", assignedTable: "📍 Table Assignée:", cash: "Espèces", exactPay: "Montant Exact", calcChange: "Entrez le montant en espèces",
-        changeToGive: "💵 Rendu de monnaie:", missingCash: "⚠️ Espèces insuffisantes", namePlaceholder: "Votre nom (optionnel)", notesPlaceholder: "Notes pour la cuisine",
-        clubPrompt: "⭐ Membre du Club? Cumulez des tampons:", viewCard: "Voir ma carte", orderTotal: "Total commande:", sendOrder: "Envoyer Commande en Cuisine",
-        sendAddMore: "Ajouter Plats à la Table", houseMenu: "Menu de la Maison", noDishesCat: "Aucun plat dans cette catégorie."
+        addMoreDishes: "Ajouter des plats à votre table:", assignedTable: "📍 Table Assignée:", paymentMethods: "Modes de paiement:", cash: "Espèces", exactPay: "Montant Exact",
+        calcChange: "Entrez le montant en espèces", changeToGive: "💵 Rendu de monnaie:", missingCash: "⚠️ Espèces insuffisantes",
+        namePlaceholder: "Votre nom (optionnel)", notesPlaceholder: "Notes pour la cuisine",
+        clubPrompt: "⭐ Membre du Club? Cumulez des tampons:", viewCard: "Voir ma carte", orderTotal: "Total commande:",
+        sendOrder: "Envoyer Commande en Cuisine", sendAddMore: "Ajouter Plats à la Table", houseMenu: "Menu de la Maison",
+        noDishesCat: "Aucun plat dans cette catégorie.", safetyNotice: "Table partagée : validez d'accord avec vos amis.",
+        liveDiners: "convives à table", statusConfirmedTitle: "Commande transmise.", statusConfirmedSub: "Vérification en cours...",
+        statusKitchenTitle: "En cuisine !", statusKitchenSub: "Le chef prépare vos plats.",
+        statusServedTitle: "Bon appétit !", statusServedSub: "Votre commande est servie.", statusCashierTitle: "Caisse prévenue !",
+        statusCashierSub: "Merci de régler à la caisse.", animKitchen: "Le chef découpe et cuisine...", animServed: "Servi à votre table !",
+        animCashier: "En attente à la caisse...", animWait: "Vérification en cuisine..."
       },
       pt: {
         all: "Todos", mains: "Pratos Principais", top: "🔥 Especialidades", drinks: "Bebidas & Coquetéis", desserts: "Sobremesas", starters: "Entradas",
         swipeUp: "Deslize para cima 👆", addDish: "👆 Adicionar Prato", viewMenu: "Ver Cardápio", orders: "🔥 Pedidos", confirmOrder: "Confirmar Pedido",
-        addMoreDishes: "Adicionar pratos à mesa:", assignedTable: "📍 Mesa:", cash: "Dinheiro", exactPay: "Pagar Exato", calcChange: "Informe valor para troco",
-        changeToGive: "💵 Troco:", missingCash: "⚠️ Dinheiro insuficiente", namePlaceholder: "Seu nome (opcional)", notesPlaceholder: "Observações para a cozinha",
-        clubPrompt: "⭐ Membro do Clube? Acumule selos:", viewCard: "Ver meu cartão", orderTotal: "Total pedido:", sendOrder: "Enviar Pedido à Cozinha",
-        sendAddMore: "Adicionar Pratos à Mesa", houseMenu: "Cardápio da Casa", noDishesCat: "Nenhum prato nesta categoria."
+        addMoreDishes: "Adicionar pratos à mesa:", assignedTable: "📍 Mesa:", paymentMethods: "Métodos de Pagamento:", cash: "Dinheiro", exactPay: "Pagar Exato",
+        calcChange: "Informe valor para troco", changeToGive: "💵 Troco:", missingCash: "⚠️ Dinheiro insuficiente",
+        namePlaceholder: "Seu nome (opcional)", notesPlaceholder: "Observações para a cozinha",
+        clubPrompt: "⭐ Membro do Clube? Acumule selos:", viewCard: "Ver meu cartão", orderTotal: "Total pedido:",
+        sendOrder: "Enviar Pedido à Cozinha", sendAddMore: "Adicionar Pratos à Mesa", houseMenu: "Cardápio da Casa",
+        noDishesCat: "Nenhum prato nesta categoria.", safetyNotice: "Mesa compartilhada: Envie quando todos concordarem.",
+        liveDiners: "pessoas na mesa", statusConfirmedTitle: "Pedido enviado.", statusConfirmedSub: "A cozinha está verificando...",
+        statusKitchenTitle: "Em preparo!", statusKitchenSub: "O chef está cozinhando agora.",
+        statusServedTitle: "Bom apetite!", statusServedSub: "Seu pedido foi servido na mesa.", statusCashierTitle: "Aviso enviado ao caixa!",
+        statusCashierSub: "Dirija-se ao caixa para pagar.", animKitchen: "Chef preparando sua comida...", animServed: "Servido em sua mesa!",
+        animCashier: "Caixa aguardando pagamento...", animWait: "Verificando pedido..."
       },
       zh: {
         all: "全部", mains: "主菜", top: "🔥 特色菜", drinks: "饮料与鸡尾酒", desserts: "甜点", starters: "前菜",
         swipeUp: "向上滑动 👆", addDish: "👆 添加菜品", viewMenu: "查看菜单", orders: "🔥 点单", confirmOrder: "确认点单",
-        addMoreDishes: "加菜到您的餐桌:", assignedTable: "📍 选定桌号:", cash: "现金", exactPay: "整好支付", calcChange: "输入现金找零金额",
-        changeToGive: "💵 找零金额:", missingCash: "⚠️ 现金不足", namePlaceholder: "顾客姓名 (可选)", notesPlaceholder: "厨房备注 (牛排熟度、过敏源等)",
-        clubPrompt: "⭐ 俱乐部会员? 收集印章:", viewCard: "查看会员卡", orderTotal: "总计:", sendOrder: "发送点单至后厨",
-        sendAddMore: "向餐桌加菜", houseMenu: "餐厅菜单", noDishesCat: "该类别暂无菜品。"
+        addMoreDishes: "加菜到您的餐桌:", assignedTable: "📍 选定桌号:", paymentMethods: "支付方式:", cash: "现金", exactPay: "整好支付",
+        calcChange: "输入现金找零金额", changeToGive: "💵 找零金额:", missingCash: "⚠️ 现金不足",
+        namePlaceholder: "顾客姓名 (可选)", notesPlaceholder: "厨房备注 (牛排熟度、过敏源等)",
+        clubPrompt: "⭐ 俱乐部会员? 收集印章:", viewCard: "查看会员卡", orderTotal: "总计:",
+        sendOrder: "发送点单至后厨", sendAddMore: "向餐桌加菜", houseMenu: "餐厅菜单",
+        noDishesCat: "该类别暂无菜品。", safetyNotice: "多人同桌：确认大家意见一致后再发送。",
+        liveDiners: "人同桌点餐", statusConfirmedTitle: "订单已发送。", statusConfirmedSub: "后厨或服务员正在确认...",
+        statusKitchenTitle: "正在烹饪！", statusKitchenSub: "大厨正在砧板与炉火前精心制作。",
+        statusServedTitle: "请慢用！", statusServedSub: "菜品已上齐于您的餐桌。", statusCashierTitle: "已通知收银台！",
+        statusCashierSub: "请前往前台结账。", animKitchen: "大厨正在备餐切菜...", animServed: "美味已送达！",
+        animCashier: "前台等待结算...", animWait: "后厨确认中..."
       },
       ja: {
         all: "すべて", mains: "メイン料理", top: "🔥 おすすめ", drinks: "ドリンク＆カクテル", desserts: "デザート", starters: "前菜",
         swipeUp: "上にスワイプ 👆", addDish: "👆 注文に追加", viewMenu: "メニューを見る", orders: "🔥 注文リスト", confirmOrder: "注文を確定",
-        addMoreDishes: "料理を追加:", assignedTable: "📍 テーブル番:", cash: "現金", exactPay: "お釣りなし", calcChange: "お釣り計算のため金額を入力",
-        changeToGive: "💵 お釣り:", missingCash: "⚠️ 金額が不足しています", namePlaceholder: "お名前 (任意)", notesPlaceholder: "調理場へのご要望 (焼き加減、アレルギー等)",
-        clubPrompt: "⭐ クラブ会員様? スタンプを貯める:", viewCard: "カードを見る", orderTotal: "合計金額:", sendOrder: "厨房へ注文を送信",
-        sendAddMore: "追加注文する", houseMenu: "おすすめメニュー", noDishesCat: "このカテゴリの料理はありません。"
+        addMoreDishes: "料理を追加:", assignedTable: "📍 テーブル番:", paymentMethods: "お支払い方法:", cash: "現金", exactPay: "お釣りなし",
+        calcChange: "お釣り計算のため金額を入力", changeToGive: "💵 お釣り:", missingCash: "⚠️ 金額が不足しています",
+        namePlaceholder: "お名前 (任意)", notesPlaceholder: "調理場へのご要望 (焼き加減、アレルギー等)",
+        clubPrompt: "⭐ クラブ会員様? スタンプを貯める:", viewCard: "カードを見る", orderTotal: "合計金額:",
+        sendOrder: "厨房へ注文を送信", sendAddMore: "追加注文する", houseMenu: "おすすめメニュー",
+        noDishesCat: "このカテゴリの料理はありません。", safetyNotice: "同じテーブルで共有中：皆様の合意後に送信してください。",
+        liveDiners: "名が同席中", statusConfirmedTitle: "注文を送信しました。", statusConfirmedSub: "調理場で確認しています...",
+        statusKitchenTitle: "調理中です！", statusKitchenSub: "シェフが心を込めて調理しています。",
+        statusServedTitle: "どうぞ召し上がれ！", statusServedSub: "お料理がテーブルに届きました。", statusCashierTitle: "レジに通知しました！",
+        statusCashierSub: "お会計はレジにてお願いいたします。", animKitchen: "シェフが調理中...", animServed: "テーブルに配膳完了！",
+        animCashier: "レジでお待ちしています...", animWait: "調理場で確認中..."
       },
       ko: {
         all: "전체", mains: "메인 요리", top: "🔥 스페셜", drinks: "음료 & 칵테일", desserts: "디저트", starters: "전채요리",
         swipeUp: "위로 넘기기 👆", addDish: "👆 메뉴 추가", viewMenu: "메뉴판 보기", orders: "🔥 주문내역", confirmOrder: "주문 확인",
-        addMoreDishes: "테이블에 메뉴 추가:", assignedTable: "📍 테이블 번호:", cash: "현금", exactPay: "정확한 금액 지불", calcChange: "거스름돈 계산을 위한 금액 입력",
-        changeToGive: "💵 거스름돈:", missingCash: "⚠️ 현금이 부족합니다", namePlaceholder: "주문자 성함 (선택)", notesPlaceholder: "주방 요청사항 (굽기 정도, 알레르기 등)",
-        clubPrompt: "⭐ 클럽 회원이신가요? 스탬프 적립:", viewCard: "내 카드 보기", orderTotal: "주문 총액:", sendOrder: "주방으로 주문 전송",
-        sendAddMore: "테이블에 추가 주문", houseMenu: "매장 메뉴판", noDishesCat: "이 카테고리에 등록된 메뉴가 없습니다."
+        addMoreDishes: "테이블에 메뉴 추가:", assignedTable: "📍 테이블 번호:", paymentMethods: "결제 수단:", cash: "현금", exactPay: "정확한 금액 지불",
+        calcChange: "거스름돈 계산을 위한 금액 입력", changeToGive: "💵 거스름돈:", missingCash: "⚠️ 현금이 부족합니다",
+        namePlaceholder: "주문자 성함 (선택)", notesPlaceholder: "주방 요청사항 (굽기 정도, 알레르기 등)",
+        clubPrompt: "⭐ 클럽 회원이신가요? 스탬프 적립:", viewCard: "내 카드 보기", orderTotal: "주문 총액:",
+        sendOrder: "주방으로 주문 전송", sendAddMore: "테이블에 추가 주문", houseMenu: "매장 메뉴판",
+        noDishesCat: "이 카테고리에 등록된 메뉴가 없습니다.", safetyNotice: "테이블 공유 중: 일행과 확인 후 주문을 전송하세요.",
+        liveDiners: "명 동석 중", statusConfirmedTitle: "주문이 전송되었습니다.", statusConfirmedSub: "주방에서 확인 중입니다...",
+        statusKitchenTitle: "조리 중입니다!", statusKitchenSub: "셰프가 정성껏 조리하고 있습니다.",
+        statusServedTitle: "맛있게 드세요!", statusServedSub: "주문하신 메뉴가 준비되었습니다.", statusCashierTitle: "카운터 알림 완료!",
+        statusCashierSub: "카운터에서 결제를 진행해 주세요.", animKitchen: "셰프가 요리 준비 중...", animServed: "테이블 세팅 완료!",
+        animCashier: "카운터 결제 대기 중...", animWait: "주문 확인 중..."
       }
     };
 
@@ -1490,7 +1653,6 @@
           if (data && typeof data === 'object') {
             const comandas = Object.keys(data).map(k => Object.assign({ id: k }, data[k]));
 
-            // Busca si ya hay una comanda activa en la misma mesa
             const comandaAbierta = comandas.find(c => {
               const m = normalizarNombreMesa(c.mesa || '');
               const est = String(c.estado || '').toLowerCase().trim();
@@ -1609,6 +1771,7 @@
       autoEngancharComandaActivaDeMesa();
     }
 
+    /* SISTEMA DE TRADUCCIÓN COMPLETA DE INTERFAZ & PLATOS */
     function cambiarIdiomaGlobal(nuevoLang) {
       currentLang = nuevoLang;
       sessionStorage.setItem("inkabistro_user_lang", nuevoLang);
@@ -1633,11 +1796,17 @@
       const elMesaHeader = document.getElementById('lblMesaHeaderInfo');
       if (elMesaHeader) elMesaHeader.innerText = t.assignedTable;
 
+      const elPayTitle = document.getElementById('lblMetodosPagoTitle');
+      if (elPayTitle) elPayTitle.innerHTML = `<i class="fa-solid fa-wallet" style="color:var(--primary);"></i> ${t.paymentMethods}`;
+
       const elPayEf = document.getElementById('lblPayEfectivo');
       if (elPayEf) elPayEf.innerText = t.cash;
 
       const elBtnEx = document.getElementById('lblBtnExacto');
       if (elBtnEx) elBtnEx.innerText = t.exactPay;
+
+      const elSafety = document.getElementById('lblSafetyNotice');
+      if (elSafety) elSafety.innerHTML = `<i class="fa-solid fa-users" style="color:var(--chuspa-gold); font-size:13px;"></i> <span>${t.safetyNotice}</span>`;
 
       const elTotalTxt = document.getElementById('lblTotalComandaTxt');
       if (elTotalTxt) elTotalTxt.innerText = t.orderTotal;
@@ -1664,6 +1833,7 @@
       renderQuickCatalogPopup();
       renderizarPopupCuadricula();
       actualizarVistaPopup();
+      verificarEstadoComandaEnVivo();
     }
 
     function getDishInfo(dish) {
@@ -1743,7 +1913,6 @@
       cambiarIdiomaGlobal(currentLang);
       setupObserver();
       
-      // Auto-enganche si la mesa ya tiene orden abierta por otro celular de la familia
       await autoEngancharComandaActivaDeMesa();
       verificarEstadoComandaEnVivo();
 
@@ -2016,12 +2185,10 @@
         platosComanda.push({ id, nombre: info.name, cantidad: cant, precio: dish.precioPEN || dish.precio });
       });
 
-      // Si aún no tenemos comandaActivaId local, intentamos buscar si la mesa ya tiene una activa en Firebase
       if (!comandaActivaId) {
         await autoEngancharComandaActivaDeMesa();
       }
 
-      // CASO 1: YA EXISTE COMANDA EN ESTA MESA -> SE SUMA COMO ADICIÓN
       if (comandaActivaId) {
         try {
           const res = await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`);
@@ -2069,7 +2236,6 @@
         }
       }
 
-      // CASO 2: ES EL PRIMER CELULAR QUE PIDE EN LA MESA -> CREA LA COMANDA OFICIAL
       let numeroTurnoChef = 1;
       try {
         const resAll = await fetch(`${FIREBASE_DB_URL}comandas.json?_t=${Date.now()}`);
@@ -2136,7 +2302,6 @@
       }, 400);
     }
 
-    /* PEDIR CUENTA: CUALQUIERA DE LOS CELULARES PUEDE ACTIVARLO Y SE MUESTRA A TODOS */
     async function solicitarCuentaEnCaja() {
       if (!comandaActivaId || cuentaPedidaBloqueada) return;
       cuentaPedidaBloqueada = true;
@@ -2203,7 +2368,7 @@
       if (box) box.style.display = "none";
     }
 
-    /* MONITOREO DINÁMICO DE ESTADOS EN VIVO (SINCRONIZA TODOS LOS CELULARES) */
+    /* MONITOREO DINÁMICO DE ESTADOS EN VIVO (CON ANIMACIONES TEMÁTICAS) */
     async function verificarEstadoComandaEnVivo() {
       if (!comandaActivaId) {
         await autoEngancharComandaActivaDeMesa();
@@ -2235,6 +2400,16 @@
       const cajaMozo = document.getElementById("cajaPreguntaMozo");
       const cajaPedirCuenta = document.getElementById("cajaBotonPedirCuenta");
       const cajaResena = document.getElementById("cajaResenaServicio");
+      const animContent = document.getElementById("notifAnimationContent");
+      const animLabel = document.getElementById("notifAnimationLabel");
+      const liveUsersTxt = document.getElementById("notifUsersCountTxt");
+
+      const t = I18N_UI[currentLang] || I18N_UI['es'];
+
+      // Actualizar contador visual de comensales en mesa
+      if (liveUsersTxt) {
+        liveUsersTxt.innerText = `3 ${t.liveDiners}`;
+      }
 
       const numTurno = miComanda.numeroTurno || "01";
       if (turnoBadge) turnoBadge.innerText = `Turno #${numTurno < 10 ? '0' + numTurno : numTurno}`;
@@ -2255,23 +2430,40 @@
         badge.style.background = "#0056d2";
         badge.style.color = "#fff";
         badge.innerText = "🟡 1. POR CONFIRMAR";
-        mensaje.innerHTML = `Tu pedido fue enviado.<br><span class="sub-detalle">El mozo o cocina lo está verificando en el panel...</span>`;
+        mensaje.innerHTML = `${t.statusConfirmedTitle}<br><span class="sub-detalle">${t.statusConfirmedSub}</span>`;
         cajaPedirCuenta.style.display = "none";
         if (cajaResena) cajaResena.style.display = "none";
+
+        if (animContent) {
+          animContent.innerHTML = `<span class="bell-shake-anim">🔔</span> <span>📜</span> <span>⏳</span>`;
+        }
+        if (animLabel) animLabel.innerText = t.animWait;
       }
       else if (estado === 'cocina') {
         badge.style.background = "var(--block-yellow)";
         badge.style.color = "#0f172a";
         badge.innerText = "🍳 2. EN PROCESO (COCINA)";
-        mensaje.innerHTML = `¡Tu pedido está en fuego!<br><span class="sub-detalle">El chef lo está elaborando con el mayor cuidado en este momento.</span>`;
+        mensaje.innerHTML = `${t.statusKitchenTitle}<br><span class="sub-detalle">${t.statusKitchenSub}</span>`;
         cajaPedirCuenta.style.display = "none";
         if (cajaResena) cajaResena.style.display = "none";
+
+        /* ANIMACIÓN DE LA TABLA DEL CHEF CON CUCHILLO Y OLLA */
+        if (animContent) {
+          animContent.innerHTML = `
+            <span class="chef-knife-motion">🔪</span>
+            <span>🥩</span>
+            <span>🧅</span>
+            <span>🥕</span>
+            <span class="chef-steam-pot">🍳</span>
+          `;
+        }
+        if (animLabel) animLabel.innerText = t.animKitchen;
       }
       else if (estado === 'servido') {
         badge.style.background = "#10b981";
         badge.style.color = "#fff";
         badge.innerText = "🟢 3. RECIBIDO EN MESA";
-        mensaje.innerHTML = `¡Buen provecho!<br><span style="font-size: 16px; font-weight: 800; color: #0056d2; display: block; margin-top: 4px;">Tu pedido ya está servido en tu mesa.</span>`;
+        mensaje.innerHTML = `${t.statusServedTitle}<br><span style="font-size: 16px; font-weight: 800; color: #0056d2; display: block; margin-top: 4px;">${t.statusServedSub}</span>`;
         cajaPedirCuenta.style.display = "block";
 
         if (cajaResena && !miComanda.resenaEnviada) {
@@ -2279,14 +2471,24 @@
         } else if (cajaResena) {
           cajaResena.style.display = "none";
         }
+
+        if (animContent) {
+          animContent.innerHTML = `<span class="cloche-serve-anim">🍽️</span> <span>✨</span> <span>🍷</span>`;
+        }
+        if (animLabel) animLabel.innerText = t.animServed;
       }
       else if (estado === 'camino_a_caja' || miComanda.clientePidiendoCuenta === true) {
         badge.style.background = "#ec4899";
         badge.style.color = "#fff";
         badge.innerText = "🚶‍♂️ VOY EN CAMINO A CAJA";
-        mensaje.innerHTML = `¡Aviso recibido en caja!<br><span style="font-size: 15.5px; font-weight: 800; color: #0056d2; display: block; margin-top: 4px;">Dirígete a la recepción para cancelar tu cuenta.</span>`;
+        mensaje.innerHTML = `${t.statusCashierTitle}<br><span style="font-size: 15.5px; font-weight: 800; color: #0056d2; display: block; margin-top: 4px;">${t.statusCashierSub}</span>`;
         cajaPedirCuenta.style.display = "none";
         if (cajaResena) cajaResena.style.display = "none";
+
+        if (animContent) {
+          animContent.innerHTML = `<span class="cashier-walk-anim">🚶‍♂️</span> <span>💵</span> <span>🧾</span>`;
+        }
+        if (animLabel) animLabel.innerText = t.animCashier;
       }
 
       if (miComanda.mozoPregunta === true) {
