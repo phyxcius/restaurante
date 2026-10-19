@@ -5,21 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>La Cusqueñita | Menú Digital & Comandas Enterprise</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <!-- Tipografía Latina Elegante para Mensajes Clave -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Plus+Jakarta+Sans:wght@500;700;800;900&display=swap" rel="stylesheet">
 
   <style>
-    /* ==========================================================
-       ARQUITECTURA VISUAL LA CHUSPA TECH ENTERPRISE B2B
-       - Fusión: Azul Royal TuBoleto + Oro Incaico La Chuspa Tech
-       - Blanco Mármol en Notificaciones, Agradecimiento y Bloqueo
-       - Resplandor Fuego Giratorio (Oro #fbbf24 + Rojo Fuego #dc2626)
-       - Botón Reel Añadir Plato: #FF5A5F
-       - Bloques añadir platos: #F5D300
-       - Mesa bloqueada: #FF5A5F
-       ========================================================== */
     :root {
       --primary: #0056d2;
       --primary-hover: #0043a8;
@@ -40,7 +30,7 @@
       --marble-white: #fbfcfd;
       --marble-white-card: #ffffff;
       --marble-border: #e2e8f0;
-      --marble-text: #0f172a;        /* Negro Carbón */
+      --marble-text: #0f172a;
       --marble-muted: #475569;
 
       /* PALETA MODAL */
@@ -63,13 +53,11 @@
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body, html { width: 100%; height: 100%; overflow: hidden; background-color: var(--bg-warm); color: var(--text-main); }
 
-    /* TIPOGRAFÍA LATINA ELEGANTE */
     .font-latina-luxury {
       font-family: 'Playfair Display', Georgia, 'Times New Roman', serif !important;
       letter-spacing: 0.2px;
     }
 
-    /* CUSTOM SCROLLBARS */
     .custom-scroll {
       scrollbar-width: thin;
       scrollbar-color: var(--primary) rgba(11, 26, 51, 0.3);
@@ -81,7 +69,7 @@
       border-radius: 8px;
     }
 
-    /* PANTALLA DE BLOQUEO DE SEGURIDAD - FONDO BLANCO MÁRMOL */
+    /* PANTALLA DE BLOQUEO DE SEGURIDAD */
     .screen-security-lock {
       position: fixed; inset: 0; 
       background: radial-gradient(circle at center, #ffffff 0%, #edf2f7 100%);
@@ -141,7 +129,6 @@
     .brand-text h1 { font-size: 15px; font-weight: 900; line-height: 1.1; text-transform: uppercase; color: #f8fafc; }
     .brand-text span { font-size: 10px; text-transform: uppercase; color: #38bdf8; font-weight: 800; letter-spacing: 0.5px; }
 
-    /* BADGE LA CHUSPA TECH */
     .chuspa-nav-badge {
       display: flex; align-items: center; gap: 6px;
       background: rgba(245, 158, 11, 0.12); border: 1.5px solid var(--chuspa-gold);
@@ -168,7 +155,6 @@
       color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer;
     }
 
-    /* FILTROS / CHIPS */
     .category-chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
     .chip {
       background: rgba(9, 21, 42, 0.85); border: 1px solid rgba(56, 189, 248, 0.25); color: var(--text-muted);
@@ -180,12 +166,10 @@
       border-color: var(--chuspa-gold); box-shadow: 0 0 12px var(--chuspa-gold-glow);
     }
 
-    /* REELS TIKTOK VERTICAL */
     .video-slide { width: 100%; height: 100dvh; scroll-snap-align: start; position: relative; background: #081121; overflow: hidden; display: flex; align-items: flex-end; }
     .video-player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
     .slide-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,13,26,0.3) 0%, transparent 45%, rgba(5,13,26,0.95) 100%); }
 
-    /* DEDO GESTUAL */
     .gesture-hint-overlay {
       position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 90;
       pointer-events: none; display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -204,7 +188,6 @@
       100% { transform: translate(-50%, -75%); opacity: 0; }
     }
 
-    /* INFORMACIÓN DEL PLATO */
     .dish-info { position: relative; z-index: 10; padding: 0 75px 85px 16px; width: 100%; }
     .badge-tag {
       background: rgba(0, 86, 210, 0.35); border: 1px solid var(--chuspa-gold); color: #fbbf24;
@@ -215,7 +198,6 @@
     .price-now { font-size: 24px; font-weight: 900; color: #fbbf24; display: block; margin-bottom: 6px; text-shadow: 0 2px 8px rgba(0,0,0,0.8); }
     .price-alt { font-size: 12px; color: #94a3b8; font-weight: 700; margin-left: 6px; }
 
-    /* BOTÓN AÑADIR PLATO DEL REEL - COLOR #FF5A5F */
     .btn-quick-add {
       background: linear-gradient(135deg, #FF5A5F, #e0484d); 
       border: 1.5px solid #ffe4e6;
@@ -228,7 +210,6 @@
     .btn-quick-add .finger-tap-icon { font-size: 15px; color: #fff; animation: fingerTap 1.2s infinite alternate ease-in-out; }
     @keyframes fingerTap { 0% { transform: scale(1) translateY(0); } 100% { transform: scale(1.25) translateY(-3px); } }
 
-    /* BOTÓN CAMBIO A CARTA / CUADRÍCULA */
     .grid-toggle-container {
       position: fixed; bottom: 20px; left: 18px; display: flex; align-items: center; gap: 8px;
       z-index: 99998; cursor: pointer; pointer-events: auto;
@@ -246,7 +227,6 @@
       border: 1.5px solid var(--chuspa-gold-border);
     }
 
-    /* MODAL DE MENÚ EN CUADRÍCULA CON CATEGORIZACIÓN */
     .grid-popup-modal {
       position: fixed; inset: 0; background: rgba(3, 7, 18, 0.88); backdrop-filter: blur(8px);
       z-index: 100001; display: none; align-items: center; justify-content: center; padding: 14px;
@@ -271,9 +251,7 @@
       letter-spacing: 0.5px; border-bottom: 1.5px solid rgba(245, 158, 11, 0.35); padding-bottom: 4px;
       display: flex; align-items: center; gap: 6px;
     }
-    .grid-cards-subgrid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-    }
+    .grid-cards-subgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
     .dish-card-box {
       background: #081427; border: 1.5px solid var(--card-border); border-radius: 16px;
@@ -295,7 +273,6 @@
     }
     .btn-card-add:active { transform: scale(0.95); }
 
-    /* BURBUJA DE PEDIDOS */
     .chat-bubble-container {
       position: fixed; bottom: 20px; right: 18px; display: flex; align-items: center; gap: 8px;
       z-index: 100002 !important; cursor: pointer; pointer-events: auto;
@@ -312,7 +289,6 @@
     }
     .chat-badge { position: absolute; top: -3px; right: -3px; background-color: #dc2626; color: #fff; font-size: 11px; font-weight: 900; min-width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
-    /* POPUP DE COMANDA ENTERPRISE */
     .popup-modal { position: fixed; inset: 0; background: rgba(3, 7, 18, 0.88); backdrop-filter: blur(8px); z-index: 100003; display: none; align-items: flex-end; justify-content: center; }
     .popup-modal.active { display: flex; }
     .popup-sheet {
@@ -349,7 +325,6 @@
     }
     .quick-add-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; max-height: 140px; overflow-y: auto; margin-top: 6px; padding-right: 4px; }
     
-    /* BLOQUECITOS DE PLATO CON FONDO AMARILLO #F5D300 */
     .btn-quick-item {
       background: var(--block-yellow) !important;
       border: 1.5px solid #d4b500 !important;
@@ -427,7 +402,6 @@
       justify-content: center; gap: 8px; box-shadow: 0 4px 18px var(--accent-glow); width: 100%;
     }
 
-    /* BOTÓN PEDIR CUENTA */
     .btn-pedir-cuenta {
       background: linear-gradient(135deg, var(--color-cuenta), var(--color-cuenta-hover)) !important;
       color: #fff !important; border: 1.5px solid #d8b4fe !important;
@@ -443,10 +417,6 @@
     }
     .modal-stars-row { display: flex; gap: 8px; font-size: 22px; color: #fbbf24; cursor: pointer; margin: 6px 0; }
 
-    /* ==========================================================
-       MODAL DE NOTIFICACIÓN: RESPLANDOR GIRATORIO ORO + FUEGO
-       Y FONDO BLANCO MÁRMOL
-       ========================================================== */
     .notificacion-modal-overlay {
       position: fixed; inset: 0; 
       background: rgba(15, 23, 42, 0.72); 
@@ -459,7 +429,6 @@
       border-radius: 26px; padding: 4px; box-sizing: border-box; overflow: hidden;
       box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 35px rgba(245, 158, 11, 0.45);
     }
-    /* BORDE GIRATORIO RESPLANDECIENTE: ORO INCAICO + ROJO FUEGO */
     .notificacion-card-fuego::before {
       content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
       background: conic-gradient(transparent, #dc2626, #f59e0b, #fbbf24, #ef4444, transparent 40%);
@@ -477,7 +446,6 @@
       100% { transform: rotate(360deg); }
     }
 
-    /* ESTILO LATINO GRANDE PARA FRASES CLAVE EN ALERTAS */
     .alerta-mensaje-destacado {
       font-size: 19px !important;
       line-height: 1.35 !important;
@@ -495,7 +463,6 @@
       font-family: 'Plus Jakarta Sans', sans-serif !important;
     }
 
-    /* PANTALLA AGRADECIMIENTO - FONDO BLANCO MÁRMOL */
     .screen-agradecimiento-overlay {
       position: fixed; inset: 0; background: rgba(15, 23, 42, 0.78); backdrop-filter: blur(10px);
       z-index: 200000; display: none; align-items: center; justify-content: center; padding: 20px; text-align: center;
@@ -569,7 +536,6 @@
       border-radius: 20px; font-weight: 800; font-size: 12.5px; cursor: pointer; width: 100%;
     }
 
-    /* MODAL DE RESERVAS - BLANCO MÁRMOL */
     .screen-reservas-modal-overlay {
       position: fixed; inset: 0; background: rgba(15, 23, 42, 0.78); backdrop-filter: blur(12px);
       z-index: 250000; display: none; align-items: center; justify-content: center; padding: 16px;
@@ -591,7 +557,7 @@
 </head>
 <body>
 
-  <!-- PANTALLA DE BLOQUEO DE SEGURIDAD (BLANCO MÁRMOL) -->
+  <!-- PANTALLA DE BLOQUEO DE SEGURIDAD -->
   <div class="screen-security-lock" id="pantallaBloqueoSeguridad">
     <div class="security-lock-box">
       <div class="security-header-logos">
@@ -616,7 +582,7 @@
     </div>
   </div>
 
-  <!-- PANTALLA AGRADECIMIENTO TRAS COBRO (BLANCO MÁRMOL) -->
+  <!-- PANTALLA AGRADECIMIENTO TRAS COBRO -->
   <div class="screen-agradecimiento-overlay" id="pantallaAgradecimiento">
     <div class="box-agradecimiento">
       <button type="button" class="btn-close-modal" onclick="reiniciarNavegadorLimpio()" title="Cerrar">&times;</button>
@@ -679,7 +645,7 @@
     </div>
   </div>
 
-  <!-- VENTANA MODAL DE RESERVAS (BLANCO MÁRMOL) -->
+  <!-- VENTANA MODAL DE RESERVAS -->
   <div class="screen-reservas-modal-overlay" id="modalReservasCliente">
     <div class="box-reservas-modal">
       <button type="button" class="btn-close-modal" onclick="cerrarModalReservasCliente()" title="Cerrar ventana">&times;</button>
@@ -799,7 +765,7 @@
     </div>
   </div>
 
-  <!-- MODAL POPUP: MENÚ EN CUADRÍCULA CON CATEGORIZACIÓN (PLATOS FUERTES, BEBIDAS, ETC.) -->
+  <!-- MODAL POPUP: MENÚ EN CUADRÍCULA CON CATEGORIZACIÓN -->
   <div class="grid-popup-modal" id="modalMenuCuadricula" onclick="cerrarModalCuadricula(event)">
     <div class="grid-popup-box" onclick="event.stopPropagation()">
       <div class="grid-popup-header">
@@ -819,7 +785,7 @@
     </div>
   </div>
 
-  <!-- POPUP DE COMANDA ENTERPRISE (LETRAS EN NEGRO Y FONDOS CLAROS) -->
+  <!-- POPUP DE COMANDA ENTERPRISE -->
   <div class="popup-modal" id="ordersPopupModal" onclick="closeOrdersPopup(event)">
     <div class="popup-sheet custom-scroll" onclick="event.stopPropagation()">
       <div class="sheet-header">
@@ -913,7 +879,7 @@
     </div>
   </div>
 
-  <!-- MODAL DE NOTIFICACIÓN CENTRADO: RESPLANDOR GIRATORIO ORO + ROJO FUEGO Y BLANCO MÁRMOL -->
+  <!-- MODAL DE NOTIFICACIÓN CENTRADO: ORO + ROJO FUEGO Y BLANCO MÁRMOL -->
   <div id="modalNotificacion" class="notificacion-modal-overlay">
     <div class="notificacion-card-fuego">
       <div class="notificacion-contenido">
@@ -925,12 +891,11 @@
           <span id="notifTurnoTxt" style="font-size: 12px; color: #d97706; font-weight: 900;">Turno #--</span>
         </div>
 
-        <!-- Mensaje principal del estado con Tipografía Latina Elegante y Ampliada -->
         <div id="notifModalMensaje" class="font-latina-luxury alerta-mensaje-destacado">
           Tu pedido fue enviado. El mozo o cocina lo está verificando en el panel...
         </div>
 
-        <!-- Pregunta interactiva del Mozo -->
+        <!-- Pregunta del Mozo -->
         <div id="cajaPreguntaMozo" style="display: none; background: #f0f7ff; color: #0f172a; padding: 14px; border-radius: 12px; font-weight: 700; margin-bottom: 14px; border: 1.5px solid var(--primary);">
           <div style="font-size: 13.5px; margin-bottom: 10px; color: #0056d2; font-weight: 900;">
             🔔 El mozo pregunta: ¿Deseas ordenar algo más para tu mesa?
@@ -982,9 +947,19 @@
     const CLAVE_MAESTRA_DEV = "42423549";
     const canalPedidos = new BroadcastChannel('canal_inka_pedidos');
 
+    /* ESCUCHA EN TIEMPO REAL: ACTUALIZACIÓN ENTRE DISPOSITIVOS DE LA MISMA MESA */
     canalPedidos.onmessage = (event) => {
       if (event.data?.tipo === 'ESTADO_ACTUALIZADO') {
-        verificarEstadoComandaEnVivo();
+        const mesaEvento = normalizarNombreMesa(event.data.mesa || '');
+        const miMesa = normalizarNombreMesa(mesaSeleccionada || '');
+
+        if (!mesaEvento || mesaEvento === miMesa || (event.data.id && event.data.id === comandaActivaId)) {
+          if (event.data.id && !comandaActivaId) {
+            comandaActivaId = event.data.id;
+            localStorage.setItem("inkabistro_mi_comanda_id", comandaActivaId);
+          }
+          verificarEstadoComandaEnVivo();
+        }
       }
     };
 
@@ -1085,14 +1060,7 @@
         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
         i18n: {
           es: { name: "Lomo Saltado", desc: "Trozos de lomo fino salteados al wok con cebolla, tomate, papas fritas y arroz" },
-          en: { name: "Stir-Fried Beef (Lomo Saltado)", desc: "Wok-sautéed tender beef strips with onions, tomatoes, crispy fries, and rice" },
-          de: { name: "Lomo Saltado (Rindfleischstreifen)", desc: "Im Wok gebratenes zartes Rindfleisch mit Zwiebeln, Tomaten, Pommes frites und Reis" },
-          it: { name: "Lomo Saltado", desc: "Bocconcini di manzo saltati al wok con cipolla, pomodoro, patate fritte e riso" },
-          fr: { name: "Lomo Saltado", desc: "Émincé de bœuf sauté au wok avec oignons, tomates, frites croustillantes et riz" },
-          pt: { name: "Lomo Saltado", desc: "Tiras de filé mignon salteadas no wok com cebola, tomate, batatas fritas e arroz" },
-          zh: { name: "秘鲁炒牛肉 (Lomo Saltado)", desc: "嫩牛肉块搭配洋葱、番茄炒制，佐以酥脆薯条与米饭" },
-          ja: { name: "ロモ・サルタード (牛肉の炒め物)", desc: "柔らかい牛肉を玉ねぎやトマトと強火で炒め、フライドポテトとご飯を添えた一品" },
-          ko: { name: "로모 살타도 (소고기 볶음)", desc: "소고기 안심을 양파, 토마토와 함께 웍에 볶아 감자튀김과 밥을 곁들인 페루 전통 요리" }
+          en: { name: "Stir-Fried Beef (Lomo Saltado)", desc: "Wok-sautéed tender beef strips with onions, tomatoes, crispy fries, and rice" }
         }
       },
       {
@@ -1101,14 +1069,7 @@
         videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
         i18n: {
           es: { name: "Ají de Gallina", desc: "Gallina deshilachada en crema suave de ají amarillo cusqueño con arroz y papas" },
-          en: { name: "Creamy Chicken Stew (Ají de Gallina)", desc: "Shredded chicken in a velvety Peruvian yellow pepper cream sauce with rice" },
-          de: { name: "Ají de Gallina (Hühnerfrikassee)", desc: "Zartes Hühnerfleisch in einer cremigen Soße aus gelber Paprika mit Reis und Kartoffeln" },
-          it: { name: "Ají de Gallina", desc: "Pollo sfilacciato in vellutata crema di peperoncino giallo peruviano con riso e patate" },
-          fr: { name: "Ají de Gallina", desc: "Effiloché de poulet dans une sauce crémeuse au piment jaune péruvien avec riz et pommes de terre" },
-          pt: { name: "Ají de Gallina", desc: "Frango desfiado em creme suave de ají amarelo peruano com arroz e batatas" },
-          zh: { name: "黄椒鸡丝浓汤饭 (Ají de Gallina)", desc: "秘鲁黄辣椒制成的丝滑奶香酱汁浸润鲜嫩鸡丝，佐以米饭与马铃薯" },
-          ja: { name: "アヒ・デ・ガジーナ (鶏肉の黄色い唐辛子クリーム煮)", desc: "ほぐした鶏肉をペルー産黄色唐辛子のまろやかなクリームソースで煮込み、ご飯とポテトを添えた料理" },
-          ko: { name: "아히 데 가이나 (닭고기 옐로우 칠리 크림 스튜)", desc: "잘게 찢은 닭가슴살을 부드러운 페루산 옐로우 칠리 크림소스에 버무려 밥과 감자를 곁들인 요리" }
+          en: { name: "Creamy Chicken Stew (Ají de Gallina)", desc: "Shredded chicken in a velvety Peruvian yellow pepper cream sauce with rice" }
         }
       }
     ];
@@ -1135,7 +1096,7 @@
     let ultimoEstadoRegistrado = null;
     let cuentaPedidaBloqueada = false;
 
-    /* MODAL POPUP: MENÚ EN CUADRÍCULA CON CATEGORIZACIÓN */
+    /* MODAL POPUP: MENÚ EN CUADRÍCULA */
     function abrirModalCuadricula(categoriaOpcional = null) {
       if (categoriaOpcional) {
         categoriaFiltroActiva = categoriaOpcional;
@@ -1434,6 +1395,7 @@
       }
     }
 
+    /* MODO DESARROLLADOR / APERTURA: EXCLUSIVO PARA ADMINISTRADOR Y MOZO */
     async function ingresarClaveBypassDesarrollador() {
       const clave = prompt("🔐 ACCESO:\nIngresa la contraseña de tu usuario Administrador, Mozo o Clave Maestra:");
       if (!clave) return;
@@ -1504,7 +1466,6 @@
       actualizarBadgeMesaHeader();
     }
 
-    /* ACTUALIZAR INDICADOR DE MESA ASIGNADA: ROJO #FF5A5F AL ESTAR FIJADA */
     function actualizarBadgeMesaHeader() {
       const badge = document.getElementById('selectedTableBadge');
       if (badge) {
@@ -1514,6 +1475,40 @@
       const notifMesa = document.getElementById('notifModalMesaTxt');
       if (notifMesa) {
         notifMesa.innerText = mesaSeleccionada;
+      }
+    }
+
+    /* AUTO-ENGANCHE: CONECTA LOS 3 CELULARES A LA MISMA COMANDA EN TIEMPO REAL */
+    async function autoEngancharComandaActivaDeMesa() {
+      const mesaNorm = normalizarNombreMesa(mesaSeleccionada || '');
+      if (!mesaNorm) return;
+
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}comandas.json?_t=${Date.now()}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && typeof data === 'object') {
+            const comandas = Object.keys(data).map(k => Object.assign({ id: k }, data[k]));
+
+            // Busca si ya hay una comanda activa en la misma mesa
+            const comandaAbierta = comandas.find(c => {
+              const m = normalizarNombreMesa(c.mesa || '');
+              const est = String(c.estado || '').toLowerCase().trim();
+              const noCerrada = (est !== 'finalizado' && est !== 'liberado' && c.agradecimientoFinal !== true);
+              return (m === mesaNorm && noCerrada);
+            });
+
+            if (comandaAbierta) {
+              comandaActivaId = comandaAbierta.id;
+              localStorage.setItem("inkabistro_mi_comanda_id", comandaActivaId);
+              mesaFijadaPorQR = true;
+              actualizarBadgeMesaHeader();
+              verificarEstadoComandaEnVivo();
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("Auto-enganche de mesa pendiente:", err);
       }
     }
 
@@ -1611,9 +1606,9 @@
       boton.classList.add('selected');
       document.getElementById('selectedTableBadge').innerText = numMesa;
       actualizarBadgeMesaHeader();
+      autoEngancharComandaActivaDeMesa();
     }
 
-    /* SISTEMA DE TRADUCCIÓN COMPLETA DE INTERFAZ & PLATOS */
     function cambiarIdiomaGlobal(nuevoLang) {
       currentLang = nuevoLang;
       sessionStorage.setItem("inkabistro_user_lang", nuevoLang);
@@ -1678,7 +1673,6 @@
       return { name: dish.nombre || "Plato", desc: dish.descripcion || "" };
     }
 
-    /* RENDER DE BLOQUECITOS CON FONDO #F5D300 */
     function renderQuickCatalogPopup() {
       const box = document.getElementById('quickAddCatalogGrid');
       if (!box) return;
@@ -1748,9 +1742,13 @@
       await sincronizarMesasDesdeFirebase();
       cambiarIdiomaGlobal(currentLang);
       setupObserver();
+      
+      // Auto-enganche si la mesa ya tiene orden abierta por otro celular de la familia
+      await autoEngancharComandaActivaDeMesa();
       verificarEstadoComandaEnVivo();
 
       setInterval(verificarEstadoComandaEnVivo, 2000);
+      setInterval(autoEngancharComandaActivaDeMesa, 3000);
       setInterval(renderizarCuadriculaMesas, 4000);
 
       const hint = document.getElementById('hintManoGestual');
@@ -1993,6 +1991,7 @@
       }
     }
 
+    /* ENVÍO SINCRONIZADO: O PERMITE NUEVA ORDEN O SUMA ADICIÓN A LA MESA EN TIEMPO REAL */
     async function enviarComandaDirectaAlPanel() {
       const itemIds = Object.keys(pedido);
       if (itemIds.length === 0) return alert("Por favor añade al menos un plato a la comanda usando los botones de arriba.");
@@ -2017,6 +2016,12 @@
         platosComanda.push({ id, nombre: info.name, cantidad: cant, precio: dish.precioPEN || dish.precio });
       });
 
+      // Si aún no tenemos comandaActivaId local, intentamos buscar si la mesa ya tiene una activa en Firebase
+      if (!comandaActivaId) {
+        await autoEngancharComandaActivaDeMesa();
+      }
+
+      // CASO 1: YA EXISTE COMANDA EN ESTA MESA -> SE SUMA COMO ADICIÓN
       if (comandaActivaId) {
         try {
           const res = await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json`);
@@ -2042,6 +2047,13 @@
                 })
               });
 
+              canalPedidos.postMessage({
+                tipo: 'ESTADO_ACTUALIZADO',
+                id: comandaActivaId,
+                mesa: mesaNorm,
+                estado: 'cocina'
+              });
+
               for (let k in pedido) delete pedido[k];
               actualizarVistaPopup();
               btn.disabled = false;
@@ -2052,9 +2064,12 @@
               return;
             }
           }
-        } catch (e) {}
+        } catch (e) {
+          console.error("Error al actualizar adición:", e);
+        }
       }
 
+      // CASO 2: ES EL PRIMER CELULAR QUE PIDE EN LA MESA -> CREA LA COMANDA OFICIAL
       let numeroTurnoChef = 1;
       try {
         const resAll = await fetch(`${FIREBASE_DB_URL}comandas.json?_t=${Date.now()}`);
@@ -2102,6 +2117,13 @@
       sessionStorage.setItem("inkabistro_mesa_qr", mesaNorm);
       actualizarBadgeMesaHeader();
 
+      canalPedidos.postMessage({
+        tipo: 'ESTADO_ACTUALIZADO',
+        id: nuevaComanda.id,
+        mesa: mesaNorm,
+        estado: 'iniciado'
+      });
+
       setTimeout(() => {
         for (let k in pedido) delete pedido[k];
         actualizarVistaPopup();
@@ -2114,6 +2136,7 @@
       }, 400);
     }
 
+    /* PEDIR CUENTA: CUALQUIERA DE LOS CELULARES PUEDE ACTIVARLO Y SE MUESTRA A TODOS */
     async function solicitarCuentaEnCaja() {
       if (!comandaActivaId || cuentaPedidaBloqueada) return;
       cuentaPedidaBloqueada = true;
@@ -2132,6 +2155,13 @@
         mesa: mesaSeleccionada,
         respuesta: 'El cliente terminó de comer y viene a pagar en caja',
         hora: new Date().toLocaleTimeString()
+      });
+
+      canalPedidos.postMessage({
+        tipo: 'ESTADO_ACTUALIZADO',
+        id: comandaActivaId,
+        mesa: mesaSeleccionada,
+        estado: 'camino_a_caja'
       });
 
       reproducirSonidoNotificacion();
@@ -2173,9 +2203,12 @@
       if (box) box.style.display = "none";
     }
 
-    /* MONITOREO DINÁMICO DE ESTADOS CON AJUSTES SOLICITADOS */
+    /* MONITOREO DINÁMICO DE ESTADOS EN VIVO (SINCRONIZA TODOS LOS CELULARES) */
     async function verificarEstadoComandaEnVivo() {
-      if (!comandaActivaId) return;
+      if (!comandaActivaId) {
+        await autoEngancharComandaActivaDeMesa();
+        if (!comandaActivaId) return;
+      }
 
       let miComanda = null;
 
@@ -2227,7 +2260,6 @@
         if (cajaResena) cajaResena.style.display = "none";
       }
       else if (estado === 'cocina') {
-        /* ESTADO EN PROCESO COCINA EN AMARILLO #F5D300 */
         badge.style.background = "var(--block-yellow)";
         badge.style.color = "#0f172a";
         badge.innerText = "🍳 2. EN PROCESO (COCINA)";
@@ -2239,7 +2271,6 @@
         badge.style.background = "#10b981";
         badge.style.color = "#fff";
         badge.innerText = "🟢 3. RECIBIDO EN MESA";
-        /* FRASE BUEN PROVECHO AGRANDADA Y EN LETRA LATINA VISTOSA */
         mensaje.innerHTML = `¡Buen provecho!<br><span style="font-size: 16px; font-weight: 800; color: #0056d2; display: block; margin-top: 4px;">Tu pedido ya está servido en tu mesa.</span>`;
         cajaPedirCuenta.style.display = "block";
 
@@ -2253,7 +2284,6 @@
         badge.style.background = "#ec4899";
         badge.style.color = "#fff";
         badge.innerText = "🚶‍♂️ VOY EN CAMINO A CAJA";
-        /* FRASE AVISO RECIBIDO EN CAJA AGRANDADA Y LATINA */
         mensaje.innerHTML = `¡Aviso recibido en caja!<br><span style="font-size: 15.5px; font-weight: 800; color: #0056d2; display: block; margin-top: 4px;">Dirígete a la recepción para cancelar tu cuenta.</span>`;
         cajaPedirCuenta.style.display = "none";
         if (cajaResena) cajaResena.style.display = "none";
