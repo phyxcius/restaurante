@@ -699,7 +699,7 @@
             <img src="CHUSPITA-circulo.png" alt="La Chuspa" class="chuspa-tech-footer-img" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
             <div>
               <div style="font-size:11.5px; font-weight:900; color:#0f172a;">Tecnología La Chuspa Tech</div>
-              <div style="font-size:9.5px; color:#64748b; font-weight:700;">Digitalización de restaurantes in Cusco</div>
+              <div style="font-size:9.5px; color:#64748b; font-weight:700;">Digitalización de restaurantes en Cusco</div>
             </div>
           </div>
           <i class="fa-solid fa-arrow-up-right-from-square" style="color:var(--chuspa-gold); font-size:13px;"></i>
@@ -985,14 +985,14 @@
 
         <!-- Pregunta del Mozo -->
         <div id="cajaPreguntaMozo" style="display: none; background: #f0f7ff; color: #0f172a; padding: 14px; border-radius: 12px; font-weight: 700; margin-bottom: 14px; border: 1.5px solid var(--primary);">
-          <div style="font-size: 13.5px; margin-bottom: 10px; color: #0056d2; font-weight: 900;">
+          <div style="font-size: 13.5px; margin-bottom: 10px; color: #0056d2; font-weight: 900;" id="lblMozoPreguntaTitle">
             🔔 El mozo pregunta: ¿Deseas ordenar algo más para tu mesa?
           </div>
           <div style="display: flex; gap: 8px;">
-            <button type="button" onclick="responderMozo(true)" style="flex: 1.2; background: #10b981; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 900; cursor: pointer; font-size: 12px;">
+            <button type="button" onclick="responderMozo(true)" id="btnMozoSi" style="flex: 1.2; background: #10b981; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 900; cursor: pointer; font-size: 12px;">
               + Sí, agregar platos
             </button>
-            <button type="button" onclick="responderMozo(false)" style="flex: 1; background: #e2e8f0; color: #334155; border: 1px solid #cbd5e1; padding: 10px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 12px;">
+            <button type="button" onclick="responderMozo(false)" id="btnMozoNo" style="flex: 1; background: #e2e8f0; color: #334155; border: 1px solid #cbd5e1; padding: 10px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 12px;">
               No, gracias
             </button>
           </div>
@@ -1001,13 +1001,13 @@
         <!-- Botón de Pedir Cuenta -->
         <div id="cajaBotonPedirCuenta" style="display: none; margin-bottom: 12px;">
           <button type="button" class="btn-pedir-cuenta" id="btnPedirCuentaModal" onclick="solicitarCuentaEnCaja()">
-            <i class="fa-solid fa-person-walking"></i> <span>💵 Pedir Cuenta y Pagar en Caja</span>
+            <i class="fa-solid fa-person-walking"></i> <span id="lblPedirCuentaTxt">💵 Pedir Cuenta y Pagar en Caja</span>
           </button>
         </div>
 
         <!-- Reseña y Comentario -->
         <div id="cajaResenaServicio" class="modal-review-box" style="display: none;">
-          <span style="font-size: 12px; color: #0f172a; font-weight: 900; display: block;">⭐ Califica nuestro servicio y producto:</span>
+          <span style="font-size: 12px; color: #0f172a; font-weight: 900; display: block;" id="lblCalificaTitle">⭐ Califica nuestro servicio y producto:</span>
           <div class="modal-stars-row" id="starsRowModal">
             <span onclick="setRating(1)">★</span>
             <span onclick="setRating(2)">★</span>
@@ -1016,7 +1016,7 @@
             <span onclick="setRating(5)">★</span>
           </div>
           <input type="text" id="reviewModalInput" class="custom-input" placeholder="Escribe un breve comentario (opcional)..." style="margin-bottom: 8px;" />
-          <button type="button" onclick="enviarResenaFirebaseDesdeModal()" style="width: 100%; background: #10b981; color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: 900; cursor: pointer; font-size: 12px;">
+          <button type="button" id="btnEnviarResenaTxt" onclick="enviarResenaFirebaseDesdeModal()" style="width: 100%; background: #10b981; color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: 900; cursor: pointer; font-size: 12px;">
             Enviar Calificación
           </button>
         </div>
@@ -1127,6 +1127,10 @@
         safetyNotice: "Mesa compartida: Enviar cuando estés seguro con tus acompañantes.",
         dinersSingular: "comensal en mesa",
         dinersPlural: "comensales en mesa",
+        badgeConfirmed: "🟡 1. POR CONFIRMAR",
+        badgeKitchen: "🍳 2. EN PROCESO (COCINA)",
+        badgeServed: "🟢 3. RECIBIDO EN MESA",
+        badgeCashier: "🚶‍♂️ VOY EN CAMINO A CAJA",
         statusConfirmedTitle: "Tu pedido fue enviado.",
         statusConfirmedSub: "El mozo o cocina lo está verificando en el panel...",
         statusKitchenTitle: "¡Tu pedido está en fuego!",
@@ -1138,7 +1142,13 @@
         animKitchen: "Chef preparando comida en tabla...",
         animServed: "¡Platos listos en tu mesa!",
         animCashier: "Recepción esperando tu pago...",
-        animWait: "Verificando orden en cocina..."
+        animWait: "Verificando orden en cocina...",
+        askMozo: "🔔 El mozo pregunta: ¿Deseas ordenar algo más para tu mesa?",
+        mozoSi: "+ Sí, agregar platos",
+        mozoNo: "No, gracias",
+        pedirCuentaBtn: "💵 Pedir Cuenta y Pagar en Caja",
+        calificaTitle: "⭐ Califica nuestro servicio y producto:",
+        enviarResenaBtn: "Enviar Calificación"
       },
       en: {
         all: "All", mains: "Main Courses", top: "🔥 Specials", drinks: "Drinks & Cocktails", desserts: "Desserts", starters: "Starters",
@@ -1152,6 +1162,10 @@
         safetyNotice: "Shared table: Submit when all companions agree.",
         dinersSingular: "diners at table",
         dinersPlural: "diners at table",
+        badgeConfirmed: "🟡 1. PENDING CONFIRMATION",
+        badgeKitchen: "🍳 2. IN PROGRESS (KITCHEN)",
+        badgeServed: "🟢 3. SERVED AT TABLE",
+        badgeCashier: "🚶‍♂️ HEADING TO CASHIER",
         statusConfirmedTitle: "Your order was sent.",
         statusConfirmedSub: "The waiter or kitchen is verifying it...",
         statusKitchenTitle: "Your order is cooking!",
@@ -1163,7 +1177,13 @@
         animKitchen: "Chef cutting & preparing your meal...",
         animServed: "Dishes served on your table!",
         animCashier: "Reception waiting for payment...",
-        animWait: "Verifying order in kitchen..."
+        animWait: "Verifying order in kitchen...",
+        askMozo: "🔔 Waiter asks: Would you like to order anything else?",
+        mozoSi: "+ Yes, add dishes",
+        mozoNo: "No, thanks",
+        pedirCuentaBtn: "💵 Request Bill & Pay at Cashier",
+        calificaTitle: "⭐ Rate our service and product:",
+        enviarResenaBtn: "Submit Rating"
       },
       de: {
         all: "Alle", mains: "Hauptgerichte", top: "🔥 Spezialitäten", drinks: "Getränke & Cocktails", desserts: "Desserts", starters: "Vorspeisen",
@@ -1175,11 +1195,14 @@
         sendOrder: "Bestellung an Küche senden", sendAddMore: "Gerichte hinzufügen", houseMenu: "Speisekarte",
         noDishesCat: "Keine Gerichte in dieser Kategorie.", safetyNotice: "Geteilter Tisch: Nur senden, wenn alle fertig sind.",
         dinersSingular: "Gäste am Tisch", dinersPlural: "Gäste am Tisch",
+        badgeConfirmed: "🟡 1. AUSSTEHEND", badgeKitchen: "🍳 2. IN ZUBEREITUNG", badgeServed: "🟢 3. AM TISCH SERVIERT", badgeCashier: "🚶‍♂️ ZUR KASSE",
         statusConfirmedTitle: "Bestellung gesendet.", statusConfirmedSub: "Wird in der Küche überprüft...",
         statusKitchenTitle: "Wird zubereitet!", statusKitchenSub: "Der Chefkoch kocht gerade frisch.",
         statusServedTitle: "Guten Appetit!", statusServedSub: "Ihr Essen ist serviert.", statusCashierTitle: "Kasse informiert!",
         statusCashierSub: "Bitte zur Kasse gehen.", animKitchen: "Küche bereitet Speisen zu...", animServed: "Serviert auf Ihrem Tisch!",
-        animCashier: "Warten an der Kasse...", animWait: "Bestellung wird geprüft..."
+        animCashier: "Warten an der Kasse...", animWait: "Bestellung wird geprüft...",
+        askMozo: "🔔 Kellner fragt: Möchten Sie noch etwas bestellen?", mozoSi: "+ Ja, Gerichte hinzufügen", mozoNo: "Nein, danke",
+        pedirCuentaBtn: "💵 Rechnung anfordern & an der Kasse zahlen", calificaTitle: "⭐ Bewerten Sie unseren Service:", enviarResenaBtn: "Bewertung senden"
       },
       it: {
         all: "Tutti", mains: "Piatti Principali", top: "🔥 Specialità", drinks: "Bevande & Cocktail", desserts: "Dolci", starters: "Antipasti",
@@ -1191,11 +1214,14 @@
         sendOrder: "Invia Comanda in Cucina", sendAddMore: "Aggiungi Piatti al Tavolo", houseMenu: "Menu della Casa",
         noDishesCat: "Nessun piatto in questa categoria.", safetyNotice: "Tavolo condiviso: invia quando tutti sono d'accordo.",
         dinersSingular: "commensale al tavolo", dinersPlural: "commensali al tavolo",
+        badgeConfirmed: "🟡 1. DA CONFERMARE", badgeKitchen: "🍳 2. IN PREPARAZIONE", badgeServed: "🟢 3. SERVITO AL TAVOLO", badgeCashier: "🚶‍♂️ VERSO LA CASSA",
         statusConfirmedTitle: "Ordine inviato.", statusConfirmedSub: "Verifica in corso...",
         statusKitchenTitle: "In preparazione!", statusKitchenSub: "Lo chef sta cucinando ora.",
         statusServedTitle: "Buon appetito!", statusServedSub: "I piatti sono sul tavolo.", statusCashierTitle: "Cassa notificata!",
         statusCashierSub: "Puoi andare alla cassa.", animKitchen: "Lo chef sta cucinando...", animServed: "Servito al tuo tavolo!",
-        animCashier: "Cassa in attesa...", animWait: "Verifica ordine..."
+        animCashier: "Cassa in attesa...", animWait: "Verifica ordine...",
+        askMozo: "🔔 Il cameriere chiede: Desideri ordinare altro?", mozoSi: "+ Sì, aggiungi piatti", mozoNo: "No, grazie",
+        pedirCuentaBtn: "💵 Richiedi Conto e Paga in Cassa", calificaTitle: "⭐ Valuta il nostro servizio:", enviarResenaBtn: "Invia Valutazione"
       },
       fr: {
         all: "Tous", mains: "Plats Principaux", top: "🔥 Spécialités", drinks: "Boissons & Cocktails", desserts: "Desserts", starters: "Entrées",
@@ -1207,11 +1233,14 @@
         sendOrder: "Envoyer Commande en Cuisine", sendAddMore: "Ajouter Plats à la Table", houseMenu: "Menu de la Maison",
         noDishesCat: "Aucun plat dans cette catégorie.", safetyNotice: "Table partagée : validez d'accord avec vos amis.",
         dinersSingular: "convive à table", dinersPlural: "convives à table",
+        badgeConfirmed: "🟡 1. À CONFIRMER", badgeKitchen: "🍳 2. EN CUISINE", badgeServed: "🟢 3. SERVI À TABLE", badgeCashier: "🚶‍♂️ VERS LA CAISSE",
         statusConfirmedTitle: "Commande transmise.", statusConfirmedSub: "Vérification en cours...",
         statusKitchenTitle: "En cuisine !", statusKitchenSub: "Le chef prépare vos plats.",
         statusServedTitle: "Bon appétit !", statusServedSub: "Votre commande est servie.", statusCashierTitle: "Caisse prévenue !",
         statusCashierSub: "Merci de régler à la caisse.", animKitchen: "Le chef découpe et cuisine...", animServed: "Servi à votre table !",
-        animCashier: "En attente à la caisse...", animWait: "Vérification en cuisine..."
+        animCashier: "En attente à la caisse...", animWait: "Vérification en cuisine...",
+        askMozo: "🔔 Le serveur demande : Souhaitez-vous autre chose ?", mozoSi: "+ Oui, ajouter des plats", mozoNo: "Non merci",
+        pedirCuentaBtn: "💵 Demander l'addition et payer", calificaTitle: "⭐ Notez notre service :", enviarResenaBtn: "Envoyer l'avis"
       },
       pt: {
         all: "Todos", mains: "Pratos Principais", top: "🔥 Especialidades", drinks: "Bebidas & Coquetéis", desserts: "Sobremesas", starters: "Entradas",
@@ -1223,11 +1252,14 @@
         sendOrder: "Enviar Pedido à Cozinha", sendAddMore: "Adicionar Pratos à Mesa", houseMenu: "Cardápio da Casa",
         noDishesCat: "Nenhum prato nesta categoria.", safetyNotice: "Mesa compartilhada: Envie quando todos concordarem.",
         dinersSingular: "pessoa na mesa", dinersPlural: "pessoas na mesa",
+        badgeConfirmed: "🟡 1. A CONFIRMAR", badgeKitchen: "🍳 2. EM PREPARO", badgeServed: "🟢 3. SERVIDO NA MESA", badgeCashier: "🚶‍♂️ INDO AO CAIXA",
         statusConfirmedTitle: "Pedido enviado.", statusConfirmedSub: "A cozinha está verificando...",
         statusKitchenTitle: "Em preparo!", statusKitchenSub: "O chef está cozinhando agora.",
         statusServedTitle: "Bom apetite!", statusServedSub: "Seu pedido foi servido na mesa.", statusCashierTitle: "Aviso enviado ao caixa!",
         statusCashierSub: "Dirija-se ao caixa para pagar.", animKitchen: "Chef preparando sua comida...", animServed: "Servido em sua mesa!",
-        animCashier: "Caixa aguardando pagamento...", animWait: "Verificando pedido..."
+        animCashier: "Caixa aguardando pagamento...", animWait: "Verificando pedido...",
+        askMozo: "🔔 O garçom pergunta: Deseja pedir mais alguma coisa?", mozoSi: "+ Sim, adicionar pratos", mozoNo: "Não, obrigado",
+        pedirCuentaBtn: "💵 Pedir Conta e Pagar no Caixa", calificaTitle: "⭐ Avalie nosso serviço:", enviarResenaBtn: "Enviar Avaliação"
       },
       zh: {
         all: "全部", mains: "主菜", top: "🔥 特色菜", drinks: "饮料与鸡尾酒", desserts: "甜点", starters: "前菜",
@@ -1239,11 +1271,14 @@
         sendOrder: "发送点单至后厨", sendAddMore: "向餐桌加菜", houseMenu: "餐厅菜单",
         noDishesCat: "该类别暂无菜品。", safetyNotice: "多人同桌：确认大家意见一致后再发送。",
         dinersSingular: "人同桌", dinersPlural: "人同桌",
+        badgeConfirmed: "🟡 1. 待确认", badgeKitchen: "🍳 2. 后厨烹饪中", badgeServed: "🟢 3. 已上菜", badgeCashier: "🚶‍♂️ 前往收银台",
         statusConfirmedTitle: "订单已发送。", statusConfirmedSub: "后厨或服务员正在确认...",
-        statusKitchenTitle: "正在烹饪！", statusKitchenSub: "大厨正在砧板与炉火前精心制作。",
+        statusKitchenTitle: "正在烹饪！", statusKitchenSub: "大厨正在精心制作。",
         statusServedTitle: "请慢用！", statusServedSub: "菜品已上齐于您的餐桌。", statusCashierTitle: "已通知收银台！",
         statusCashierSub: "请前往前台结账。", animKitchen: "大厨正在备餐切菜...", animServed: "美味已送达！",
-        animCashier: "前台等待结算...", animWait: "后厨确认中..."
+        animCashier: "前台等待结算...", animWait: "后厨确认中...",
+        askMozo: "🔔 服务员询问：您还需要加点别的菜吗？", mozoSi: "+ 是的，添加菜品", mozoNo: "不了，谢谢",
+        pedirCuentaBtn: "💵 索取账单并前台结账", calificaTitle: "⭐ 评价我们的服务：", enviarResenaBtn: "提交评价"
       },
       ja: {
         all: "すべて", mains: "メイン料理", top: "🔥 おすすめ", drinks: "ドリンク＆カクテル", desserts: "デザート", starters: "前菜",
@@ -1255,11 +1290,14 @@
         sendOrder: "厨房へ注文を送信", sendAddMore: "追加注文する", houseMenu: "おすすめメニュー",
         noDishesCat: "このカテゴリの料理はありません。", safetyNotice: "同じテーブルで共有中：皆様の合意後に送信してください。",
         dinersSingular: "名が同席中", dinersPlural: "名が同席中",
+        badgeConfirmed: "🟡 1. 確認待ち", badgeKitchen: "🍳 2. 調理中", badgeServed: "🟢 3. 配膳完了", badgeCashier: "🚶‍♂️ レジへ移動",
         statusConfirmedTitle: "注文を送信しました。", statusConfirmedSub: "調理場で確認しています...",
         statusKitchenTitle: "調理中です！", statusKitchenSub: "シェフが心を込めて調理しています。",
         statusServedTitle: "どうぞ召し上がれ！", statusServedSub: "お料理がテーブルに届きました。", statusCashierTitle: "レジに通知しました！",
         statusCashierSub: "お会計はレジにてお願いいたします。", animKitchen: "シェフが調理中...", animServed: "テーブルに配膳完了！",
-        animCashier: "レジでお待ちしています...", animWait: "調理場で確認中..."
+        animCashier: "レジでお待ちしています...", animWait: "調理場で確認中...",
+        askMozo: "🔔 ウェイターの質問：他のメニューも追加しますか？", mozoSi: "+ はい、追加する", mozoNo: "いいえ、結構です",
+        pedirCuentaBtn: "💵 お会計を依頼してレジで支払う", calificaTitle: "⭐ サービス評価：", enviarResenaBtn: "評価を送信"
       },
       ko: {
         all: "전체", mains: "메인 요리", top: "🔥 스페셜", drinks: "음료 & 칵테일", desserts: "디저트", starters: "전채요리",
@@ -1271,11 +1309,14 @@
         sendOrder: "주방으로 주문 전송", sendAddMore: "테이블에 추가 주문", houseMenu: "매장 메뉴판",
         noDishesCat: "이 카테고리에 등록된 메뉴가 없습니다.", safetyNotice: "테이블 공유 중: 일행과 확인 후 주문을 전송하세요.",
         dinersSingular: "명 동석 중", dinersPlural: "명 동석 중",
+        badgeConfirmed: "🟡 1. 승인 대기", badgeKitchen: "🍳 2. 조리 중", badgeServed: "🟢 3. 테이블 서빙 완료", badgeCashier: "🚶‍♂️ 카운터 이동 중",
         statusConfirmedTitle: "주문이 전송되었습니다.", statusConfirmedSub: "주방에서 확인 중입니다...",
         statusKitchenTitle: "조리 중입니다!", statusKitchenSub: "셰프가 정성껏 조리하고 있습니다.",
         statusServedTitle: "맛있게 드세요!", statusServedSub: "주문하신 메뉴가 준비되었습니다.", statusCashierTitle: "카운터 알림 완료!",
         statusCashierSub: "카운터에서 결제를 진행해 주세요.", animKitchen: "셰프가 요리 준비 중...", animServed: "테이블 세팅 완료!",
-        animCashier: "카운터 결제 대기 중...", animWait: "주문 확인 중..."
+        animCashier: "카운터 결제 대기 중...", animWait: "주문 확인 중...",
+        askMozo: "🔔 웨이터 질문: 다른 메뉴를 더 주문하시겠습니까?", mozoSi: "+ 예, 메뉴 추가", mozoNo: "아니요, 괜찮습니다",
+        pedirCuentaBtn: "💵 계산서 요청 및 카운터 결제", calificaTitle: "⭐ 서비스 평가하기:", enviarResenaBtn: "평가 제출"
       }
     };
 
@@ -1880,6 +1921,22 @@
       const elBtnEnviar = document.getElementById('lblBtnEnviar');
       if (elBtnEnviar) elBtnEnviar.innerText = comandaActivaId ? t.sendAddMore : t.sendOrder;
 
+      // Traducir títulos y botones internos del modal de notificación
+      const lblMozoTitle = document.getElementById('lblMozoPreguntaTitle');
+      if (lblMozoTitle) lblMozoTitle.innerHTML = `<i class="fa-solid fa-bell"></i> ${t.askMozo}`;
+      const btnMozoSi = document.getElementById('btnMozoSi');
+      if (btnMozoSi) btnMozoSi.innerText = t.mozoSi;
+      const btnMozoNo = document.getElementById('btnMozoNo');
+      if (btnMozoNo) btnMozoNo.innerText = t.mozoNo;
+
+      const lblPedirCuenta = document.getElementById('lblPedirCuentaTxt');
+      if (lblPedirCuenta) lblPedirCuenta.innerText = t.pedirCuentaBtn;
+
+      const lblCalifica = document.getElementById('lblCalificaTitle');
+      if (lblCalifica) lblCalifica.innerText = t.calificaTitle;
+      const btnEnviarRes = document.getElementById('btnEnviarResenaTxt');
+      if (btnEnviarRes) btnEnviarRes.innerText = t.enviarResenaBtn;
+
       actualizarTituloModalCuadricula();
 
       const elClubPr = document.getElementById('lblClubPrompt');
@@ -1976,12 +2033,19 @@
       }
 
       await sincronizarMesasDesdeFirebase();
+      
+      // Cargar idioma guardado previamente si existe
+      const langGuardado = sessionStorage.getItem("inkabistro_user_lang");
+      if (langGuardado && I18N_UI[langGuardado]) {
+        currentLang = langGuardado;
+        document.getElementById('langSelector').value = langGuardado;
+      }
+
       cambiarIdiomaGlobal(currentLang);
       setupObserver();
       
       await autoEngancharComandaActivaDeMesa();
       
-      // Activar presencia y latido de conexión en vivo
       await actualizarPresenciaMesa();
       setInterval(actualizarPresenciaMesa, 10000);
 
@@ -2442,7 +2506,7 @@
       if (box) box.style.display = "none";
     }
 
-    /* MONITOREO DINÁMICO DE ESTADOS Y CONTEO DE COMENSALES EN VIVO */
+    /* MONITOREO DINÁMICO DE ESTADOS Y TRADUCCIÓN COMPLETA */
     async function verificarEstadoComandaEnVivo() {
       if (!comandaActivaId) {
         await autoEngancharComandaActivaDeMesa();
@@ -2452,7 +2516,7 @@
       let miComanda = null;
 
       try {
-        const resFB = await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json?_t=${Date.now()}`);
+        const resFB = await fetch(`${FIREBASE_DB_URL}comandas/${comandaActivaId}.json?_t=${Date.now()}` );
         if (resFB.ok) {
           miComanda = await resFB.json();
         }
@@ -2508,7 +2572,7 @@
       if (estado === 'iniciado' || estado === 'por_confirmar') {
         badge.style.background = "#0056d2";
         badge.style.color = "#fff";
-        badge.innerText = "🟡 1. POR CONFIRMAR";
+        badge.innerText = t.badgeConfirmed;
         mensaje.innerHTML = `${t.statusConfirmedTitle}<br><span class="sub-detalle">${t.statusConfirmedSub}</span>`;
         cajaPedirCuenta.style.display = "none";
         if (cajaResena) cajaResena.style.display = "none";
@@ -2521,7 +2585,7 @@
       else if (estado === 'cocina') {
         badge.style.background = "var(--block-yellow)";
         badge.style.color = "#0f172a";
-        badge.innerText = "🍳 2. EN PROCESO (COCINA)";
+        badge.innerText = t.badgeKitchen;
         mensaje.innerHTML = `${t.statusKitchenTitle}<br><span class="sub-detalle">${t.statusKitchenSub}</span>`;
         cajaPedirCuenta.style.display = "none";
         if (cajaResena) cajaResena.style.display = "none";
@@ -2540,7 +2604,7 @@
       else if (estado === 'servido') {
         badge.style.background = "#10b981";
         badge.style.color = "#fff";
-        badge.innerText = "🟢 3. RECIBIDO EN MESA";
+        badge.innerText = t.badgeServed;
         mensaje.innerHTML = `${t.statusServedTitle}<br><span style="font-size: 16px; font-weight: 800; color: #0056d2; display: block; margin-top: 4px;">${t.statusServedSub}</span>`;
         cajaPedirCuenta.style.display = "block";
 
@@ -2558,7 +2622,7 @@
       else if (estado === 'camino_a_caja' || miComanda.clientePidiendoCuenta === true) {
         badge.style.background = "#ec4899";
         badge.style.color = "#fff";
-        badge.innerText = "🚶‍♂️ VOY EN CAMINO A CAJA";
+        badge.innerText = t.badgeCashier;
         mensaje.innerHTML = `${t.statusCashierTitle}<br><span style="font-size: 15.5px; font-weight: 800; color: #0056d2; display: block; margin-top: 4px;">${t.statusCashierSub}</span>`;
         cajaPedirCuenta.style.display = "none";
         if (cajaResena) cajaResena.style.display = "none";
