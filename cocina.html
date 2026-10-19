@@ -1116,7 +1116,17 @@
           })
         });
 
-        canalPedidos.postMessage({ tipo: 'ESTADO_ACTUALIZADO', id: id, estado: nuevoEstado });
+        // Obtener el nombre de la mesa para notificar a todos los celulares de la familia
+        const comandaObj = comandasCache.find(c => c.id === id);
+        const mesaDestino = comandaObj ? (comandaObj.mesa || '') : '';
+
+        canalPedidos.postMessage({ 
+          tipo: 'ESTADO_ACTUALIZADO', 
+          id: id, 
+          mesa: mesaDestino, 
+          estado: nuevoEstado 
+        });
+
         cargarComandasCocina();
       } catch (e) {
         alert("Error al actualizar estado en cocina.");
