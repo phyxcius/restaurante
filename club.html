@@ -5,21 +5,98 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Club de Recompensas | La Cusqueñita</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Librería ligera y confiable para generar QR localmente sin depender de servidores caídos -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
+    /* ==========================================================
+       ARQUITECTURA VISUAL LUXURY ENTERPRISE B2B
+       - Fusión: Azul Royal TuBoleto + Oro Incaico La Chuspa Tech
+       - Sincronización en tiempo real Modo Claro / Oscuro
+       ========================================================== */
     :root {
-      --primary: #c2410c;
-      --accent: #f59e0b;
-      --bg-dark: #120c0a;
-      --card-bg: #1c1310;
+      --primary: #0056d2;
+      --primary-hover: #0043a8;
+      --accent: #0284c7;
+      --chuspa-gold: #f59e0b;
+      --chuspa-gold-glow: rgba(245, 158, 11, 0.35);
+      --bg-dark: #050d1a;
+      --card-bg: #0b1a33;
       --gold: #fbbf24;
-      --text-main: #fffdfa;
-      --text-muted: #d1c7be;
-      --green: #16a34a;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --green: #10b981;
+      --border-card: rgba(56, 189, 248, 0.22);
+      --input-bg: #ffffff;
+      --input-text: #0f172a;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+    /* MODO CLARO PROFESIONAL */
+    body.light-theme {
+      --bg-dark: #f4f7fb;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;       /* Negro Carbón */
+      --text-muted: #475569;
+      --border-card: #cbd5e1;
+      --gold: #0056d2;
+    }
+
+    body.light-theme .loyalty-card {
+      background: #ffffff !important;
+      border: 1.5px solid #cbd5e1 !important;
+      box-shadow: 0 10px 30px rgba(0, 86, 210, 0.08) !important;
+    }
+    body.light-theme .client-name-row {
+      color: #0f172a !important;
+    }
+    body.light-theme .brand-title {
+      color: #0056d2 !important;
+    }
+    body.light-theme .stamp-slot {
+      background: #f1f5f9 !important;
+      border-color: #cbd5e1 !important;
+      color: #64748b !important;
+    }
+    body.light-theme .stamp-slot.stamped {
+      background: linear-gradient(135deg, #0056d2, #0284c7) !important;
+      border-color: #fbbf24 !important;
+      color: #fff !important;
+    }
+    body.light-theme .stamp-slot.prize-slot {
+      border-color: #f59e0b !important;
+      background: #fffbeb !important;
+      color: #d97706 !important;
+    }
+    body.light-theme .stamp-slot.prize-slot.stamped {
+      background: linear-gradient(135deg, #10b981, #059669) !important;
+      border-color: #86efac !important;
+      color: #fff !important;
+    }
+    body.light-theme .qr-card-client {
+      background: #ffffff !important;
+      border: 1.5px solid #cbd5e1 !important;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.06) !important;
+    }
+    body.light-theme .qr-card-client h3,
+    body.light-theme #qrSocioCodigoTxt {
+      color: #0f172a !important;
+    }
+    body.light-theme .modal-registro-box {
+      background: #ffffff !important;
+      border-color: #cbd5e1 !important;
+      color: #0f172a !important;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.15) !important;
+    }
+    body.light-theme .modal-registro-box h3 {
+      color: #0056d2 !important;
+    }
+    body.light-theme .modal-registro-box p {
+      color: #475569 !important;
+    }
+    body.light-theme .btn-theme-toggle-floating {
+      transform: rotate(180deg);
+      border-color: #0056d2;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
     body {
       background-color: var(--bg-dark);
       color: var(--text-main);
@@ -27,6 +104,33 @@
       display: flex;
       justify-content: center;
       padding: 16px;
+      transition: background-color 0.25s ease, color 0.25s ease;
+      position: relative;
+    }
+
+    /* BOTÓN FLOTANTE TEMA */
+    .btn-theme-toggle-floating {
+      position: fixed;
+      top: 10px;
+      right: 14px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 9999999;
+      background: linear-gradient(90deg, #ffffff 50%, #081427 50%);
+      border: 2px solid var(--chuspa-gold);
+      box-shadow: 0 4px 14px var(--chuspa-gold-glow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.4s ease, box-shadow 0.3s ease;
+      outline: none;
+      padding: 0;
+    }
+    .btn-theme-toggle-floating:hover {
+      transform: scale(1.12);
+      box-shadow: 0 6px 20px var(--chuspa-gold-glow);
     }
 
     .club-container {
@@ -39,11 +143,11 @@
 
     /* TARJETA PRINCIPAL DE MEMBRESÍA */
     .loyalty-card {
-      background: linear-gradient(145deg, #241612 0%, #170d0a 100%);
-      border: 2px solid var(--accent);
+      background: linear-gradient(145deg, #0b1a33 0%, #061021 100%);
+      border: 2px solid var(--chuspa-gold);
       border-radius: 22px;
       padding: 20px 18px;
-      box-shadow: 0 10px 35px rgba(0,0,0,0.85);
+      box-shadow: 0 10px 35px rgba(0,0,0,0.85), 0 0 20px var(--chuspa-gold-glow);
       position: relative;
       overflow: hidden;
     }
@@ -52,7 +156,7 @@
       position: absolute;
       top: -30px; right: -30px;
       width: 110px; height: 110px;
-      background: radial-gradient(circle, rgba(245, 158, 11, 0.3) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(0, 86, 210, 0.35) 0%, transparent 70%);
       border-radius: 50%;
       pointer-events: none;
     }
@@ -68,31 +172,31 @@
     .brand-title {
       font-size: 17px;
       font-weight: 900;
-      color: var(--gold);
+      color: #fbbf24;
       text-transform: uppercase;
       display: flex;
       align-items: center;
       gap: 8px;
     }
     .badge-member {
-      background: #78350f;
-      color: #fde047;
+      background: #003e9c;
+      color: #bae6fd;
       font-size: 11px;
       font-weight: 800;
-      padding: 3px 9px;
+      padding: 4px 10px;
       border-radius: 12px;
       border: 1px solid var(--accent);
     }
 
     .client-name-row {
-      font-size: 17px;
+      font-size: 18px;
       font-weight: 900;
       color: #fff;
       margin-bottom: 2px;
     }
     .client-dni-row {
       font-size: 12.5px;
-      color: #aaa;
+      color: var(--text-muted);
       margin-bottom: 14px;
     }
 
@@ -118,23 +222,23 @@
       transition: all 0.3s ease;
     }
     .stamp-slot.stamped {
-      background: linear-gradient(135deg, var(--accent), var(--primary));
-      border: 2px solid #fde047;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border: 2px solid #fbbf24;
       color: #fff;
-      box-shadow: 0 0 14px rgba(245, 158, 11, 0.65);
+      box-shadow: 0 0 14px var(--accent-glow);
       transform: scale(1.05);
     }
     .stamp-slot.prize-slot {
-      border-color: var(--gold);
-      background: rgba(234, 179, 8, 0.15);
-      color: var(--gold);
+      border-color: var(--chuspa-gold);
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
       font-size: 18px;
     }
     .stamp-slot.prize-slot.stamped {
-      background: linear-gradient(135deg, #16a34a, #22c55e);
+      background: linear-gradient(135deg, #10b981, #059669);
       border-color: #86efac;
       color: #fff;
-      box-shadow: 0 0 20px rgba(34, 197, 94, 0.9);
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.8);
       animation: prizePulse 1.4s infinite alternate;
     }
     @keyframes prizePulse {
@@ -152,38 +256,38 @@
     }
     .progress-bar-fill {
       height: 100%;
-      background: linear-gradient(90deg, var(--accent), #22c55e);
+      background: linear-gradient(90deg, var(--primary), #10b981);
       width: 0%;
       transition: width 0.5s ease;
     }
 
     .reward-banner {
-      background: rgba(254, 240, 138, 0.14);
-      border: 2px solid #facc15;
+      background: rgba(16, 185, 129, 0.15);
+      border: 2px solid #10b981;
       border-radius: 16px;
       padding: 14px;
       display: flex;
       align-items: center;
       gap: 12px;
-      box-shadow: 0 0 20px rgba(234, 179, 8, 0.35);
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.35);
       animation: bannerGlow 2s infinite alternate;
     }
     @keyframes bannerGlow {
-      0% { border-color: #ca8a04; }
-      100% { border-color: #fde047; }
+      0% { border-color: #059669; }
+      100% { border-color: #34d399; }
     }
     .reward-banner i {
       font-size: 32px;
-      color: var(--gold);
+      color: #10b981;
     }
     .reward-info h4 {
       font-size: 14px;
-      color: #fde047;
+      color: #10b981;
       font-weight: 900;
     }
     .reward-info p {
       font-size: 11.5px;
-      color: #eee;
+      color: var(--text-main);
       margin-top: 2px;
       line-height: 1.35;
     }
@@ -191,11 +295,12 @@
     /* QR SOCIO */
     .qr-card-client {
       background: #fff;
-      color: #000;
+      color: #0f172a;
       border-radius: 18px;
       padding: 18px;
       text-align: center;
-      box-shadow: 0 6px 25px rgba(0,0,0,0.6);
+      box-shadow: 0 6px 25px rgba(0,0,0,0.5);
+      border: 1.5px solid var(--chuspa-gold-border);
     }
     #qrcodeCanvasWrap {
       display: flex;
@@ -213,10 +318,10 @@
     .btn-action-club {
       background: linear-gradient(135deg, var(--primary), var(--accent));
       color: #fff;
-      border: none;
-      padding: 12px;
+      border: 1px solid var(--chuspa-gold);
+      padding: 13px;
       border-radius: 20px;
-      font-size: 13.5px;
+      font-size: 14px;
       font-weight: 900;
       cursor: pointer;
       display: flex;
@@ -224,14 +329,14 @@
       justify-content: center;
       gap: 8px;
       text-decoration: none;
-      box-shadow: 0 4px 15px rgba(194, 65, 12, 0.4);
+      box-shadow: 0 4px 15px var(--accent-glow);
     }
     .btn-action-club:active { transform: scale(0.98); }
 
     .input-dni-search {
       width: 100%;
-      background: #fff;
-      color: #111;
+      background: var(--input-bg);
+      color: var(--input-text);
       padding: 11px 14px;
       border-radius: 12px;
       border: 1.5px solid var(--accent);
@@ -242,28 +347,31 @@
 
     /* MODAL DE REGISTRO RÁPIDO */
     .modal-registro-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px);
+      position: fixed; inset: 0; background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(6px);
       z-index: 99999; display: none; align-items: center; justify-content: center; padding: 16px;
     }
     .modal-registro-overlay.active { display: flex; }
     .modal-registro-box {
-      background: var(--card-bg); border: 2px solid var(--accent); border-radius: 20px;
+      background: var(--card-bg); border: 2px solid var(--chuspa-gold); border-radius: 20px;
       max-width: 380px; width: 100%; padding: 22px; display: flex; flex-direction: column; gap: 12px;
-      color: #fff; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+      color: var(--text-main); box-shadow: 0 10px 40px rgba(0,0,0,0.9);
     }
     .modal-input {
-      width: 100%; background: #fff; color: #111; padding: 10px 12px; border-radius: 10px;
-      border: 1.5px solid #d1d5db; font-size: 14px; font-weight: 600; outline: none;
+      width: 100%; background: #fff; color: #111; padding: 11px 13px; border-radius: 10px;
+      border: 1.5px solid #cbd5e1; font-size: 14px; font-weight: 600; outline: none;
     }
   </style>
 </head>
 <body>
 
+  <!-- BOTÓN FLOTANTE TEMA -->
+  <button type="button" class="btn-theme-toggle-floating" id="btnToggleTheme" onclick="alternarTemaVisual()" title="Cambiar a Modo Claro / Oscuro"></button>
+
   <div class="club-container">
     
     <!-- CONSULTA POR DNI -->
-    <div style="background:var(--card-bg); padding:14px; border-radius:18px; border:1px solid rgba(255,255,255,0.12);">
-      <label style="font-size:11px; font-weight:800; color:var(--gold); text-transform:uppercase; display:block; margin-bottom:6px;">
+    <div style="background:var(--card-bg); padding:16px; border-radius:18px; border:1px solid var(--border-card);">
+      <label style="font-size:11.5px; font-weight:800; color:var(--gold); text-transform:uppercase; display:block; margin-bottom:6px;">
         🔍 Consulta o Activa tu Tarjeta con tu DNI:
       </label>
       <div style="display:flex; gap:8px;">
@@ -288,7 +396,7 @@
       <div class="client-dni-row">DNI / Socio: <b id="clubClientDni" style="color:var(--gold);">--</b></div>
 
       <div style="display:flex; justify-content:space-between; font-size:11.5px; font-weight:800;">
-        <span style="color:#aaa;">Progreso de tu regalo:</span>
+        <span style="color:var(--text-muted);">Progreso de tu regalo:</span>
         <span style="color:var(--gold);" id="clubProgresoTxt">0 de 10 consumos</span>
       </div>
 
@@ -299,7 +407,7 @@
       <!-- 10 CASILLAS DE SELLOS -->
       <div class="stamps-grid" id="clubSellosGrid"></div>
 
-      <p style="font-size:11.5px; color:#aaa; text-align:center; line-height:1.3;" id="clubMensajeEstado">
+      <p style="font-size:11.5px; color:var(--text-muted); text-align:center; line-height:1.3;" id="clubMensajeEstado">
         Presenta tu código QR en caja al pagar. Al acumular 10 sellos te ganas tu plato o postre especial gratis.
       </p>
     </div>
@@ -316,7 +424,7 @@
     <!-- CÓDIGO QR PERSONAL PARA ESCANEAR EN CAJA -->
     <div class="qr-card-client">
       <h3 style="font-size:15px; font-weight:900;">Muestra este código en Caja</h3>
-      <p style="font-size:11.5px; color:#555;">El personal lo escaneará para sellar tu visita de hoy</p>
+      <p style="font-size:11.5px; color:#64748b; margin-top:2px;">El personal lo escaneará para sellar tu visita de hoy</p>
       
       <!-- CONTENEDOR GENERADO POR QRCODEJS -->
       <div id="qrcodeCanvasWrap"></div>
@@ -331,12 +439,12 @@
 
   </div>
 
-  <!-- MODAL: REGISTRO RÁPIDO DE SOCIO SI NO EXISTE -->
+  <!-- MODAL: REGISTRO RÁPIDO DE SOCIO -->
   <div class="modal-registro-overlay" id="modalRegistroSocio">
     <div class="modal-registro-box">
-      <h3 style="color:var(--gold); font-size:16px; font-weight:900;">⭐ ¡Únete a nuestro Club de Recompensas!</h3>
-      <p style="font-size:12.5px; color:#ddd; line-height:1.4;">
-        El DNI <b id="lblDniNuevoSocio" style="color:#fde047;">--</b> no está registrado. Escribe tu nombre para recibir tu <b>1er sello de bienvenida gratis</b>:
+      <h3 style="font-size:16px; font-weight:900;">⭐ ¡Únete a nuestro Club de Recompensas!</h3>
+      <p style="font-size:12.5px; line-height:1.4;">
+        El DNI <b id="lblDniNuevoSocio" style="color:var(--gold);">--</b> no está registrado. Escribe tu nombre para recibir tu <b>1er sello de bienvenida gratis</b>:
       </p>
 
       <form onsubmit="guardarNuevoSocio(event)" style="display:flex; flex-direction:column; gap:10px;">
@@ -346,7 +454,7 @@
         <button type="submit" class="btn-action-club" style="margin-top:6px;">
           <i class="fa-solid fa-star"></i> Activar y Recibir 1er Sello
         </button>
-        <button type="button" onclick="cerrarModalRegistro()" style="background:none; border:none; color:#bbb; font-size:12px; cursor:pointer; padding:6px;">
+        <button type="button" onclick="cerrarModalRegistro()" style="background:none; border:none; color:var(--text-muted); font-size:12px; cursor:pointer; padding:6px;">
           Cancelar
         </button>
       </form>
@@ -355,6 +463,38 @@
 
   <script>
     const FIREBASE_DB_URL = "https://restaurante1-695f7-default-rtdb.firebaseio.com/";
+
+    /* SINCRONIZACIÓN MODO OSCURO / CLARO */
+    const canalTheme = new BroadcastChannel('canal_app_theme');
+    canalTheme.onmessage = (event) => {
+      if (event.data && event.data.theme) {
+        aplicarTemaVisual(event.data.theme, false);
+      }
+    };
+
+    function alternarTemaVisual() {
+      const temaActual = document.body.classList.contains('light-theme') ? 'light' : 'dark';
+      const nuevoTema = (temaActual === 'dark') ? 'light' : 'dark';
+      aplicarTemaVisual(nuevoTema, true);
+    }
+
+    function aplicarTemaVisual(tema, emitirCanal = true) {
+      if (tema === 'light') {
+        document.body.classList.add('light-theme');
+      } else {
+        document.body.classList.remove('light-theme');
+      }
+      localStorage.setItem('app_theme', tema);
+
+      if (emitirCanal) {
+        canalTheme.postMessage({ theme: tema });
+      }
+    }
+
+    (function inicializarTema() {
+      const temaGuardado = localStorage.getItem('app_theme') || 'dark';
+      aplicarTemaVisual(temaGuardado, false);
+    })();
 
     let socioActual = {
       dni: "",
@@ -379,7 +519,6 @@
         generarQRLocal("INVITADO");
       }
 
-      // Escucha continua: si el cajero sella en el panel, se actualiza solo en 2.5s
       setInterval(() => {
         if (socioActual.dni && socioActual.dni !== "") {
           consultarDatosFirebase(socioActual.dni, false);
@@ -394,6 +533,15 @@
           const conf = await res.json();
           if (conf && conf.nombre) {
             document.getElementById('clubBrandTitleTxt').innerText = conf.nombre;
+          }
+          if (conf && conf.logo) {
+            const logoData = conf.logo;
+            const logoEl = document.getElementById('clubBrandLogo');
+            if (logoData.startsWith('data:image') || logoData.startsWith('http')) {
+              logoEl.innerHTML = `<img src="${logoData}" style="width:22px; height:22px; border-radius:50%; object-fit:cover;">`;
+            } else {
+              logoEl.innerText = logoData;
+            }
           }
         }
       } catch (e) {}
@@ -414,7 +562,6 @@
             document.getElementById('lblDniNuevoSocio').innerText = dniLimpio;
             document.getElementById('modalRegistroSocio').classList.add('active');
           } else {
-            // Si vino por URL o almacenamiento pero aún no existe en Firebase
             socioActual = {
               dni: dniLimpio,
               nombre: "Socio Nuevo",
@@ -442,7 +589,6 @@
       renderizarMatrizSellos(numSellos, tienePremio);
       document.getElementById('bannerPremioCanjeable').style.display = tienePremio ? 'flex' : 'none';
 
-      // Generar el código QR sin fallos usando QRCodeJS
       generarQRLocal(socioActual.dni || "INVITADO");
       document.getElementById('qrSocioCodigoTxt').innerText = `DNI: ${socioActual.dni || '--'}`;
     }
@@ -504,7 +650,7 @@
         dni: dniLimpio,
         nombre: nombre,
         whatsapp: wa,
-        sellos: 1, // Primer sello de bienvenida
+        sellos: 1,
         totalVisitas: 1,
         fechaRegistro: new Date().toLocaleDateString()
       };
