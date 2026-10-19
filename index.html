@@ -99,7 +99,7 @@
     .screen-security-lock {
       position: fixed; inset: 0; 
       background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(10px);
-      z-index: 999999; display: none; align-items: center; justify-content: center;
+      z-index: 999999; display: none; flex-direction: column; align-items: center; justify-content: center;
       padding: 24px; text-align: center;
     }
     .security-header-logos { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 8px; }
@@ -457,14 +457,14 @@
       background: rgba(15, 23, 42, 0.82); 
       backdrop-filter: blur(8px);
       display: none; align-items: center; justify-content: center; 
-      z-index: 100010 !important; /* Prioridad por encima de todos los modales */
+      z-index: 100010 !important;
       padding: 16px;
     }
     .notificacion-modal-overlay.active {
       display: flex !important;
     }
 
-    /* BURBUJA DE CONEXIÓN MULTIUSUARIO */
+    /* BURBUJA DE CONEXIÓN MULTIUSUARIO EN TIEMPO REAL */
     .users-live-bubble {
       display: inline-flex; align-items: center; gap: 5px;
       background: #e0f2fe; border: 1px solid #7dd3fc; color: #0369a1;
@@ -699,7 +699,7 @@
             <img src="CHUSPITA-circulo.png" alt="La Chuspa" class="chuspa-tech-footer-img" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
             <div>
               <div style="font-size:11.5px; font-weight:900; color:#0f172a;">Tecnología La Chuspa Tech</div>
-              <div style="font-size:9.5px; color:#64748b; font-weight:700;">Digitalización de restaurantes en Cusco</div>
+              <div style="font-size:9.5px; color:#64748b; font-weight:700;">Digitalización de restaurantes in Cusco</div>
             </div>
           </div>
           <i class="fa-solid fa-arrow-up-right-from-square" style="color:var(--chuspa-gold); font-size:13px;"></i>
@@ -727,7 +727,7 @@
             </div>
           </div>
           <a href="https://www.lachuspaanuncios.com/" target="_blank" title="Tecnología La Chuspa Tech">
-            <img src="CHUSPITA-circulo.png" alt="La Chuspa" style="width:28px; height:28px; border-radius:50%; object-fit:cover; border:1px solid var(--chuspa-gold); background:#fff;" onerror="this.onerror=null; this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
+            <img src="CHUSPITA-circulo.png" alt="La Chuspa" style="width:28px; height:28px; border-radius:50%; object-fit:cover; border:1px solid var(--chuspa-gold); background:#fff;" onerror="this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';">
           </a>
         </div>
 
@@ -960,7 +960,7 @@
     </div>
   </div>
 
-  <!-- MODAL DE NOTIFICACIÓN CENTRADO: ORO + ROJO FUEGO Y BLANCO MÁRMOL -->
+  <!-- MODAL DE NOTIFICACIÓN CENTRADO -->
   <div id="modalNotificacion" class="notificacion-modal-overlay">
     <div class="notificacion-card-fuego">
       <div class="notificacion-contenido">
@@ -970,10 +970,10 @@
             🟡 1. POR CONFIRMAR
           </span>
           <div style="display:flex; align-items:center; gap:8px;">
-            <!-- BURBUJA DE PERSONAS CONECTADAS SIMULTÁNEAMENTE A LA MESA -->
+            <!-- BURBUJA DINÁMICA DE COMENSALES CONECTADOS -->
             <span class="users-live-bubble" id="notifUsersLiveBadge">
               <span class="live-pulse-dot"></span>
-              <span id="notifUsersCountTxt">3 comensales</span>
+              <span id="notifUsersCountTxt">1 comensal en mesa</span>
             </span>
             <span id="notifTurnoTxt" style="font-size: 12px; color: #d97706; font-weight: 900;">Turno #--</span>
           </div>
@@ -1021,7 +1021,7 @@
           </button>
         </div>
 
-        <!-- BURBUJA DE ANIMACIÓN VISUAL DINÁMICA DEBAJO DE LA NOTIFICACIÓN -->
+        <!-- BURBUJA DE ANIMACIÓN VISUAL DINÁMICA -->
         <div class="notif-bottom-animation-bubble" id="notifAnimationBubble">
           <div id="notifAnimationContent" class="chef-board-anim">
             <span>🔪</span>
@@ -1046,7 +1046,48 @@
     const CLAVE_MAESTRA_DEV = "42423549";
     const canalPedidos = new BroadcastChannel('canal_inka_pedidos');
 
-    /* ESCUCHA EN TIEMPO REAL: ACTUALIZACIÓN ENTRE DISPOSITIVOS DE LA MISMA MESA */
+    // ID ÚNICO DE ESTE DISPOSITIVO PARA EL CONTEO DE COMENSALES EN MESA
+    let miClienteId = sessionStorage.getItem("inkabistro_cliente_uid");
+    if (!miClienteId) {
+      miClienteId = "CLI-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+      sessionStorage.setItem("inkabistro_cliente_uid", miClienteId);
+    }
+
+    /* LATIDO DE PRESENCIA (HEARTBEAT) PARA CONTAR COMENSALES EN VIVO */
+    async function actualizarPresenciaMesa() {
+      const mesaNorm = normalizarNombreMesa(mesaSeleccionada || 'Mesa 01');
+      const keyMesa = normalizarClaveMesa(mesaNorm);
+      const timestamp = Date.now();
+
+      try {
+        await fetch(`${FIREBASE_DB_URL}presencia_mesas/${keyMesa}/${miClienteId}.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(timestamp)
+        });
+      } catch (e) {}
+    }
+
+    async function obtenerCantidadComensalesEnMesa() {
+      const mesaNorm = normalizarNombreMesa(mesaSeleccionada || 'Mesa 01');
+      const keyMesa = normalizarClaveMesa(mesaNorm);
+      const ahora = Date.now();
+
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}presencia_mesas/${keyMesa}.json?_t=${ahora}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && typeof data === 'object') {
+            // Filtrar dispositivos activos en los últimos 20 segundos
+            const activos = Object.values(data).filter(ts => (ahora - ts) < 20000);
+            return Math.max(1, activos.length);
+          }
+        }
+      } catch (e) {}
+      return 1;
+    }
+
+    /* ESCUCHA EN TIEMPO REAL */
     canalPedidos.onmessage = (event) => {
       if (event.data?.tipo === 'ESTADO_ACTUALIZADO') {
         const mesaEvento = normalizarNombreMesa(event.data.mesa || '');
@@ -1084,7 +1125,8 @@
         sendOrder: "Enviar Comanda a Cocina", sendAddMore: "Añadir Platos a mi Mesa", houseMenu: "Menú de la Casa",
         noDishesCat: "No hay platos disponibles en esta categoría.",
         safetyNotice: "Mesa compartida: Enviar cuando estés seguro con tus acompañantes.",
-        liveDiners: "comensales en mesa",
+        dinersSingular: "comensal en mesa",
+        dinersPlural: "comensales en mesa",
         statusConfirmedTitle: "Tu pedido fue enviado.",
         statusConfirmedSub: "El mozo o cocina lo está verificando en el panel...",
         statusKitchenTitle: "¡Tu pedido está en fuego!",
@@ -1108,7 +1150,8 @@
         sendOrder: "Send Order to Kitchen", sendAddMore: "Add Dishes to my Table", houseMenu: "House Menu",
         noDishesCat: "No dishes available in this category.",
         safetyNotice: "Shared table: Submit when all companions agree.",
-        liveDiners: "diners at table",
+        dinersSingular: "diners at table",
+        dinersPlural: "diners at table",
         statusConfirmedTitle: "Your order was sent.",
         statusConfirmedSub: "The waiter or kitchen is verifying it...",
         statusKitchenTitle: "Your order is cooking!",
@@ -1131,7 +1174,8 @@
         clubPrompt: "⭐ Club-Mitglied? Stempel sammeln:", viewCard: "Karte anzeigen", orderTotal: "Gesamtsumme:",
         sendOrder: "Bestellung an Küche senden", sendAddMore: "Gerichte hinzufügen", houseMenu: "Speisekarte",
         noDishesCat: "Keine Gerichte in dieser Kategorie.", safetyNotice: "Geteilter Tisch: Nur senden, wenn alle fertig sind.",
-        liveDiners: "Gäste am Tisch", statusConfirmedTitle: "Bestellung gesendet.", statusConfirmedSub: "Wird in der Küche überprüft...",
+        dinersSingular: "Gäste am Tisch", dinersPlural: "Gäste am Tisch",
+        statusConfirmedTitle: "Bestellung gesendet.", statusConfirmedSub: "Wird in der Küche überprüft...",
         statusKitchenTitle: "Wird zubereitet!", statusKitchenSub: "Der Chefkoch kocht gerade frisch.",
         statusServedTitle: "Guten Appetit!", statusServedSub: "Ihr Essen ist serviert.", statusCashierTitle: "Kasse informiert!",
         statusCashierSub: "Bitte zur Kasse gehen.", animKitchen: "Küche bereitet Speisen zu...", animServed: "Serviert auf Ihrem Tisch!",
@@ -1146,7 +1190,8 @@
         clubPrompt: "⭐ Socio del Club? Raccogli timbri:", viewCard: "Vedi la mia carta", orderTotal: "Totale comanda:",
         sendOrder: "Invia Comanda in Cucina", sendAddMore: "Aggiungi Piatti al Tavolo", houseMenu: "Menu della Casa",
         noDishesCat: "Nessun piatto in questa categoria.", safetyNotice: "Tavolo condiviso: invia quando tutti sono d'accordo.",
-        liveDiners: "commensali al tavolo", statusConfirmedTitle: "Ordine inviato.", statusConfirmedSub: "Verifica in corso...",
+        dinersSingular: "commensale al tavolo", dinersPlural: "commensali al tavolo",
+        statusConfirmedTitle: "Ordine inviato.", statusConfirmedSub: "Verifica in corso...",
         statusKitchenTitle: "In preparazione!", statusKitchenSub: "Lo chef sta cucinando ora.",
         statusServedTitle: "Buon appetito!", statusServedSub: "I piatti sono sul tavolo.", statusCashierTitle: "Cassa notificata!",
         statusCashierSub: "Puoi andare alla cassa.", animKitchen: "Lo chef sta cucinando...", animServed: "Servito al tuo tavolo!",
@@ -1161,7 +1206,8 @@
         clubPrompt: "⭐ Membre du Club? Cumulez des tampons:", viewCard: "Voir ma carte", orderTotal: "Total commande:",
         sendOrder: "Envoyer Commande en Cuisine", sendAddMore: "Ajouter Plats à la Table", houseMenu: "Menu de la Maison",
         noDishesCat: "Aucun plat dans cette catégorie.", safetyNotice: "Table partagée : validez d'accord avec vos amis.",
-        liveDiners: "convives à table", statusConfirmedTitle: "Commande transmise.", statusConfirmedSub: "Vérification en cours...",
+        dinersSingular: "convive à table", dinersPlural: "convives à table",
+        statusConfirmedTitle: "Commande transmise.", statusConfirmedSub: "Vérification en cours...",
         statusKitchenTitle: "En cuisine !", statusKitchenSub: "Le chef prépare vos plats.",
         statusServedTitle: "Bon appétit !", statusServedSub: "Votre commande est servie.", statusCashierTitle: "Caisse prévenue !",
         statusCashierSub: "Merci de régler à la caisse.", animKitchen: "Le chef découpe et cuisine...", animServed: "Servi à votre table !",
@@ -1176,7 +1222,8 @@
         clubPrompt: "⭐ Membro do Clube? Acumule selos:", viewCard: "Ver meu cartão", orderTotal: "Total pedido:",
         sendOrder: "Enviar Pedido à Cozinha", sendAddMore: "Adicionar Pratos à Mesa", houseMenu: "Cardápio da Casa",
         noDishesCat: "Nenhum prato nesta categoria.", safetyNotice: "Mesa compartilhada: Envie quando todos concordarem.",
-        liveDiners: "pessoas na mesa", statusConfirmedTitle: "Pedido enviado.", statusConfirmedSub: "A cozinha está verificando...",
+        dinersSingular: "pessoa na mesa", dinersPlural: "pessoas na mesa",
+        statusConfirmedTitle: "Pedido enviado.", statusConfirmedSub: "A cozinha está verificando...",
         statusKitchenTitle: "Em preparo!", statusKitchenSub: "O chef está cozinhando agora.",
         statusServedTitle: "Bom apetite!", statusServedSub: "Seu pedido foi servido na mesa.", statusCashierTitle: "Aviso enviado ao caixa!",
         statusCashierSub: "Dirija-se ao caixa para pagar.", animKitchen: "Chef preparando sua comida...", animServed: "Servido em sua mesa!",
@@ -1191,7 +1238,8 @@
         clubPrompt: "⭐ 俱乐部会员? 收集印章:", viewCard: "查看会员卡", orderTotal: "总计:",
         sendOrder: "发送点单至后厨", sendAddMore: "向餐桌加菜", houseMenu: "餐厅菜单",
         noDishesCat: "该类别暂无菜品。", safetyNotice: "多人同桌：确认大家意见一致后再发送。",
-        liveDiners: "人同桌点餐", statusConfirmedTitle: "订单已发送。", statusConfirmedSub: "后厨或服务员正在确认...",
+        dinersSingular: "人同桌", dinersPlural: "人同桌",
+        statusConfirmedTitle: "订单已发送。", statusConfirmedSub: "后厨或服务员正在确认...",
         statusKitchenTitle: "正在烹饪！", statusKitchenSub: "大厨正在砧板与炉火前精心制作。",
         statusServedTitle: "请慢用！", statusServedSub: "菜品已上齐于您的餐桌。", statusCashierTitle: "已通知收银台！",
         statusCashierSub: "请前往前台结账。", animKitchen: "大厨正在备餐切菜...", animServed: "美味已送达！",
@@ -1206,7 +1254,8 @@
         clubPrompt: "⭐ クラブ会員様? スタンプを貯める:", viewCard: "カードを見る", orderTotal: "合計金額:",
         sendOrder: "厨房へ注文を送信", sendAddMore: "追加注文する", houseMenu: "おすすめメニュー",
         noDishesCat: "このカテゴリの料理はありません。", safetyNotice: "同じテーブルで共有中：皆様の合意後に送信してください。",
-        liveDiners: "名が同席中", statusConfirmedTitle: "注文を送信しました。", statusConfirmedSub: "調理場で確認しています...",
+        dinersSingular: "名が同席中", dinersPlural: "名が同席中",
+        statusConfirmedTitle: "注文を送信しました。", statusConfirmedSub: "調理場で確認しています...",
         statusKitchenTitle: "調理中です！", statusKitchenSub: "シェフが心を込めて調理しています。",
         statusServedTitle: "どうぞ召し上がれ！", statusServedSub: "お料理がテーブルに届きました。", statusCashierTitle: "レジに通知しました！",
         statusCashierSub: "お会計はレジにてお願いいたします。", animKitchen: "シェフが調理中...", animServed: "テーブルに配膳完了！",
@@ -1221,7 +1270,8 @@
         clubPrompt: "⭐ 클럽 회원이신가요? 스탬프 적립:", viewCard: "내 카드 보기", orderTotal: "주문 총액:",
         sendOrder: "주방으로 주문 전송", sendAddMore: "테이블에 추가 주문", houseMenu: "매장 메뉴판",
         noDishesCat: "이 카테고리에 등록된 메뉴가 없습니다.", safetyNotice: "테이블 공유 중: 일행과 확인 후 주문을 전송하세요.",
-        liveDiners: "명 동석 중", statusConfirmedTitle: "주문이 전송되었습니다.", statusConfirmedSub: "주방에서 확인 중입니다...",
+        dinersSingular: "명 동석 중", dinersPlural: "명 동석 중",
+        statusConfirmedTitle: "주문이 전송되었습니다.", statusConfirmedSub: "주방에서 확인 중입니다...",
         statusKitchenTitle: "조리 중입니다!", statusKitchenSub: "셰프가 정성껏 조리하고 있습니다.",
         statusServedTitle: "맛있게 드세요!", statusServedSub: "주문하신 메뉴가 준비되었습니다.", statusCashierTitle: "카운터 알림 완료!",
         statusCashierSub: "카운터에서 결제를 진행해 주세요.", animKitchen: "셰프가 요리 준비 중...", animServed: "테이블 세팅 완료!",
@@ -1657,7 +1707,7 @@
       }
     }
 
-    /* AUTO-ENGANCHE: CONECTA LOS 3 CELULARES A LA MISMA COMANDA EN TIEMPO REAL */
+    /* AUTO-ENGANCHE: CONECTA LOS CELULARES A LA MISMA COMANDA EN TIEMPO REAL */
     async function autoEngancharComandaActivaDeMesa() {
       const mesaNorm = normalizarNombreMesa(mesaSeleccionada || '');
       if (!mesaNorm) return;
@@ -1930,6 +1980,11 @@
       setupObserver();
       
       await autoEngancharComandaActivaDeMesa();
+      
+      // Activar presencia y latido de conexión en vivo
+      await actualizarPresenciaMesa();
+      setInterval(actualizarPresenciaMesa, 10000);
+
       verificarEstadoComandaEnVivo();
 
       setInterval(verificarEstadoComandaEnVivo, 2000);
@@ -2387,7 +2442,7 @@
       if (box) box.style.display = "none";
     }
 
-    /* MONITOREO DINÁMICO DE ESTADOS: APERTURA Y VISUALIZACIÓN GARANTIZADA */
+    /* MONITOREO DINÁMICO DE ESTADOS Y CONTEO DE COMENSALES EN VIVO */
     async function verificarEstadoComandaEnVivo() {
       if (!comandaActivaId) {
         await autoEngancharComandaActivaDeMesa();
@@ -2428,8 +2483,11 @@
 
       const t = I18N_UI[currentLang] || I18N_UI['es'];
 
+      // OBTENER CONTEO REAL DE DISPOSITIVOS CONECTADOS EN ESTA MESA
+      const totalComensalesMesa = await obtenerCantidadComensalesEnMesa();
       if (liveUsersTxt) {
-        liveUsersTxt.innerText = `3 ${t.liveDiners}`;
+        const etiquetaDiners = (totalComensalesMesa === 1) ? t.dinersSingular : t.dinersPlural;
+        liveUsersTxt.innerText = `${totalComensalesMesa} ${etiquetaDiners}`;
       }
 
       const numTurno = miComanda.numeroTurno || "01";
@@ -2517,7 +2575,6 @@
         cajaMozo.style.display = "none";
       }
 
-      // Visualización garantizada: si el popup de comanda no está abierto, se muestra el estado en pantalla
       const popupModal = document.getElementById('ordersPopupModal');
       if (modalCentro && (!popupModal || !popupModal.classList.contains('active'))) {
         modalCentro.classList.add("active");
@@ -2540,7 +2597,7 @@
       window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
     }
 
-    async function enviarReservaDesdeCliente(e) {
+    async function enviarReservaDesdecCliente(e) {
       e.preventDefault();
       const id = "RES-" + Date.now();
       const r = {
