@@ -1129,7 +1129,7 @@
           </div> 
 
           <div class="card" id="areaImpresionReporte"> 
-            <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:14px; font-weight:900; flex-wrap:wrap; gap:8px;"> 
+            <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:14px; font-weight:900; flex-wrap:gap; gap:8px;"> 
               <span>Total Ventas Cobradas: <b style="color:#10b981;" id="repMontoTotalAcumulado">S/ 0.00</b></span> 
               <span>Total Comprobantes: <b style="color:#fbbf24;" id="repCantidadVentas">0</b></span> 
             </div> 
@@ -2157,6 +2157,7 @@
       document.getElementById('cajaDatosFactura').style.display = (tipo === 'Factura') ? 'block' : 'none'; 
     } 
 
+    /* COBRO DE COMANDA */ 
     async function confirmarCobroFinalizado() { 
       if (!comandaCobrandoActual) return; 
 
@@ -2205,6 +2206,7 @@
         canalPedidos.postMessage({ 
           tipo: 'ESTADO_ACTUALIZADO', 
           id: comandaCobrandoActual.id, 
+          mesa: comandaCobrandoActual.mesa || '', 
           estado: 'finalizado', 
           agradecimientoFinal: true 
         }); 
@@ -2317,8 +2319,12 @@
       ventana.document.close(); 
     } 
 
+    /* CAMBIAR A COCINA (SINCRONIZACIÓN INMEDIATA CON MESA) */
     async function cambiarEstadoCocinaConOperador(idComanda) { 
       const operadorActual = sessionStorage.getItem("nombre_operador") || "Personal Salón"; 
+      const comandaObj = todasLasComandasCache.find(c => c.id === idComanda);
+      const mesaDestino = comandaObj ? (comandaObj.mesa || '') : '';
+
       await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, { 
         method: 'PATCH', 
         headers: { 'Content-Type': 'application/json' }, 
@@ -2329,53 +2335,65 @@
         }) 
       }); 
 
-      try { 
-        canalPedidos.postMessage({ 
-          tipo: 'ESTADO_ACTUALIZADO', 
-          id: idComanda, 
-          estado: 'cocina' 
-        }); 
-      } catch (e) {} 
+      try {
+        canalPedidos.postMessage({
+          tipo: 'ESTADO_ACTUALIZADO',
+          id: idComanda,
+          mesa: mesaDestino,
+          estado: 'cocina'
+        });
+      } catch (e) {}
 
       await cargarComandasEnVivo(); 
     } 
 
+    /* RECIBIDO EN MESA (SINCRONIZACIÓN INMEDIATA BIDIRECCIONAL CON MESA) */
     async function cambiarEstadoFirebase(idComanda, nuevoEstado) { 
+      const comandaObj = todasLasComandasCache.find(c => c.id === idComanda);
+      const mesaDestino = comandaObj ? (comandaObj.mesa || '') : '';
+
       await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, { 
         method: 'PATCH', 
         headers: { 'Content-Type': 'application/json' }, 
         body: JSON.stringify({ estado: nuevoEstado, clientePidiendoCuenta: false }) 
       }); 
 
-      try { 
-        canalPedidos.postMessage({ 
-          tipo: 'ESTADO_ACTUALIZADO', 
-          id: idComanda, 
-          estado: nuevoEstado 
-        }); 
-      } catch (e) {} 
+      try {
+        canalPedidos.postMessage({
+          tipo: 'ESTADO_ACTUALIZADO',
+          id: idComanda,
+          mesa: mesaDestino,
+          estado: nuevoEstado
+        });
+      } catch (e) {}
 
       await cargarComandasEnVivo(); 
     } 
 
+    /* PREGUNTA DEL MOZO: ¿DESEA AGREGAR ALGO MÁS? (CON MESA) */
     async function enviarMensajeAgregarMas(idComanda) { 
+      const comandaObj = todasLasComandasCache.find(c => c.id === idComanda);
+      const mesaDestino = comandaObj ? (comandaObj.mesa || '') : '';
+
       await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, { 
         method: 'PATCH', 
         headers: { 'Content-Type': 'application/json' }, 
         body: JSON.stringify({ mozoPregunta: true }) 
       }); 
 
-      try { 
-        canalPedidos.postMessage({ 
-          tipo: 'ESTADO_ACTUALIZADO', 
-          id: idComanda, 
-          mozoPregunta: true 
-        }); 
-      } catch (e) {} 
+      try {
+        canalPedidos.postMessage({
+          tipo: 'ESTADO_ACTUALIZADO',
+          id: idComanda,
+          mesa: mesaDestino,
+          mozoPregunta: true
+        });
+      } catch (e) {}
 
-      alert("✔ Notificación enviada al celular del cliente: '¿Deseas agregar algo más?'"); 
+      alert("✔ Notificación enviada a todos los comensales de la mesa: '¿Deseas agregar algo más?'"); 
     } 
 
+    /* CARGA DE COMANDAS EN VIVO Y MONITOREO INTELIGENTE DE ALERTAS */ 
     async function cargarComandasEnVivo() { 
       const grid = document.getElementById('liveOrdersGrid'); 
       const monitorGrid = document.getElementById('tablesMonitorGrid'); 
