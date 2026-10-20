@@ -1,481 +1,95 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Reservas Oficiales | La Cusqueñita</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Generar Reserva | La Cusqueñita</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    /* ==========================================================
-       ARQUITECTURA VISUAL LUXURY ENTERPRISE B2B
-       - Fusión: Azul Royal TuBoleto + Oro Incaico La Chuspa Tech
-       - Sincronización en tiempo real Modo Claro / Oscuro
-       - Textos contrastados en Negro Carbón (#0f172a) en Modo Claro
-       ========================================================== */
     :root {
       --primary: #0056d2;
-      --primary-hover: #0043a8;
-      --accent: #0284c7;
-      --accent-glow: rgba(0, 86, 210, 0.4);
       --chuspa-gold: #f59e0b;
-      --chuspa-gold-glow: rgba(245, 158, 11, 0.35);
-      --chuspa-gold-border: rgba(245, 158, 11, 0.42);
-      
-      --bg-warm: #050d1a;
+      --bg-dark: #050d1a;
       --card-bg: #0b1a33;
-      --gold-badge: #fbbf24;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
-      --border-card: rgba(245, 158, 11, 0.38);
-
-      --input-bg: #061122;
-      --input-text: #f8fafc;
-      --input-border: #334155;
     }
-
-    /* MODO CLARO PROFESIONAL LUXURY */
-    body.light-theme {
-      --bg-warm: #f4f7fb;
-      --card-bg: #ffffff;
-      --gold-badge: #0056d2;      /* Azul Royal de jerarquía */
-      --text-main: #0f172a;       /* Negro Carbón */
-      --text-muted: #475569;
-      --border-card: #cbd5e1;
-
-      --input-bg: #ffffff;
-      --input-text: #0f172a;
-      --input-border: #cbd5e1;
-    }
-
-    body.light-theme .box-reservas-page {
-      background: #ffffff !important;
-      border: 1.5px solid #cbd5e1 !important;
-      box-shadow: 0 16px 45px rgba(0, 86, 210, 0.08), 0 0 25px rgba(245, 158, 11, 0.12) !important;
-    }
-    body.light-theme .header-reservas {
-      border-bottom-color: #e2e8f0 !important;
-    }
-    body.light-theme .header-titles h2 {
-      color: #0f172a !important;
-    }
-    body.light-theme .header-titles span {
-      color: #10b981 !important;
-    }
-    body.light-theme .desc-txt {
-      color: #475569 !important;
-    }
-    body.light-theme .custom-input-white {
-      background: #ffffff !important;
-      color: #0f172a !important;
-      border-color: #cbd5e1 !important;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.04) !important;
-    }
-    body.light-theme .custom-input-white:focus {
-      border-color: #0056d2 !important;
-      box-shadow: 0 0 0 3px rgba(0, 86, 210, 0.15) !important;
-    }
-    body.light-theme .social-block-footer {
-      border-top-color: #e2e8f0 !important;
-    }
-    body.light-theme .social-block-footer span {
-      color: #0056d2 !important;
-    }
-    body.light-theme .chuspa-tech-footer {
-      background: #f8fafc !important;
-      border-color: var(--chuspa-gold) !important;
-    }
-    body.light-theme .chuspa-title-txt {
-      color: #0f172a !important;
-    }
-    body.light-theme .chuspa-sub-txt {
-      color: #64748b !important;
-    }
-    body.light-theme .btn-theme-toggle-floating {
-      transform: rotate(180deg);
-      border-color: #0056d2;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body {
-      background-color: var(--bg-warm);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      transition: background-color 0.25s ease, color 0.25s ease;
-      position: relative;
-    }
-
-    /* BOTÓN FLOTANTE SUPERIOR MEDIA LUNA BICOLOR BLANCO / NEGRO */
-    .btn-theme-toggle-floating {
-      position: fixed;
-      top: 14px;
-      right: 14px;
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      cursor: pointer;
-      z-index: 9999999;
-      background: linear-gradient(90deg, #ffffff 50%, #081427 50%);
-      border: 2px solid var(--chuspa-gold);
-      box-shadow: 0 4px 14px var(--chuspa-gold-glow);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.4s ease, box-shadow 0.3s ease;
-      outline: none;
-      padding: 0;
-    }
-    .btn-theme-toggle-floating:hover {
-      transform: scale(1.12);
-      box-shadow: 0 6px 20px var(--chuspa-gold-glow);
-    }
-    .btn-theme-toggle-floating:active {
-      transform: scale(0.95);
-    }
-
-    .box-reservas-page {
-      background: var(--card-bg);
-      border: 2px solid var(--border-card);
-      border-radius: 26px;
-      max-width: 440px;
-      width: 100%;
-      padding: 26px 22px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.85), 0 0 25px rgba(245, 158, 11, 0.15);
-      position: relative;
-      transition: all 0.25s ease;
-    }
-
-    .header-reservas {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1.5px solid rgba(255,255,255,0.12);
-      padding-bottom: 12px;
-    }
-    .header-brand-wrap {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .avatar-wrap {
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      overflow: hidden;
-      border: 2px solid var(--chuspa-gold);
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      flex-shrink: 0;
-      box-shadow: 0 4px 14px rgba(0, 86, 210, 0.35);
-    }
-    .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-    .header-titles h2 { font-size: 19px; font-weight: 900; color: var(--gold-badge); letter-spacing: 0.3px; }
-    .header-titles span { font-size: 11.5px; color: #10b981; font-weight: 800; display: block; margin-top: 2px; }
-
-    .desc-txt { font-size: 12.5px; color: var(--text-muted); line-height: 1.45; }
-
-    .custom-input-white {
-      width: 100%;
-      background: var(--input-bg);
-      color: var(--input-text);
-      border: 1.5px solid var(--input-border);
-      border-radius: 12px;
-      padding: 11px 14px;
-      font-size: 13.5px;
-      font-weight: 600;
-      outline: none;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-    .custom-input-white::placeholder { color: #64748b; font-weight: 500; }
-    .custom-input-white:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px var(--accent-glow);
-    }
-
-    .grid-duo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-    .btn-submit-reserva {
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      color: #fff;
-      border: 1px solid var(--chuspa-gold);
-      padding: 13px;
-      border-radius: 20px;
-      font-weight: 900;
-      font-size: 14px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      box-shadow: 0 4px 18px var(--accent-glow);
-      margin-top: 4px;
-      transition: transform 0.15s ease, box-shadow 0.2s ease;
-    }
-    .btn-submit-reserva:active { transform: scale(0.98); }
-
-    .btn-compartir-whatsapp {
-      background: #15803d;
-      color: #fff;
-      border: 1px solid #4ade80;
-      padding: 11px 14px;
-      border-radius: 20px;
-      font-weight: 800;
-      font-size: 12.5px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      text-decoration: none;
-      transition: transform 0.15s ease;
-    }
-    .btn-compartir-whatsapp:active { transform: scale(0.98); }
-
-    .social-block-footer {
-      text-align: center;
-      border-top: 1px dashed rgba(255,255,255,0.15);
-      padding-top: 10px;
-      margin-top: 4px;
-    }
-    .social-links-grid {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      margin-top: 6px;
-    }
-    .btn-social-icon {
-      width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center;
-      justify-content: center; color: #fff; font-size: 18px; text-decoration: none;
-      transition: transform 0.2s ease;
-    }
-    .btn-social-icon:active { transform: scale(0.9); }
-    .btn-social-wa { background: #25d366; }
-    .btn-social-fb { background: #1877f2; }
-    .btn-social-ig { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285aeb 90%); }
-    .btn-social-tk { background: #000; border: 1px solid #444; }
-
-    .chuspa-tech-footer {
-      background: rgba(245, 158, 11, 0.1);
-      border: 1px dashed var(--chuspa-gold);
-      border-radius: 12px;
-      padding: 10px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      text-decoration: none;
-      margin-top: 4px;
-    }
-    .chuspa-tech-left { display: flex; align-items: center; gap: 8px; }
-    .chuspa-tech-img {
-      width: 30px; height: 30px; border-radius: 50%; object-fit: cover;
-      background: #fff; border: 1px solid var(--chuspa-gold);
-    }
-    .chuspa-title-txt { font-size: 11px; font-weight: 900; color: #fbbf24; }
-    .chuspa-sub-txt { font-size: 9.5px; color: #cbd5e1; font-weight: 700; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .card-reserva { background: var(--card-bg); border: 2px solid var(--chuspa-gold); border-radius: 20px; max-width: 440px; width: 100%; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+    h2 { color: #fbbf24; font-size: 20px; font-weight: 900; margin-bottom: 14px; text-align: center; }
+    label { font-size: 11.5px; font-weight: 800; color: #38bdf8; display: block; margin-top: 10px; text-transform: uppercase; }
+    input, select, textarea { width: 100%; padding: 10px 12px; margin-top: 4px; border: 1.5px solid rgba(255,255,255,0.2); border-radius: 8px; background: #050e1c; color: #fff; font-size: 13.5px; outline: none; }
+    .btn-enviar { background: linear-gradient(135deg, #0056d2, #0284c7); color: #fff; border: 1px solid var(--chuspa-gold); padding: 12px; border-radius: 10px; font-weight: 900; width: 100%; margin-top: 16px; cursor: pointer; }
+    .btn-volver { display: block; text-align: center; margin-top: 12px; color: var(--text-muted); font-size: 12px; text-decoration: none; font-weight: bold; }
   </style>
 </head>
 <body>
 
-  <!-- BOTÓN FLOTANTE TEMA -->
-  <button type="button" class="btn-theme-toggle-floating" id="btnToggleTheme" onclick="alternarTemaVisual()" title="Cambiar a Modo Claro / Oscuro"></button>
+  <div class="card-reserva">
+    <h2>📅 Agendar Reserva de Mesa</h2>
+    <form onsubmit="enviarReservaPublica(event)">
+      <label>Nombre del Titular:</label>
+      <input type="text" id="resNombre" placeholder="Nombre completo" required>
 
-  <div class="box-reservas-page">
-    <div class="header-reservas">
-      <div class="header-brand-wrap">
-        <div class="avatar-wrap" id="resLogoWrap">🍽️</div>
-        <div class="header-titles">
-          <h2 id="resTituloLocal">La Cusqueñita</h2>
-          <span>Catálogo Oficial de Reservas & Eventos</span>
-        </div>
-      </div>
-      <a href="https://www.lachuspaanuncios.com/" target="_blank" title="Tecnología La Chuspa Tech">
-        <img src="CHUSPITA-circulo.png" alt="La Chuspa" style="width:28px; height:28px; border-radius:50%; object-fit:cover; border:1px solid var(--chuspa-gold); background:#fff;" onerror="this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png'">
-      </a>
-    </div>
+      <label>WhatsApp de Contacto:</label>
+      <input type="tel" id="resTelefono" placeholder="+51 984..." required>
 
-    <p class="desc-txt">
-      Completa tus datos para agendar tu mesa familiar, grupo turístico o evento.
-    </p>
-
-    <form onsubmit="guardarReservaWeb(event)" style="display:flex; flex-direction:column; gap:9px;">
-      <input type="text" id="resNombre" class="custom-input-white" placeholder="Nombre completo" required>
-      <input type="tel" id="resWhatsApp" class="custom-input-white" placeholder="WhatsApp de contacto (+51...)" required>
-      
-      <div class="grid-duo">
-        <input type="date" id="resFecha" class="custom-input-white" required>
-        <input type="time" id="resHora" class="custom-input-white" required>
-      </div>
-
-      <div class="grid-duo">
-        <input type="number" id="resPersonas" class="custom-input-white" placeholder="N° Personas" min="1" value="4" required>
-        <select id="resMesaSelect" class="custom-input-white" style="cursor:pointer;"></select>
-      </div>
-
-      <textarea id="resNotas" class="custom-input-white" rows="2" placeholder="Notas (motivo, alergias, requerimientos)..."></textarea>
-
-      <button type="submit" class="btn-submit-reserva" id="btnSubmitRes">
-        <i class="fa-solid fa-calendar-check"></i> Confirmar y Agendar Reserva
-      </button>
-
-      <button type="button" class="btn-compartir-whatsapp" onclick="compartirPorWhatsApp()">
-        <i class="fa-brands fa-whatsapp"></i> Compartir este link a mi WhatsApp para reservar después
-      </button>
-    </form>
-
-    <!-- CONTACTO Y REDES SOCIALES -->
-    <div class="social-block-footer">
-      <span style="font-size:12px; color:#fbbf24; font-weight:800; display:block;">
-        <i class="fa-solid fa-phone"></i> Pedidos & Reservas: <span id="resTelefonoTxt">+51 969 773 064</span>
-      </span>
-      <div class="social-links-grid">
-        <a href="https://wa.me/51969773064" target="_blank" class="btn-social-icon btn-social-wa" id="linkWa"><i class="fa-brands fa-whatsapp"></i></a>
-        <a href="#" target="_blank" class="btn-social-icon btn-social-fb" id="linkFb"><i class="fa-brands fa-facebook-f"></i></a>
-        <a href="#" target="_blank" class="btn-social-icon btn-social-ig" id="linkIg"><i class="fa-brands fa-instagram"></i></a>
-        <a href="#" target="_blank" class="btn-social-icon btn-social-tk" id="linkTk"><i class="fa-brands fa-tiktok"></i></a>
-      </div>
-    </div>
-
-    <!-- SELLO LA CHUSPA TECH -->
-    <a href="https://www.lachuspaanuncios.com/" target="_blank" class="chuspa-tech-footer">
-      <div class="chuspa-tech-left">
-        <img src="CHUSPITA-circulo.png" alt="La Chuspa" class="chuspa-tech-img" onerror="this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png'">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
         <div>
-          <div class="chuspa-title-txt">Tecnología La Chuspa Tech</div>
-          <div class="chuspa-sub-txt">Digitalización de restaurantes en Cusco</div>
+          <label>Fecha:</label>
+          <input type="date" id="resFecha" required>
+        </div>
+        <div>
+          <label>Hora:</label>
+          <input type="time" id="resHora" required>
         </div>
       </div>
-      <i class="fa-solid fa-arrow-up-right-from-square" style="color:var(--chuspa-gold); font-size:13px;"></i>
-    </a>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div>
+          <label>N° Personas:</label>
+          <input type="number" id="resPersonas" min="1" value="4" required>
+        </div>
+        <div>
+          <label>Mesa Preferida:</label>
+          <select id="resMesa">
+            <option value="Mesa 01">Mesa 01</option>
+            <option value="Mesa 02">Mesa 02</option>
+            <option value="Mesa 03">Mesa 03</option>
+            <option value="Terraza 1">Terraza 1</option>
+            <option value="VIP 1">VIP 1</option>
+          </select>
+        </div>
+      </div>
+
+      <label>Notas o Requerimientos:</label>
+      <textarea id="resNotas" rows="2" placeholder="Cumpleaños, alergias, ubicación..."></textarea>
+
+      <button type="submit" class="btn-enviar"><i class="fa-solid fa-calendar-check"></i> Enviar Solicitud de Reserva</button>
+    </form>
+    <a href="index.html" class="btn-volver">← Volver al Menú Digital</a>
   </div>
 
   <script>
     const FIREBASE_DB_URL = "https://restaurante1-695f7-default-rtdb.firebaseio.com/";
 
-    /* ========================================================
-       SINCRONIZACIÓN MODO OSCURO / CLARO EN TIEMPO REAL
-       ======================================================== */
-    const canalTheme = new BroadcastChannel('canal_app_theme');
-    canalTheme.onmessage = (event) => {
-      if (event.data && event.data.theme) {
-        aplicarTemaVisual(event.data.theme, false);
-      }
+    window.onload = () => {
+      const hoy = new Date().toISOString().split('T')[0];
+      document.getElementById('resFecha').value = hoy;
     };
 
-    function alternarTemaVisual() {
-      const temaActual = document.body.classList.contains('light-theme') ? 'light' : 'dark';
-      const nuevoTema = (temaActual === 'dark') ? 'light' : 'dark';
-      aplicarTemaVisual(nuevoTema, true);
-    }
-
-    function aplicarTemaVisual(tema, emitirCanal = true) {
-      if (tema === 'light') {
-        document.body.classList.add('light-theme');
-      } else {
-        document.body.classList.remove('light-theme');
-      }
-      localStorage.setItem('app_theme', tema);
-
-      if (emitirCanal) {
-        canalTheme.postMessage({ theme: tema });
-      }
-    }
-
-    (function inicializarTema() {
-      const temaGuardado = localStorage.getItem('app_theme') || 'dark';
-      aplicarTemaVisual(temaGuardado, false);
-    })();
-
-    let CONFIG = {
-      nombre: "La Cusqueñita",
-      whatsapp: "51969773064",
-      facebook: "",
-      instagram: "",
-      tiktok: ""
-    };
-
-    let listaMesas = [
-      "Mesa 01", "Mesa 02", "Mesa 03", "Mesa 04", "Mesa 05",
-      "Mesa 06", "Mesa 07", "Mesa 08", "Mesa 09", "Mesa 010",
-      "Mesa 11", "Mesa 12", "Barra", "Terraza 1", "Terraza 2"
-    ];
-
-    async function cargarDatosReserva() {
-      document.getElementById('resFecha').value = new Date().toISOString().split('T')[0];
-
-      // 1. Cargar Identidad, Redes y Logo
-      try {
-        const res = await fetch(`${FIREBASE_DB_URL}config/identidad.json?_t=${Date.now()}`);
-        if (res.ok) {
-          const d = await res.json();
-          if (d) {
-            CONFIG = Object.assign(CONFIG, d);
-            document.getElementById('resTituloLocal').innerText = CONFIG.nombre || "La Cusqueñita";
-            const wa = CONFIG.whatsapp || "51969773064";
-            document.getElementById('resTelefonoTxt').innerText = wa;
-
-            const cleanWa = wa.replace(/\D/g, '');
-            document.getElementById('linkWa').href = `https://wa.me/${cleanWa}`;
-            if (CONFIG.facebook) document.getElementById('linkFb').href = CONFIG.facebook;
-            if (CONFIG.instagram) document.getElementById('linkIg').href = CONFIG.instagram;
-            if (CONFIG.tiktok) document.getElementById('linkTk').href = CONFIG.tiktok;
-
-            const logoWrap = document.getElementById('resLogoWrap');
-            if (CONFIG.logo && (CONFIG.logo.startsWith('data:image') || CONFIG.logo.startsWith('http'))) {
-              logoWrap.innerHTML = `<img src="${CONFIG.logo}" alt="Logo">`;
-            } else {
-              logoWrap.innerText = CONFIG.logo || "🍽️";
-            }
-          }
-        }
-      } catch (e) {}
-
-      // 2. Cargar Mesas Dinámicas desde Firebase
-      try {
-        const resMesas = await fetch(`${FIREBASE_DB_URL}config/mesas.json?_t=${Date.now()}`);
-        if (resMesas.ok) {
-          const dMesas = await resMesas.json();
-          if (Array.isArray(dMesas) && dMesas.length > 0) {
-            listaMesas = dMesas;
-          }
-        }
-      } catch (e) {}
-
-      const sel = document.getElementById('resMesaSelect');
-      sel.innerHTML = listaMesas.map(m => `<option value="${m}">${m}</option>`).join('');
-    }
-
-    function compartirPorWhatsApp() {
-      const url = window.location.href;
-      const msg = encodeURIComponent(`🍽️ ¡Hola! Te comparto el enlace oficial para agendar nuestra mesa o evento en *${CONFIG.nombre}*:\n${url}`);
-      window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
-    }
-
-    async function guardarReservaWeb(e) {
+    async function enviarReservaPublica(e) {
       e.preventDefault();
-      const btn = document.getElementById('btnSubmitRes');
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registrando...';
-
       const id = "RES-" + Date.now();
-      const data = {
+      const reserva = {
         id: id,
         cliente: document.getElementById('resNombre').value.trim(),
-        telefono: document.getElementById('resWhatsApp').value.trim(),
+        telefono: document.getElementById('resTelefono').value.trim(),
         fechaReserva: document.getElementById('resFecha').value,
         horaReserva: document.getElementById('resHora').value,
         personas: document.getElementById('resPersonas').value,
-        mesaAsignada: document.getElementById('resMesaSelect').value,
+        mesaAsignada: document.getElementById('resMesa').value,
         notas: document.getElementById('resNotas').value.trim() || 'Sin notas',
         fechaCreacion: new Date().toLocaleDateString()
       };
@@ -484,20 +98,14 @@
         await fetch(`${FIREBASE_DB_URL}reservas/${id}.json`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
+          body: JSON.stringify(reserva)
         });
-        alert(`✔ ¡Reserva agendada exitosamente para ${data.cliente}! Nos comunicaremos al WhatsApp ${data.telefono} para confirmar.`);
-        e.target.reset();
-        document.getElementById('resFecha').value = new Date().toISOString().split('T')[0];
+        alert("✔ ¡Reserva registrada con éxito! Nos pondremos en contacto contigo para confirmarla.");
+        window.location.href = "index.html";
       } catch (err) {
-        alert("Error al registrar reserva: " + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-calendar-check"></i> Confirmar y Agendar Reserva';
+        alert("Error al registrar la reserva: " + err.message);
       }
     }
-
-    window.addEventListener('DOMContentLoaded', cargarDatosReserva);
   </script>
 </body>
 </html>
