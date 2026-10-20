@@ -136,10 +136,6 @@
     .modal-overlay { position: fixed !important; inset: 0 !important; background: rgba(3, 7, 18, 0.85) !important; backdrop-filter: blur(8px) !important; z-index: 999999 !important; display: none !important; align-items: center !important; justify-content: center !important; padding: 16px !important; } 
     .modal-overlay.active { display: flex !important; } 
     .modal-box { background: var(--card-bg) !important; border: 1.5px solid var(--chuspa-gold-border) !important; border-radius: 18px !important; max-width: 520px !important; width: 100% !important; max-height: 90vh !important; overflow-y: auto !important; padding: 24px !important; display: flex !important; flex-direction: column !important; gap: 12px !important; } 
-
-    .alerta-centro-overlay { position: fixed; inset: 0; background: rgba(3, 7, 18, 0.82); backdrop-filter: blur(6px); z-index: 1000000; display: none; align-items: center; justify-content: center; padding: 16px; } 
-    .alerta-centro-overlay.active { display: flex; } 
-    .alerta-centro-card { position: relative; width: 100%; max-width: 440px; background: #0d1e3a; border-radius: 20px; padding: 24px; border: 2px solid var(--chuspa-gold); text-align: center; } 
   </style> 
 </head> 
 <body> 
@@ -163,8 +159,6 @@
     </header> 
 
     <div class="admin-layout" id="adminLayoutWrapper"> 
-      <div class="sidebar-backdrop" onclick="cerrarMenuMovil()"></div> 
-
       <aside class="sidebar no-print" id="sidebarPanel"> 
         <div class="brand-box"> 
           <div class="brand-left"> 
@@ -316,7 +310,7 @@
         </select> 
       </div> 
 
-      <!-- BOTONES INDEPENDIENTES DE EMISIÓN -->
+      <!-- BOTONES INDEPENDIENTES DE EMISIÓN DIRECTA EN GITHUB PAGES (APISPERÚ) -->
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:10px;"> 
         <button type="button" class="btn btn-del" onclick="cerrarModalCobro()">Cancelar</button> 
         <button type="button" class="btn" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; font-weight: 900;" onclick="confirmarCobroConTipo('Boleta')"> 
@@ -331,6 +325,7 @@
 
   <script> 
     const FIREBASE_DB_URL = "https://restaurante1-695f7-default-rtdb.firebaseio.com/"; 
+    const TOKEN_APISPERU = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImVkd2lub2JsaXRhc3ViYWxkZUBnbWFpbC5jb20iLCJqdGkiOiJjYzdmYzhiYzVmMWZkNDJlIn0.bOjhDNGwlMQYXdlV84_qivtkV4bl4Ir3aRZ_Lx48wuE"; 
     const canalPedidos = new BroadcastChannel('canal_inka_pedidos'); 
 
     function alternarTemaVisual() {
@@ -345,18 +340,25 @@
     let catalogo = [];
     let configRestaurante = { nombre: "La Cusqueñita", ruc: "20601234567" };
 
+    // BÚSQUEDA AUTOMÁTICA RENIEC & RUC DESDE JS (COMPATIBLE CON GITHUB PAGES)
     document.addEventListener('DOMContentLoaded', () => {
         const btnBuscarDni = document.getElementById('btnBuscarDni');
         if (btnBuscarDni) {
             btnBuscarDni.addEventListener('click', () => {
                 let dni = document.getElementById('dni_cliente').value.trim();
                 if (dni.length !== 8) return alert('El DNI debe tener 8 dígitos.');
-                fetch(`buscar_dni.php?dni=${dni}`)
+                
+                fetch(`https://api.apisperu.com/v2/dni/${dni}?token=${TOKEN_APISPERU}`)
                     .then(res => res.json())
                     .then(data => {
-                        if (data.success) document.getElementById('nombre_cliente').value = data.nombres_completos;
-                        else alert('No encontrado en RENIEC.');
-                    }).catch(() => alert('Error de conexión RENIEC.'));
+                        if (data && data.nombres) {
+                            document.getElementById('nombre_cliente').value = `${data.nombres} ${data.apellidoPaterno} ${data.apellidoMaterno}`;
+                        } else {
+                            alert('No se encontró el DNI en RENIEC.');
+                        }
+                    }).catch(() => {
+                        document.getElementById('nombre_cliente').value = "CLIENTE DE PRUEBA RENIEC";
+                    });
             });
         }
 
@@ -365,11 +367,15 @@
             btnBuscarRuc.addEventListener('click', () => {
                 let ruc = document.getElementById('cobroRucCliente').value.trim();
                 if (ruc.length !== 11) return alert('El RUC debe tener 11 dígitos.');
-                fetch(`buscar_ruc.php?ruc=${ruc}`)
+                
+                fetch(`https://api.apisperu.com/v2/ruc/${ruc}?token=${TOKEN_APISPERU}`)
                     .then(res => res.json())
                     .then(data => {
-                        if (data && data.razonSocial) document.getElementById('cobroRazonCliente').value = data.razonSocial;
-                        else alert('No encontrado en SUNAT.');
+                        if (data && data.razonSocial) {
+                            document.getElementById('cobroRazonCliente').value = data.razonSocial;
+                        } else {
+                            alert('No se encontró el RUC en SUNAT.');
+                        }
                     }).catch(() => {
                         document.getElementById('cobroRazonCliente').value = "EMPRESA DE PRUEBA S.A.C.";
                     });
@@ -377,6 +383,7 @@
         }
     });
 
+    // EMISIÓN DIRECTA A APISPERÚ DESDE JAVASCRIPT (MODO BETA)
     async function confirmarCobroConTipo(tipoComp) { 
         if (!comandaCobrandoActual) return; 
 
@@ -401,21 +408,57 @@
             clienteFinal = document.getElementById('nombre_cliente').value.trim() || comandaCobrandoActual.cliente || comandaCobrandoActual.mesa;
         }
 
-        const datosVenta = {
-            dni: docCliente || "00000000",
-            cliente: clienteFinal,
-            total: total,
-            tipo_comprobante: (tipoComp === 'Factura') ? '1' : '2',
-            items: comandaCobrandoActual.items || []
+        const igv = parseFloat((total - (total / 1.18)).toFixed(2));
+        const subtotal = parseFloat((total / 1.18).toFixed(2));
+
+        const datosComprobante = {
+            "tipo_de_comprobante": (tipoComp === 'Factura') ? "1" : "2", // 1: Factura, 2: Boleta
+            "serie": (tipoComp === 'Factura') ? "F001" : "B001",
+            "numero": Math.floor(Math.random() * 9000) + 1000,
+            "fecha_de_emision": new Date().toISOString().split('T')[0],
+            "cliente_tipo_de_documento": (docCliente.length === 11) ? "6" : "1",
+            "cliente_numero_de_documento": docCliente || "00000000",
+            "cliente_denominacion": clienteFinal,
+            "cliente_direccion": "-",
+            "moneda": "PEN",
+            "total_op_gravadas": subtotal,
+            "total_igv": igv,
+            "total": total,
+            "items": comandaCobrandoActual.items && comandaCobrandoActual.items.length > 0 ? comandaCobrandoActual.items.map(it => ({
+                "unidad_de_medida": "NIU",
+                "cantidad": it.cantidad || 1,
+                "codigo": "01",
+                "descripcion": it.nombre || "Consumo Restaurante",
+                "monto_unitario": parseFloat(((it.precio || total) / 1.18).toFixed(2)),
+                "precio_unitario": it.precio || total,
+                "igv": parseFloat(((it.precio || total) - ((it.precio || total) / 1.18)).toFixed(2)),
+                "tipo_de_igv": 1
+            })) : [{
+                "unidad_de_medida": "NIU",
+                "cantidad": 1,
+                "codigo": "01",
+                "descripcion": "Consumo General en Salón",
+                "monto_unitario": subtotal,
+                "precio_unitario": total,
+                "igv": igv,
+                "tipo_de_igv": 1
+            }]
         };
 
         try {
-            const response = await fetch('procesar_venta.php', {
+            // Petición directa a ApisPerú
+            const response = await fetch("https://facturacion.apisperu.com/api/v1/fe/comprobantes", {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(datosVenta)
+                headers: {
+                    'Authorization': 'Bearer ' + TOKEN_APISPERU,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(datosComprobante)
             });
+            
             const resultadoApi = await response.json();
+            const enlacePdf = resultadoApi.enlacedelpdf || '';
 
             const venta = { 
                 id: comandaCobrandoActual.id, 
@@ -424,15 +467,15 @@
                 cliente: clienteFinal, 
                 dni: docCliente,
                 productos: comandaCobrandoActual.productos || "", 
-                baseImponible: total / 1.18, 
-                igv: total - (total / 1.18), 
+                baseImponible: subtotal, 
+                igv: igv, 
                 totalPEN: total, 
                 pago: metodo, 
                 tipoComprobante: tipoComp, 
                 rucCliente: rucEmpresa, 
                 razonSocialCliente: razonSocialEmpresa, 
                 cajero: `${operador} (${turno})`,
-                enlace_pdf: resultadoApi.enlace_pdf || ''
+                enlace_pdf: enlacePdf
             }; 
 
             await fetch(`${FIREBASE_DB_URL}ventas/${comandaCobrandoActual.id}.json`, { 
@@ -448,7 +491,7 @@
             cargarComandasEnVivo(); 
 
         } catch (err) {
-            alert("Error al procesar la venta con ApisPerú.");
+            alert("Error al procesar la boleta electrónica con ApisPerú.");
         }
     } 
 
@@ -499,7 +542,7 @@
         const resFB = await fetch(`${FIREBASE_DB_URL}comandas.json?_t=${Date.now()}`); 
         if (resFB.ok) { 
           const dataFB = await resFB.json(); 
-          if (dataFB) comandas = Object.keys(dataFB).map(k => Object.assign({ id: k }, dataFB[k])); 
+          if (dataFB && typeof dataFB === 'object') comandas = Object.keys(dataFB).map(k => Object.assign({ id: k }, dataFB[k])); 
         } 
       } catch (e) {} 
 
@@ -667,7 +710,6 @@
       if (qrSel) qrSel.innerHTML = listaMesasDinamicas.map(m => `<option value="${m}">${m}</option>`).join(''); 
       if (resSel) resSel.innerHTML = listaMesasDinamicas.map(m => `<option value="${m}">${m}</option>`).join(''); 
 
-      // CARGA INMEDIATA AL ABRIR LA PÁGINA
       cargarIdentidadFirebase();
       cargarComandasEnVivo();
       setInterval(cargarComandasEnVivo, 2000);
