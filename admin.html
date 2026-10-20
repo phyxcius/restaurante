@@ -1522,28 +1522,43 @@
       if (overlay) overlay.classList.remove('active'); 
     } 
 
-    /* SCRIPT AJAX PARA BÚSQUEDA RENIEC Y PROCESAR VENTA / TPV (CON SOPORTE APISPERÚ Y FACTURACIÓN) */
-    document.addEventListener('DOMContentLoaded', () => {
-        const btnBuscarDni = document.getElementById('btnBuscarDni');
-        if (btnBuscarDni) {
-            btnBuscarDni.addEventListener('click', function() {
-                let dni = document.getElementById('dni_cliente').value.trim();
-                if (dni.length !== 8) {
-                    alert('El DNI debe tener exactamente 8 dígitos.');
-                    return;
-                }
+    /* SCRIPT ROBUSTO PARA BÚSQUEDA RENIEC EN TPV (ADMIN) - INTEGRADO Y BLINDADO */
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.id === 'btnBuscarDni') {
+            const inputDni = document.getElementById('dni_cliente');
+            const inputNombre = document.getElementById('nombre_cliente');
+            
+            if (!inputDni) return;
+            let dni = inputDni.value.trim();
 
-                fetch(`buscar_dni.php?dni=${dni}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.success) {
-                            document.getElementById('nombre_cliente').value = data.nombres_completos;
-                        } else {
-                            alert('No se encontró información para el DNI ingresado.');
-                        }
-                    })
-                    .catch(err => console.error('Error en la consulta:', err));
-            });
+            if (dni.length !== 8) {
+                alert('El DNI debe tener exactamente 8 dígitos.');
+                inputDni.focus();
+                return;
+            }
+
+            e.target.disabled = true;
+            e.target.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Buscando...';
+
+            fetch(`buscar_dni.php?dni=${dni}`)
+                .then(res => res.json())
+                .then(data => {
+                    e.target.disabled = false;
+                    e.target.innerHTML = 'Buscar RENIEC';
+
+                    if (data.success) {
+                        inputNombre.value = data.nombres_completos;
+                    } else {
+                        alert('Aviso: ' + (data.message || 'No se encontró información para el DNI ingresado.'));
+                        inputNombre.value = '';
+                    }
+                })
+                .catch(err => {
+                    e.target.disabled = false;
+                    e.target.innerHTML = 'Buscar RENIEC';
+                    console.error('Error en la consulta:', err);
+                    alert('Hubo un error de conexión con el servidor (verifique que el archivo buscar_dni.php esté activo).');
+                });
         }
     });
 
@@ -1673,7 +1688,7 @@
                 btnConfirmar.innerHTML = '<i class="fas fa-print"></i> Cobrar, Guardar y Enviar a Imprimir';
             }
         }
-    }
+    } 
 
     canalPedidos.onmessage = (event) => { 
       if (event.data && event.data.tipo === 'RESPUESTA_CLIENTE') { 
