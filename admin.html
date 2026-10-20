@@ -1372,6 +1372,9 @@
     const PASSWORD_MAESTRA_VAULT = "42423549"; 
     const canalPedidos = new BroadcastChannel('canal_inka_pedidos'); 
 
+    // Token activo de ApisPerú integrado de forma global en el cliente
+    const APISPERU_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImVkd2lub2JsaXRhc3ViYWxkZUBnbWFpbC5jb20iLCJqdGkiOiJjYzdmYzhiYzVmMWZkNDJlIn0.bOjhDNGwlMQYXdlV84_qivtkV4bl4Ir3aRZ_Lx48wuE";
+
     /* SINCRONIZACIÓN MODO OSCURO / CLARO */
     const canalTheme = new BroadcastChannel('canal_app_theme');
     canalTheme.onmessage = (event) => {
@@ -1564,130 +1567,130 @@
 
     /* COBRO DE COMANDA INTEGRADO CON APISPERÚ Y TPV */
     async function confirmarCobroFinalizado() { 
-        if (!comandaCobrandoActual) return; 
+      if (!comandaCobrandoActual) return; 
 
-        const operador = sessionStorage.getItem("nombre_operador") || "Cajero"; 
-        const turno = sessionStorage.getItem("turno_rest") || "General"; 
-        const total = parseFloat(comandaCobrandoActual.totalPEN || comandaCobrandoActual.total || 0); 
-        const metodo = document.getElementById('cobroMetodoPago').value; 
-        const tipoComp = document.getElementById('cobroTipoComprobante').value; 
-        const docCliente = document.getElementById('dni_cliente').value.trim();
-        const nombreClienteReniec = document.getElementById('nombre_cliente').value.trim();
-        const clienteFinal = nombreClienteReniec || comandaCobrandoActual.cliente || comandaCobrandoActual.mesa;
+      const operador = sessionStorage.getItem("nombre_operador") || "Cajero"; 
+      const turno = sessionStorage.getItem("turno_rest") || "General"; 
+      const total = parseFloat(comandaCobrandoActual.totalPEN || comandaCobrandoActual.total || 0); 
+      const metodo = document.getElementById('cobroMetodoPago').value; 
+      const tipoComp = document.getElementById('cobroTipoComprobante').value; 
+      const docCliente = document.getElementById('dni_cliente').value.trim();
+      const nombreClienteReniec = document.getElementById('nombre_cliente').value.trim();
+      const clienteFinal = nombreClienteReniec || comandaCobrandoActual.cliente || comandaCobrandoActual.mesa;
 
-        // Preparamos el paquete de datos para enviar a procesar_venta.php (ApisPerú)
-        const datosVenta = {
-            dni: docCliente || "00000000",
-            cliente: clienteFinal,
-            total: total,
-            tipo_comprobante: (tipoComp === 'Factura') ? '1' : '2', // 1: Factura, 2: Boleta
-            items: comandaCobrandoActual.items || []
-        };
+      // Preparamos el paquete de datos para enviar a procesar_venta.php (ApisPerú)
+      const datosVenta = {
+          dni: docCliente || "00000000",
+          cliente: clienteFinal,
+          total: total,
+          tipo_comprobante: (tipoComp === 'Factura') ? '1' : '2', // 1: Factura, 2: Boleta
+          items: comandaCobrandoActual.items || []
+      };
 
-        const btnConfirmar = document.getElementById('btnProcesarVenta');
-        if (btnConfirmar) {
-            btnConfirmar.disabled = true;
-            btnConfirmar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Emitiendo en ApisPerú...';
-        }
+      const btnConfirmar = document.getElementById('btnProcesarVenta');
+      if (btnConfirmar) {
+          btnConfirmar.disabled = true;
+          btnConfirmar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Emitiendo en ApisPerú...';
+      }
 
-        try {
-            // 1. Enviar petición al backend PHP para procesar la factura electrónica
-            const response = await fetch('procesar_venta.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(datosVenta)
-            });
-            
-            const resultadoApi = await response.json();
+      try {
+          // 1. Enviar petición al backend PHP para procesar la factura electrónica
+          const response = await fetch('procesar_venta.php', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(datosVenta)
+          });
+          
+          const resultadoApi = await response.json();
 
-            if (!resultadoApi.success) {
-                alert('Aviso de Facturación: ' + (resultadoApi.mensaje || 'No se pudo emitir en ApisPerú, pero se procesará localmente.'));
-            }
+          if (!resultadoApi.success) {
+              alert('Aviso de Facturación: ' + (resultadoApi.mensaje || 'No se pudo emitir en ApisPerú, pero se procesará localmente.'));
+          }
 
-            // 2. Registrar la venta en Firebase
-            const venta = { 
-                id: comandaCobrandoActual.id, 
-                fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }), 
-                mesa: comandaCobrandoActual.mesa, 
-                cliente: clienteFinal, 
-                dni: docCliente,
-                productos: comandaCobrandoActual.productos || "", 
-                baseImponible: total / 1.18, 
-                igv: total - (total / 1.18), 
-                totalPEN: total, 
-                pago: metodo, 
-                tipoComprobante: tipoComp, 
-                rucCliente: document.getElementById('cobroRucCliente').value.trim(), 
-                razonSocialCliente: document.getElementById('cobroRazonCliente').value.trim(), 
-                cajero: `${operador} (${turno})`,
-                enlace_pdf: resultadoApi.enlace_pdf || ''
-            }; 
+          // 2. Registrar la venta en Firebase
+          const venta = { 
+              id: comandaCobrandoActual.id, 
+              fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }), 
+              mesa: comandaCobrandoActual.mesa, 
+              cliente: clienteFinal, 
+              dni: docCliente,
+              productos: comandaCobrandoActual.productos || "", 
+              baseImponible: total / 1.18, 
+              igv: total - (total / 1.18), 
+              totalPEN: total, 
+              pago: metodo, 
+              tipoComprobante: tipoComp, 
+              rucCliente: document.getElementById('cobroRucCliente').value.trim(), 
+              razonSocialCliente: document.getElementById('cobroRazonCliente').value.trim(), 
+              cajero: `${operador} (${turno})`,
+              enlace_pdf: resultadoApi.enlace_pdf || ''
+          }; 
 
-            await fetch(`${FIREBASE_DB_URL}ventas/${comandaCobrandoActual.id}.json`, { 
-                method: 'PUT', 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify(venta) 
-            }); 
+          await fetch(`${FIREBASE_DB_URL}ventas/${comandaCobrandoActual.id}.json`, { 
+              method: 'PUT', 
+              headers: { 'Content-Type': 'application/json' }, 
+              body: JSON.stringify(venta) 
+          }); 
 
-            await fetch(`${FIREBASE_DB_URL}comandas/${comandaCobrandoActual.id}.json`, { 
-                method: 'PATCH', 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ 
-                    estado: 'finalizado', 
-                    pago: metodo, 
-                    tipoComprobante: tipoComp, 
-                    cliente: clienteFinal,
-                    dni: docCliente,
-                    agradecimientoFinal: true, 
-                    clientePidiendoCuenta: false 
-                }) 
-            }); 
+          await fetch(`${FIREBASE_DB_URL}comandas/${comandaCobrandoActual.id}.json`, { 
+              method: 'PATCH', 
+              headers: { 'Content-Type': 'application/json' }, 
+              body: JSON.stringify({ 
+                  estado: 'finalizado', 
+                  pago: metodo, 
+                  tipoComprobante: tipoComp, 
+                  cliente: clienteFinal,
+                  dni: docCliente,
+                  agradecimientoFinal: true, 
+                  clientePidiendoCuenta: false 
+              }) 
+          }); 
 
-            try { 
-                canalPedidos.postMessage({ 
-                    tipo: 'ESTADO_ACTUALIZADO', 
-                    id: comandaCobrandoActual.id, 
-                    mesa: comandaCobrandoActual.mesa || '', 
-                    estado: 'finalizado', 
-                    agradecimientoFinal: true 
-                }); 
-            } catch (e) {} 
+          try { 
+              canalPedidos.postMessage({ 
+                  tipo: 'ESTADO_ACTUALIZADO', 
+                  id: comandaCobrandoActual.id, 
+                  mesa: comandaCobrandoActual.mesa || '', 
+                  estado: 'finalizado', 
+                  agradecimientoFinal: true 
+              }); 
+          } catch (e) {} 
 
-            if (docCliente && docCliente.length === 8) { 
-                try { 
-                    const resSocio = await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${docCliente}.json`); 
-                    let socio = await resSocio.json() || { dni: docCliente, nombre: clienteFinal, sellos: 0, totalVisitas: 0 }; 
-                    socio.nombre = clienteFinal;
-                    socio.sellos = (socio.sellos || 0) + 1; 
-                    socio.totalVisitas = (socio.totalVisitas || 0) + 1; 
-                    await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${docCliente}.json`, { 
-                        method: 'PUT', 
-                        headers: { 'Content-Type': 'application/json' }, 
-                        body: JSON.stringify(socio) 
-                    }); 
-                } catch (err) {} 
-            } 
+          if (docCliente && docCliente.length === 8) { 
+              try { 
+                  const resSocio = await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${docCliente}.json`); 
+                  let socio = await resSocio.json() || { dni: docCliente, nombre: clienteFinal, sellos: 0, totalVisitas: 0 }; 
+                  socio.nombre = clienteFinal;
+                  socio.sellos = (socio.sellos || 0) + 1; 
+                  socio.totalVisitas = (socio.totalVisitas || 0) + 1; 
+                  await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${docCliente}.json`, { 
+                      method: 'PUT', 
+                      headers: { 'Content-Type': 'application/json' }, 
+                      body: JSON.stringify(socio) 
+                  }); 
+              } catch (err) {} 
+          } 
 
-            await regenerarTokenMesa(comandaCobrandoActual.mesa); 
-            cerrarModalCobro(); 
-            
-            // Imprimir comprobante incluyendo el enlace de ApisPerú
-            imprimirComprobanteFiscalDirecto(venta); 
+          await regenerarTokenMesa(comandaCobrandoActual.mesa); 
+          cerrarModalCobro(); 
+          
+          // Imprimir comprobante incluyendo el enlace de ApisPerú
+          imprimirComprobanteFiscalDirecto(venta); 
 
-            alert("✔ ¡Venta registrada con éxito y ticket enviado a impresión!"); 
-            await cargarComandasEnVivo(); 
-            await cargarVentasDesdeFirebase(); 
-            actualizarQRVisualDirecto();
+          alert("✔ ¡Venta registrada con éxito y ticket enviado a impresión!"); 
+          await cargarComandasEnVivo(); 
+          await cargarVentasDesdeFirebase(); 
+          actualizarQRVisualDirecto();
 
-        } catch (err) {
-            console.error("Error al procesar la venta con ApisPerú:", err);
-            alert("Hubo un error de conexión al procesar la venta electrónica.");
-        } finally {
-            if (btnConfirmar) {
-                btnConfirmar.disabled = false;
-                btnConfirmar.innerHTML = '<i class="fas fa-print"></i> Cobrar, Guardar y Enviar a Imprimir';
-            }
-        }
+      } catch (err) {
+          console.error("Error al procesar la venta con ApisPerú:", err);
+          alert("Hubo un error de conexión al procesar la venta electrónica.");
+      } finally {
+          if (btnConfirmar) {
+              btnConfirmar.disabled = false;
+              btnConfirmar.innerHTML = '<i class="fas fa-print"></i> Cobrar, Guardar y Enviar a Imprimir';
+          }
+      }
     } 
 
     canalPedidos.onmessage = (event) => { 
@@ -2636,7 +2639,7 @@
         });
       } catch (e) {}
 
-      alert("✔ Notificación enviada a todos los comensales de la mesa: '¿Deseas agregar algo más?'"); 
+      alert("✔ Notificación enviada a todos los comensales de la mesa: 'ZDeseas agregar algo más?'"); 
     } 
 
     /* CARGA DE COMANDAS EN VIVO Y MONITOREO INTELIGENTE DE ALERTAS */ 
