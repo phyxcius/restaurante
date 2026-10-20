@@ -258,54 +258,6 @@
       border-color: #0056d2;
     }
 
-    /* PANTALLA LOGIN */ 
-    #pantallaLogin { 
-      display: flex; justify-content: center; align-items: center; min-height: 100vh; 
-      padding: 16px; background: radial-gradient(circle at center, #0c2042 0%, #020712 100%); 
-    } 
-    body.light-theme #pantallaLogin {
-      background: radial-gradient(circle at center, #dbeafe 0%, #edf2f7 100%);
-    }
-    .card-login { 
-      background: var(--card-bg); 
-      border: 1.5px solid var(--chuspa-gold-border); 
-      border-radius: 20px; 
-      max-width: 440px; width: 100%; padding: 30px 26px; 
-      box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 25px rgba(245, 158, 11, 0.15); 
-    } 
-    .card-login h3 { color: #f8fafc; text-align: center; margin-bottom: 4px; font-size: 22px; font-weight: 900; letter-spacing: 0.5px; } 
-    .card-login p.sub { font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 20px; } 
-
-    .login-logos-header {
-      display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 14px;
-    }
-    .login-chuspa-logo-wrap {
-      width: 66px; height: 66px; border-radius: 50%;
-      background: #fff; 
-      border: 2.5px solid var(--chuspa-gold); 
-      overflow: hidden;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 18px var(--chuspa-gold-glow); flex-shrink: 0;
-    }
-    .login-chuspa-logo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-    .login-brand-logo-wrap {
-      width: 66px; height: 66px; border-radius: 50%;
-      background: linear-gradient(135deg, #0056d2, #0284c7);
-      border: 2.5px solid var(--chuspa-gold); 
-      overflow: hidden;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 18px rgba(0, 86, 210, 0.5); font-size: 28px; color: #fff; flex-shrink: 0;
-    }
-    .login-brand-logo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-    .caja-chica-box { 
-      background: rgba(0, 86, 210, 0.08); 
-      border: 1.5px dashed var(--chuspa-gold); 
-      border-radius: 12px; 
-      padding: 14px; margin-top: 12px; 
-    } 
-
     /* BARRA SUPERIOR */ 
     .top-admin-bar { 
       display: flex; background: var(--header-bg); border-bottom: 1.5px solid var(--chuspa-gold-border); 
@@ -1763,6 +1715,7 @@
       } 
     }; 
 
+    /* ACCESO DIRECTO INMEDIATO AL PANEL PRINCIPAL */
     async function mostrarPanelAdminDirecto() { 
       const operador = "Administrador"; 
       const turno = "Turno Mañana (07:00 - 15:00)"; 
@@ -2082,20 +2035,6 @@
 
     function cerrarModalCobro() { document.getElementById('modalCobroMesa').classList.remove('active'); } 
 
-    async function cambiarEstadoCocinaConOperador(idComanda) { 
-      await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, { 
-        method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ estado: 'cocina' }) 
-      }); 
-      cargarComandasEnVivo(); 
-    } 
-
-    async function cambiarEstadoFirebase(idComanda, nuevoEstado) { 
-      await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, { 
-        method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ estado: nuevoEstado }) 
-      }); 
-      cargarComandasEnVivo(); 
-    } 
-
     async function cargarComandasEnVivo() { 
       const grid = document.getElementById('liveOrdersGrid'); 
       const monitorGrid = document.getElementById('tablesMonitorGrid'); 
@@ -2137,7 +2076,7 @@
               <span style="font-size:16px; font-weight:900; color:#10b981;">S/ ${total}</span> 
             </div> 
             <div class="order-actions-container"> 
-              ${estado === 'iniciado' ? `<button class="btn-action-confirm" onclick="cambiarEstadoCocinaConOperador('${c.id}')">Cocina</button>` : ''} 
+              ${estado === 'iniciado' ? `<button class="btn-action-confirm" onclick="cambiarEstadoFirebase('${c.id}', 'cocina')">Cocina</button>` : ''} 
               ${estado === 'cocina' ? `<button class="btn-action-serve" onclick="cambiarEstadoFirebase('${c.id}', 'servido')">Servido</button>` : ''} 
               <button class="btn-action-cobrar" onclick="abrirModalCobroComanda('${c.id}')"> 
                 <i class="fa-solid fa-cash-register"></i> Cobrar / Facturar 
@@ -2247,6 +2186,28 @@
       } catch (e) {} 
     } 
 
+    async function cargarCatalogoDesdeFirebase() { 
+      const grid = document.getElementById('dishesVisualGrid'); 
+      if (!grid) return; 
+      try { 
+        const res = await fetch(`${FIREBASE_DB_URL}catalogo_platos.json?_t=${Date.now()}`); 
+        if (res.ok) { 
+          const d = await res.json(); 
+          if (d) {
+            catalogo = Object.values(d);
+            grid.innerHTML = catalogo.map(p => `
+              <div class="dish-card-visual">
+                <div class="dish-media"><img src="${p.posterUrl || p.imagen || ''}" alt="${p.nombre}"></div>
+                <div style="padding:12px;"><strong>${p.nombre}</strong><p style="color:#fbbf24; font-weight:bold; margin-top:4px;">S/ ${(p.precioPEN || p.precio || 0).toFixed(2)}</p></div>
+              </div>
+            `).join('');
+            return;
+          }
+        } 
+      } catch (e) {} 
+      grid.innerHTML = '<p style="color:#888;">No hay platos en el catálogo.</p>';
+    }
+
     function normalizarNombreMesa(m) { 
       if (!m) return ""; 
       let s = String(m).trim(); 
@@ -2257,34 +2218,12 @@
       return s; 
     } 
 
-    async function crearNuevaReservaAdmin(e) { 
-      e.preventDefault(); 
-      const id = "RES-" + Date.now(); 
-      const res = { 
-        id, cliente: document.getElementById('resAdminTitular').value.trim(), telefono: document.getElementById('resAdminTel').value.trim(), 
-        fechaReserva: document.getElementById('resAdminFecha').value, horaReserva: document.getElementById('resAdminHora').value, 
-        personas: document.getElementById('resAdminPersonas').value, mesaAsignada: document.getElementById('resAdminMesaSelectorDinamico').value 
-      }; 
-      await fetch(`${FIREBASE_DB_URL}reservas/${id}.json`, { 
-        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(res) 
-      }); 
-      alert("✔ Reserva creada."); 
-      e.target.reset(); 
-      cargarReservasFirebase(); 
-    } 
-
-    function actualizarQRVisualDirecto(mesa = "Mesa 01") { 
-      document.getElementById('qrPrintNumeroMesa').innerText = mesa.toUpperCase(); 
-      document.getElementById('imgQRVisualCentrado').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(mesa)}`; 
-    } 
-
-    window.onload = async () => { 
+    window.onload = () => { 
       const qrSel = document.getElementById('qrMesaSelectorDinamico'); 
       const resSel = document.getElementById('resAdminMesaSelectorDinamico'); 
       if (qrSel) qrSel.innerHTML = listaMesasDinamicas.map(m => `<option value="${m}">${m}</option>`).join(''); 
       if (resSel) resSel.innerHTML = listaMesasDinamicas.map(m => `<option value="${m}">${m}</option>`).join(''); 
 
-      // CARGA INMEDIATA AL ABRIR LA PÁGINA
       mostrarPanelAdminDirecto(); 
     }; 
   </script> 
