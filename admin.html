@@ -1313,19 +1313,21 @@
         </div> 
       </div> 
 
-      <!-- CAMPO DNI Y BÚSQUEDA AUTOMÁTICA RENIEC (INTEGRADO EN TPV) -->
-      <div style="background: #eff6ff; border: 1.5px dashed var(--primary); border-radius: 12px; padding: 10px 12px; margin-bottom: 6px;">
-        <div class="form-group" style="margin-bottom: 8px;">
-          <label for="dni_cliente" style="font-size: 11px; font-weight: 800; color: #0056d2; display: block; margin-bottom: 2px;">DNI del Cliente:</label>
-          <div class="input-group" style="display: flex; gap: 6px;">
-            <input type="text" id="dni_cliente" maxlength="8" placeholder="Ingrese 8 dígitos" class="form-control" style="width: 100%; padding: 8px 10px; font-size: 13px; border: 1.5px solid #cbd5e1; border-radius: 8px; color: #0f172a; background: #fff; outline: none; flex: 1;">
-            <button type="button" id="btnBuscarDni" class="btn btn-primary" style="background: var(--primary); color: #fff; border: none; padding: 0 12px; border-radius: 8px; font-size: 12px; font-weight: 900; cursor: pointer;">Buscar</button>
+      <!-- SECCIÓN DE CLIENTE Y BÚSQUEDA AUTOMÁTICA RENIEC (INTEGRADO EN TPV) -->
+      <div class="card mb-3" style="background: #061122; border: 1.5px dashed var(--primary); padding: 12px; border-radius: 10px; margin-bottom: 10px;">
+        <div class="card-header" style="font-size: 12px; font-weight: 900; color: #38bdf8; margin-bottom: 6px; text-transform: uppercase;">Datos del Cliente</div>
+        <div class="card-body" style="display: flex; flex-direction: column; gap: 8px;">
+          <div>
+            <label for="dni_cliente" class="form-label" style="font-size: 11px; margin-top: 0;">DNI del Cliente:</label>
+            <div class="input-group" style="display: flex; gap: 6px; margin-top: 2px;">
+              <input type="text" id="dni_cliente" class="form-control" maxlength="8" placeholder="Ingrese 8 dígitos" style="flex: 1; padding: 8px; font-size: 13px; background: #fff; color: #0f172a; border-radius: 6px; border: 1px solid #cbd5e1; outline: none; font-weight: bold;">
+              <button class="btn btn-outline-primary" type="button" id="btnBuscarDni" style="background: var(--primary); color: #fff; border: none; padding: 0 12px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer;">Buscar RENIEC</button>
+            </div>
           </div>
-        </div>
-
-        <div class="form-group" style="margin-bottom: 2px;">
-          <label for="nombre_cliente" style="font-size: 11px; font-weight: 800; color: #0056d2; display: block; margin-bottom: 2px;">Nombre / Razón Social (RENIEC):</label>
-          <input type="text" id="nombre_cliente" class="form-control" readonly required style="width: 100%; padding: 8px 10px; font-size: 13px; border: 1.5px solid #cbd5e1; border-radius: 8px; color: #0f172a; background: #f8fafc; outline: none;" placeholder="Autocompletado automático...">
+          <div>
+            <label for="nombre_cliente" class="form-label" style="font-size: 11px; margin-top: 0;">Nombre / Razón Social:</label>
+            <input type="text" id="nombre_cliente" class="form-control" readonly required placeholder="Se autocompletará..." style="width: 100%; padding: 8px; font-size: 13px; background: #f8fafc; color: #0f172a; border-radius: 6px; border: 1px solid #cbd5e1; margin-top: 2px;">
+          </div>
         </div>
       </div>
 
@@ -1357,8 +1359,9 @@
 
       <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;"> 
         <button type="button" class="btn btn-del" onclick="cerrarModalCobro()">Cancelar</button> 
-        <button type="button" id="btnConfirmarVenta" class="btn btn-save" style="background:linear-gradient(135deg, #10b981, #059669); width:100%; border:none;" onclick="confirmarCobroFinalizado()"> 
-          <i class="fa-solid fa-print"></i> Procesar Venta e Imprimir Comprobante Fiscal 
+        <!-- Botón para cerrar venta e imprimir automático -->
+        <button type="button" id="btnProcesarVenta" class="btn btn-success btn-lg w-100" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; width: 100%; border: none; font-weight: 900;" onclick="confirmarCobroFinalizado()"> 
+          <i class="fas fa-print"></i> Cobrar, Guardar y Enviar a Imprimir 
         </button> 
       </div> 
     </div> 
@@ -1519,30 +1522,27 @@
       if (overlay) overlay.classList.remove('active'); 
     } 
 
-    /* INTEGRACIÓN DE CONSULTA RENIEC VÍA API EN EL PANEL */
+    /* SCRIPT AJAX PARA BÚSQUEDA RENIEC Y PROCESAR VENTA / TPV */
     document.addEventListener('DOMContentLoaded', () => {
         const btnBuscarDni = document.getElementById('btnBuscarDni');
         if (btnBuscarDni) {
             btnBuscarDni.addEventListener('click', function() {
                 let dni = document.getElementById('dni_cliente').value.trim();
-                
                 if (dni.length !== 8) {
-                    alert('Por favor ingrese un DNI válido de 8 dígitos.');
+                    alert('El DNI debe tener exactamente 8 dígitos.');
                     return;
                 }
 
-                // Llamada al archivo backend que procesa la consulta API de ApisPerú
                 fetch(`buscar_dni.php?dni=${dni}`)
-                    .then(response => response.json())
+                    .then(res => res.json())
                     .then(data => {
                         if (data.success) {
-                            // Autocompleta el campo de nombre con la respuesta de RENIEC
                             document.getElementById('nombre_cliente').value = data.nombres_completos;
                         } else {
-                            alert('No se encontraron datos para este DNI.');
+                            alert('No se encontró información para el DNI ingresado.');
                         }
                     })
-                    .catch(error => console.error('Error:', error));
+                    .catch(err => console.error('Error en la consulta:', err));
             });
         }
     });
@@ -2290,7 +2290,7 @@
       cerrarModalCobro(); 
       imprimirComprobanteFiscalDirecto(venta); 
 
-      alert("✔ Venta cobrada y finalizada."); 
+      alert("✔ ¡Venta registrada con éxito y ticket enviado a la tiquetera!"); 
       await cargarComandasEnVivo(); 
       await cargarVentasDesdeFirebase(); 
       actualizarQRVisualDirecto(); 
