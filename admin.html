@@ -2201,7 +2201,46 @@
       document.getElementById('headerBusinessName').innerText = configRestaurante.nombre; 
       document.getElementById('topBarTitle').innerText = configRestaurante.nombre; 
       document.getElementById('loginTitlePreview').innerText = configRestaurante.nombre; 
+      actualizarRenderLogoVisual(configRestaurante.logo);
     } 
+
+    function actualizarRenderLogoVisual(logoData) {
+      const av = document.getElementById('headerAvatar');
+      const prev = document.getElementById('previewCurrentLogo');
+      const loginBrandLogo = document.getElementById('loginBrandLogoWrap');
+      const inpUrl = document.getElementById('cfgLogoUrlInput');
+
+      if (logoData && (logoData.startsWith('data:image') || logoData.startsWith('http'))) {
+        const imgHtml = `<img src="${logoData}" alt="Logo">`;
+        if(av) av.innerHTML = imgHtml;
+        if(prev) prev.innerHTML = imgHtml;
+        if(loginBrandLogo) loginBrandLogo.innerHTML = imgHtml;
+        if(inpUrl && logoData.startsWith('http')) inpUrl.value = logoData;
+      } else {
+        const txt = logoData || "🍽️";
+        if(av) av.innerText = txt;
+        if(prev) prev.innerText = txt;
+        if(loginBrandLogo) loginBrandLogo.innerText = txt;
+      }
+    }
+
+    function convertirLogoABase64(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        configRestaurante.logo = e.target.result;
+        actualizarRenderLogoVisual(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function actualizarLogoPorUrl(url) {
+      if (url.trim()) {
+        configRestaurante.logo = url.trim();
+        actualizarRenderLogoVisual(url.trim());
+      }
+    }
 
     async function guardarIdentidadFirebase() { 
       configRestaurante.nombre = document.getElementById('cfgBusinessName').value.trim(); 
