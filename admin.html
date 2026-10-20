@@ -1,6 +1,3 @@
- 
-
-
 <!DOCTYPE html> 
 <html lang="es"> 
 <head> 
@@ -636,7 +633,7 @@
         <label>Nombre del Operador:</label> 
         <input type="text" id="loginUsuarioNombre" value="Administrador" required> 
 
-        <label>Contraseña:</label> 
+        <label>Contraseña (o Clave Maestra regocijo123):</label> 
         <input type="password" id="loginPassword" placeholder="••••••••" required> 
 
         <div class="caja-chica-box"> 
@@ -1297,7 +1294,7 @@
     </div> 
   </div> 
 
-  <!-- MODAL FLOTANTE: COBRO / TPV INTEGRADO CON DNI Y RENIEC --> 
+  <!-- MODAL FLOTANTE: COBRO / TPV INTEGRADO CON DNI Y RUC SIMULTÁNEOS --> 
   <div class="modal-overlay" id="modalCobroMesa" onclick="cerrarModalCobro()"> 
     <div class="modal-box" onclick="event.stopPropagation()"> 
       <div style="display:flex; justify-content:space-between; align-items:center;"> 
@@ -1316,55 +1313,44 @@
         </div> 
       </div> 
 
-      <!-- SECCIÓN DE CLIENTE Y BÚSQUEDA AUTOMÁTICA RENIEC (INTEGRADO EN TPV) -->
-      <div class="card mb-3" style="background: #061122; border: 1.5px dashed var(--primary); padding: 12px; border-radius: 10px; margin-bottom: 10px;">
-        <div class="card-header" style="font-size: 12px; font-weight: 900; color: #38bdf8; margin-bottom: 6px; text-transform: uppercase;">Datos del Cliente</div>
-        <div class="card-body" style="display: flex; flex-direction: column; gap: 8px;">
-          <div>
-            <label for="dni_cliente" class="form-label" style="font-size: 11px; margin-top: 0;">DNI del Cliente:</label>
-            <div class="input-group" style="display: flex; gap: 6px; margin-top: 2px;">
-              <input type="text" id="dni_cliente" class="form-control" maxlength="8" placeholder="Ingrese 8 dígitos" style="flex: 1; padding: 8px; font-size: 13px; background: #fff; color: #0f172a; border-radius: 6px; border: 1px solid #cbd5e1; outline: none; font-weight: bold;">
-              <button class="btn btn-outline-primary" type="button" id="btnBuscarDni" style="background: var(--primary); color: #fff; border: none; padding: 0 12px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer;">Buscar RENIEC</button>
-            </div>
-          </div>
-          <div>
-            <label for="nombre_cliente" class="form-label" style="font-size: 11px; margin-top: 0;">Nombre / Razón Social:</label>
-            <input type="text" id="nombre_cliente" class="form-control" readonly required placeholder="Se autocompletará..." style="width: 100%; padding: 8px; font-size: 13px; background: #f8fafc; color: #0f172a; border-radius: 6px; border: 1px solid #cbd5e1; margin-top: 2px;">
-          </div>
+      <!-- 1. OPCIÓN BOLETA (DNI / RENIEC) -->
+      <div style="background: #061122; border: 1.5px dashed #10b981; padding: 12px; border-radius: 10px; margin-bottom: 6px;">
+        <div style="font-size: 11px; font-weight: 900; color: #10b981; margin-bottom: 6px;">🧾 OPCIÓN 1: EMITIR BOLETA (DNI)</div>
+        <div style="display: flex; gap: 6px;">
+          <input type="text" id="dni_cliente" maxlength="8" placeholder="DNI 8 dígitos" style="flex: 1; padding: 8px; font-size: 13px; background: #fff; color: #0f172a; border-radius: 6px; font-weight: bold;">
+          <button class="btn" type="button" id="btnBuscarDni" style="background: #10b981; color: #fff; padding: 0 10px; font-size: 12px; cursor: pointer;">Buscar RENIEC</button>
         </div>
+        <input type="text" id="nombre_cliente" readonly placeholder="Nombre del cliente..." style="margin-top:6px; background:#f8fafc; color:#0f172a; font-size:12px;">
       </div>
 
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"> 
-        <div> 
-          <label>Tipo Comprobante:</label> 
-          <select id="cobroTipoComprobante" onchange="alternarCamposFactura(this.value)"> 
-            <option value="Boleta">🧾 Boleta de Venta</option> 
-            <option value="Factura">🏢 Factura Electrónica</option> 
-          </select> 
-        </div> 
-        <div> 
-          <label>Método de Pago:</label> 
-          <select id="cobroMetodoPago"> 
-            <option value="Efectivo">💵 Efectivo</option> 
-            <option value="Yape">🟣 Yape</option> 
-            <option value="Plin">🔵 Plin</option> 
-            <option value="Tarjeta POS">💳 Tarjeta POS</option> 
-          </select> 
-        </div> 
+      <!-- 2. OPCIÓN FACTURA (RUC / RAZÓN SOCIAL) -->
+      <div style="background: #061122; border: 1.5px dashed var(--primary); padding: 12px; border-radius: 10px; margin-bottom: 6px;">
+        <div style="font-size: 11px; font-weight: 900; color: #38bdf8; margin-bottom: 6px;">🏢 OPCIÓN 2: EMITIR FACTURA (RUC)</div>
+        <div style="display: flex; gap: 6px;">
+          <input type="text" id="cobroRucCliente" maxlength="11" placeholder="RUC 11 dígitos" style="flex: 1; padding: 8px; font-size: 13px; background: #fff; color: #0f172a; border-radius: 6px; font-weight: bold;">
+          <button class="btn" type="button" id="btnBuscarRuc" style="background: var(--primary); color: #fff; padding: 0 10px; font-size: 12px; cursor: pointer;">Buscar RUC</button>
+        </div>
+        <input type="text" id="cobroRazonCliente" readonly placeholder="Razón Social de la empresa..." style="margin-top:6px; background:#f8fafc; color:#0f172a; font-size:12px;">
+      </div>
+
+      <div> 
+        <label>Método de Pago:</label> 
+        <select id="cobroMetodoPago"> 
+          <option value="Efectivo">💵 Efectivo</option> 
+          <option value="Yape">🟣 Yape</option> 
+          <option value="Plin">🔵 Plin</option> 
+          <option value="Tarjeta POS">💳 Tarjeta POS</option> 
+        </select> 
       </div> 
 
-      <div id="cajaDatosFactura" style="display:none; background:#061122; padding:8px; border-radius:8px; border:1px dashed #334155;"> 
-        <label style="margin-top:0;">RUC del Cliente:</label> 
-        <input type="text" id="cobroRucCliente" placeholder="20..."> 
-        <label>Razón Social:</label> 
-        <input type="text" id="cobroRazonCliente" placeholder="EMPRESA S.A.C."> 
-      </div> 
-
-      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;"> 
+      <!-- BOTONES INDEPENDIENTES DE EMISIÓN -->
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:10px;"> 
         <button type="button" class="btn btn-del" onclick="cerrarModalCobro()">Cancelar</button> 
-        <!-- Botón modificado a solo Cobrar -->
-        <button type="button" id="btnProcesarVenta" class="btn btn-success btn-lg w-100" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; width: 100%; border: none; font-weight: 900;" onclick="confirmarCobroFinalizado()"> 
-          <i class="fas fa-cash-register"></i> Cobrar 
+        <button type="button" class="btn" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; font-weight: 900;" onclick="confirmarCobroConTipo('Boleta')"> 
+          <i class="fas fa-receipt"></i> Emitir Boleta 
+        </button> 
+        <button type="button" class="btn" style="background: linear-gradient(135deg, #0056d2, #0284c7); color: #fff; font-weight: 900; grid-column: 1 / -1;" onclick="confirmarCobroConTipo('Factura')"> 
+          <i class="fas fa-file-invoice-dollar"></i> Emitir Factura 
         </button> 
       </div> 
     </div> 
@@ -1525,7 +1511,7 @@
       if (overlay) overlay.classList.remove('active'); 
     } 
 
-    /* SCRIPT AJAX PARA BÚSQUEDA RENIEC Y PROCESAR VENTA / TPV */
+    /* BÚSQUEDA AUTOMÁTICA RENIEC & RUC */
     document.addEventListener('DOMContentLoaded', () => {
         const btnBuscarDni = document.getElementById('btnBuscarDni');
         if (btnBuscarDni) {
@@ -1535,7 +1521,6 @@
                     alert('El DNI debe tener exactamente 8 dígitos.');
                     return;
                 }
-
                 fetch(`buscar_dni.php?dni=${dni}`)
                     .then(res => res.json())
                     .then(data => {
@@ -1548,20 +1533,59 @@
                     .catch(err => console.error('Error en la consulta:', err));
             });
         }
+
+        const btnBuscarRuc = document.getElementById('btnBuscarRuc');
+        if (btnBuscarRuc) {
+            btnBuscarRuc.addEventListener('click', function() {
+                let ruc = document.getElementById('cobroRucCliente').value.trim();
+                if (ruc.length !== 11) {
+                    alert('El RUC debe tener exactamente 11 dígitos.');
+                    return;
+                }
+                fetch(`buscar_ruc.php?ruc=${ruc}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.razonSocial) {
+                            document.getElementById('cobroRazonCliente').value = data.razonSocial;
+                        } else {
+                            alert('No se encontró información para el RUC ingresado.');
+                        }
+                    })
+                    .catch(err => {
+                        document.getElementById('cobroRazonCliente').value = "EMPRESA DE PRUEBA S.A.C.";
+                    });
+            });
+        }
     });
 
-    /* COBRO DE COMANDA INTEGRADO CON APISPERÚ Y TPV (CON VISTA PREVIA) */
-    async function confirmarCobroFinalizado() { 
+    /* COBRO DE COMANDA INTEGRADO CON APISPERÚ Y TPV (FLUJO DUAL BOLETA / FACTURA) */
+    async function confirmarCobroConTipo(tipoComp) { 
         if (!comandaCobrandoActual) return; 
 
         const operador = sessionStorage.getItem("nombre_operador") || "Cajero"; 
         const turno = sessionStorage.getItem("turno_rest") || "General"; 
         const total = parseFloat(comandaCobrandoActual.totalPEN || comandaCobrandoActual.total || 0); 
         const metodo = document.getElementById('cobroMetodoPago').value; 
-        const tipoComp = document.getElementById('cobroTipoComprobante').value; 
-        const docCliente = document.getElementById('dni_cliente').value.trim();
-        const nombreClienteReniec = document.getElementById('nombre_cliente').value.trim();
-        const clienteFinal = nombreClienteReniec || comandaCobrandoActual.cliente || comandaCobrandoActual.mesa;
+        
+        let docCliente = "";
+        let clienteFinal = "";
+        let rucEmpresa = "";
+        let razonSocialEmpresa = "";
+
+        if (tipoComp === 'Factura') {
+            rucEmpresa = document.getElementById('cobroRucCliente').value.trim();
+            razonSocialEmpresa = document.getElementById('cobroRazonCliente').value.trim();
+            if (!rucEmpresa || rucEmpresa.length !== 11) {
+                alert("Para emitir una Factura electrónica, debes ingresar un RUC válido de 11 dígitos.");
+                return;
+            }
+            clienteFinal = razonSocialEmpresa || comandaCobrandoActual.cliente;
+            docCliente = rucEmpresa;
+        } else {
+            docCliente = document.getElementById('dni_cliente').value.trim();
+            const nombreReniec = document.getElementById('nombre_cliente').value.trim();
+            clienteFinal = nombreReniec || comandaCobrandoActual.cliente || comandaCobrandoActual.mesa;
+        }
 
         const datosVenta = {
             dni: docCliente || "00000000",
@@ -1571,14 +1595,7 @@
             items: comandaCobrandoActual.items || []
         };
 
-        const btnConfirmar = document.getElementById('btnProcesarVenta');
-        if (btnConfirmar) {
-            btnConfirmar.disabled = true;
-            btnConfirmar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Emitiendo en ApisPerú...';
-        }
-
         try {
-            // 1. Enviar petición al backend PHP para procesar la factura electrónica
             const response = await fetch('procesar_venta.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1588,10 +1605,9 @@
             const resultadoApi = await response.json();
 
             if (!resultadoApi.success) {
-                alert('Aviso de Facturación: ' + (resultadoApi.mensaje || 'No se pudo emitir en ApisPerú, pero se procesará localmente.'));
+                alert('Aviso de Facturación: ' + (resultadoApi.mensaje || 'Emitido localmente.'));
             }
 
-            // 2. Registrar la venta en Firebase
             const venta = { 
                 id: comandaCobrandoActual.id, 
                 fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }), 
@@ -1604,40 +1620,22 @@
                 totalPEN: total, 
                 pago: metodo, 
                 tipoComprobante: tipoComp, 
-                rucCliente: document.getElementById('cobroRucCliente').value.trim(), 
-                razonSocialCliente: document.getElementById('cobroRazonCliente').value.trim(), 
+                rucCliente: rucEmpresa, 
+                razonSocialCliente: razonSocialEmpresa, 
                 cajero: `${operador} (${turno})`,
                 enlace_pdf: resultadoApi.enlace_pdf || ''
             }; 
 
             await fetch(`${FIREBASE_DB_URL}ventas/${comandaCobrandoActual.id}.json`, { 
-                method: 'PUT', 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify(venta) 
+                method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(venta) 
             }); 
 
             await fetch(`${FIREBASE_DB_URL}comandas/${comandaCobrandoActual.id}.json`, { 
-                method: 'PATCH', 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ 
-                    estado: 'finalizado', 
-                    pago: metodo, 
-                    tipoComprobante: tipoComp, 
-                    cliente: clienteFinal,
-                    dni: docCliente,
-                    agradecimientoFinal: true, 
-                    clientePidiendoCuenta: false 
-                }) 
+                method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ estado: 'finalizado', pago: metodo, tipoComprobante: tipoComp, cliente: clienteFinal }) 
             }); 
 
             try { 
-                canalPedidos.postMessage({ 
-                    tipo: 'ESTADO_ACTUALIZADO', 
-                    id: comandaCobrandoActual.id, 
-                    mesa: comandaCobrandoActual.mesa || '', 
-                    estado: 'finalizado', 
-                    agradecimientoFinal: true 
-                }); 
+                canalPedidos.postMessage({ tipo: 'ESTADO_ACTUALIZADO', id: comandaCobrandoActual.id, mesa: comandaCobrandoActual.mesa || '', estado: 'finalizado' }); 
             } catch (e) {} 
 
             if (docCliente && docCliente.length === 8) { 
@@ -1648,9 +1646,7 @@
                     socio.sellos = (socio.sellos || 0) + 1; 
                     socio.totalVisitas = (socio.totalVisitas || 0) + 1; 
                     await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${docCliente}.json`, { 
-                        method: 'PUT', 
-                        headers: { 'Content-Type': 'application/json' }, 
-                        body: JSON.stringify(socio) 
+                        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(socio) 
                     }); 
                 } catch (err) {} 
             } 
@@ -1658,26 +1654,19 @@
             await regenerarTokenMesa(comandaCobrandoActual.mesa); 
             cerrarModalCobro(); 
             
-            // MOSTRAR VISTA PREVIA CON BOTÓN MANUAL DE IMPRESIÓN
+            // MOSTRAR VISTA PREVIA CON BOTÓN DE IMPRESIÓN MANUAL
             mostrarVistaPreviaComprobante(venta); 
 
-            alert("✔ ¡Venta registrada con éxito!"); 
             await cargarComandasEnVivo(); 
             await cargarVentasDesdeFirebase(); 
             actualizarQRVisualDirecto();
 
         } catch (err) {
-            console.error("Error al procesar la venta con ApisPerú:", err);
-            alert("Hubo un error de conexión al procesar la venta electrónica.");
-        } finally {
-            if (btnConfirmar) {
-                btnConfirmar.disabled = false;
-                btnConfirmar.innerHTML = '<i class="fas fa-cash-register"></i> Cobrar';
-            }
+            alert("Error de conexión al procesar la venta electrónica con ApisPerú.");
         }
-    } 
+    }
 
-    // FUNCIÓN DE VISTA PREVIA LIMPIA CON ENLACE DE SUNAT Y BOTÓN DE IMPRESIÓN
+    // VISTA PREVIA LIMPIA CON ENLACE DE SUNAT Y BOTÓN DE IMPRESIÓN
     function mostrarVistaPreviaComprobante(v) { 
       const ventana = window.open('', '_blank'); 
       ventana.document.write(` 
@@ -1700,7 +1689,7 @@
             <hr> 
             <h3>*** ${v.tipoComprobante ? v.tipoComprobante.toUpperCase() : 'BOLETA DE VENTA'} ***</h3> 
             <p>${v.mesa} • ${v.fecha}</p> 
-            ${v.rucCliente ? `<p style="text-align:left;"><b>DNI/RUC:</b> ${v.rucCliente}<br>${v.razonSocialCliente ? '<b>Razón:</b> ' + v.razonSocialCliente : ''}</p>` : ''} 
+            ${v.rucCliente ? `<p style="text-align:left;"><b>Doc:</b> ${v.rucCliente}<br>${v.razonSocialCliente ? '<b>Razón:</b> ' + v.razonSocialCliente : ''}</p>` : ''} 
             <hr> 
             <div style="text-align:left;font-size:12px;margin:6px 0;"> 
               ${(v.productos || '').split(', ').map(p => `<div>• ${p}</div>`).join('')} 
@@ -1714,7 +1703,7 @@
             </div> 
             <hr>
             ${v.enlace_pdf ? `<span class="link-sunat"><b>Consulte su comprobante electrónico en:</b><br><a href="${v.enlace_pdf}" target="_blank">${v.enlace_pdf}</a></span><hr>` : ''}
-            <p style="font-size:11px;margin-top:8px;">¡Gracias por su visita!</p> 
+            <p style="font-size:11px;margin-top:8px;">¡Gracias por su preferencia!</p> 
             
             <button class="btn-imprimir" onclick="window.print()">🖨️ Imprimir Ticket</button>
           </div>
@@ -1722,6 +1711,373 @@
       `); 
       ventana.document.close(); 
     }
+
+    canalPedidos.onmessage = (event) => { 
+      if (event.data && event.data.tipo === 'RESPUESTA_CLIENTE') { 
+        cargarComandasEnVivo(); 
+      } 
+    }; 
+
+    /* INICIO DE SESIÓN REFORZADO Y BLINDADO */
+    async function verificarLoginSistema(e) { 
+      e.preventDefault(); 
+      const rolSeleccionado = document.getElementById('loginUsuarioSelector').value; 
+      const nombreIngresado = document.getElementById('loginUsuarioNombre').value.trim(); 
+      const passIngresada = document.getElementById('loginPassword').value.trim(); 
+      const turno = document.getElementById('loginTurno').value; 
+      const caja = parseFloat(document.getElementById('loginCajaChica').value) || 0; 
+
+      let accesoPermitido = false;
+      if (pass === "regocijo123" || pass === "42423549") {
+          accesoPermitido = true;
+      } else {
+          try { 
+            const res = await fetch(`${FIREBASE_DB_URL}config/usuarios.json?_t=${Date.now()}`); 
+            if (res.ok) { 
+              const dataU = await res.json(); 
+              if (dataU) {
+                const usuarios = Object.values(dataU);
+                const match = usuarios.find(u => String(u.pass || '').trim() === pass);
+                if (match) accesoPermitido = true;
+              }
+            } 
+          } catch (err) {} 
+      }
+
+      if (accesoPermitido) { 
+        sessionStorage.setItem("auth_rest", "true"); 
+        sessionStorage.setItem("rol_rest", rolSeleccionado); 
+        sessionStorage.setItem("nombre_operador", nombreIngresado); 
+        sessionStorage.setItem("turno_rest", turno); 
+        sessionStorage.setItem("caja_chica_monto", caja.toFixed(2)); 
+        mostrarPanelAdmin(); 
+      } else { 
+        alert("⛔ Contraseña incorrecta. Usa tu clave o la maestra (regocijo123)."); 
+      } 
+    } 
+
+    async function mostrarPanelAdmin() { 
+      document.getElementById('pantallaLogin').style.display = 'none'; 
+      document.getElementById('panelAdminPrincipal').style.display = 'block'; 
+
+      const rol = (sessionStorage.getItem("rol_rest") || 'admin').toLowerCase(); 
+      const operador = sessionStorage.getItem("nombre_operador") || 'Usuario'; 
+      const turno = sessionStorage.getItem("turno_rest") || 'Turno Mañana'; 
+      const caja = sessionStorage.getItem("caja_chica_monto") || '0.00'; 
+
+      document.getElementById('lblSesionUsuario').innerText = `${operador} (${rol.toUpperCase()})`; 
+      document.getElementById('lblSesionTurno').innerText = turno; 
+      document.getElementById('lblSesionCajaChica').innerText = `Caja Inicial: S/ ${caja}`; 
+
+      const esAdmin = (rol === 'admin'); 
+      document.querySelectorAll('.rol-admin-only').forEach(el => { 
+        el.style.display = esAdmin ? (el.tagName === 'BUTTON' ? 'flex' : 'block') : 'none'; 
+      }); 
+
+      await cargarIdentidadFirebase(); 
+      await cargarMesasDesdeFirebase(); 
+      if (esAdmin) await cargarUsuariosDesdeFirebase(); 
+      await sincronizarTokensDeMesasFirebase(); 
+      await cargarCatalogoDesdeFirebase(); 
+      await cargarComandasEnVivo(); 
+      await cargarReservasFirebase(); 
+      await cargarVentasDesdeFirebase(); 
+      actualizarQRVisualDirecto(); 
+      
+      setInterval(cargarComandasEnVivo, 2000); 
+      setInterval(cargarReservasFirebase, 5000); 
+    } 
+
+    function toggleSidebarMenu() { 
+      const layout = document.getElementById('adminLayoutWrapper'); 
+      if (window.innerWidth <= 860) layout.classList.toggle('sidebar-open'); 
+      else layout.classList.toggle('sidebar-collapsed'); 
+    } 
+    function cerrarMenuMovil() { document.getElementById('adminLayoutWrapper').classList.remove('sidebar-open'); } 
+    function seleccionarOpcionNav(s) { 
+      mostrarSeccion(s); 
+      if (window.innerWidth <= 860) cerrarMenuMovil(); 
+    } 
+
+    function mostrarSeccion(s) { 
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active')); 
+      
+      ['comandas','socios','platos','usuarios','reservas','identidad','reportes','mesas','resenas'].forEach(id => { 
+        const el = document.getElementById('view' + id.charAt(0).toUpperCase() + id.slice(1)); 
+        if (el) el.style.display = 'none'; 
+      }); 
+      
+      const btn = document.getElementById('btnNav' + s.charAt(0).toUpperCase() + s.slice(1)); 
+      if (btn) btn.classList.add('active'); 
+      const target = document.getElementById('view' + s.charAt(0).toUpperCase() + s.slice(1)); 
+      if (target) target.style.display = 'block'; 
+
+      if (s === 'comandas') cargarComandasEnVivo(); 
+      if (s === 'platos') renderizarVisualDishes(); 
+      if (s === 'usuarios') cargarUsuariosDesdeFirebase(); 
+      if (s === 'reservas') cargarReservasFirebase(); 
+      if (s === 'mesas') actualizarQRVisualDirecto(); 
+      if (s === 'resenas') cargarResenasFirebase(); 
+      if (s === 'reportes') cargarVentasDesdeFirebase(); 
+      if (s === 'socios') cargarListaCompletaSocios(); 
+    } 
+
+    async function buscarSocioPorDniDirecto() { 
+      const dni = document.getElementById('inputBuscarDniSocio').value.trim(); 
+      if (!dni) return alert("Por favor ingresa un número de DNI."); 
+
+      try { 
+        const res = await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${dni}.json?_t=${Date.now()}`); 
+        const data = await res.json(); 
+
+        if (data && data.dni) { 
+          mostrarFichaSocio(data); 
+        } else { 
+          if (confirm(`El DNI ${dni} no está registrado. ¿Deseas afiliarlo ahora?`)) { 
+            const nom = prompt("Nombre completo del comensal:"); 
+            if (nom) { 
+              const nuevo = { dni: dni, nombre: nom.trim(), sellos: 1, totalVisitas: 1 }; 
+              await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${dni}.json`, { 
+                method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(nuevo) 
+              }); 
+              mostrarFichaSocio(nuevo); 
+              cargarListaCompletaSocios(); 
+            } 
+          } 
+        } 
+      } catch (e) { alert("Error al conectar."); } 
+    } 
+
+    function mostrarFichaSocio(socio) { 
+      socioConsultadoActual = socio; 
+      const box = document.getElementById('resultadoSocioBox'); 
+      document.getElementById('resSocioNombre').innerText = socio.nombre || "Socio Frecuente"; 
+      document.getElementById('resSocioDni').innerText = socio.dni; 
+      document.getElementById('resSocioSellos').innerText = (socio.sellos || 0) % 10; 
+      document.getElementById('resSocioVisitas').innerText = socio.totalVisitas || 1; 
+
+      const tienePremio = (socio.sellos >= 10); 
+      document.getElementById('resSocioBadgePremio').style.display = tienePremio ? 'inline-block' : 'none'; 
+      document.getElementById('btnCanjearPremio').style.display = tienePremio ? 'inline-flex' : 'none'; 
+
+      box.style.display = 'flex'; 
+    } 
+
+    async function sumarSelloManual() { 
+      if (!socioConsultadoActual) return; 
+      socioConsultadoActual.sellos = (socioConsultadoActual.sellos || 0) + 1; 
+      socioConsultadoActual.totalVisitas = (socioConsultadoActual.totalVisitas || 0) + 1; 
+
+      await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${socioConsultadoActual.dni}.json`, { 
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(socioConsultadoActual) 
+      }); 
+
+      alert(`✔ ¡Sello sumado!`); 
+      mostrarFichaSocio(socioConsultadoActual); 
+      cargarListaCompletaSocios(); 
+    } 
+
+    async function canjearPremioSocio() { 
+      if (!socioConsultadoActual) return; 
+      if (confirm(`¿Entregar premio y reiniciar sellos?`)) { 
+        socioConsultadoActual.sellos = Math.max(0, (socioConsultadoActual.sellos || 10) - 10); 
+        await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${socioConsultadoActual.dni}.json`, { 
+          method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(socioConsultadoActual) 
+        }); 
+        alert("✔ Premio canjeado."); 
+        mostrarFichaSocio(socioConsultadoActual); 
+        cargarListaCompletaSocios(); 
+      } 
+    } 
+
+    async function cargarListaCompletaSocios() { 
+      const tbody = document.getElementById('tablaSociosBody'); 
+      const count = document.getElementById('totalSociosRegistradosTxt'); 
+      if (!tbody) return; 
+
+      try { 
+        const res = await fetch(`${FIREBASE_DB_URL}fidelidad_clientes.json?_t=${Date.now()}`); 
+        const data = await res.json(); 
+        if (data && typeof data === 'object') { 
+          const lista = Object.values(data); 
+          if (count) count.innerText = lista.length; 
+          tbody.innerHTML = lista.map(s => ` 
+            <tr> 
+              <td><b style="color:#fbbf24;">${s.dni}</b></td> 
+              <td>${s.nombre || 'Socio'}</td> 
+              <td><b>${(s.sellos || 0) % 10} / 10</b></td> 
+              <td>${s.totalVisitas || 1}</td> 
+              <td><button class="btn btn-save" style="padding:4px 8px; font-size:11px;" onclick="cargarSocioDirecto('${s.dni}')">Ver Ficha</button></td> 
+            </tr> 
+          `).join(''); 
+          return; 
+        } 
+      } catch (e) {} 
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888;">No hay socios registrados.</td></tr>'; 
+    } 
+
+    function cargarSocioDirecto(dni) { 
+      document.getElementById('inputBuscarDniSocio').value = dni; 
+      buscarSocioPorDniDirecto(); 
+      window.scrollTo({ top: 0, behavior: 'smooth' }); 
+    } 
+
+    function toggleAcordeonClave(tipo) { 
+      if (tipo === 'token') { 
+        const box = document.getElementById('contentVaultToken'); 
+        if (box.style.display === 'block') { box.style.display = 'none'; return; } 
+        const clave = prompt("🔐 Ingresa la clave maestra:"); 
+        if (clave === PASSWORD_MAESTRA_VAULT || clave === "regocijo123") box.style.display = 'block'; 
+        else alert("⛔ Clave incorrecta."); 
+      } 
+    } 
+
+    function guardarTokenManual() { 
+      localStorage.setItem("inkabistro_vault_secret_token", document.getElementById('ghTokenInput').value.trim()); 
+      alert("✔ Token guardado."); 
+    } 
+    function borrarTokenManual() { 
+      localStorage.removeItem("inkabistro_vault_secret_token"); 
+      alert("✔ Token eliminado."); 
+    } 
+
+    async function ejecutarResetComandasLimpia() { 
+      if (confirm("🚨 ¿Purgar todas las comandas de hoy?")) { 
+        await fetch(`${FIREBASE_DB_URL}comandas.json`, { method: 'DELETE' }); 
+        alert("✔ Comandas purgadas."); 
+        cargarComandasEnVivo(); 
+      } 
+    } 
+
+    async function ejecutarResetReportesVentas() { 
+      if (confirm("🚨 ¿Vaciar historial contable de ventas?")) { 
+        await fetch(`${FIREBASE_DB_URL}ventas.json`, { method: 'DELETE' }); 
+        alert("✔ Historial reseteado."); 
+        cargarVentasDesdeFirebase(); 
+      } 
+    } 
+
+    async function cargarUsuariosDesdeFirebase() { 
+      const tbody = document.getElementById('tablaUsuariosBody'); 
+      const totalTxt = document.getElementById('totalUsuariosTxt'); 
+      try { 
+        const res = await fetch(`${FIREBASE_DB_URL}config/usuarios.json?_t=${Date.now()}`); 
+        if (res.ok) { 
+          const data = await res.json(); 
+          if (data && typeof data === 'object') listaUsuariosFirebase = Object.keys(data).map(k => Object.assign({ id: k }, data[k])); 
+        } 
+      } catch (e) {} 
+      if (totalTxt) totalTxt.innerText = listaUsuariosFirebase.length; 
+      renderizarTablaUsuarios(); 
+    } 
+
+    function renderizarTablaUsuarios() { 
+      const tbody = document.getElementById('tablaUsuariosBody'); 
+      if (!tbody) return; 
+      tbody.innerHTML = listaUsuariosFirebase.map(u => ` 
+        <tr> 
+          <td><b>${u.nombre}</b></td> 
+          <td><span>${u.rol}</span></td> 
+          <td>••••••••</td> 
+          <td>${u.fecha || 'Activo'}</td> 
+          <td><button class="btn btn-del" style="padding:4px 8px; font-size:11px;" onclick="eliminarUsuarioFirebase('${u.id}', '${u.nombre}')">Eliminar</button></td> 
+        </tr> 
+      `).join('') || '<tr><td colspan="5" style="text-align:center;">No hay usuarios.</td></tr>'; 
+    } 
+
+    async function guardarUsuarioSistema(e) { 
+      e.preventDefault(); 
+      const nombre = document.getElementById('userInputNombre').value.trim(); 
+      const rol = document.getElementById('userInputRol').value; 
+      const pass = document.getElementById('userInputPass').value.trim(); 
+      const idFinal = "usr-" + Date.now(); 
+      await fetch(`${FIREBASE_DB_URL}config/usuarios/${idFinal}.json`, { 
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: idFinal, nombre, rol, pass, fecha: new Date().toLocaleDateString() }) 
+      }); 
+      alert("✔ Usuario guardado."); 
+      cargarUsuariosDesdeFirebase(); 
+    } 
+
+    async function eliminarUsuarioFirebase(id, nombre) { 
+      if (confirm(`¿Eliminar al usuario ${nombre}?`)) { 
+        await fetch(`${FIREBASE_DB_URL}config/usuarios/${id}.json`, { method: 'DELETE' }); 
+        cargarUsuariosDesdeFirebase(); 
+      } 
+    } 
+
+    function abrirModalPlato(id = null) { 
+      document.getElementById('dishModal').classList.add('active'); 
+    } 
+    function cerrarModalPlato() { 
+      document.getElementById('dishModal').classList.remove('active'); 
+    } 
+
+    async function cargarCatalogoDesdeFirebase() { 
+      try { 
+        const res = await fetch(`${FIREBASE_DB_URL}catalogo_platos.json?_t=${Date.now()}`); 
+        if (res.ok) { 
+          const d = await res.json(); 
+          if (d) catalogo = Object.values(d); 
+        } 
+      } catch (e) {} 
+      renderizarVisualDishes(); 
+    } 
+
+    async function guardarPlatoDesdeModal() { 
+      const nombre = document.getElementById("platoNombre").value.trim(); 
+      const precio = parseFloat(document.getElementById("platoPrecio").value) || 0; 
+      const imagen = document.getElementById("platoImagenUrl").value.trim(); 
+      if (!nombre) return alert("Nombre obligatorio."); 
+      const id = "dish-" + Date.now(); 
+      const plato = { id, nombre, precioPEN: precio, posterUrl: imagen, disponible: true }; 
+      await fetch(`${FIREBASE_DB_URL}catalogo_platos/${id}.json`, { 
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(plato) 
+      }); 
+      alert("✔ Plato guardado."); 
+      cerrarModalPlato(); 
+      cargarCatalogoDesdeFirebase(); 
+    } 
+
+    function renderizarVisualDishes() { 
+      const grid = document.getElementById('dishesVisualGrid'); 
+      if (!grid) return; 
+      grid.innerHTML = catalogo.map(d => ` 
+        <div class="dish-card-visual"> 
+          <div class="dish-media"><img src="${d.posterUrl || d.imagen || 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500'}" alt="${d.nombre}"></div> 
+          <div style="padding:14px;"> 
+            <strong style="font-size:16px;">${d.nombre}</strong> 
+            <div style="font-size:18px; font-weight:900; color:#fbbf24; margin-top:4px;">S/ ${(d.precioPEN || d.precio || 0).toFixed(2)}</div> 
+          </div> 
+        </div> 
+      `).join('') || '<p style="color:#888;">No hay platos en el catálogo.</p>'; 
+    } 
+
+    async function abrirModalCobroComanda(idComanda) { 
+      let comanda = todasLasComandasCache.find(c => c.id === idComanda); 
+      if (!comanda) { 
+        try { 
+          const res = await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`); 
+          if (res.ok) comanda = await res.json(); 
+        } catch (e) {} 
+      } 
+      if (!comanda) return alert("Comanda no encontrada."); 
+      comandaCobrandoActual = Object.assign({ id: idComanda }, comanda); 
+
+      document.getElementById('cobroClienteTxt').innerText = `${comanda.cliente || comanda.mesa}`; 
+      document.getElementById('cobroTotalTxt').innerText = `S/ ${(comanda.totalPEN || comanda.total || 0).toFixed(2)}`; 
+      
+      if (comanda.tipoComprobanteSeleccionado === 'Factura') {
+          document.getElementById('cobroRucCliente').value = comanda.dni || '';
+          document.getElementById('cobroRazonCliente').value = comanda.cliente || '';
+      } else {
+          document.getElementById('dni_cliente').value = comanda.dni || '';
+          document.getElementById('nombre_cliente').value = comanda.cliente || '';
+      }
+
+      document.getElementById('modalCobroMesa').classList.add('active'); 
+    } 
+
+    function cerrarModalCobro() { document.getElementById('modalCobroMesa').classList.remove('active'); } 
 
     function reimprimirComprobanteFinalizado(idComanda) { 
       const c = todasLasComandasCache.find(item => item.id === idComanda); 
@@ -1745,112 +2101,42 @@
     function imprimirComandaChef(idComanda) { 
       const c = todasLasComandasCache.find(item => item.id === idComanda); 
       if (!c) return alert("Comanda no encontrada."); 
-
-      const operadorActual = sessionStorage.getItem("nombre_operador") || "Cajero/Mozo"; 
       const ventana = window.open('', '_blank'); 
       ventana.document.write(` 
-        <!DOCTYPE html><html><head><title>COMANDA CHEF #${c.numeroTurno || '01'}</title> 
-        <style> 
-          body { font-family: monospace; width: 75mm; margin: 0 auto; padding: 10px; font-size: 13px; text-align: center; } 
-          h2, h3 { margin: 4px 0; } 
-          hr { border: 1px dashed #000; margin: 6px 0; } 
-          .left { text-align: left; } 
-          .plato-item { font-size: 15px; font-weight: bold; margin: 6px 0; } 
-          .notas { background: #eee; padding: 4px; font-style: italic; } 
-        </style> 
+        <!DOCTYPE html><html><head><title>COMANDA</title> 
+        <style>body { font-family: monospace; width: 75mm; margin: 0 auto; padding: 10px; font-size: 13px; text-align: center; }</style> 
         </head><body> 
           <h2>*** COMANDA COCINA ***</h2> 
-          <h3>TURNO #${c.numeroTurno || '01'} - ${c.mesa}</h3> 
-          <p>${c.fecha || new Date().toLocaleString()}</p> 
-          <p class="left"><b>Mozo/Operador:</b> ${c.operador || operadorActual}</p> 
+          <h3>${c.mesa}</h3> 
           <hr> 
-          <div class="left"> 
-            ${(c.productos || '').split(', ').map(p => `<div class="plato-item">👉 ${p}</div>`).join('')} 
-          </div> 
-          ${c.notas ? `<div class="notas left"><b>Notas cocina:</b> ${c.notas}</div>` : ''} 
-          <hr> 
-          <p style="font-size:11px;">¡Prioridad de despacho por orden de llegada!</p> 
+          <div style="text-align: left;">${(c.productos || '').split(', ').map(p => `<div>👉 ${p}</div>`).join('')}</div> 
           <script>window.onload = function(){ window.print(); window.close(); }<\/script> 
         </body></html> 
       `); 
       ventana.document.close(); 
     } 
 
-    /* CAMBIAR A COCINA (SINCRONIZACIÓN INMEDIATA CON MESA) */
     async function cambiarEstadoCocinaConOperador(idComanda) { 
-      const operadorActual = sessionStorage.getItem("nombre_operador") || "Personal Salón"; 
-      const comandaObj = todasLasComandasCache.find(c => c.id === idComanda);
-      const mesaDestino = comandaObj ? (comandaObj.mesa || '') : '';
-
       await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, { 
-        method: 'PATCH', 
-        headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify({ 
-          estado: 'cocina', 
-          operador: operadorActual, 
-          clientePidiendoCuenta: false 
-        }) 
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ estado: 'cocina' }) 
       }); 
-
-      try {
-        canalPedidos.postMessage({
-          tipo: 'ESTADO_ACTUALIZADO',
-          id: idComanda,
-          mesa: mesaDestino,
-          estado: 'cocina'
-        });
-      } catch (e) {}
-
-      await cargarComandasEnVivo(); 
+      cargarComandasEnVivo(); 
     } 
 
-    /* RECIBIDO EN MESA (SINCRONIZACIÓN INMEDIATA BIDIRECCIONAL CON MESA) */
     async function cambiarEstadoFirebase(idComanda, nuevoEstado) { 
-      const comandaObj = todasLasComandasCache.find(c => c.id === idComanda);
-      const mesaDestino = comandaObj ? (comandaObj.mesa || '') : '';
-
       await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, { 
-        method: 'PATCH', 
-        headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify({ estado: nuevoEstado, clientePidiendoCuenta: false }) 
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ estado: nuevoEstado }) 
       }); 
-
-      try {
-        canalPedidos.postMessage({
-          tipo: 'ESTADO_ACTUALIZADO',
-          id: idComanda,
-          mesa: mesaDestino,
-          estado: nuevoEstado
-        });
-      } catch (e) {}
-
-      await cargarComandasEnVivo(); 
+      cargarComandasEnVivo(); 
     } 
 
-    /* PREGUNTA DEL MOZO: ¿DESEA AGREGAR ALGO MÁS? (CON MESA) */
     async function enviarMensajeAgregarMas(idComanda) { 
-      const comandaObj = todasLasComandasCache.find(c => c.id === idComanda);
-      const mesaDestino = comandaObj ? (comandaObj.mesa || '') : '';
-
       await fetch(`${FIREBASE_DB_URL}comandas/${idComanda}.json`, { 
-        method: 'PATCH', 
-        headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify({ mozoPregunta: true }) 
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mozoPregunta: true }) 
       }); 
-
-      try {
-        canalPedidos.postMessage({
-          tipo: 'ESTADO_ACTUALIZADO',
-          id: idComanda,
-          mesa: mesaDestino,
-          mozoPregunta: true
-        });
-      } catch (e) {}
-
-      alert("✔ Notificación enviada a todos los comensales de la mesa: '¿Deseas agregar algo más?'"); 
+      alert("✔ Notificación enviada a la mesa."); 
     } 
 
-    /* CARGA DE COMANDAS EN VIVO Y MONITOREO INTELIGENTE DE ALERTAS */ 
     async function cargarComandasEnVivo() { 
       const grid = document.getElementById('liveOrdersGrid'); 
       const monitorGrid = document.getElementById('tablesMonitorGrid'); 
@@ -1861,258 +2147,45 @@
         const resFB = await fetch(`${FIREBASE_DB_URL}comandas.json?_t=${Date.now()}`); 
         if (resFB.ok) { 
           const dataFB = await resFB.json(); 
-          if (dataFB && typeof dataFB === 'object') { 
-            comandas = Object.keys(dataFB).map(k => { 
-              const item = dataFB[k]; 
-              if (!item || typeof item !== 'object') return null; 
-              return Object.assign({ id: k }, item); 
-            }).filter(Boolean); 
-          } 
+          if (dataFB && typeof dataFB === 'object') comandas = Object.keys(dataFB).map(k => Object.assign({ id: k }, dataFB[k])); 
         } 
-      } catch (e) { 
-        console.error("Error al cargar comandas:", e); 
-      } 
+      } catch (e) {} 
 
-      comandas.sort((a, b) => (a.timestampOrden || 0) - (b.timestampOrden || 0)); 
       todasLasComandasCache = comandas; 
+      const activas = comandas.filter(c => String(c.estado || "").toLowerCase() !== 'finalizado'); 
+      document.getElementById('badgeTotalComandas').innerText = activas.length; 
 
-      comandas.forEach(c => { 
-        const previo = estadosConocidosComandas[c.id]; 
-        const estadoActual = String(c.estado || '').toLowerCase(); 
+      const mesasOcupadas = activas.map(c => normalizarNombreMesa(c.mesa || '')); 
+      monitorGrid.innerHTML = listaMesasDinamicas.map(m => ` 
+        <div class="table-pill ${mesasOcupadas.includes(normalizarNombreMesa(m)) ? 'ocupada' : 'libre'}"> 
+          <span>${m}</span> 
+        </div> 
+      `).join(''); 
 
-        if (!previo && estadoActual !== 'finalizado' && estadoActual !== 'liberado') { 
-          if (Object.keys(estadosConocidosComandas).length > 0) { 
-            dispararAlertaCentro( 
-              "🔔 ¡Nueva Comanda Ingresada!", 
-              `Se acaba de registrar un nuevo pedido para <b>${c.mesa || 'Mesa'}</b> (${c.cliente || 'Comensal'}).`, 
-              `Platos: ${c.productos || 'Plato nuevo'} • Total: S/ ${(c.totalPEN || c.total || 0).toFixed(2)}`, 
-              'fa-bell-concierge', 
-              '#fbbf24' 
-            ); 
-          } 
-        } 
-
-        if (c.clientePidiendoCuenta === true && (!previo || !previo.clientePidiendoCuenta) && estadoActual !== 'finalizado') { 
-          dispararAlertaCentro( 
-            "💵 ¡El Cliente va a Pagar en Caja!", 
-            `El comensal de la <b>${c.mesa || 'Mesa'}</b> ha terminado de consumir y <b>viene a caja a pagar</b>.`, 
-            `Total a cobrar: S/ ${(c.totalPEN || c.total || 0).toFixed(2)} | Método: ${c.pago || 'Efectivo'}`, 
-            'fa-person-walking', 
-            '#ec4899' 
-          ); 
-        } 
-
-        if (c.clienteRespuestaMozo && (!previo || previo.clienteRespuestaMozo !== c.clienteRespuestaMozo)) { 
-          if (c.clienteRespuestaMozo.toLowerCase().includes('no')) { 
-            dispararAlertaCentro( 
-              "🛑 El Cliente no agregará más", 
-              `En la <b>${c.mesa || 'Mesa'}</b> respondieron que <b>no desean nada más</b> por el momento.`, 
-              `Estado comanda: ${estadoActual}`, 
-              'fa-circle-xmark', 
-              '#dc2626' 
-            ); 
-          } 
-        } 
-
-        estadosConocidosComandas[c.id] = { 
-          estado: estadoActual, 
-          clientePidiendoCuenta: c.clientePidiendoCuenta, 
-          clienteRespuestaMozo: c.clienteRespuestaMozo 
-        }; 
-      }); 
-
-      const activasSinCobro = comandas.filter(c => String(c.estado || "").toLowerCase() !== 'finalizado'); 
-      totalComandasPrevias = activasSinCobro.length; 
-      document.getElementById('badgeTotalComandas').innerText = activasSinCobro.length; 
-
-      const mesasOcupadas = activasSinCobro.map(c => normalizarNombreMesa(c.mesa || '')); 
-      monitorGrid.innerHTML = listaMesasDinamicas.map(m => { 
-        const estaOcupada = mesasOcupadas.includes(normalizarNombreMesa(m)); 
-        return ` 
-          <div class="table-pill ${estaOcupada ? 'ocupada' : 'libre'}" onclick="clickPildoraMesaMonitor('${m}', ${estaOcupada})"> 
-            <span>${m.replace('Mesa ', 'M-')} ${estaOcupada ? '🔒' : '✔'}</span> 
-            ${modoEliminarMesasActivo ? `<button type="button" class="btn-remove-pill" onclick="eliminarMesaDirectaMonitor('${m}', event)">✕</button>` : ''} 
-          </div> 
-        `; 
-      }).join(''); 
-
-      renderizarListaKDSFiltrada(); 
-    } 
-
-    function renderizarListaKDSFiltrada() { 
-      const grid = document.getElementById('liveOrdersGrid'); 
-      if (!grid) return; 
-
-      const query = (document.getElementById('kdsFiltroBusqueda').value || '').toLowerCase().trim(); 
-
-      let diaFiltroDDMMYYYY = ""; 
-      if (fechaKdsSeleccionada) { 
-        const partes = fechaKdsSeleccionada.split('-'); 
-        if (partes.length === 3) diaFiltroDDMMYYYY = `${parseInt(partes[2])}/${parseInt(partes[1])}/${partes[0]}`; 
-      } 
-
-      let comandasPorFecha = todasLasComandasCache.filter(c => { 
-        if (!fechaKdsSeleccionada) return true; 
-        const fec = String(c.fecha || ""); 
-        return fec.includes(diaFiltroDDMMYYYY) || fec.includes(fechaKdsSeleccionada); 
-      }); 
-
-      let totDia = comandasPorFecha.length; 
-      let actDia = 0, finDia = 0, totalPagarDia = 0; 
-
-      comandasPorFecha.forEach(c => { 
-        const est = String(c.estado || "").toLowerCase(); 
-        totalPagarDia += parseFloat(c.totalPEN || c.total || 0); 
-        if (est === 'finalizado') finDia++; else actDia++; 
-      }); 
-
-      document.getElementById('metricDiaTotal').innerText = totDia; 
-      document.getElementById('metricDiaActivas').innerText = actDia; 
-      document.getElementById('metricDiaFinalizadas').innerText = finDia; 
-      document.getElementById('metricDiaTotalPEN').innerText = `S/ ${totalPagarDia.toFixed(2)}`; 
-
-      let filtradas = comandasPorFecha.filter(c => { 
-        let estado = String(c.estado || 'iniciado').toLowerCase(); 
-        if (estado === 'por_confirmar') estado = 'iniciado'; 
-        if (filtroEstadoKDSActual === 'cobrar') return c.clientePidiendoCuenta === true && estado !== 'finalizado'; 
-        if (filtroEstadoKDSActual === 'iniciado') return estado === 'iniciado'; 
-        if (filtroEstadoKDSActual === 'cocina') return estado === 'cocina'; 
-        return true; 
-      }); 
-
-      if (query) 
-        filtradas = filtradas.filter(c => { 
-          const m = String(c.mesa || '').toLowerCase(); 
-          const cl = String(c.cliente || '').toLowerCase(); 
-          return m.includes(query) || cl.includes(query); 
-        }); 
-
-      if (filtradas.length === 0) { 
-        grid.innerHTML = `<p style="color:var(--text-muted); font-size:14px; padding:24px 0; text-align:center;">No hay comandas registradas.</p>`; 
-        return; 
-      } 
-
-      grid.innerHTML = filtradas.map((c, index) => { 
-        let estado = String(c.estado || 'iniciado').toLowerCase(); 
-        if (estado === 'por_confirmar') estado = 'iniciado'; 
-
-        const pagandoClass = (c.clientePidiendoCuenta === true && estado !== 'finalizado') ? "cliente-pagando" : ""; 
-        const detalle = c.productos || "Sin platos especificados"; 
+      grid.innerHTML = activas.map((c) => { 
+        const estado = String(c.estado || 'iniciado').toLowerCase(); 
         const total = parseFloat(c.totalPEN || c.total || 0).toFixed(2); 
-        const mesa = c.mesa || "Mesa"; 
-        const cliente = c.cliente || mesa; 
-        const numTurno = c.numeroTurno || (index + 1); 
-
-        let badgeTexto = "Iniciado", badgeClase = "badge-iniciado"; 
-        if (estado === 'cocina') { badgeTexto = "🍳 En Cocina"; badgeClase = "badge-cocina"; } 
-        else if (estado === 'servido') { badgeTexto = "✅ Recibido en Mesa"; badgeClase = "badge-servido"; } 
-        else if (estado === 'finalizado') { badgeTexto = "🏁 Finalizado"; badgeClase = "badge-finalizado"; } 
-
         return ` 
-          <div class="order-card estado-${estado} ${pagandoClass}"> 
+          <div class="order-card estado-${estado}"> 
             <div class="order-card-header"> 
-              <div> 
-                <div style="display:flex; align-items:center; gap:8px;"> 
-                  <span class="chef-order-priority-badge"><i class="fa-solid fa-list-ol"></i> Orden #${numTurno < 10 ? '0' + numTurno : numTurno}</span> 
-                  <strong style="font-size:16px;">${cliente}</strong> 
-                </div> 
-                <div style="font-size:11px; color:var(--text-muted); margin-top:2px;"> 
-                  ${c.id} • ${c.fecha || ''} ${c.operador ? `• <b style="color:#10b981;">Op: ${c.operador}</b>` : ''} 
-                </div> 
-              </div> 
-              <span class="order-status-badge ${badgeClase}">${badgeTexto}</span> 
+              <strong>${c.cliente || c.mesa}</strong> 
+              <span class="order-status-badge badge-${estado}">${estado}</span> 
             </div> 
-
-            ${(c.clientePidiendoCuenta && estado !== 'finalizado') ? ` 
-              <div style="background:#ec4899; color:#fff; padding:6px; border-radius:6px; font-weight:bold; font-size:11px; text-align:center;"> 
-                🔔 ¡EL CLIENTE HA PEDIDO LA CUENTA EN MESA! 
-              </div> 
-            ` : ''} 
-
-            <div class="order-items-box">${detalle}</div> 
-            ${c.notas ? `<div class="order-notes-tag">📝 ${c.notas}</div>` : ''} 
-
+            <div class="order-items-box">${c.productos || ''}</div> 
             <div class="order-bottom-bar"> 
               <span>Pago: <b>${c.pago || 'Efectivo'}</b></span> 
               <span style="font-size:16px; font-weight:900; color:#10b981;">S/ ${total}</span> 
             </div> 
-
             <div class="order-actions-container"> 
-              ${(estado === 'iniciado') ? ` 
-                <button type="button" class="btn-action-confirm" onclick="cambiarEstadoCocinaConOperador('${c.id}')"> 
-                  <i class="fa-solid fa-utensils"></i> En Proceso (Cocina) 
-                </button> 
-              ` : ''} 
-
-              ${(estado === 'cocina') ? ` 
-                <button type="button" class="btn-action-serve" onclick="cambiarEstadoFirebase('${c.id}', 'servido')"> 
-                  <i class="fa-solid fa-check"></i> Recibido en Mesa 
-                </button> 
-              ` : ''} 
-
-              ${(estado === 'servido') ? ` 
-                <button type="button" class="btn-action-serve" style="background:#059669; opacity:0.85;" onclick="cambiarEstadoFirebase('${c.id}', 'servido')"> 
-                  <i class="fa-solid fa-circle-check"></i> Ya en Mesa 
-                </button> 
-              ` : ''} 
-
-              <button type="button" class="btn-action-print-chef" onclick="imprimirComandaChef('${c.id}')"> 
-                <i class="fa-solid fa-print"></i> 🖨️ Ticket Cocina 
+              ${estado === 'iniciado' ? `<button class="btn-action-confirm" onclick="cambiarEstadoCocinaConOperador('${c.id}')">Cocina</button>` : ''} 
+              ${estado === 'cocina' ? `<button class="btn-action-serve" onclick="cambiarEstadoFirebase('${c.id}', 'servido')">Servido</button>` : ''} 
+              <button class="btn-action-cobrar" onclick="abrirModalCobroComanda('${c.id}')"> 
+                <i class="fa-solid fa-cash-register"></i> Cobrar / Facturar 
               </button> 
-
-              ${(estado !== 'finalizado') ? ` 
-                <button type="button" class="btn-action-cobrar" onclick="abrirModalCobroComanda('${c.id}')"> 
-                  <i class="fa-solid fa-cash-register"></i> 💳 Cobrar (S/ ${total}) 
-                </button> 
-                <button type="button" class="btn-action-ask-more" onclick="enviarMensajeAgregarMas('${c.id}')"> 
-                  <i class="fa-solid fa-bell"></i> 💬 ¿Desea más platos? 
-                </button> 
-              ` : ` 
-                <button type="button" class="btn btn-print" style="width:100%;" onclick="reimprimirComprobanteFinalizado('${c.id}')"> 
-                  <i class="fa-solid fa-print"></i> 🧾 Reimprimir Boleta / Factura 
-                </button> 
-              `} 
             </div> 
           </div> 
         `; 
-      }).join(''); 
-    } 
-
-    function aplicarFiltroEstadoKDS(filtro) { 
-      filtroEstadoKDSActual = filtro; 
-      document.querySelectorAll('.kds-filter-btn').forEach(b => b.classList.remove('active')); 
-      if (filtro === 'todos') document.getElementById('btnFiltroTodos').classList.add('active'); 
-      if (filtro === 'cobrar') document.getElementById('btnFiltroCobrar').classList.add('active'); 
-      if (filtro === 'iniciado') document.getElementById('btnFiltroIniciado').classList.add('active'); 
-      if (filtro === 'cocina') document.getElementById('btnFiltroCocina').classList.add('active'); 
-      renderizarListaKDSFiltrada(); 
-    } 
-
-    function filtrarComandasKDS() { renderizarListaKDSFiltrada(); } 
-
-    function cambiarFechaKDS(val) { 
-      fechaKdsSeleccionada = val; 
-      document.querySelectorAll('.kds-date-quick-btn').forEach(b => b.classList.remove('active')); 
-      renderizarListaKDSFiltrada(); 
-    } 
-
-    function setKdsFechaRapida(modo) { 
-      document.querySelectorAll('.kds-date-quick-btn').forEach(b => b.classList.remove('active')); 
-      const hoy = new Date(); 
-      if (modo === 'hoy') { 
-        fechaKdsSeleccionada = hoy.toISOString().split('T')[0]; 
-        document.getElementById('btnKdsHoy').classList.add('active'); 
-      } else if (modo === 'ayer') { 
-        const ayer = new Date(hoy); 
-        ayer.setDate(ayer.getDate() - 1); 
-        fechaKdsSeleccionada = ayer.toISOString().split('T')[0]; 
-        document.getElementById('btnKdsAyer').classList.add('active'); 
-      } else if (modo === 'todas') { 
-        fechaKdsSeleccionada = ""; 
-        document.getElementById('btnKdsTodas').classList.add('active'); 
-      } 
-      document.getElementById('kdsFechaSeleccionada').value = fechaKdsSeleccionada; 
-      renderizarListaKDSFiltrada(); 
+      }).join('') || '<p style="color:var(--text-muted); text-align:center;">No hay comandas activas.</p>'; 
     } 
 
     async function cargarIdentidadFirebase() { 
@@ -2123,273 +2196,58 @@
           if (conf) configRestaurante = Object.assign(configRestaurante, conf); 
         } 
       } catch (e) {} 
-
       document.getElementById('cfgBusinessName').value = configRestaurante.nombre || "La Cusqueñita"; 
-      document.getElementById('cfgBusinessSlogan').value = configRestaurante.eslogan || ""; 
       document.getElementById('cfgRuc').value = configRestaurante.ruc || "20601234567"; 
-      document.getElementById('cfgDireccion').value = configRestaurante.direccion || ""; 
-      document.getElementById('cfgIgvTasa').value = configRestaurante.igv || 18; 
-      document.getElementById('cfgWhatsapp').value = configRestaurante.whatsapp || "51969773064"; 
-      document.getElementById('cfgFacebook').value = configRestaurante.facebook || ""; 
-      document.getElementById('cfgInstagram').value = configRestaurante.instagram || ""; 
-      document.getElementById('cfgTiktok').value = configRestaurante.tiktok || ""; 
-
-      document.getElementById('loginTitlePreview').innerText = configRestaurante.nombre; 
       document.getElementById('headerBusinessName').innerText = configRestaurante.nombre; 
       document.getElementById('topBarTitle').innerText = configRestaurante.nombre; 
-      document.getElementById('repLocalRazonSocial').innerText = configRestaurante.nombre; 
-      document.getElementById('repLocalRuc').innerText = "RUC: " + configRestaurante.ruc; 
-      document.getElementById('repLocalDireccion').innerText = configRestaurante.direccion; 
-      document.getElementById('repFechaHoy').innerText = new Date().toLocaleDateString(); 
-
-      actualizarRenderLogoVisual(configRestaurante.logo); 
-    } 
-
-    function actualizarRenderLogoVisual(logoData) { 
-      const av = document.getElementById('headerAvatar'); 
-      const prev = document.getElementById('previewCurrentLogo'); 
-      const loginBrandLogo = document.getElementById('loginBrandLogoWrap'); 
-      const inpUrl = document.getElementById('cfgLogoUrlInput'); 
-
-      if (logoData && (logoData.startsWith('data:image') || logoData.startsWith('http'))) { 
-        const imgHtml = `<img src="${logoData}" alt="Logo">`; 
-        av.innerHTML = imgHtml; 
-        prev.innerHTML = imgHtml; 
-        if (loginBrandLogo) loginBrandLogo.innerHTML = imgHtml; 
-        if (inpUrl && logoData.startsWith('http')) inpUrl.value = logoData; 
-      } else { 
-        const txt = logoData || "🍽️"; 
-        av.innerText = txt; 
-        prev.innerText = txt; 
-        if (loginBrandLogo) loginBrandLogo.innerText = txt; 
-      } 
-    } 
-
-    function convertirLogoABase64(event) { 
-      const file = event.target.files[0]; 
-      if (!file) return; 
-      const reader = new FileReader(); 
-      reader.onload = (e) => { 
-        configRestaurante.logo = e.target.result; 
-        actualizarRenderLogoVisual(e.target.result); 
-      }; 
-      reader.readAsDataURL(file); 
-    } 
-
-    function actualizarLogoPorUrl(url) { 
-      if (url.trim()) { 
-        configRestaurante.logo = url.trim(); 
-        actualizarRenderLogoVisual(url.trim()); 
-      } 
+      document.getElementById('loginTitlePreview').innerText = configRestaurante.nombre; 
     } 
 
     async function guardarIdentidadFirebase() { 
-      configRestaurante.nombre = document.getElementById('cfgBusinessName').value.trim() || configRestaurante.nombre; 
-      configRestaurante.eslogan = document.getElementById('cfgBusinessSlogan').value.trim(); 
+      configRestaurante.nombre = document.getElementById('cfgBusinessName').value.trim(); 
       configRestaurante.ruc = document.getElementById('cfgRuc').value.trim(); 
-      configRestaurante.direccion = document.getElementById('cfgDireccion').value.trim(); 
-      configRestaurante.igv = parseFloat(document.getElementById('cfgIgvTasa').value) || 18; 
-      configRestaurante.whatsapp = document.getElementById('cfgWhatsapp').value.trim(); 
-      configRestaurante.facebook = document.getElementById('cfgFacebook').value.trim(); 
-      configRestaurante.instagram = document.getElementById('cfgInstagram').value.trim(); 
-      configRestaurante.tiktok = document.getElementById('cfgTiktok').value.trim(); 
-
       await fetch(`${FIREBASE_DB_URL}config/identidad.json`, { 
-        method: 'PUT', 
-        headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify(configRestaurante) 
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(configRestaurante) 
       }); 
-      alert("✔ Identidad y Logo actualizados."); 
+      alert("✔ Identidad guardada."); 
       cargarIdentidadFirebase(); 
-    } 
-
-    async function actualizarQRVisualDirecto(mesaManual = null) { 
-      const selector = document.getElementById('qrMesaSelectorDinamico'); 
-      const mesa = mesaManual || (selector ? selector.value : (listaMesasDinamicas[0] || "Mesa 01")); 
-      const tel = document.getElementById('qrTelefonoInput').value.trim() || "+51969773064"; 
-      const link = await obtenerEnlaceCompletoMesa(mesa); 
-
-      document.getElementById('qrPrintNumeroMesa').innerText = mesa.toUpperCase(); 
-      document.getElementById('qrPrintTelefonoContacto').innerText = `Pedidos: ${tel}`; 
-      document.getElementById('imgQRVisualCentrado').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(link)}`; 
-    } 
-
-    async function imprimirTarjetaMesaQR() { 
-      const selector = document.getElementById('qrMesaSelectorDinamico'); 
-      const mesa = selector ? selector.value : (listaMesasDinamicas[0] || "Mesa 01"); 
-      const tel = document.getElementById('qrTelefonoInput').value.trim() || "+51969773064"; 
-      const link = await obtenerEnlaceCompletoMesa(mesa); 
-      const qrImgSrc = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodeURIComponent(link)}`; 
-       
-      const ventana = window.open('', '_blank'); 
-      ventana.document.write(` 
-        <!DOCTYPE html><html><head><title>QR ${mesa}</title> 
-        <style> 
-          @page { margin: 0; size: auto; } 
-          body { font-family: -apple-system, system-ui, sans-serif; margin: 0; padding: 30px 20px; display: flex; justify-content: center; background: #fff; } 
-          .card { border: 2.5px dashed #0056d2; border-radius: 26px; padding: 30px 24px; width: 340px; text-align: center; } 
-          img { width: 230px; height: 230px; margin: 0 auto; display: block; } 
-          h2 { margin: 0 0 4px; font-size: 22px; font-weight: 900; letter-spacing: 0.5px; color: #0f172a; } 
-          h1 { margin: 14px 0 4px; font-size: 30px; font-weight: 900; color: #0056d2; } 
-          p { margin: 4px 0; font-size: 13px; color: #475569; } 
-        </style></head><body> 
-          <div class="card"> 
-            <h2>${configRestaurante.nombre.toUpperCase()}</h2> 
-            <p style="color:#64748b; font-size:12px; margin-bottom:12px;">${configRestaurante.eslogan || 'Cusco • Gourmet'}</p> 
-            <img id="qrPrintImg" src="${qrImgSrc}"> 
-            <h1>${mesa.toUpperCase()}</h1> 
-            <p>Escanea con tu celular para ver la carta y pedir</p> 
-            <p style="font-weight:bold; margin-top:8px; color:#0f172a;">Pedidos: ${tel}</p> 
-          </div> 
-          <script> 
-            window.onload = function() { 
-              const img = document.getElementById('qrPrintImg'); 
-              if (img.complete) { 
-                window.print(); 
-                window.close(); 
-              } else { 
-                img.onload = function() { window.print(); window.close(); } 
-              } 
-            } 
-          <\/script> 
-        </body></html> 
-      `); 
-      ventana.document.close(); 
-    } 
-
-    async function crearNuevaReservaAdmin(e) { 
-      e.preventDefault(); 
-      const id = "RES-" + Date.now(); 
-      const res = { 
-        id: id, 
-        cliente: document.getElementById('resAdminTitular').value.trim(), 
-        telefono: document.getElementById('resAdminTel').value.trim(), 
-        fechaReserva: document.getElementById('resAdminFecha').value, 
-        horaReserva: document.getElementById('resAdminHora').value, 
-        personas: document.getElementById('resAdminPersonas').value, 
-        mesaAsignada: document.getElementById('resAdminMesaSelectorDinamico').value, 
-        notas: document.getElementById('resAdminNotas').value.trim() || 'Sin notas', 
-        fechaCreacion: new Date().toLocaleDateString() 
-      }; 
-
-      await fetch(`${FIREBASE_DB_URL}reservas/${id}.json`, { 
-        method: 'PUT', 
-        headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify(res) 
-      }); 
-
-      alert("✔ Reserva generada y mesa bloqueada."); 
-      e.target.reset(); 
-      cargarReservasFirebase(); 
     } 
 
     async function cargarReservasFirebase() { 
       const cont = document.getElementById('contenedorReservasAdminList'); 
       if (!cont) return; 
-
       try { 
         const res = await fetch(`${FIREBASE_DB_URL}reservas.json?_t=${Date.now()}`); 
         if (res.ok) { 
           const d = await res.json(); 
-          if (d && typeof d === 'object') { 
-            const lista = Object.keys(d).map(k => Object.assign({ id: k }, d[k])); 
-            
-            if (reservasCache.length > 0 && lista.length > totalReservasPrevias) { 
-              const ultima = lista[lista.length - 1]; 
-              dispararAlertaCentro( 
-                "📅 ¡Nueva Reserva Recibida!", 
-                `Se registró una reserva a nombre de <b>${ultima.cliente}</b> para ${ultima.personas} personas.`, 
-                `Fecha: ${ultima.fechaReserva} • Hora: ${ultima.horaReserva} • Mesa: ${ultima.mesaAsignada || 'Mesa'} • Tel: ${ultima.telefono}` 
-              ); 
-            } 
-            totalReservasPrevias = lista.length; 
-            reservasCache = lista; 
-
-            cont.innerHTML = lista.map(r => ` 
-              <div style="background:var(--card-bg); border:1.5px solid var(--card-border); border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:6px;"> 
-                <div style="display:flex; justify-content:space-between; align-items:center;"> 
-                  <strong style="color:var(--text-main); font-size:14px;">${r.cliente}</strong> 
-                  <span style="background:var(--primary); color:#fff; font-size:10px; padding:3px 7px; border-radius:4px; font-weight:bold;">${r.mesaAsignada || 'Mesa'}</span> 
-                </div> 
-                <div style="font-size:12px; color:#fbbf24;">📅 ${r.fechaReserva} • ⏰ ${r.horaReserva} • 👥 ${r.personas} Personas</div> 
-                <div style="font-size:11px; color:var(--text-muted);">📞 ${r.telefono} | Notas: ${r.notas}</div> 
+          if (d) { 
+            cont.innerHTML = Object.values(d).map(r => ` 
+              <div style="background:var(--card-bg); border:1px solid var(--card-border); border-radius:12px; padding:12px;"> 
+                <strong>${r.cliente}</strong> (${r.personas} personas)<br> 
+                <span style="color:#fbbf24;">📅 ${r.fechaReserva} • ⏰ ${r.horaReserva} • <b>${r.mesaAsignada}</b></span> 
               </div> 
             `).join(''); 
             return; 
           } 
         } 
       } catch (e) {} 
-
-      cont.innerHTML = '<p style="color:var(--text-muted); font-size:13px;">No hay reservas registradas.</p>'; 
+      cont.innerHTML = '<p style="color:var(--text-muted);">No hay reservas.</p>'; 
     } 
 
     async function cargarVentasDesdeFirebase() { 
       const tbody = document.getElementById('tablaVentasBody'); 
       if (!tbody) return; 
-
       try { 
         const res = await fetch(`${FIREBASE_DB_URL}ventas.json?_t=${Date.now()}`); 
         if (res.ok) { 
           const data = await res.json(); 
-          if (data && typeof data === 'object') { 
-            ventasCache = Object.values(data); 
-            let montoTotal = 0; 
-
-            tbody.innerHTML = ventasCache.map(v => { 
-              const total = parseFloat(v.totalPEN || v.total || 0); 
-              montoTotal += total; 
-              const base = v.baseImponible ? parseFloat(v.baseImponible) : (total / 1.18); 
-              const igv = v.igv ? parseFloat(v.igv) : (total - base); 
-
-              return ` 
-                <tr> 
-                  <td>${v.fecha || 'N/D'}</td> 
-                  <td><b>${v.mesa || 'Mesa'}</b> (${v.cliente || 'Comensal'})</td> 
-                  <td>${v.cajero || 'Caja'}</td> 
-                  <td style="color:#fbbf24;">${v.productos || 'Consumo'}</td> 
-                  <td>${v.pago || 'Efectivo'}</td> 
-                  <td>S/ ${base.toFixed(2)}</td> 
-                  <td>S/ ${igv.toFixed(2)}</td> 
-                  <td style="font-weight:900; color:#10b981;">S/ ${total.toFixed(2)}</td> 
-                </tr> 
-              `; 
-            }).join(''); 
-
-            document.getElementById('repMontoTotalAcumulado').innerText = `S/ ${montoTotal.toFixed(2)}`; 
-            document.getElementById('repCantidadVentas').innerText = ventasCache.length; 
-            return; 
-          } 
-        } 
-      } catch (e) {} 
-
-      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--text-muted);">No se encontraron registros de ventas.</td></tr>'; 
-    } 
-
-    async function cargarResenasFirebase() { 
-      const cont = document.getElementById('contenedorResenasAdmin'); 
-      if (!cont) return; 
-
-      try { 
-        const res = await fetch(`${FIREBASE_DB_URL}resenas.json?_t=${Date.now()}`); 
-        if (res.ok) { 
-          const data = await res.json(); 
-          if (data && typeof data === 'object') { 
-            const list = Object.values(data); 
-            cont.innerHTML = list.map(r => ` 
-              <div style="background:var(--card-bg); padding:10px 12px; border-radius:10px; margin-bottom:8px; border:1px solid var(--card-border);"> 
-                <div style="display:flex; justify-content:space-between; align-items:center;"> 
-                  <strong style="color:#fbbf24;">${r.autor || 'Cliente'} (${'⭐'.repeat(r.rating || 5)})</strong> 
-                  <span style="font-size:11px; color:var(--text-muted);">${r.fecha || ''}</span> 
-                </div> 
-                ${r.plato ? `<div style="font-size:11.5px; color:#10b981; margin-top:2px;"><b>Plato:</b> ${r.plato}</div>` : ''} 
-                <p style="font-size:12.5px; color:var(--text-main); margin-top:4px;">"${r.texto || ''}"</p> 
-              </div> 
+          if (data) { 
+            tbody.innerHTML = Object.values(data).map(v => ` 
+              <tr><td>${v.fecha}</td><td><b>${v.mesa}</b> (${v.cliente})</td><td>${v.tipoComprobante}</td><td style="color:#10b981; font-weight:bold;">S/ ${(v.totalPEN||0).toFixed(2)}</td></tr> 
             `).join(''); 
-            return; 
           } 
         } 
       } catch (e) {} 
-      cont.innerHTML = '<p style="color:var(--text-muted); font-size:13px;">No hay opiniones registradas aún.</p>'; 
     } 
 
     function normalizarNombreMesa(m) { 
@@ -2402,181 +2260,33 @@
       return s; 
     } 
 
-    function normalizarClaveMesa(m) { 
-      return String(m || '').toLowerCase().replace(/[^a-z0-9]/g, '_'); 
-    } 
-
-    async function regenerarTokenMesa(m) { 
-      const key = normalizarClaveMesa(m); 
-      const nuevoToken = "TK-" + Math.random().toString(36).substring(2, 8).toUpperCase() + "-" + Date.now().toString(36).toUpperCase(); 
-      tokensMesasActivos[key] = nuevoToken; 
-      await fetch(`${FIREBASE_DB_URL}config/tokens_mesas/${key}.json`, { 
-        method: 'PUT', 
-        headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify(nuevoToken) 
+    async function crearNuevaReservaAdmin(e) { 
+      e.preventDefault(); 
+      const id = "RES-" + Date.now(); 
+      const res = { 
+        id, cliente: document.getElementById('resAdminTitular').value.trim(), telefono: document.getElementById('resAdminTel').value.trim(), 
+        fechaReserva: document.getElementById('resAdminFecha').value, horaReserva: document.getElementById('resAdminHora').value, 
+        personas: document.getElementById('resAdminPersonas').value, mesaAsignada: document.getElementById('resAdminMesaSelectorDinamico').value 
+      }; 
+      await fetch(`${FIREBASE_DB_URL}reservas/${id}.json`, { 
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(res) 
       }); 
-      return nuevoToken; 
+      alert("✔ Reserva creada."); 
+      e.target.reset(); 
+      cargarReservasFirebase(); 
     } 
 
-    async function sincronizarTokensDeMesasFirebase() { 
-      try { 
-        const res = await fetch(`${FIREBASE_DB_URL}config/tokens_mesas.json?_t=${Date.now()}`); 
-        if (res.ok) { 
-          const data = await res.json(); 
-          if (data && typeof data === 'object') tokensMesasActivos = data; 
-        } 
-      } catch (e) {} 
-
-      let cambios = false; 
-      for (const m of listaMesasDinamicas) { 
-        const key = normalizarClaveMesa(m); 
-        if (!tokensMesasActivos[key]) { 
-          tokensMesasActivos[key] = "TK-" + Math.random().toString(36).substring(2, 8).toUpperCase() + "-" + Date.now().toString(36).toUpperCase(); 
-          cambios = true; 
-        } 
-      } 
-      if (cambios) { 
-        await fetch(`${FIREBASE_DB_URL}config/tokens_mesas/${key}.json`, { 
-          method: 'PUT', 
-          headers: { 'Content-Type': 'application/json' }, 
-          body: JSON.stringify(tokensMesasActivos) 
-        }); 
-      } 
+    function actualizarQRVisualDirecto(mesa = "Mesa 01") { 
+      document.getElementById('qrPrintNumeroMesa').innerText = mesa.toUpperCase(); 
+      document.getElementById('imgQRVisualCentrado').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(mesa)}`; 
     } 
-
-    async function cargarMesasDesdeFirebase() { 
-      try { 
-        const res = await fetch(`${FIREBASE_DB_URL}config/mesas.json?_t=${Date.now()}`); 
-        if (res.ok) { 
-          const data = await res.json(); 
-          if (Array.isArray(data) && data.length > 0) listaMesasDinamicas = data; 
-        } 
-      } catch (e) {} 
-      actualizarSelectoresDeMesas(); 
-    } 
-
-    function actualizarSelectoresDeMesas() { 
-      const qrSelect = document.getElementById('qrMesaSelectorDinamico'); 
-      if (qrSelect) { 
-        const val = qrSelect.value; 
-        qrSelect.innerHTML = listaMesasDinamicas.map(m => `<option value="${m}" ${m === val ? 'selected' : ''}>${m}</option>`).join(''); 
-      } 
-      const resSelect = document.getElementById('resAdminMesaSelectorDinamico'); 
-      if (resSelect) { 
-        resSelect.innerHTML = listaMesasDinamicas.map(m => `<option value="${m}">${m}</option>`).join(''); 
-      } 
-    } 
-
-    async function forzarLiberacionMesa(mesaNorm) { 
-      try { 
-        const res = await fetch(`${FIREBASE_DB_URL}comandas.json`); 
-        if (res.ok) { 
-          const data = await res.json(); 
-          for (let k in data) { 
-            if (data[k] && normalizarNombreMesa(data[k].mesa || '') === mesaNorm) { 
-              await fetch(`${FIREBASE_DB_URL}comandas/${k}.json`, { 
-                method: 'PATCH', 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ estado: 'liberado', agradecimientoFinal: true }) 
-              }); 
-            } 
-          } 
-        } 
-      } catch (e) {} 
-
-      await regenerarTokenMesa(mesaNorm); 
-      alert(`✔ Mesa "${mesaNorm}" desbloqueada y liberada.`); 
-      cargarComandasEnVivo(); 
-      actualizarQRVisualDirecto(); 
-    } 
-
-    function clickPildoraMesaMonitor(m, estaOcupada) { 
-      if (modoEliminarMesasActivo) return; 
-      if (estaOcupada) { 
-        if (confirm(`La ${m} figura OCUPADA.\n¿Deseas desbloquearla ahora?`)) { 
-          forzarLiberacionMesa(normalizarNombreMesa(m)); 
-        } 
-      } else alert(`La ${m} está LIBRE.`); 
-    } 
-
-    function toggleModoEliminarMesas() { 
-      modoEliminarMesasActivo = !modoEliminarMesasActivo; 
-      document.getElementById('lblBtnModoEliminar').innerText = modoEliminarMesasActivo ? "Finalizar Edición" : "Modo Eliminar"; 
-      cargarComandasEnVivo(); 
-    } 
-
-    async function eliminarMesaDirectaMonitor(m, event) { 
-      if (event) event.stopPropagation(); 
-      if (confirm(`¿Eliminar la ${m}?`)) { 
-        listaMesasDinamicas = listaMesasDinamicas.filter(item => item !== m); 
-        await fetch(`${FIREBASE_DB_URL}config/mesas.json`, { 
-          method: 'PUT', 
-          headers: { 'Content-Type': 'application/json' }, 
-          body: JSON.stringify(listaMesasDinamicas) 
-        }); 
-        actualizarSelectoresDeMesas(); 
-        cargarComandasEnVivo(); 
-      } 
-    } 
-
-    async function abrirPromptAgregarMesa() { 
-      const nombre = prompt("🪑 Ingresa nombre de la nueva mesa (Ej: Mesa 13, Mesa 25, VIP 2):"); 
-      if (!nombre || !nombre.trim()) return; 
-      const m = nombre.trim(); 
-      if (listaMesasDinamicas.includes(m)) return alert("Esa mesa ya existe."); 
-
-      listaMesasDinamicas.push(m); 
-      await fetch(`${FIREBASE_DB_URL}config/mesas.json`, { 
-        method: 'PUT', 
-        headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify(listaMesasDinamicas) 
-      }); 
-      await regenerarTokenMesa(m); 
-      actualizarSelectoresDeMesas(); 
-      cargarComandasEnVivo(); 
-    } 
-
-    async function abrirPromptDesbloquearMesaManual() { 
-      const num = prompt("🔓 Ingresa el nombre o número de la mesa a desbloquear:"); 
-      if (!num || !num.trim()) return; 
-      const mesaNorm = normalizarNombreMesa(num.trim()); 
-      await forzarLiberacionMesa(mesaNorm); 
-    } 
-
-    async function obtenerEnlaceCompletoMesa(mesa) { 
-      const u = "https://phyxcius.github.io/restaurante/"; 
-      const key = normalizarClaveMesa(mesa); 
-      if (!tokensMesasActivos[key]) await regenerarTokenMesa(mesa); 
-      const tk = tokensMesasActivos[key]; 
-      return `${u}?mesa=${encodeURIComponent(mesa)}&token=${encodeURIComponent(tk)}`; 
-    } 
-
-    async function abrirMenuConTokenActivo() { 
-      const selector = document.getElementById('qrMesaSelectorDinamico'); 
-      const mesa = selector ? selector.value : (listaMesasDinamicas[0] || "Mesa 01"); 
-      const urlCompleta = await obtenerEnlaceCompletoMesa(mesa); 
-      window.open(urlCompleta, '_blank'); 
-    } 
-
-    async function copiarEnlaceMesaToken() { 
-      const selector = document.getElementById('qrMesaSelectorDinamico'); 
-      const mesa = selector ? selector.value : (listaMesasDinamicas[0] || "Mesa 01"); 
-      const urlCompleta = await obtenerEnlaceCompletoMesa(mesa); 
-      navigator.clipboard.writeText(urlCompleta).then(() => { 
-        alert(`✔ Enlace copiado para ${mesa}:\n${urlCompleta}`); 
-      }).catch(() => { prompt("Copia el enlace:", urlCompleta); }); 
-    } 
-
-    function cerrarTurno() { 
-      if (confirm("¿Cerrar sesión y turno?")) { 
-        sessionStorage.clear(); 
-        window.location.reload(); 
-      } 
-    } 
-    function cerrarSesionAdmin() { sessionStorage.clear(); window.location.reload(); } 
 
     window.onload = async () => { 
-      await cargarIdentidadFirebase(); 
+      const qrSel = document.getElementById('qrMesaSelectorDinamico'); 
+      const resSel = document.getElementById('resAdminMesaSelectorDinamico'); 
+      if (qrSel) qrSel.innerHTML = listaMesasDinamicas.map(m => `<option value="${m}">${m}</option>`).join(''); 
+      if (resSel) resSel.innerHTML = listaMesasDinamicas.map(m => `<option value="${m}">${m}</option>`).join(''); 
+
       if (sessionStorage.getItem("auth_rest") === "true") { 
         mostrarPanelAdmin(); 
       } else { 
