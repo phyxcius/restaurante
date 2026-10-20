@@ -14,8 +14,8 @@ if ($data && isset($data['dni']) && isset($data['cliente'])) {
 
     $modoProduccion = false; 
 
-    // Token específico para facturación electrónica de ApisPerú
-    $tokenApisPerU = "TU_TOKEN_CORRECTO_DE_FACTURACION_APISPERU"; 
+    // Token activo de ApisPerú integrado correctamente
+    $tokenApisPerU = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImVkd2lub2JsaXRhc3ViYWxkZUBnbWFpbC5jb20iLCJqdGkiOiJjYzdmYzhiYzVmMWZkNDJlIn0.bOjhDNGwlMQYXdlV84_qivtkV4bl4Ir3aRZ_Lx48wuE"; 
     $tokenActivo = $tokenApisPerU;
 
     $urlApiFacturacion = "https://facturacion.apisperu.com/api/v1/fe/comprobantes";
