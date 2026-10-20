@@ -37,9 +37,12 @@ if ($data && isset($data['dni']) && isset($data['cliente'])) {
     // CAMBIA ESTO A TRUE CUANDO EL RESTAURANTE YA ESTÉ OPERANDO DE FORMA REAL CON SUNAT
     $modoProduccion = false; 
 
-    // Tokens independientes para cada entorno (proporcionados por ApisPerú)
-    $tokenBeta = "TU_TOKEN_BETA_APISPERU";
-    $tokenProd = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImVkd2lub2JsaXRhc3ViYWxkZUBnbWFpbC5jb20iLCJqdGkiOiJjYzdmYzhiYzVmMWZkNDJlIn0.bOjhDNGwlMQYXdlV84_qivtkV4bl4Ir3aRZ_Lx48wuE"; // Tu token de ApisPerú
+    // Token integrado de ApisPerú
+    $tokenApisPerU = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImVkd2lub2JsaXRhc3ViYWxkZUBnbWFpbC5jb20iLCJqdGkiOiJjYzdmYzhiYzVmMWZkNDJlIn0.bOjhDNGwlMQYXdlV84_qivtkV4bl4Ir3aRZ_Lx48wuE";
+
+    // Asignación de tokens independientes para cada entorno
+    $tokenBeta = $tokenApisPerU;
+    $tokenProd = $tokenApisPerU;
     $tokenActivo = $modoProduccion ? $tokenProd : $tokenBeta;
 
     // URL oficial del endpoint de comprobantes de ApisPerú
