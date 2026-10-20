@@ -1094,7 +1094,7 @@
               </div> 
             </div> 
 
-            <div style="background:#061122; padding:14px; border-radius:12px; border:1.5px dashed var(--chuspa-gold); margin-top:14px;"> 
+            <div style="background:#061122; padding:14px; border-radius:12px; border:1px dashed var(--chuspa-gold); margin-top:14px;"> 
               <strong style="color:#fbbf24; font-size:12.5px; display:block; margin-bottom:8px;"> 
                 <i class="fa-solid fa-image"></i> Logotipo Corporativo del Restaurante: 
               </strong> 
@@ -1294,7 +1294,7 @@
     </div> 
   </div> 
 
-  <!-- MODAL FLOTANTE: COBRO / TPV INTEGRADO CON DNI Y RENIEC --> 
+  <!-- MODAL FLOTANTE: COBRO --> 
   <div class="modal-overlay" id="modalCobroMesa" onclick="cerrarModalCobro()"> 
     <div class="modal-box" onclick="event.stopPropagation()"> 
       <div style="display:flex; justify-content:space-between; align-items:center;"> 
@@ -1312,24 +1312,6 @@
           <span id="cobroTotalTxt">S/ 0.00</span> 
         </div> 
       </div> 
-
-      <!-- SECCIÓN DE CLIENTE Y BÚSQUEDA AUTOMÁTICA RENIEC (INTEGRADO EN TPV) -->
-      <div class="card mb-3" style="background: #061122; border: 1.5px dashed var(--primary); padding: 12px; border-radius: 10px; margin-bottom: 10px;">
-        <div class="card-header" style="font-size: 12px; font-weight: 900; color: #38bdf8; margin-bottom: 6px; text-transform: uppercase;">Datos del Cliente</div>
-        <div class="card-body" style="display: flex; flex-direction: column; gap: 8px;">
-          <div>
-            <label for="dni_cliente" class="form-label" style="font-size: 11px; margin-top: 0;">DNI del Cliente:</label>
-            <div class="input-group" style="display: flex; gap: 6px; margin-top: 2px;">
-              <input type="text" id="dni_cliente" class="form-control" maxlength="8" placeholder="Ingrese 8 dígitos" style="flex: 1; padding: 8px; font-size: 13px; background: #fff; color: #0f172a; border-radius: 6px; border: 1px solid #cbd5e1; outline: none; font-weight: bold;">
-              <button class="btn btn-outline-primary" type="button" id="btnBuscarDni" style="background: var(--primary); color: #fff; border: none; padding: 0 12px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer;">Buscar RENIEC</button>
-            </div>
-          </div>
-          <div>
-            <label for="nombre_cliente" class="form-label" style="font-size: 11px; margin-top: 0;">Nombre / Razón Social:</label>
-            <input type="text" id="nombre_cliente" class="form-control" readonly required placeholder="Se autocompletará..." style="width: 100%; padding: 8px; font-size: 13px; background: #f8fafc; color: #0f172a; border-radius: 6px; border: 1px solid #cbd5e1; margin-top: 2px;">
-          </div>
-        </div>
-      </div>
 
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"> 
         <div> 
@@ -1359,9 +1341,8 @@
 
       <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;"> 
         <button type="button" class="btn btn-del" onclick="cerrarModalCobro()">Cancelar</button> 
-        <!-- Botón para cerrar venta e imprimir automático -->
-        <button type="button" id="btnProcesarVenta" class="btn btn-success btn-lg w-100" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; width: 100%; border: none; font-weight: 900;" onclick="confirmarCobroFinalizado()"> 
-          <i class="fas fa-print"></i> Cobrar, Guardar y Enviar a Imprimir 
+        <button type="button" class="btn btn-save" style="background:linear-gradient(135deg, #10b981, #059669); width:100%; border:none;" onclick="confirmarCobroFinalizado()"> 
+          <i class="fa-solid fa-print"></i> Cobrar e Imprimir Comprobante Fiscal 
         </button> 
       </div> 
     </div> 
@@ -1371,9 +1352,6 @@
     const FIREBASE_DB_URL = "https://restaurante1-695f7-default-rtdb.firebaseio.com/"; 
     const PASSWORD_MAESTRA_VAULT = "42423549"; 
     const canalPedidos = new BroadcastChannel('canal_inka_pedidos'); 
-
-    // Token activo de ApisPerú integrado de forma global en el cliente
-    const APISPERU_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImVkd2lub2JsaXRhc3ViYWxkZUBnbWFpbC5jb20iLCJqdGkiOiJjYzdmYzhiYzVmMWZkNDJlIn0.bOjhDNGwlMQYXdlV84_qivtkV4bl4Ir3aRZ_Lx48wuE";
 
     /* SINCRONIZACIÓN MODO OSCURO / CLARO */
     const canalTheme = new BroadcastChannel('canal_app_theme');
@@ -1523,174 +1501,6 @@
     function cerrarAlertaCentro() { 
       const overlay = document.getElementById('alertaCentroOverlay'); 
       if (overlay) overlay.classList.remove('active'); 
-    } 
-
-    /* SCRIPT ROBUSTO PARA BÚSQUEDA RENIEC EN TPV (ADMIN) - INTEGRADO Y BLINDADO */
-    document.addEventListener('click', function(e) {
-        if (e.target && e.target.id === 'btnBuscarDni') {
-            const inputDni = document.getElementById('dni_cliente');
-            const inputNombre = document.getElementById('nombre_cliente');
-            
-            if (!inputDni) return;
-            let dni = inputDni.value.trim();
-
-            if (dni.length !== 8) {
-                alert('El DNI debe tener exactamente 8 dígitos.');
-                inputDni.focus();
-                return;
-            }
-
-            e.target.disabled = true;
-            e.target.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Buscando...';
-
-            fetch(`buscar_dni.php?dni=${dni}`)
-                .then(res => res.json())
-                .then(data => {
-                    e.target.disabled = false;
-                    e.target.innerHTML = 'Buscar RENIEC';
-
-                    if (data.success) {
-                        inputNombre.value = data.nombres_completos;
-                    } else {
-                        alert('Aviso: ' + (data.message || 'No se encontró información para el DNI ingresado.'));
-                        inputNombre.value = '';
-                    }
-                })
-                .catch(err => {
-                    e.target.disabled = false;
-                    e.target.innerHTML = 'Buscar RENIEC';
-                    console.error('Error en la consulta:', err);
-                    alert('Hubo un error de conexión con el servidor (verifique que el archivo buscar_dni.php esté activo).');
-                });
-        }
-    });
-
-    /* COBRO DE COMANDA INTEGRADO CON APISPERÚ Y TPV */
-    async function confirmarCobroFinalizado() { 
-      if (!comandaCobrandoActual) return; 
-
-      const operador = sessionStorage.getItem("nombre_operador") || "Cajero"; 
-      const turno = sessionStorage.getItem("turno_rest") || "General"; 
-      const total = parseFloat(comandaCobrandoActual.totalPEN || comandaCobrandoActual.total || 0); 
-      const metodo = document.getElementById('cobroMetodoPago').value; 
-      const tipoComp = document.getElementById('cobroTipoComprobante').value; 
-      const docCliente = document.getElementById('dni_cliente').value.trim();
-      const nombreClienteReniec = document.getElementById('nombre_cliente').value.trim();
-      const clienteFinal = nombreClienteReniec || comandaCobrandoActual.cliente || comandaCobrandoActual.mesa;
-
-      // Preparamos el paquete de datos para enviar a procesar_venta.php (ApisPerú)
-      const datosVenta = {
-          dni: docCliente || "00000000",
-          cliente: clienteFinal,
-          total: total,
-          tipo_comprobante: (tipoComp === 'Factura') ? '1' : '2', // 1: Factura, 2: Boleta
-          items: comandaCobrandoActual.items || []
-      };
-
-      const btnConfirmar = document.getElementById('btnProcesarVenta');
-      if (btnConfirmar) {
-          btnConfirmar.disabled = true;
-          btnConfirmar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Emitiendo en ApisPerú...';
-      }
-
-      try {
-          // 1. Enviar petición al backend PHP para procesar la factura electrónica
-          const response = await fetch('procesar_venta.php', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(datosVenta)
-          });
-          
-          const resultadoApi = await response.json();
-
-          if (!resultadoApi.success) {
-              alert('Aviso de Facturación: ' + (resultadoApi.mensaje || 'No se pudo emitir en ApisPerú, pero se procesará localmente.'));
-          }
-
-          // 2. Registrar la venta en Firebase
-          const venta = { 
-              id: comandaCobrandoActual.id, 
-              fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }), 
-              mesa: comandaCobrandoActual.mesa, 
-              cliente: clienteFinal, 
-              dni: docCliente,
-              productos: comandaCobrandoActual.productos || "", 
-              baseImponible: total / 1.18, 
-              igv: total - (total / 1.18), 
-              totalPEN: total, 
-              pago: metodo, 
-              tipoComprobante: tipoComp, 
-              rucCliente: document.getElementById('cobroRucCliente').value.trim(), 
-              razonSocialCliente: document.getElementById('cobroRazonCliente').value.trim(), 
-              cajero: `${operador} (${turno})`,
-              enlace_pdf: resultadoApi.enlace_pdf || ''
-          }; 
-
-          await fetch(`${FIREBASE_DB_URL}ventas/${comandaCobrandoActual.id}.json`, { 
-              method: 'PUT', 
-              headers: { 'Content-Type': 'application/json' }, 
-              body: JSON.stringify(venta) 
-          }); 
-
-          await fetch(`${FIREBASE_DB_URL}comandas/${comandaCobrandoActual.id}.json`, { 
-              method: 'PATCH', 
-              headers: { 'Content-Type': 'application/json' }, 
-              body: JSON.stringify({ 
-                  estado: 'finalizado', 
-                  pago: metodo, 
-                  tipoComprobante: tipoComp, 
-                  cliente: clienteFinal,
-                  dni: docCliente,
-                  agradecimientoFinal: true, 
-                  clientePidiendoCuenta: false 
-              }) 
-          }); 
-
-          try { 
-              canalPedidos.postMessage({ 
-                  tipo: 'ESTADO_ACTUALIZADO', 
-                  id: comandaCobrandoActual.id, 
-                  mesa: comandaCobrandoActual.mesa || '', 
-                  estado: 'finalizado', 
-                  agradecimientoFinal: true 
-              }); 
-          } catch (e) {} 
-
-          if (docCliente && docCliente.length === 8) { 
-              try { 
-                  const resSocio = await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${docCliente}.json`); 
-                  let socio = await resSocio.json() || { dni: docCliente, nombre: clienteFinal, sellos: 0, totalVisitas: 0 }; 
-                  socio.nombre = clienteFinal;
-                  socio.sellos = (socio.sellos || 0) + 1; 
-                  socio.totalVisitas = (socio.totalVisitas || 0) + 1; 
-                  await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${docCliente}.json`, { 
-                      method: 'PUT', 
-                      headers: { 'Content-Type': 'application/json' }, 
-                      body: JSON.stringify(socio) 
-                  }); 
-              } catch (err) {} 
-          } 
-
-          await regenerarTokenMesa(comandaCobrandoActual.mesa); 
-          cerrarModalCobro(); 
-          
-          // Imprimir comprobante incluyendo el enlace de ApisPerú
-          imprimirComprobanteFiscalDirecto(venta); 
-
-          alert("✔ ¡Venta registrada con éxito y ticket enviado a impresión!"); 
-          await cargarComandasEnVivo(); 
-          await cargarVentasDesdeFirebase(); 
-          actualizarQRVisualDirecto();
-
-      } catch (err) {
-          console.error("Error al procesar la venta con ApisPerú:", err);
-          alert("Hubo un error de conexión al procesar la venta electrónica.");
-      } finally {
-          if (btnConfirmar) {
-              btnConfirmar.disabled = false;
-              btnConfirmar.innerHTML = '<i class="fas fa-print"></i> Cobrar, Guardar y Enviar a Imprimir';
-          }
-      }
     } 
 
     canalPedidos.onmessage = (event) => { 
@@ -2336,16 +2146,6 @@
       document.getElementById('cobroTituloMesa').innerText = `Cobro de ${comanda.mesa || 'Mesa'}`; 
       document.getElementById('cobroClienteTxt').innerText = `${comanda.cliente || comanda.mesa}`; 
       document.getElementById('cobroTotalTxt').innerText = `S/ ${(comanda.totalPEN || comanda.total || 0).toFixed(2)}`; 
-      
-      // Precargar DNI si la comanda ya lo traía
-      if (comanda.dni) {
-          document.getElementById('dni_cliente').value = comanda.dni;
-          document.getElementById('nombre_cliente').value = comanda.cliente || '';
-      } else {
-          document.getElementById('dni_cliente').value = '';
-          document.getElementById('nombre_cliente').value = '';
-      }
-
       document.getElementById('modalCobroMesa').classList.add('active'); 
     } 
 
@@ -2357,7 +2157,7 @@
       document.getElementById('cajaDatosFactura').style.display = (tipo === 'Factura') ? 'block' : 'none'; 
     } 
 
-    /* COBRO DE COMANDA CON DATOS DE DNI / RENIEC */ 
+    /* COBRO DE COMANDA */ 
     async function confirmarCobroFinalizado() { 
       if (!comandaCobrandoActual) return; 
 
@@ -2366,123 +2166,75 @@
       const total = parseFloat(comandaCobrandoActual.totalPEN || comandaCobrandoActual.total || 0); 
       const metodo = document.getElementById('cobroMetodoPago').value; 
       const tipoComp = document.getElementById('cobroTipoComprobante').value; 
-      const docCliente = document.getElementById('dni_cliente').value.trim();
-      const nombreClienteReniec = document.getElementById('nombre_cliente').value.trim();
-      const clienteFinal = nombreClienteReniec || comandaCobrandoActual.cliente || comandaCobrandoActual.mesa;
+      const docCliente = document.getElementById('cobroRucCliente').value.trim();
 
-      // Preparamos el paquete de datos para enviar a procesar_venta.php (ApisPerú)
-      const datosVenta = {
-          dni: docCliente || "00000000",
-          cliente: clienteFinal,
-          total: total,
-          tipo_comprobante: (tipoComp === 'Factura') ? '1' : '2', // 1: Factura, 2: Boleta
-          items: comandaCobrandoActual.items || []
-      };
+      const venta = { 
+        id: comandaCobrandoActual.id, 
+        fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }), 
+        mesa: comandaCobrandoActual.mesa, 
+        cliente: comandaCobrandoActual.cliente || comandaCobrandoActual.mesa, 
+        productos: comandaCobrandoActual.productos || "", 
+        baseImponible: total / 1.18, 
+        igv: total - (total / 1.18), 
+        totalPEN: total, 
+        pago: metodo, 
+        tipoComprobante: tipoComp, 
+        rucCliente: docCliente, 
+        razonSocialCliente: document.getElementById('cobroRazonCliente').value.trim(), 
+        cajero: `${operador} (${turno})` 
+      }; 
 
-      const btnConfirmar = document.getElementById('btnProcesarVenta');
-      if (btnConfirmar) {
-          btnConfirmar.disabled = true;
-          btnConfirmar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Emitiendo en ApisPerú...';
-      }
+      await fetch(`${FIREBASE_DB_URL}ventas/${comandaCobrandoActual.id}.json`, { 
+        method: 'PUT', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify(venta) 
+      }); 
 
-      try {
-          // 1. Enviar petición al backend PHP para procesar la factura electrónica
-          const response = await fetch('procesar_venta.php', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(datosVenta)
-          });
-          
-          const resultadoApi = await response.json();
+      await fetch(`${FIREBASE_DB_URL}comandas/${comandaCobrandoActual.id}.json`, { 
+        method: 'PATCH', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({ 
+          estado: 'finalizado', 
+          pago: metodo, 
+          tipoComprobante: tipoComp, 
+          agradecimientoFinal: true, 
+          clientePidiendoCuenta: false 
+        }) 
+      }); 
 
-          if (!resultadoApi.success) {
-              alert('Aviso de Facturación: ' + (resultadoApi.mensaje || 'No se pudo emitir en ApisPerú, pero se procesará localmente.'));
-          }
+      try { 
+        canalPedidos.postMessage({ 
+          tipo: 'ESTADO_ACTUALIZADO', 
+          id: comandaCobrandoActual.id, 
+          mesa: comandaCobrandoActual.mesa || '', 
+          estado: 'finalizado', 
+          agradecimientoFinal: true 
+        }); 
+      } catch (e) {} 
 
-          // 2. Registrar la venta en Firebase
-          const venta = { 
-              id: comandaCobrandoActual.id, 
-              fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }), 
-              mesa: comandaCobrandoActual.mesa, 
-              cliente: clienteFinal, 
-              dni: docCliente,
-              productos: comandaCobrandoActual.productos || "", 
-              baseImponible: total / 1.18, 
-              igv: total - (total / 1.18), 
-              totalPEN: total, 
-              pago: metodo, 
-              tipoComprobante: tipoComp, 
-              rucCliente: document.getElementById('cobroRucCliente').value.trim(), 
-              razonSocialCliente: document.getElementById('cobroRazonCliente').value.trim(), 
-              cajero: `${operador} (${turno})`,
-              enlace_pdf: resultadoApi.enlace_pdf || ''
-          }; 
-
-          await fetch(`${FIREBASE_DB_URL}ventas/${comandaCobrandoActual.id}.json`, { 
-              method: 'PUT', 
-              headers: { 'Content-Type': 'application/json' }, 
-              body: JSON.stringify(venta) 
+      const dniCliente = docCliente || (comandaCobrandoActual.dni || '').trim(); 
+      if (dniCliente && dniCliente.length >= 8) { 
+        try { 
+          const resSocio = await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${dniCliente}.json`); 
+          let socio = await resSocio.json() || { dni: dniCliente, nombre: "Socio", sellos: 0, totalVisitas: 0 }; 
+          socio.sellos = (socio.sellos || 0) + 1; 
+          socio.totalVisitas = (socio.totalVisitas || 0) + 1; 
+          await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${dniCliente}.json`, { 
+            method: 'PUT', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify(socio) 
           }); 
+        } catch (err) {} 
+      } 
 
-          await fetch(`${FIREBASE_DB_URL}comandas/${comandaCobrandoActual.id}.json`, { 
-              method: 'PATCH', 
-              headers: { 'Content-Type': 'application/json' }, 
-              body: JSON.stringify({ 
-                  estado: 'finalizado', 
-                  pago: metodo, 
-                  tipoComprobante: tipoComp, 
-                  cliente: clienteFinal,
-                  dni: docCliente,
-                  agradecimientoFinal: true, 
-                  clientePidiendoCuenta: false 
-              }) 
-          }); 
+      await regenerarTokenMesa(comandaCobrandoActual.mesa); 
+      cerrarModalCobro(); 
+      imprimirComprobanteFiscalDirecto(venta); 
 
-          try { 
-              canalPedidos.postMessage({ 
-                  tipo: 'ESTADO_ACTUALIZADO', 
-                  id: comandaCobrandoActual.id, 
-                  mesa: comandaCobrandoActual.mesa || '', 
-                  estado: 'finalizado', 
-                  agradecimientoFinal: true 
-              }); 
-          } catch (e) {} 
-
-          if (docCliente && docCliente.length === 8) { 
-              try { 
-                  const resSocio = await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${docCliente}.json`); 
-                  let socio = await resSocio.json() || { dni: docCliente, nombre: clienteFinal, sellos: 0, totalVisitas: 0 }; 
-                  socio.nombre = clienteFinal;
-                  socio.sellos = (socio.sellos || 0) + 1; 
-                  socio.totalVisitas = (socio.totalVisitas || 0) + 1; 
-                  await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${docCliente}.json`, { 
-                      method: 'PUT', 
-                      headers: { 'Content-Type': 'application/json' }, 
-                      body: JSON.stringify(socio) 
-                  }); 
-              } catch (err) {} 
-          } 
-
-          await regenerarTokenMesa(comandaCobrandoActual.mesa); 
-          cerrarModalCobro(); 
-          
-          // Imprimir comprobante incluyendo el enlace de ApisPerú
-          imprimirComprobanteFiscalDirecto(venta); 
-
-          alert("✔ ¡Venta registrada con éxito y ticket enviado a impresión!"); 
-          await cargarComandasEnVivo(); 
-          await cargarVentasDesdeFirebase(); 
-          actualizarQRVisualDirecto();
-
-      } catch (err) {
-          console.error("Error al procesar la venta con ApisPerú:", err);
-          alert("Hubo un error de conexión al procesar la venta electrónica.");
-      } finally {
-          if (btnConfirmar) {
-              btnConfirmar.disabled = false;
-              btnConfirmar.innerHTML = '<i class="fas fa-print"></i> Cobrar, Guardar y Enviar a Imprimir';
-          }
-      }
+      alert("✔ Venta cobrada y finalizada."); 
+      await cargarComandasEnVivo(); 
+      await cargarVentasDesdeFirebase(); 
+      actualizarQRVisualDirecto(); 
     } 
 
     function reimprimirComprobanteFinalizado(idComanda) { 
@@ -2497,8 +2249,7 @@
         tipoComprobante: c.tipoComprobante || "Boleta", 
         pago: c.pago || "Efectivo", 
         baseImponible: total / 1.18, 
-        igv: total - (total / 1.18),
-        rucCliente: c.dni || ''
+        igv: total - (total / 1.18) 
       }; 
       imprimirComprobanteFiscalDirecto(venta); 
     } 
@@ -2515,7 +2266,7 @@
           <hr> 
           <h3>*** ${v.tipoComprobante ? v.tipoComprobante.toUpperCase() : 'BOLETA DE VENTA'} ***</h3> 
           <p>${v.mesa} • ${v.fecha}</p> 
-          ${v.rucCliente ? `<p style="text-align:left;"><b>DNI/RUC:</b> ${v.rucCliente}<br>${v.razonSocialCliente ? '<b>Razón:</b> ' + v.razonSocialCliente : ''}</p>` : ''} 
+          ${v.rucCliente ? `<p style="text-align:left;"><b>RUC/DNI:</b> ${v.rucCliente}<br><b>Razón:</b> ${v.razonSocialCliente}</p>` : ''} 
           <hr> 
           <div style="text-align:left;font-size:13px;margin:8px 0;"> 
             ${(v.productos || '').split(', ').map(p => `<div>• ${p}</div>`).join('')} 
@@ -2639,7 +2390,7 @@
         });
       } catch (e) {}
 
-      alert("✔ Notificación enviada a todos los comensales de la mesa: 'ZDeseas agregar algo más?'"); 
+      alert("✔ Notificación enviada a todos los comensales de la mesa: '¿Deseas agregar algo más?'"); 
     } 
 
     /* CARGA DE COMANDAS EN VIVO Y MONITOREO INTELIGENTE DE ALERTAS */ 
