@@ -59,14 +59,12 @@
     }
     body.light-theme #topBarTitle,
     body.light-theme #headerBusinessName,
-    body.light-theme .view-header h1,
-    body.light-theme .card-login h3 {
+    body.light-theme .view-header h1 {
       color: #0f172a !important;   /* Letras en negro */
       font-weight: 900 !important;
     }
     body.light-theme #headerBusinessSlogan,
-    body.light-theme .view-header p,
-    body.light-theme .card-login p.sub {
+    body.light-theme .view-header p {
       color: #475569 !important;
     }
     body.light-theme .sidebar {
@@ -74,8 +72,7 @@
       border-right: 1.5px solid #cbd5e1 !important;
     }
     body.light-theme .card,
-    body.light-theme .modal-box,
-    body.light-theme .card-login {
+    body.light-theme .modal-box {
       background: #ffffff !important;
       border: 1.5px solid #cbd5e1 !important;
       box-shadow: 0 10px 30px rgba(0, 86, 210, 0.06) !important;
@@ -594,8 +591,8 @@
 
         <div class="user-session-badge"> 
           <div> 
-            <b id="lblSesionUsuario">Administrador (Acceso Directo)</b> 
-            <span style="font-size:9.5px; color:#10b981; display:block; font-weight:bold;" id="lblSesionCajaChica">Sistema Operativo TPV</span> 
+            <b id="lblSesionUsuario">Administrador (Caja)</b> 
+            <span style="font-size:9.5px; color:#10b981; display:block; font-weight:bold;" id="lblSesionCajaChica">TPV Activo • S/ 100.00</span> 
           </div> 
         </div> 
 
@@ -669,19 +666,19 @@
             <i class="fa-solid fa-star"></i> Reseñas & Opiniones 
           </button> 
 
-          <button class="nav-item" id="btnNavPlatos" onclick="seleccionarOpcionNav('platos')"> 
+          <button class="nav-item rol-admin-only" id="btnNavPlatos" onclick="seleccionarOpcionNav('platos')"> 
             <i class="fa-solid fa-utensils"></i> Catálogo de Platos 
           </button> 
 
-          <button class="nav-item" id="btnNavUsuarios" onclick="seleccionarOpcionNav('usuarios')"> 
+          <button class="nav-item rol-admin-only" id="btnNavUsuarios" onclick="seleccionarOpcionNav('usuarios')"> 
             <i class="fa-solid fa-users-gear"></i> Gestión de Usuarios 
           </button> 
            
-          <button class="nav-item" id="btnNavIdentidad" onclick="seleccionarOpcionNav('identidad')"> 
+          <button class="nav-item rol-admin-only" id="btnNavIdentidad" onclick="seleccionarOpcionNav('identidad')"> 
             <i class="fa-solid fa-store"></i> Identidad & Redes Sociales 
           </button> 
            
-          <button class="nav-item" id="btnNavReportes" onclick="seleccionarOpcionNav('reportes')"> 
+          <button class="nav-item rol-admin-only" id="btnNavReportes" onclick="seleccionarOpcionNav('reportes')"> 
             <i class="fa-solid fa-chart-line"></i> Reporte Contable & SUNAT 
           </button> 
         </nav> 
@@ -1612,6 +1609,37 @@
       } 
     }; 
 
+    /* ACCESO DIRECTO INMEDIATO AL PANEL PRINCIPAL */
+    async function mostrarPanelAdminDirecto() { 
+      const operador = "Administrador"; 
+      const turno = "Turno Mañana (07:00 - 15:00)"; 
+      const caja = "100.00"; 
+
+      sessionStorage.setItem("auth_rest", "true"); 
+      sessionStorage.setItem("rol_rest", "admin"); 
+      sessionStorage.setItem("nombre_operador", operador); 
+      sessionStorage.setItem("turno_rest", turno); 
+      sessionStorage.setItem("caja_chica_monto", caja);
+
+      const lblUsuario = document.getElementById('lblSesionUsuario');
+      const lblTurno = document.getElementById('lblSesionTurno');
+      if(lblUsuario) lblUsuario.innerText = `${operador} (ADMIN)`; 
+      if(lblTurno) lblTurno.innerText = turno; 
+
+      await cargarIdentidadFirebase(); 
+      await cargarMesasDesdeFirebase(); 
+      await cargarUsuariosDesdeFirebase(); 
+      await sincronizarTokensDeMesasFirebase(); 
+      await cargarCatalogoDesdeFirebase(); 
+      await cargarComandasEnVivo(); 
+      await cargarReservasFirebase(); 
+      await cargarVentasDesdeFirebase(); 
+      actualizarQRVisualDirecto(); 
+      
+      setInterval(cargarComandasEnVivo, 2000); 
+      setInterval(cargarReservasFirebase, 5000); 
+    } 
+
     function toggleSidebarMenu() { 
       const layout = document.getElementById('adminLayoutWrapper'); 
       if (window.innerWidth <= 860) layout.classList.toggle('sidebar-open'); 
@@ -1925,21 +1953,14 @@
         const resFB = await fetch(`${FIREBASE_DB_URL}comandas.json?_t=${Date.now()}`); 
         if (resFB.ok) { 
           const dataFB = await resFB.json(); 
-          if (dataFB) {
-            // Soporta tanto array como objeto devuelto por Firebase
-            if (Array.isArray(dataFB)) {
-              comandas = dataFB.filter(Boolean);
-            } else if (typeof dataFB === 'object') {
-              comandas = Object.keys(dataFB).map(k => Object.assign({ id: k }, dataFB[k]));
-            }
-          }
+          if (dataFB && typeof dataFB === 'object') comandas = Object.keys(dataFB).map(k => Object.assign({ id: k }, dataFB[k])); 
         } 
       } catch (e) {} 
 
       todasLasComandasCache = comandas; 
       const activas = comandas.filter(c => String(c.estado || "").toLowerCase() !== 'finalizado'); 
-      const badgeElem = document.getElementById('badgeTotalComandas');
-      if(badgeElem) badgeElem.innerText = activas.length; 
+      const badge = document.getElementById('badgeTotalComandas');
+      if (badge) badge.innerText = activas.length; 
 
       const mesasOcupadas = activas.map(c => normalizarNombreMesa(c.mesa || '')); 
       monitorGrid.innerHTML = listaMesasDinamicas.map(m => ` 
@@ -2110,7 +2131,7 @@
       if (qrSel) qrSel.innerHTML = listaMesasDinamicas.map(m => `<option value="${m}">${m}</option>`).join(''); 
       if (resSel) resSel.innerHTML = listaMesasDinamicas.map(m => `<option value="${m}">${m}</option>`).join(''); 
 
-      // CARGA INMEDIATA AL PANEL PRINCIPAL
+      // EJECUTAR CARGA AUTOMÁTICA AL INICIAR
       mostrarPanelAdminDirecto(); 
     }; 
   </script> 
