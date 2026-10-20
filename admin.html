@@ -258,54 +258,6 @@
       border-color: #0056d2;
     }
 
-    /* PANTALLA LOGIN */ 
-    #pantallaLogin { 
-      display: flex; justify-content: center; align-items: center; min-height: 100vh; 
-      padding: 16px; background: radial-gradient(circle at center, #0c2042 0%, #020712 100%); 
-    } 
-    body.light-theme #pantallaLogin {
-      background: radial-gradient(circle at center, #dbeafe 0%, #edf2f7 100%);
-    }
-    .card-login { 
-      background: var(--card-bg); 
-      border: 1.5px solid var(--chuspa-gold-border); 
-      border-radius: 20px; 
-      max-width: 440px; width: 100%; padding: 30px 26px; 
-      box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 25px rgba(245, 158, 11, 0.15); 
-    } 
-    .card-login h3 { color: #f8fafc; text-align: center; margin-bottom: 4px; font-size: 22px; font-weight: 900; letter-spacing: 0.5px; } 
-    .card-login p.sub { font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 20px; } 
-
-    .login-logos-header {
-      display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 14px;
-    }
-    .login-chuspa-logo-wrap {
-      width: 66px; height: 66px; border-radius: 50%;
-      background: #fff; 
-      border: 2.5px solid var(--chuspa-gold); 
-      overflow: hidden;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 18px var(--chuspa-gold-glow); flex-shrink: 0;
-    }
-    .login-chuspa-logo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-    .login-brand-logo-wrap {
-      width: 66px; height: 66px; border-radius: 50%;
-      background: linear-gradient(135deg, #0056d2, #0284c7);
-      border: 2.5px solid var(--chuspa-gold); 
-      overflow: hidden;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 18px rgba(0, 86, 210, 0.5); font-size: 28px; color: #fff; flex-shrink: 0;
-    }
-    .login-brand-logo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-    .caja-chica-box { 
-      background: rgba(0, 86, 210, 0.08); 
-      border: 1.5px dashed var(--chuspa-gold); 
-      border-radius: 12px; 
-      padding: 14px; margin-top: 12px; 
-    } 
-
     /* BARRA SUPERIOR */ 
     .top-admin-bar { 
       display: flex; background: var(--header-bg); border-bottom: 1.5px solid var(--chuspa-gold-border); 
@@ -607,7 +559,7 @@
   <!-- BOTÓN FLOTANTE TEMA -->
   <button type="button" class="btn-theme-toggle-floating" id="btnToggleTheme" onclick="alternarTemaVisual()" title="Cambiar a Modo Claro / Oscuro"></button>
 
-  <!-- DASHBOARD PRINCIPAL (LOGIN ELIMINADO PARA ACCESO DIRECTO) --> 
+  <!-- DASHBOARD PRINCIPAL (ACCESO DIRECTO) --> 
   <div id="panelAdminPrincipal" style="display: block;"> 
     <header class="top-admin-bar no-print" id="mainAdminHeaderBar"> 
       <button type="button" class="btn-toggle-global" onclick="toggleSidebarMenu()"> 
@@ -1660,35 +1612,6 @@
       } 
     }; 
 
-    /* ACCESO DIRECTO INMEDIATO AL PANEL PRINCIPAL (SIN PANTALLA DE LOGIN) */
-    async function mostrarPanelAdminDirecto() { 
-      const operador = "Administrador"; 
-      const turno = "Turno Mañana (07:00 - 15:00)"; 
-      const caja = "100.00"; 
-
-      sessionStorage.setItem("auth_rest", "true"); 
-      sessionStorage.setItem("rol_rest", "admin"); 
-      sessionStorage.setItem("nombre_operador", operador); 
-      sessionStorage.setItem("turno_rest", turno); 
-      sessionStorage.setItem("caja_chica_monto", caja);
-
-      document.getElementById('lblSesionUsuario').innerText = `${operador} (ADMIN)`; 
-      document.getElementById('lblSesionTurno').innerText = turno; 
-
-      await cargarIdentidadFirebase(); 
-      await cargarMesasDesdeFirebase(); 
-      await cargarUsuariosDesdeFirebase(); 
-      await sincronizarTokensDeMesasFirebase(); 
-      await cargarCatalogoDesdeFirebase(); 
-      await cargarComandasEnVivo(); 
-      await cargarReservasFirebase(); 
-      await cargarVentasDesdeFirebase(); 
-      actualizarQRVisualDirecto(); 
-      
-      setInterval(cargarComandasEnVivo, 2000); 
-      setInterval(cargarReservasFirebase, 5000); 
-    } 
-
     function toggleSidebarMenu() { 
       const layout = document.getElementById('adminLayoutWrapper'); 
       if (window.innerWidth <= 860) layout.classList.toggle('sidebar-open'); 
@@ -2002,13 +1925,21 @@
         const resFB = await fetch(`${FIREBASE_DB_URL}comandas.json?_t=${Date.now()}`); 
         if (resFB.ok) { 
           const dataFB = await resFB.json(); 
-          if (dataFB && typeof dataFB === 'object') comandas = Object.keys(dataFB).map(k => Object.assign({ id: k }, dataFB[k])); 
+          if (dataFB) {
+            // Soporta tanto array como objeto devuelto por Firebase
+            if (Array.isArray(dataFB)) {
+              comandas = dataFB.filter(Boolean);
+            } else if (typeof dataFB === 'object') {
+              comandas = Object.keys(dataFB).map(k => Object.assign({ id: k }, dataFB[k]));
+            }
+          }
         } 
       } catch (e) {} 
 
       todasLasComandasCache = comandas; 
       const activas = comandas.filter(c => String(c.estado || "").toLowerCase() !== 'finalizado'); 
-      document.getElementById('badgeTotalComandas').innerText = activas.length; 
+      const badgeElem = document.getElementById('badgeTotalComandas');
+      if(badgeElem) badgeElem.innerText = activas.length; 
 
       const mesasOcupadas = activas.map(c => normalizarNombreMesa(c.mesa || '')); 
       monitorGrid.innerHTML = listaMesasDinamicas.map(m => ` 
@@ -2179,7 +2110,7 @@
       if (qrSel) qrSel.innerHTML = listaMesasDinamicas.map(m => `<option value="${m}">${m}</option>`).join(''); 
       if (resSel) resSel.innerHTML = listaMesasDinamicas.map(m => `<option value="${m}">${m}</option>`).join(''); 
 
-      // ACCESO DIRECTO INMEDIATO AL PANEL PRINCIPAL
+      // CARGA INMEDIATA AL PANEL PRINCIPAL
       mostrarPanelAdminDirecto(); 
     }; 
   </script> 
