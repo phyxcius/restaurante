@@ -14,7 +14,7 @@ if ($data && isset($data['dni']) && isset($data['cliente'])) {
 
     $modoProduccion = false; 
 
-    // Token activo de ApisPerú integrado correctamente
+    // Tu token activo de ApisPerú integrado para facturación electrónica
     $tokenApisPerU = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImVkd2lub2JsaXRhc3ViYWxkZUBnbWFpbC5jb20iLCJqdGkiOiJjYzdmYzhiYzVmMWZkNDJlIn0.bOjhDNGwlMQYXdlV84_qivtkV4bl4Ir3aRZ_Lx48wuE"; 
     $tokenActivo = $tokenApisPerU;
 
