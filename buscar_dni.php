@@ -5,7 +5,7 @@ header('Content-Type: application/json');
 if (isset($_GET['dni'])) {
     $dni = trim($_GET['dni']);
     
-    // Tu token activo de ApisPerú
+    // Tu token activo de ApisPerú integrado correctamente
     $token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImVkd2lub2JsaXRhc3ViYWxkZUBnbWFpbC5jb20iLCJqdGkiOiJjYzdmYzhiYzVmMWZkNDJlIn0.bOjhDNGwlMQYXdlV84_qivtkV4bl4Ir3aRZ_Lx48wuE"; 
     
     $url = "https://api.apis.net.pe/v2/reniec/dni?numero=" . $dni;
