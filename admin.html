@@ -153,6 +153,12 @@
     .custom-table th, .custom-table td { border: 1px solid rgba(255,255,255,0.1); padding: 9px 11px; } 
     .custom-table th { background: #0a1c38; color: #fbbf24; } 
 
+    .dishes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; } 
+    .dish-card-visual { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; } 
+    .dish-media { height: 160px; background: #000; overflow: hidden; position: relative; } 
+    .dish-media img, .dish-media video { width: 100%; height: 100%; object-fit: cover; } 
+    .badge-media-type { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.7); color: #38bdf8; font-size: 10px; padding: 3px 8px; border-radius: 12px; font-weight: bold; border: 1px solid var(--accent); } 
+
     .modal-overlay { position: fixed !important; inset: 0 !important; background: rgba(3, 7, 18, 0.85) !important; backdrop-filter: blur(8px) !important; z-index: 999999 !important; display: none !important; align-items: center !important; justify-content: center !important; padding: 16px !important; } 
     .modal-overlay.active { display: flex !important; } 
     .modal-box { background: var(--card-bg) !important; border: 1.5px solid var(--chuspa-gold-border) !important; border-radius: 18px !important; max-width: 520px !important; width: 100% !important; max-height: 90vh !important; overflow-y: auto !important; padding: 24px !important; display: flex !important; flex-direction: column !important; gap: 12px !important; } 
@@ -173,7 +179,7 @@
     <div class="card-login"> 
       <div class="login-logos-header">
         <div class="login-chuspa-logo-wrap"><img src="CHUSPITA-circulo.png" alt="Chuspa" onerror="this.src='https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';"></div>
-        <div class="login-brand-logo-wrap">🍽️</div>
+        <div class="login-brand-logo-wrap" id="loginBrandLogoWrap">🍽️</div>
       </div>
       <h3 id="loginTitlePreview">La Cusqueñita</h3> 
       <p class="sub">Plataforma Cloud de Gestión & TPV Comercial</p> 
@@ -230,7 +236,7 @@
             <div class="brand-avatar" id="headerAvatar">🍽️</div> 
             <div> 
               <h2 id="headerBusinessName" style="font-size:15px; color:#f8fafc; font-weight:900;">La Cusqueñita</h2> 
-              <span style="font-size:10.5px; color:#94a3b8;">Cusco • Gourmet</span> 
+              <span id="headerBusinessSlogan" style="font-size:10.5px; color:#94a3b8;">Cusco • Gourmet</span> 
             </div> 
           </div> 
         </div> 
@@ -243,11 +249,17 @@
         </div> 
         <nav class="nav-menu"> 
           <button class="nav-item active" onclick="seleccionarOpcionNav('comandas')"><i class="fa-solid fa-bell-concierge"></i> Comandas en Vivo <span class="badge-live-orders" id="badgeTotalComandas">0</span></button> 
+          <button class="nav-item" onclick="seleccionarOpcionNav('socios')"><i class="fa-solid fa-star"></i> Club & Socios</button> 
+          <button class="nav-item" onclick="seleccionarOpcionNav('reservas')"><i class="fa-solid fa-calendar-check"></i> Reservas</button> 
+          <button class="nav-item" onclick="seleccionarOpcionNav('mesas')"><i class="fa-solid fa-qrcode"></i> Códigos QR</button> 
+          <button class="nav-item" onclick="seleccionarOpcionNav('platos')"><i class="fa-solid fa-utensils"></i> Catálogo Platos</button> 
+          <button class="nav-item" onclick="seleccionarOpcionNav('identidad')"><i class="fa-solid fa-store"></i> Identidad & Logo</button> 
           <button class="nav-item" onclick="seleccionarOpcionNav('reportes')"><i class="fa-solid fa-chart-line"></i> Reporte Contable & SUNAT</button> 
         </nav> 
       </aside> 
 
       <main class="main-view"> 
+        <!-- 1. COMANDAS KDS -->
         <section id="viewComandas"> 
           <div class="view-header"> 
             <h1>🛎️ Pantalla KDS: Control de Comandas</h1> 
@@ -260,6 +272,63 @@
           <div class="live-orders-grid" id="liveOrdersGrid"></div> 
         </section> 
 
+        <!-- 2. SOCIOS -->
+        <section id="viewSocios" style="display:none;">
+          <div class="view-header"><h1>⭐ Club de Recompensas</h1></div>
+          <div class="card">
+            <label>Buscar Socio por DNI:</label>
+            <div style="display:flex; gap:10px; margin-top:8px;">
+              <input type="tel" id="inputBuscarDniSocio" placeholder="DNI..." maxlength="8">
+              <button class="btn btn-save" onclick="buscarSocioPorDniDirecto()">Consultar</button>
+            </div>
+            <div id="resultadoSocioBox" style="background:#09152b; border:1.5px solid var(--chuspa-gold); border-radius:14px; padding:16px; display:none; margin-top:14px;">
+              <h3 id="resSocioNombre" style="color:#fff; font-size:17px;">--</h3>
+              <p style="color:#fbbf24; font-size:13px; margin-top:4px;">Sellos: <b id="resSocioSellos">0</b> de 10</p>
+              <button class="btn btn-add" style="margin-top:8px;" onclick="sumarSelloManual()">+1 Sello</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. RESERVAS -->
+        <section id="viewReservas" style="display:none;">
+          <div class="view-header"><h1>📅 Gestión de Reservas</h1></div>
+          <div class="card" id="contenedorReservasAdminList"><p style="color:#888;">Cargando reservas...</p></div>
+        </section>
+
+        <!-- 4. QR MESAS -->
+        <section id="viewMesas" style="display:none;">
+          <div class="view-header"><h1>🏷️ Códigos QR por Mesa</h1></div>
+          <div class="card" style="text-align:center;">
+            <label>Selecciona Mesa:</label>
+            <select id="qrMesaSelectorDinamico" onchange="actualizarQRVisualDirecto(this.value)" style="max-width:300px; margin:0 auto 14px;"></select>
+            <div style="background:#fff; padding:20px; border-radius:14px; display:inline-block;">
+              <img id="imgQRVisualCentrado" src="" alt="QR" style="width:200px; height:200px; display:block; margin:0 auto;">
+              <h2 id="qrPrintNumeroMesa" style="color:#0056d2; margin-top:10px; font-size:22px;">MESA 01</h2>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. PLATOS -->
+        <section id="viewPlatos" style="display:none;">
+          <div class="view-header"><h1>🍽️ Catálogo de Platos</h1><button class="btn btn-add" onclick="abrirModalPlato()">+ Nuevo Plato</button></div>
+          <div class="dishes-grid" id="dishesVisualGrid"></div>
+        </section>
+
+        <!-- 6. IDENTIDAD -->
+        <section id="viewIdentidad" style="display:none;">
+          <div class="view-header"><h1>🏪 Identidad & Logo</h1></div>
+          <div class="card">
+            <label>Nombre del Restaurante:</label>
+            <input type="text" id="cfgBusinessName">
+            <label>RUC:</label>
+            <input type="text" id="cfgRuc">
+            <label>Enlace o Subir Logo (URL):</label>
+            <input type="text" id="cfgLogoUrlInput" placeholder="https://...">
+            <button class="btn btn-save" style="margin-top:14px; width:100%;" onclick="guardarIdentidadFirebase()">Guardar Identidad</button>
+          </div>
+        </section>
+
+        <!-- 7. REPORTE CONTABLE --> 
         <section id="viewReportes" style="display:none;"> 
           <div class="view-header"><h1>📊 Reporte Contable & Auditoría SUNAT</h1></div> 
           <div class="card"> 
@@ -354,6 +423,9 @@
 
     let comandaCobrandoActual = null; 
     let todasLasComandasCache = []; 
+    let listaMesasDinamicas = ["Mesa 01", "Mesa 02", "Mesa 03", "Mesa 04", "Mesa 05", "Barra", "Terraza 1"];
+    let catalogo = [];
+    let configRestaurante = { nombre: "La Cusqueñita", ruc: "20601234567" };
 
     // BÚSQUEDA AUTOMÁTICA RENIEC & RUC
     document.addEventListener('DOMContentLoaded', () => {
@@ -376,21 +448,19 @@
             btnBuscarRuc.addEventListener('click', () => {
                 let ruc = document.getElementById('cobroRucCliente').value.trim();
                 if (ruc.length !== 11) return alert('El RUC debe tener 11 dígitos.');
-                // Petición a tu API o simulación Beta
                 fetch(`buscar_ruc.php?ruc=${ruc}`)
                     .then(res => res.json())
                     .then(data => {
                         if (data && data.razonSocial) document.getElementById('cobroRazonCliente').value = data.razonSocial;
                         else alert('No encontrado en SUNAT.');
                     }).catch(() => {
-                        // Simulación directa para pruebas Beta si no hay endpoint RUC configurado
                         document.getElementById('cobroRazonCliente').value = "EMPRESA DE PRUEBA SOCIEDAD ANONIMA CERRADA";
                     });
             });
         }
     });
 
-    // SISTEMA DE LOGIN BLINDADO (REPARADO CON CLAVE MAESTRA DE RESPALDO)
+    // SISTEMA DE LOGIN BLINDADO
     async function verificarLoginSistema(e) { 
       e.preventDefault(); 
       const rol = document.getElementById('loginUsuarioSelector').value; 
@@ -400,8 +470,6 @@
       const caja = parseFloat(document.getElementById('loginCajaChica').value) || 0; 
 
       let accesoPermitido = false;
-
-      // Respaldo de emergencia por clave maestra si falla Firebase
       if (pass === "regocijo123" || pass === "42423549") {
           accesoPermitido = true;
       } else {
@@ -433,16 +501,20 @@
     function mostrarPanelAdmin() { 
       document.getElementById('pantallaLogin').style.display = 'none'; 
       document.getElementById('panelAdminPrincipal').style.display = 'block'; 
+      cargarIdentidadFirebase();
       cargarComandasEnVivo(); 
+      cargarReservasFirebase();
+      actualizarQRVisualDirecto();
       setInterval(cargarComandasEnVivo, 3000); 
     } 
 
     function seleccionarOpcionNav(s) { 
-      ['comandas', 'reportes'].forEach(id => {
+      ['comandas', 'socios', 'reservas', 'mesas', 'platos', 'identidad', 'reportes'].forEach(id => {
          const el = document.getElementById('view' + id.charAt(0).toUpperCase() + id.slice(1));
          if (el) el.style.display = (id === s) ? 'block' : 'none';
       });
       if (s === 'reportes') cargarVentasDesdeFirebase();
+      if (s === 'reservas') cargarReservasFirebase();
     } 
 
     async function abrirModalCobroComanda(idComanda) { 
@@ -459,7 +531,7 @@
       document.getElementById('cobroClienteTxt').innerText = `${comanda.cliente || comanda.mesa}`; 
       document.getElementById('cobroTotalTxt').innerText = `S/ ${(comanda.totalPEN || comanda.total || 0).toFixed(2)}`; 
       
-      // AUTO-PRECarga si el cliente eligió Boleta o Factura desde su celular en la mesa
+      // Precarga automática según lo que el cliente seleccionó en la mesa
       if (comanda.tipoComprobanteSeleccionado === 'Factura') {
           document.getElementById('cobroRucCliente').value = comanda.dni || '';
           document.getElementById('cobroRazonCliente').value = comanda.cliente || '';
@@ -473,7 +545,7 @@
 
     function cerrarModalCobro() { document.getElementById('modalCobroMesa').classList.remove('active'); } 
 
-    // COBRO FINAL CON TIPO ESPECÍFICO (BOLETA O FACTURA)
+    // COBRO FINAL Y EMISIÓN ELECTRÓNICA (APISPERÚ)
     async function confirmarCobroConTipo(tipoComp) { 
       if (!comandaCobrandoActual) return; 
 
@@ -507,7 +579,6 @@
       };
 
       try {
-          // Envío a ApisPerú mediante PHP
           const response = await fetch('procesar_venta.php', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -566,8 +637,8 @@
           @media print { .btn-imprimir { display: none; } body { background: #fff; } .ticket-box { border: none; padding:0; } }
         </style></head><body> 
           <div class="ticket-box">
-            <h3>LA CUSQUEÑITA</h3> 
-            <p>RUC: 20601234567</p> 
+            <h3>${configRestaurante.nombre.toUpperCase()}</h3> 
+            <p>RUC: ${configRestaurante.ruc}</p> 
             <hr> 
             <h3>*** ${v.tipoComprobante.toUpperCase()} ELECTRONICA ***</h3> 
             <p>${v.mesa} • ${v.fecha}</p> 
@@ -606,6 +677,10 @@
       const activas = comandas.filter(c => String(c.estado || "").toLowerCase() !== 'finalizado'); 
       document.getElementById('badgeTotalComandas').innerText = activas.length; 
 
+      monitorGrid.innerHTML = listaMesasDinamicas.map(m => `
+        <div class="table-pill ${activas.some(c => c.mesa === m) ? 'ocupada' : 'libre'}"><span>${m}</span></div>
+      `).join('');
+
       grid.innerHTML = activas.map((c) => ` 
         <div class="order-card estado-${c.estado || 'iniciado'}"> 
           <div class="order-card-header"> 
@@ -639,7 +714,58 @@
       } catch (e) {} 
     } 
 
+    async function cargarIdentidadFirebase() {
+        try {
+            const res = await fetch(`${FIREBASE_DB_URL}config/identidad.json`);
+            if(res.ok) {
+                const data = await res.json();
+                if(data) configRestaurante = Object.assign(configRestaurante, data);
+            }
+        } catch(e) {}
+        document.getElementById('headerBusinessName').innerText = configRestaurante.nombre;
+        document.getElementById('topBarTitle').innerText = configRestaurante.nombre;
+        document.getElementById('loginTitlePreview').innerText = configRestaurante.nombre;
+    }
+
+    async function guardarIdentidadFirebase() {
+        configRestaurante.nombre = document.getElementById('cfgBusinessName').value.trim();
+        configRestaurante.ruc = document.getElementById('cfgRuc').value.trim();
+        await fetch(`${FIREBASE_DB_URL}config/identidad.json`, {
+            method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(configRestaurante)
+        });
+        alert("✔ Identidad guardada.");
+        cargarIdentidadFirebase();
+    }
+
+    async function cargarReservasFirebase() {
+        const cont = document.getElementById('contenedorReservasAdminList');
+        try {
+            const res = await fetch(`${FIREBASE_DB_URL}reservas.json`);
+            if(res.ok) {
+                const data = await res.json();
+                if(data) {
+                    cont.innerHTML = Object.values(data).map(r => `
+                        <div style="background:#061122; padding:12px; border-radius:8px; margin-bottom:8px;">
+                            <strong>${r.cliente} (${r.personas} personas)</strong><br>
+                            <span style="color:#fbbf24;">📅 ${r.fechaReserva} • ⏰ ${r.horaReserva} • <b>${r.mesaAsignada}</b></span>
+                        </div>
+                    `).join('');
+                    return;
+                }
+            }
+        } catch(e) {}
+        cont.innerHTML = '<p style="color:#888;">No hay reservas registradas.</p>';
+    }
+
+    function actualizarQRVisualDirecto(mesa = "Mesa 01") {
+        document.getElementById('qrPrintNumeroMesa').innerText = mesa.toUpperCase();
+        document.getElementById('imgQRVisualCentrado').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(mesa)}`;
+    }
+
     window.onload = () => { 
+      const qrSel = document.getElementById('qrMesaSelectorDinamico');
+      if(qrSel) qrSel.innerHTML = listaMesasDinamicas.map(m => `<option value="${m}">${m}</option>`).join('');
+
       if (sessionStorage.getItem("auth_rest") === "true") mostrarPanelAdmin(); 
       else { document.getElementById('pantallaLogin').style.display = 'flex'; document.getElementById('panelAdminPrincipal').style.display = 'none'; } 
     }; 
