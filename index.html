@@ -1059,28 +1059,32 @@
     }
 
     /* INTEGRACIÓN DE CONSULTA RENIEC VÍA API */
-    document.getElementById('btnBuscarDni').addEventListener('click', function() {
-        let dni = document.getElementById('dni_cliente').value.trim();
-        
-        if (dni.length !== 8) {
-            alert('Por favor ingrese un DNI válido de 8 dígitos.');
-            return;
-        }
-
-        // Llamada a tu archivo backend que procesa la consulta API de ApisPerú
-        fetch(`buscar_dni.php?dni=${dni}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Autocompleta el campo de nombre con la respuesta de RENIEC
-                    document.getElementById('nombre_cliente').value = data.nombres_completos;
-                    // Actualizar también el campo de nombre de quien pide opcionalmente
-                    document.getElementById('clientNameInput').value = data.nombres_completos;
-                } else {
-                    alert('No se encontraron datos para este DNI.');
+    document.addEventListener('DOMContentLoaded', () => {
+        const btnBuscarDni = document.getElementById('btnBuscarDni');
+        if (btnBuscarDni) {
+            btnBuscarDni.addEventListener('click', function() {
+                let dni = document.getElementById('dni_cliente').value.trim();
+                
+                if (dni.length !== 8) {
+                    alert('Por favor ingrese un DNI válido de 8 dígitos.');
+                    return;
                 }
-            })
-            .catch(error => console.error('Error:', error));
+
+                // Llamada al archivo backend que procesa la consulta API de ApisPerú
+                fetch(`buscar_dni.php?dni=${dni}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Autocompleta el campo de nombre con la respuesta de RENIEC
+                            document.getElementById('nombre_cliente').value = data.nombres_completos;
+                            document.getElementById('clientNameInput').value = data.nombres_completos;
+                        } else {
+                            alert('No se encontraron datos para este DNI.');
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+        }
     });
 
     /* LATIDO DE PRESENCIA (HEARTBEAT) PARA CONTAR COMENSALES EN VIVO */
