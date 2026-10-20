@@ -73,6 +73,8 @@
 
   <script>
     const FIREBASE_DB_URL = "https://restaurante1-695f7-default-rtdb.firebaseio.com/";
+    // Token activo de ApisPerú integrado de forma global en la vista
+    const APISPERU_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImVkd2lub2JsaXRhc3ViYWxkZUBnbWFpbC5jb20iLCJqdGkiOiJjYzdmYzhiYzVmMWZkNDJlIn0.bOjhDNGwlMQYXdlV84_qivtkV4bl4Ir3aRZ_Lx48wuE";
 
     window.onload = () => {
       const hoy = new Date().toISOString().split('T')[0];
@@ -91,7 +93,8 @@
         personas: document.getElementById('resPersonas').value,
         mesaAsignada: document.getElementById('resMesa').value,
         notas: document.getElementById('resNotas').value.trim() || 'Sin notas',
-        fechaCreacion: new Date().toLocaleDateString()
+        fechaCreacion: new Date().toLocaleDateString(),
+        tokenValidacion: APISPERU_TOKEN.substring(0, 15) + "..." // Sello de control de sesión
       };
 
       try {
