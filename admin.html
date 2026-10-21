@@ -150,6 +150,12 @@
     .alerta-centro-card { position: relative; width: 100%; max-width: 440px; background: #0d1e3a; border-radius: 20px; padding: 24px; border: 2px solid var(--chuspa-gold); text-align: center; } 
     .sidebar-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 180; } 
 
+    /* ESTILOS ACORDEÓN DE CÓDIGO */
+    .code-accordion { background: #040e1a; border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
+    .code-accordion-header { background: #08162e; color: #38bdf8; padding: 12px 16px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+    .code-accordion-content { display: none; padding: 14px; background: #020710; font-family: monospace; font-size: 12px; color: #a5f3fc; overflow-x: auto; max-height: 350px; }
+    .code-accordion.open .code-accordion-content { display: block; }
+
     @media (max-width: 860px) { 
       .admin-layout { display: block !important; } 
       .sidebar { position: fixed !important; top: 0 !important; left: 0 !important; width: 290px !important; height: 100vh !important; transform: translateX(-100%) !important; opacity: 0 !important; z-index: 250 !important; transition: 0.25s; } 
@@ -177,7 +183,7 @@
           <span>La Chuspa Tech</span> 
         </a> 
       </div> 
-      <button type="button" onclick="probarSonidoCampanaCocina()" style="background:none; border:none; color:#fbbf24; font-size:17px; cursor:pointer;"><i class="fa-solid fa-bell"></i></button> 
+      <button type="button" onclick="probarSonidoCampanaCocina()" style="background:none; border:none; color:#fbbf24; font-size:17px; cursor:pointer;" title="Campana"><i class="fa-solid fa-bell"></i></button> 
     </header> 
 
     <div class="admin-layout" id="adminLayoutWrapper"> 
@@ -214,7 +220,10 @@
         <!-- 1. COMANDAS KDS --> 
         <section id="viewComandas"> 
           <div class="view-header"> 
-            <h1>🛎️ Pantalla KDS: Control de Comandas</h1> 
+            <div> 
+              <h1>🛎️ Pantalla KDS: Control de Comandas</h1> 
+              <p>Monitoreo operativo de cocina en tiempo real y despacho por prioridad.</p> 
+            </div> 
             <button class="btn btn-add" onclick="cargarComandasEnVivo()"><i class="fa-solid fa-rotate"></i> Actualizar</button> 
           </div> 
           <div class="kds-calendar-bar"> 
@@ -223,7 +232,6 @@
               <input type="date" id="kdsFechaSeleccionada" class="kds-date-input" onchange="cambiarFechaKDS(this.value)"> 
               <button type="button" class="kds-date-quick-btn active" id="btnKdsTodas" onclick="setKdsFechaRapida('todas')">Ver Todas</button> 
               <button type="button" class="kds-date-quick-btn" id="btnKdsHoy" onclick="setKdsFechaRapida('hoy')">Solo Hoy</button> 
-              <button type="button" class="kds-date-quick-btn" id="btnKdsAyer" onclick="setKdsFechaRapida('ayer')">Ayer</button> 
             </div> 
             <div class="kds-day-metrics"> 
               <div class="metric-pill">Comandas: <b id="metricDiaTotal">0</b></div> 
@@ -302,7 +310,7 @@
     </div> 
   </div> 
 
-  <!-- MODAL DE COBRO INTEGRADO: 2 OPCIONES (BOLETA Y FACTURA SIMULTÁNEAS) --> 
+  <!-- MODAL DE COBRO DUAL: BOLETA (DNI) Y FACTURA (RUC) CON BÚSQUEDA APISPERÚ --> 
   <div class="modal-overlay" id="modalCobroMesa" onclick="cerrarModalCobro()"> 
     <div class="modal-box" onclick="event.stopPropagation()"> 
       <div style="display:flex; justify-content:space-between; align-items:center;"> 
@@ -327,7 +335,7 @@
         <input type="text" id="nombre_cliente" readonly placeholder="Nombre del cliente..." style="margin-top:6px; background:#f8fafc; color:#0f172a; font-size:12px;">
       </div>
 
-      <!-- 2. OPCIÓN FACTURA (RUC / RAZÓN SOCIAL) -->
+      <!-- 2. OPCIÓN FACTURA (RUC / SUNAT) -->
       <div style="background: #061122; border: 1.5px dashed var(--primary); padding: 12px; border-radius: 10px; margin-bottom: 6px;">
         <div style="font-size: 11px; font-weight: 900; color: #38bdf8; margin-bottom: 6px;">🏢 OPCIÓN 2: EMITIR FACTURA (RUC)</div>
         <div style="display: flex; gap: 6px;">
@@ -347,7 +355,7 @@
         </select> 
       </div> 
 
-      <!-- BOTONES INDEPENDIENTES DE EMISIÓN CON APISPERÚ -->
+      <!-- BOTONES DE EMISIÓN CON APISPERÚ -->
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:10px;"> 
         <button type="button" class="btn btn-del" onclick="cerrarModalCobro()">Cancelar</button> 
         <button type="button" class="btn" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; font-weight: 900;" onclick="confirmarCobroConTipo('Boleta')"> 
@@ -360,9 +368,17 @@
     </div> 
   </div> 
 
-  <script> 
+  <!-- 📂 BLOQUE DE CÓDIGO JAVASCRIPT ORGANIZADO EN ACORDEÓN -->
+  <div style="max-width:900px; margin:30px auto; padding:0 15px;" class="no-print">
+    <div class="code-accordion">
+      <div class="code-accordion-header" onclick="this.parentElement.classList.toggle('open')">
+        <span>📂 Ver Bloque de Lógica JavaScript (Haz clic para expandir / colapsar)</span>
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="code-accordion-content">
+<script> 
     const FIREBASE_DB_URL = "https://restaurante1-695f7-default-rtdb.firebaseio.com/"; 
-    const TOKEN_APISPERU = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImVkd2lub2JsaXRhc3ViYWxkZUBnbWFpbC5jb20iLCjqdGkiOiJjYzdmYzhiYzVmMWZkNDJlIn0.bOjhDNGwlMQYXdlV84_qivtkV4bl4Ir3aRZ_Lx48wuE"; 
+    const TOKEN_APISPERU = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImVkd2lub2JsaXRhc3ViYWxkZUBnbWFpbC5jb20iLCJqdGkiOiJjYzdmYzhiYzVmMWZkNDJlIn0.bOjhDNGwlMQYXdlV84_qivtkV4bl4Ir3aRZ_Lx48wuE"; 
     const canalPedidos = new BroadcastChannel('canal_inka_pedidos'); 
 
     function alternarTemaVisual() {
@@ -378,7 +394,7 @@
     let configRestaurante = { nombre: "La Cusqueñita", ruc: "20601234567", direccion: "Portal de Carnes 214, Cusco" };
     let fechaKdsSeleccionada = "";
 
-    // BÚSQUEDA AUTOMÁTICA RENIEC & RUC DESDE JS (COMPATIBLE CON GITHUB PAGES)
+    // BÚSQUEDA AUTOMÁTICA RENIEC & RUC DIRECTA CON APISPERÚ
     document.addEventListener('DOMContentLoaded', () => {
         const btnBuscarDni = document.getElementById('btnBuscarDni');
         if (btnBuscarDni) {
@@ -438,21 +454,21 @@
         if (tipoComp === 'Factura') {
             rucEmpresa = document.getElementById('cobroRucCliente').value.trim();
             razonSocialEmpresa = document.getElementById('cobroRazonCliente').value.trim();
-            if (!rucEmpresa || rucEmpresa.length !== 11) return alert("Ingresa un RUC válido de 11 dígitos para la Factura.");
+            if (!rucEmpresa || rucEmpresa.length !== 11) return alert("Ingresa un RUC válido de 11 dígitos.");
             clienteFinal = razonSocialEmpresa || comandaCobrandoActual.cliente;
             docCliente = rucEmpresa;
         } else {
             docCliente = document.getElementById('dni_cliente').value.trim();
             const nombreReniec = document.getElementById('nombre_cliente').value.trim();
             clienteFinal = nombreReniec || comandaCobrandoActual.cliente || comandaCobrandoActual.mesa;
-            if (!docCliente || docCliente.length !== 8) return alert("Ingresa un DNI válido de 8 dígitos para la Boleta.");
+            if (!docCliente || docCliente.length !== 8) return alert("Ingresa un DNI válido de 8 dígitos.");
         }
 
         const igv = parseFloat((total - (total / 1.18)).toFixed(2));
         const subtotal = parseFloat((total / 1.18).toFixed(2));
 
         const datosComprobante = {
-            "tipo_de_comprobante": (tipoComp === 'Factura') ? "1" : "2", // 1: Factura, 2: Boleta
+            "tipo_de_comprobante": (tipoComp === 'Factura') ? "1" : "2",
             "serie": (tipoComp === 'Factura') ? "F001" : "B001",
             "numero": Math.floor(Math.random() * 9000) + 1000,
             "fecha_de_emision": new Date().toISOString().split('T')[0],
@@ -465,37 +481,21 @@
             "total_igv": igv,
             "total": total,
             "items": comandaCobrandoActual.items && comandaCobrandoActual.items.length > 0 ? comandaCobrandoActual.items.map(it => ({
-                "unidad_de_medida": "NIU",
-                "cantidad": it.cantidad || 1,
-                "codigo": "01",
-                "descripcion": it.nombre || "Consumo Restaurante",
-                "monto_unitario": parseFloat(((it.precio || total) / 1.18).toFixed(2)),
-                "precio_unitario": it.precio || total,
-                "igv": parseFloat(((it.precio || total) - ((it.precio || total) / 1.18)).toFixed(2)),
-                "tipo_de_igv": 1
+                "unidad_de_medida": "NIU", "cantidad": it.cantidad || 1, "codigo": "01", "descripcion": it.nombre || "Consumo Restaurante",
+                "monto_unitario": parseFloat(((it.precio || total) / 1.18).toFixed(2)), "precio_unitario": it.precio || total,
+                "igv": parseFloat(((it.precio || total) - ((it.precio || total) / 1.18)).toFixed(2)), "tipo_de_igv": 1
             })) : [{
-                "unidad_de_medida": "NIU",
-                "cantidad": 1,
-                "codigo": "01",
-                "descripcion": "Consumo General en Salón",
-                "monto_unitario": subtotal,
-                "precio_unitario": total,
-                "igv": igv,
-                "tipo_de_igv": 1
+                "unidad_de_medida": "NIU", "cantidad": 1, "codigo": "01", "descripcion": "Consumo General en Salón",
+                "monto_unitario": subtotal, "precio_unitario": total, "igv": igv, "tipo_de_igv": 1
             }]
         };
 
         try {
             const response = await fetch("https://facturacion.apisperu.com/api/v1/fe/comprobantes", {
                 method: 'POST',
-                headers: {
-                    'Authorization': 'Bearer ' + TOKEN_APISPERU,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
+                headers: { 'Authorization': 'Bearer ' + TOKEN_APISPERU, 'Content-Type': 'application/json', 'Accept': 'application/json' },
                 body: JSON.stringify(datosComprobante)
             });
-            
             const resultadoApi = await response.json();
             const enlacePdf = resultadoApi.enlacedelpdf || '';
 
@@ -506,15 +506,9 @@
                 cliente: clienteFinal, 
                 dni: docCliente,
                 productos: comandaCobrandoActual.productos || "", 
-                baseImponible: subtotal, 
-                igv: igv, 
-                totalPEN: total, 
-                pago: metodo, 
-                tipoComprobante: tipoComp, 
-                rucCliente: docCliente, 
-                razonSocialCliente: clienteFinal, 
-                cajero: `${operador} (${turno})`,
-                enlace_pdf: enlacePdf
+                baseImponible: subtotal, igv: igv, totalPEN: total, pago: metodo, 
+                tipoComprobante: tipoComp, rucCliente: docCliente, razonSocialCliente: clienteFinal, 
+                cajero: `${operador} (${turno})`, enlace_pdf: enlacePdf
             }; 
 
             await fetch(`${FIREBASE_DB_URL}ventas/${comandaCobrandoActual.id}.json`, { 
@@ -526,7 +520,7 @@
             }); 
 
             cerrarModalCobro(); 
-            mostrarVistaPreviaComprobante(venta); 
+            imprimirComprobanteFiscalDirecto(venta); 
             cargarComandasEnVivo(); 
 
         } catch (err) {
@@ -534,39 +528,49 @@
         }
     } 
 
-    function mostrarVistaPreviaComprobante(v) { 
+    function imprimirComprobanteFiscalDirecto(v) { 
       const ventana = window.open('', '_blank'); 
       ventana.document.write(` 
-        <!DOCTYPE html><html><head><title>${v.tipoComprobante}</title> 
+        <!DOCTYPE html><html><head><title>${v.tipoComprobante || 'Comprobante'}</title> 
         <style>
-          body{font-family:monospace;padding:16px;width:80mm;margin:0 auto;background:#f8fafc;}
-          .ticket-box{background:#fff;padding:14px;border:1px solid #cbd5e1;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);text-align:center;}
+          body{font-family:monospace;padding:12px;width:75mm;text-align:center;margin:0 auto;background:#fff;}
+          .ticket-box{background:#fff;padding:10px;text-align:center;}
           h3{margin:2px 0;font-size:14px;}
           p{margin:4px 0;font-size:12px;}
           hr{border:1px dashed #000;margin:6px 0;}
-          .link-sunat { font-size: 10px; word-break: break-all; margin-top: 8px; display: block; color:#0056d2; }
+          .link-sunat { font-size: 10px; word-break: break-all; margin-top: 8px; display: block; }
           .btn-imprimir { background:#10b981; color:#fff; border:none; padding:10px 20px; font-size:14px; font-weight:bold; border-radius:6px; cursor:pointer; width:100%; margin-top:14px; }
-          @media print { .btn-imprimir { display: none; } body { background: #fff; } .ticket-box { border: none; box-shadow: none; padding:0; } }
-        </style></head><body> 
+          @media print { .btn-imprimir { display: none; } }
+        </style> 
+        </head><body> 
           <div class="ticket-box">
             <h3>${configRestaurante.nombre.toUpperCase()}</h3> 
             <p>RUC: ${configRestaurante.ruc}</p> 
             <p>${configRestaurante.direccion}</p> 
             <hr> 
-            <h3>*** ${v.tipoComprobante.toUpperCase()} ELECTRONICA ***</h3> 
+            <h3>*** ${v.tipoComprobante ? v.tipoComprobante.toUpperCase() : 'BOLETA DE VENTA'} ***</h3> 
             <p>${v.mesa} • ${v.fecha}</p> 
-            <p style="text-align:left;"><b>Cliente:</b> ${v.cliente}<br><b>Doc:</b> ${v.dni}</p> 
+            
+            <p style="text-align:left; font-size:12px;">
+              <b>Cliente:</b> ${v.razonSocialCliente || v.cliente || 'Público General'}<br>
+              <b>Doc (DNI/RUC):</b> ${v.rucCliente || v.dni || '00000000'}
+            </p> 
+            
             <hr> 
-            <div style="text-align:left;font-size:12px;margin:6px 0;">${(v.productos || '').split(', ').map(p => `<div>• ${p}</div>`).join('')}</div> 
+            <div style="text-align:left;font-size:12px;margin:6px 0;"> 
+              ${(v.productos || '').split(', ').map(p => `<div>• ${p}</div>`).join('')} 
+            </div> 
             <hr> 
             <div style="text-align:right;font-size:11.5px;"> 
-              <div>OP. GRAVADA: S/ ${(v.baseImponible||0).toFixed(2)}</div> 
-              <div>I.G.V. (18%): S/ ${(v.igv||0).toFixed(2)}</div> 
-              <div style="font-size:14px;font-weight:bold;margin-top:4px;">TOTAL: S/ ${(v.totalPEN||0).toFixed(2)}</div> 
-              <div>PAGO: ${v.pago}</div> 
+              <div>OP. GRAVADA: S/ ${(v.baseImponible||(v.totalPEN/1.18)||0).toFixed(2)}</div> 
+              <div>I.G.V. (18%): S/ ${(v.igv||(v.totalPEN - v.totalPEN/1.18)||0).toFixed(2)}</div> 
+              <div style="font-size:14px;font-weight:bold;margin-top:4px;">TOTAL: S/ ${(v.totalPEN || v.total || 0).toFixed(2)}</div> 
+              <div>PAGO: ${v.pago || 'Efectivo'}</div> 
             </div> 
             <hr>
             ${v.enlace_pdf ? `<span class="link-sunat"><b>Consulte en SUNAT:</b><br><a href="${v.enlace_pdf}" target="_blank">${v.enlace_pdf}</a></span><hr>` : ''}
+            <p style="font-size:11px;margin-top:8px;">¡Gracias por su visita!</p> 
+            
             <button class="btn-imprimir" onclick="window.print()">🖨️ Imprimir Ticket</button>
           </div>
         </body></html> 
@@ -589,17 +593,50 @@
       } catch (e) {} 
 
       todasLasComandasCache = comandas; 
-      const activas = comandas.filter(c => String(c.estado || "").toLowerCase() !== 'finalizado'); 
-      document.getElementById('badgeTotalComandas').innerText = activas.length; 
+      renderizarListaKDSFiltrada(); 
+    } 
 
-      const mesasOcupadas = activas.map(c => normalizarNombreMesa(c.mesa || '')); 
+    function renderizarListaKDSFiltrada() { 
+      const grid = document.getElementById('liveOrdersGrid'); 
+      const monitorGrid = document.getElementById('tablesMonitorGrid'); 
+      if (!grid || !monitorGrid) return; 
+
+      const query = (document.getElementById('kdsFiltroBusqueda').value || '').toLowerCase().trim(); 
+      let diaFiltroDDMMYYYY = ""; 
+      if (fechaKdsSeleccionada) { 
+        const partes = fechaKdsSeleccionada.split('-'); 
+        if (partes.length === 3) diaFiltroDDMMYYYY = `${parseInt(partes[2])}/${parseInt(partes[1])}/${partes[0]}`; 
+      } 
+
+      let comandasPorFecha = todasLasComandasCache.filter(c => { 
+        if (!fechaKdsSeleccionada) return true; 
+        const fec = String(c.fecha || ""); 
+        return fec.includes(diaFiltroDDMMYYYY) || fec.includes(fechaKdsSeleccionada); 
+      }); 
+
+      let totDia = comandasPorFecha.length; 
+      let totalPagarDia = 0; 
+      comandasPorFecha.forEach(c => { totalPagarDia += parseFloat(c.totalPEN || c.total || 0); }); 
+
+      document.getElementById('metricDiaTotal').innerText = totDia; 
+      document.getElementById('metricDiaTotalPEN').innerText = `S/ ${totalPagarDia.toFixed(2)}`; 
+
+      const activasSinCobro = comandasPorFecha.filter(c => String(c.estado || "").toLowerCase() !== 'finalizado'); 
+      document.getElementById('badgeTotalComandas').innerText = activasSinCobro.length; 
+
+      const mesasOcupadas = activasSinCobro.map(c => normalizarNombreMesa(c.mesa || '')); 
       monitorGrid.innerHTML = listaMesasDinamicas.map(m => ` 
         <div class="table-pill ${mesasOcupadas.includes(normalizarNombreMesa(m)) ? 'ocupada' : 'libre'}"> 
           <span>${m}</span> 
         </div> 
       `).join(''); 
 
-      grid.innerHTML = activas.map((c) => { 
+      if (comandasPorFecha.length === 0) { 
+        grid.innerHTML = `<p style="color:var(--text-muted); text-align:center; padding:20px;">No hay comandas registradas.</p>`; 
+        return; 
+      } 
+
+      grid.innerHTML = comandasPorFecha.map((c) => { 
         const estado = String(c.estado || 'iniciado').toLowerCase(); 
         const total = parseFloat(c.totalPEN || c.total || 0).toFixed(2); 
         return ` 
@@ -622,7 +659,7 @@
             </div> 
           </div> 
         `; 
-      }).join('') || '<p style="color:var(--text-muted); text-align:center;">No hay comandas activas.</p>'; 
+      }).join(''); 
     } 
 
     function seleccionarOpcionNav(s) { 
@@ -650,11 +687,18 @@
       document.getElementById('cobroTotalTxt').innerText = `S/ ${(comanda.totalPEN || comanda.total || 0).toFixed(2)}`; 
       
       if (comanda.dni) {
-          document.getElementById('dni_cliente').value = comanda.dni;
-          document.getElementById('nombre_cliente').value = comanda.cliente || '';
+          if (comanda.dni.length === 11) {
+              document.getElementById('cobroRucCliente').value = comanda.dni;
+              document.getElementById('cobroRazonCliente').value = comanda.cliente || '';
+          } else {
+              document.getElementById('dni_cliente').value = comanda.dni;
+              document.getElementById('nombre_cliente').value = comanda.cliente || '';
+          }
       } else {
           document.getElementById('dni_cliente').value = '';
           document.getElementById('nombre_cliente').value = '';
+          document.getElementById('cobroRucCliente').value = '';
+          document.getElementById('cobroRazonCliente').value = '';
       }
 
       document.getElementById('modalCobroMesa').classList.add('active'); 
@@ -737,6 +781,10 @@
       cargarComandasEnVivo();
       setInterval(cargarComandasEnVivo, 2000);
     }; 
-  </script> 
+</script>
+      </div>
+    </div>
+  </div>
+
 </body> 
 </html>
