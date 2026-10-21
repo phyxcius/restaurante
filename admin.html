@@ -97,14 +97,6 @@
     .btn-add { background: var(--success); color: white; } 
     .btn-del { background: #450a0a; color: #fca5a5; border: 1px solid #dc2626; } 
 
-    .kds-calendar-bar { background: var(--card-bg); border: 1.5px solid var(--chuspa-gold-border); border-radius: 14px; padding: 14px 18px; margin-bottom: 18px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; } 
-    .kds-date-input { padding: 7px 12px; border-radius: 8px; border: 1.5px solid var(--chuspa-gold); background: #061122; color: #fbbf24; font-weight: 900; font-size: 13px; cursor: pointer; } 
-    .kds-date-quick-btn { background: #0d2042; border: 1px solid rgba(56, 189, 248, 0.35); color: #bae6fd; padding: 6px 12px; border-radius: 6px; font-size: 11.5px; font-weight: 800; cursor: pointer; } 
-    .kds-date-quick-btn.active { background: linear-gradient(135deg, #0056d2, #0284c7); color: #fff; border-color: var(--chuspa-gold); } 
-
-    .metric-pill { background: var(--metric-bg); border: 1px solid rgba(255,255,255,0.08); padding: 7px 14px; border-radius: 10px; font-size: 12px; } 
-    .metric-pill b { color: #fbbf24; font-size: 14px; } 
-
     .tables-monitor-bar { background: var(--card-bg); border: 1.5px solid var(--card-border); border-radius: 14px; padding: 14px; margin-bottom: 18px; } 
     .tables-monitor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 12px; font-weight: 800; text-transform: uppercase; color: #fbbf24; } 
     .tables-monitor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 6px; min-height: 40px; } 
@@ -217,19 +209,6 @@
             <h1>🛎️ Pantalla KDS: Control de Comandas</h1> 
             <button class="btn btn-add" onclick="cargarComandasEnVivo()"><i class="fa-solid fa-rotate"></i> Actualizar</button> 
           </div> 
-          <div class="kds-calendar-bar"> 
-            <div class="kds-date-picker-wrap"> 
-              <span style="font-size:12px; font-weight:900; color:#fbbf24;"><i class="fa-solid fa-calendar-day"></i> Ver Comandas:</span> 
-              <input type="date" id="kdsFechaSeleccionada" class="kds-date-input" onchange="cambiarFechaKDS(this.value)"> 
-              <button type="button" class="kds-date-quick-btn active" id="btnKdsTodas" onclick="setKdsFechaRapida('todas')">Ver Todas</button> 
-              <button type="button" class="kds-date-quick-btn" id="btnKdsHoy" onclick="setKdsFechaRapida('hoy')">Solo Hoy</button> 
-              <button type="button" class="kds-date-quick-btn" id="btnKdsAyer" onclick="setKdsFechaRapida('ayer')">Ayer</button> 
-            </div> 
-            <div class="kds-day-metrics"> 
-              <div class="metric-pill">Comandas: <b id="metricDiaTotal">0</b></div> 
-              <div class="metric-pill">Total: <b id="metricDiaTotalPEN" style="color:#fbbf24;">S/ 0.00</b></div> 
-            </div> 
-          </div> 
           <div class="tables-monitor-bar"> 
             <div class="tables-monitor-header"><span>📍 Monitor de Mesas:</span></div> 
             <div class="tables-monitor-grid" id="tablesMonitorGrid"></div> 
@@ -302,7 +281,7 @@
     </div> 
   </div> 
 
-  <!-- MODAL DE COBRO INTEGRADO: 2 OPCIONES (BOLETA Y FACTURA SIMULTÁNEAS) --> 
+  <!-- MODAL DE COBRO INTEGRADO: BOLETA Y FACTURA SIMULTÁNEAS CON BOTONES DE BÚSQUEDA --> 
   <div class="modal-overlay" id="modalCobroMesa" onclick="cerrarModalCobro()"> 
     <div class="modal-box" onclick="event.stopPropagation()"> 
       <div style="display:flex; justify-content:space-between; align-items:center;"> 
@@ -327,7 +306,7 @@
         <input type="text" id="nombre_cliente" readonly placeholder="Nombre del cliente..." style="margin-top:6px; background:#f8fafc; color:#0f172a; font-size:12px;">
       </div>
 
-      <!-- 2. OPCIÓN FACTURA (RUC / RAZÓN SOCIAL) -->
+      <!-- 2. OPCIÓN FACTURA (RUC / SUNAT) CON BOTÓN DE BÚSQUEDA INTEGRADO -->
       <div style="background: #061122; border: 1.5px dashed var(--primary); padding: 12px; border-radius: 10px; margin-bottom: 6px;">
         <div style="font-size: 11px; font-weight: 900; color: #38bdf8; margin-bottom: 6px;">🏢 OPCIÓN 2: EMITIR FACTURA (RUC)</div>
         <div style="display: flex; gap: 6px;">
@@ -347,7 +326,7 @@
         </select> 
       </div> 
 
-      <!-- BOTONES INDEPENDIENTES DE EMISIÓN CON APISPERÚ -->
+      <!-- BOTONES DE EMISIÓN DIRECTA CON APISPERÚ -->
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:10px;"> 
         <button type="button" class="btn btn-del" onclick="cerrarModalCobro()">Cancelar</button> 
         <button type="button" class="btn" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; font-weight: 900;" onclick="confirmarCobroConTipo('Boleta')"> 
@@ -376,9 +355,8 @@
     let listaMesasDinamicas = ["Mesa 01", "Mesa 02", "Mesa 03", "Mesa 04", "Mesa 05", "Barra", "Terraza 1"];
     let catalogo = [];
     let configRestaurante = { nombre: "La Cusqueñita", ruc: "20601234567", direccion: "Portal de Carnes 214, Cusco" };
-    let fechaKdsSeleccionada = "";
 
-    // BÚSQUEDA AUTOMÁTICA RENIEC & RUC DESDE JS (COMPATIBLE CON GITHUB PAGES)
+    // BÚSQUEDA AUTOMÁTICA RENIEC & RUC DIRECTA CON APISPERÚ
     document.addEventListener('DOMContentLoaded', () => {
         const btnBuscarDni = document.getElementById('btnBuscarDni');
         if (btnBuscarDni) {
@@ -421,7 +399,7 @@
         }
     });
 
-    // EMISIÓN ELECTRÓNICA Y SINCRONIZACIÓN CON APISPERÚ
+    // EMISIÓN ELECTRÓNICA DIRECTA CON APISPERÚ
     async function confirmarCobroConTipo(tipoComp) { 
         if (!comandaCobrandoActual) return; 
 
@@ -438,14 +416,13 @@
         if (tipoComp === 'Factura') {
             rucEmpresa = document.getElementById('cobroRucCliente').value.trim();
             razonSocialEmpresa = document.getElementById('cobroRazonCliente').value.trim();
-            if (!rucEmpresa || rucEmpresa.length !== 11) return alert("Ingresa un RUC válido de 11 dígitos para la Factura.");
+            if (!rucEmpresa || rucEmpresa.length !== 11) return alert("Ingresa un RUC válido de 11 dígitos.");
             clienteFinal = razonSocialEmpresa || comandaCobrandoActual.cliente;
             docCliente = rucEmpresa;
         } else {
             docCliente = document.getElementById('dni_cliente').value.trim();
             const nombreReniec = document.getElementById('nombre_cliente').value.trim();
             clienteFinal = nombreReniec || comandaCobrandoActual.cliente || comandaCobrandoActual.mesa;
-            if (!docCliente || docCliente.length !== 8) return alert("Ingresa un DNI válido de 8 dígitos para la Boleta.");
         }
 
         const igv = parseFloat((total - (total / 1.18)).toFixed(2));
@@ -650,11 +627,18 @@
       document.getElementById('cobroTotalTxt').innerText = `S/ ${(comanda.totalPEN || comanda.total || 0).toFixed(2)}`; 
       
       if (comanda.dni) {
-          document.getElementById('dni_cliente').value = comanda.dni;
-          document.getElementById('nombre_cliente').value = comanda.cliente || '';
+          if (comanda.dni.length === 11) {
+              document.getElementById('cobroRucCliente').value = comanda.dni;
+              document.getElementById('cobroRazonCliente').value = comanda.cliente || '';
+          } else {
+              document.getElementById('dni_cliente').value = comanda.dni;
+              document.getElementById('nombre_cliente').value = comanda.cliente || '';
+          }
       } else {
           document.getElementById('dni_cliente').value = '';
           document.getElementById('nombre_cliente').value = '';
+          document.getElementById('cobroRucCliente').value = '';
+          document.getElementById('cobroRazonCliente').value = '';
       }
 
       document.getElementById('modalCobroMesa').classList.add('active'); 
