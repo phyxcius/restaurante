@@ -2229,7 +2229,8 @@
 
       await regenerarTokenMesa(comandaCobrandoActual.mesa); 
       cerrarModalCobro(); 
-      imprimirComprobanteFiscalDirecto(venta); 
+      localStorage.setItem('factura_actual', JSON.stringify(venta));
+window.open('factura.html', '_blank');
 
       alert("✔ Venta cobrada y finalizada."); 
       await cargarComandasEnVivo(); 
