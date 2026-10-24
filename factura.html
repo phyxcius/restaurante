@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -120,13 +119,30 @@
       document.getElementById('ticketCajero').innerText = v.cajero || 'Caja';
 
       const tbody = document.getElementById('ticketTablaItems');
-      const productosArr = (v.productos || '').split(', ');
       
-      tbody.innerHTML = productosArr.map(p => `
-        <tr>
-          <td colspan="3">• ${p}</td>
-        </tr>
-      `).join('');
+      // VERIFICAR Y DESGLOSAR LOS ÍTEMS CON PRECIO UNITARIO Y SUBTOTAL
+      if (v.items && Array.isArray(v.items) && v.items.length > 0) {
+        tbody.innerHTML = v.items.map(it => {
+          const cant = it.cantidad || 1;
+          const pUnit = parseFloat(it.precio || 0);
+          const subtotal = cant * pUnit;
+          return `
+            <tr>
+              <td>${cant}x ${it.nombre || 'Plato'}</td>
+              <td style="text-align: right;">S/ ${pUnit.toFixed(2)}</td>
+              <td style="text-align: right;">S/ ${subtotal.toFixed(2)}</td>
+            </tr>
+          `;
+        }).join('');
+      } else {
+        // Fallback si la comanda solo tiene texto plano
+        const productosArr = (v.productos || '').split(', ');
+        tbody.innerHTML = productosArr.map(p => `
+          <tr>
+            <td colspan="3">• ${p}</td>
+          </tr>
+        `).join('');
+      }
 
       if (v.enlace_pdf) {
         const box = document.getElementById('sunatLinkBox');
@@ -136,7 +152,7 @@
         box.style.display = 'block';
       }
 
-      // Opcional: auto disparar impresión al abrir
+      // Auto disparar impresión al abrir
       setTimeout(() => {
         window.print();
       }, 500);
