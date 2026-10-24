@@ -2261,53 +2261,47 @@
       }
     } 
 
-    function reimprimirComprobanteFinalizado(idComanda) { 
-      const c = todasLasComandasCache.find(item => item.id === idComanda); 
-      if (!c) return alert("Comanda no encontrada."); 
-      const total = parseFloat(c.totalPEN || c.total || 0); 
-      const venta = { 
-        mesa: c.mesa, 
-        fecha: c.fecha || new Date().toLocaleDateString(), 
-        productos: c.productos, 
-        totalPEN: total, 
-        tipoComprobante: c.tipoComprobante || "Boleta", 
-        pago: c.pago || "Efectivo", 
-        baseImponible: total / 1.18, 
-        igv: total - (total / 1.18) 
-      }; 
-      imprimirComprobanteFiscalDirecto(venta); 
-    } 
+    async function reimprimirComprobanteFinalizado(idComanda) { 
+        // 1. Intentar buscar primero en el historial de ventas guardadas
+        let ventaDatos = null;
+        try {
+            const res = await fetch(`${FIREBASE_DB_URL}ventas/${idComanda}.json`);
+            if (res.ok) {
+                ventaDatos = await res.json();
+            }
+        } catch (e) {}
 
-    function imprimirComprobanteFiscalDirecto(v) { 
-      const ventana = window.open('', '_blank'); 
-      ventana.document.write(` 
-        <!DOCTYPE html><html><head><title>${v.tipoComprobante || 'Comprobante'}</title> 
-        <style>body{font-family:monospace;padding:12px;width:75mm;text-align:center;}h3{margin:2px 0;}hr{border:1px dashed #000;}</style> 
-        </head><body> 
-          <h3>${configRestaurante.nombre.toUpperCase()}</h3> 
-          <p>RUC: ${configRestaurante.ruc}</p> 
-          <p>${configRestaurante.direccion}</p> 
-          <hr> 
-          <h3>*** ${v.tipoComprobante ? v.tipoComprobante.toUpperCase() : 'BOLETA DE VENTA'} ***</h3> 
-          <p>${v.mesa} • ${v.fecha}</p> 
-          ${v.rucCliente ? `<p style="text-align:left;"><b>RUC/DNI:</b> ${v.rucCliente}<br><b>Razón:</b> ${v.razonSocialCliente}</p>` : ''} 
-          <hr> 
-          <div style="text-align:left;font-size:13px;margin:8px 0;"> 
-             ${(v.productos || '').split(', ').map(p => `<div>• ${p}</div>`).join('')} 
-          </div> 
-          <hr> 
-          <div style="text-align:right;font-size:12px;"> 
-            <div>OP. GRAVADA: S/ ${(v.baseImponible||0).toFixed(2)}</div> 
-            <div>I.G.V. (18%): S/ ${(v.igv||0).toFixed(2)}</div> 
-            <div style="font-size:15px;font-weight:bold;margin-top:4px;">TOTAL: S/ ${(v.totalPEN||0).toFixed(2)}</div> 
-            <div>PAGO: ${v.pago || 'Efectivo'}</div> 
-          </div> 
-          <p style="font-size:11px;margin-top:10px;">¡Gracias por su visita!</p> 
-          <script>window.onload=function(){window.print();window.close();}<\/script> 
-        </body></html> 
-      `); 
-      ventana.document.close(); 
-    } 
+        // 2. Si no está en ventas, armarlo desde la comanda almacenada en caché
+        if (!ventaDatos) {
+            const c = todasLasComandasCache.find(item => item.id === idComanda);
+            if (!c) return alert("Comanda o venta no encontrada.");
+            
+            const total = parseFloat(c.totalPEN || c.total || 0);
+            const baseImponible = parseFloat((total / 1.18).toFixed(2));
+            const igv = parseFloat((total - baseImponible).toFixed(2));
+
+            ventaDatos = { 
+                id: c.id,
+                fecha: c.fecha || new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }),
+                mesa: c.mesa, 
+                cliente: c.cliente || c.mesa,
+                productos: c.productos || "",
+                items: c.items || [],
+                baseImponible: baseImponible, 
+                igv: igv, 
+                totalPEN: total, 
+                pago: c.pago || "Efectivo", 
+                tipoComprobante: c.tipoComprobante || "Boleta", 
+                rucCliente: c.rucCliente || "", 
+                razonSocialCliente: c.razonSocialCliente || c.cliente || "CLIENTE VARIOS",
+                cajero: c.cajero || "Caja"
+            }; 
+        }
+
+        // 3. Guardar en localStorage y abrir exactamente la misma vista de factura oficial
+        localStorage.setItem('factura_actual', JSON.stringify(ventaDatos));
+        window.open('factura.html', '_blank');
+    }
 
     function imprimirComandaChef(idComanda) { 
       const c = todasLasComandasCache.find(item => item.id === idComanda); 
