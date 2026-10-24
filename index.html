@@ -1058,7 +1058,7 @@
       sessionStorage.setItem("inkabistro_cliente_uid", miClienteId);
     }
 
-    /* INTEGRACIÓN DE CONSULTA RENIEC VÍA API (CON SOPORTE DE RESPALDO HÍBRIDO) */
+    /* INTEGRACIÓN DE CONSULTA RENIEC VÍA API (CON SOPORTE DE RESPALDO INTELIGENTE) */
     document.addEventListener('DOMContentLoaded', () => {
         const btnBuscarDni = document.getElementById('btnBuscarDni');
         if (btnBuscarDni) {
@@ -1091,17 +1091,27 @@
                         }
                     })
                     .catch(error => {
-                        // MODO DE RESPALDO (EMERGENCIA) SI ESTÁS PROBANDO EN ENTORNO ESTÁTICO / GITHUB PAGES SIN PHP
-                        console.warn("Backend PHP no detectado, activando simulador local de respaldo:", error);
+                        // MODO DE RESPALDO INTELIGENTE CON BASE DE DATOS LOCAL DE PRUEBA
+                        console.warn("Backend PHP no detectado, usando diccionario local de prueba:", error);
                         setTimeout(() => {
                             btnBuscarDni.innerHTML = 'Buscar';
                             btnBuscarDni.disabled = false;
-                            // Nombre de prueba simulado para validar la interfaz inmediatamente
-                            const nombreSimulado = "EDWIN OBLITAS UBALDE (Simulado RENIEC)";
-                            document.getElementById('nombre_cliente').value = nombreSimulado;
-                            document.getElementById('clientNameInput').value = nombreSimulado;
-                            alert("✔ [Modo Respaldo] Datos obtenidos correctamente (Simulación local).");
-                        }, 500);
+
+                            // Diccionario de ejemplo para diferentes DNI en modo simulación
+                            const baseSimuladaReniec = {
+                                "42423549": "EDWIN OBLITAS UBALDE",
+                                "40830573": "MARIA ELENA ROJAS PUMA",
+                                "45123456": "CARLOS ALBERTO MENDOZA",
+                                "71234567": "ANA LUCIA QUISPE TUPAYACHI"
+                            };
+
+                            // Si el DNI está en la lista de prueba usa ese nombre, si no, genera uno genérico único
+                            const nombreEncontrado = baseSimuladaReniec[dni] || `CLIENTE CONSULTADO DNI ${dni}`;
+
+                            document.getElementById('nombre_cliente').value = nombreEncontrado;
+                            document.getElementById('clientNameInput').value = nombreEncontrado;
+                            alert(`✔ Datos encontrados para el DNI ${dni} (Simulación local).`);
+                        }, 400);
                     });
             });
         }
