@@ -7,24 +7,44 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: monospace; }
-    body { background: #f1f5f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; color: #0f172a; }
+    body { background: #0f172a; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; color: #0f172a; }
     
     .ticket-container {
-      background: #ffffff; width: 100%; max-width: 80mm; padding: 20px 16px;
-      border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center;
+      background: #ffffff; width: 100%; max-width: 80mm; padding: 24px 16px;
+      border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); text-align: center;
+      position: relative; overflow: hidden; border-top: 5px solid #f59e0b;
     }
+
+    /* ESTILO LOGOTIPO DE LUJO */
+    .ticket-logo-wrap {
+      width: 58px; height: 58px; border-radius: 50%; margin: 0 auto 8px;
+      background: #f8fafc; border: 2px solid #f59e0b; display: flex;
+      align-items: center; justify-content: center; overflow: hidden; font-size: 24px;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+    }
+    .ticket-logo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
     
-    h2 { font-size: 16px; font-weight: bold; margin-bottom: 4px; text-transform: uppercase; }
-    p { font-size: 12px; margin: 3px 0; color: #334155; }
+    h2 { font-size: 15px; font-weight: 900; margin-bottom: 2px; text-transform: uppercase; color: #0f172a; letter-spacing: 0.5px; }
+    p { font-size: 11.5px; margin: 2px 0; color: #475569; }
     hr { border: none; border-top: 1px dashed #cbd5e1; margin: 10px 0; }
     
-    .table-items { width: 100%; text-align: left; font-size: 11.5px; margin: 8px 0; border-collapse: collapse; }
-    .table-items th { border-bottom: 1px solid #000; padding-bottom: 4px; }
-    .table-items td { padding: 4px 0; }
+    .ticket-type-badge {
+      background: #f1f5f9; border: 1px solid #cbd5e1; padding: 6px; border-radius: 6px;
+      margin: 8px 0; font-weight: bold; font-size: 12px; color: #0056d2; letter-spacing: 0.3px;
+    }
+
+    .client-info-box {
+      text-align: left; font-size: 11.5px; background: #f8fafc; padding: 8px; border-radius: 6px;
+      border: 1px solid #e2e8f0; margin: 8px 0;
+    }
+
+    .table-items { width: 100%; text-align: left; font-size: 11px; margin: 8px 0; border-collapse: collapse; }
+    .table-items th { border-bottom: 1.5px solid #0f172a; padding-bottom: 4px; color: #0f172a; font-weight: bold; }
+    .table-items td { padding: 5px 0; border-bottom: 1px dotted #e2e8f0; color: #1e293b; }
     
-    .totals-box { text-align: right; font-size: 12px; margin-top: 8px; }
-    .totals-box div { margin: 2px 0; }
-    .total-final { font-size: 15px; font-weight: bold; margin-top: 6px; }
+    .totals-box { text-align: right; font-size: 11.5px; margin-top: 8px; }
+    .totals-box div { margin: 3px 0; color: #334155; }
+    .total-final { font-size: 15px; font-weight: 900; margin-top: 6px; color: #0f172a; }
     
     .sunat-link-box {
       background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px; border-radius: 6px;
@@ -38,7 +58,7 @@
 
     @media print {
       body { background: #fff; padding: 0; }
-      .ticket-container { box-shadow: none; padding: 0; width: 100%; max-width: none; }
+      .ticket-container { box-shadow: none; padding: 0; width: 100%; max-width: none; border: none; }
       .no-print { display: none !important; }
     }
   </style>
@@ -46,20 +66,28 @@
 <body>
 
   <div class="ticket-container" id="ticketBox">
+    <!-- LOGOTIPO CORPORATIVO -->
+    <div class="ticket-logo-wrap" id="ticketLogoWrap">🍽️</div>
+    
     <h2 id="ticketNombreLocal">LA CUSQUEÑITA</h2>
+    <p id="ticketEslogan" style="font-size: 10.5px; color: #64748b; font-style: italic;">Cusco • Gourmet</p>
     <p id="ticketRucLocal">RUC: 20601234567</p>
-    <p id="ticketDirLocal">Cusco, Perú</p>
-    <hr>
+    <p id="ticketDirLocal">Portal de Carnes 214, Cusco</p>
+    <p id="ticketTelfLocal" style="font-size: 10.5px;">Teléf: 084 123456</p>
     
-    <h3 id="ticketTipoComp" style="font-size: 14px; margin: 4px 0;">*** BOLETA DE VENTA ***</h3>
-    <p><span id="ticketMesa">Mesa 01</span> • <span id="ticketFecha">--/--/---- --:--</span></p>
+    <div class="ticket-type-badge" id="ticketTipoComp">
+      *** BOLETA DE VENTA ELECTRÓNICA ***<br>
+      <span style="font-size: 10.5px; font-weight: normal; color: #64748b;" id="ticketCorrelativo">BA01-00000001</span>
+    </div>
+
+    <p style="font-size: 11px;"><span id="ticketMesa">Mesa 01</span> • <span id="ticketFecha">--/--/---- --:--</span></p>
     
-    <div style="text-align: left; font-size: 12px; margin: 8px 0;" id="ticketClienteBox">
+    <div class="client-info-box" id="ticketClienteBox">
       <b>Cliente:</b> <span id="ticketClienteNom">Público General</span><br>
-      <b>Doc:</b> <span id="ticketClienteDoc">00000000</span>
+      <b>Doc (DNI/RUC):</b> <span id="ticketClienteDoc">00000000</span><br>
+      <b>Dirección:</b> <span id="ticketClienteDir">Cusco</span>
     </div>
     
-    <hr>
     <table class="table-items">
       <thead>
         <tr>
@@ -72,23 +100,24 @@
         <tr><td colspan="3" style="text-align: center;">Cargando detalles...</td></tr>
       </tbody>
     </table>
-    <hr>
     
     <div class="totals-box">
       <div>OP. GRAVADA: <span id="ticketBase">S/ 0.00</span></div>
       <div>I.G.V. (18%): <span id="ticketIgv">S/ 0.00</span></div>
-      <div class="total-final">TOTAL: <span id="ticketTotal">S/ 0.00</span></div>
-      <div style="font-size: 11px; margin-top: 4px;">PAGO: <span id="ticketMetodoPago">Efectivo</span></div>
-      <div style="font-size: 11px;">CAJERO: <span id="ticketCajero">Admin</span></div>
+      <div class="total-final">TOTAL A PAGAR: <span id="ticketTotal">S/ 0.00</span></div>
+      <hr style="margin: 6px 0;">
+      <div style="font-size: 10.5px; text-align: left;">MÉTODO DE PAGO: <b id="ticketMetodoPago">Efectivo</b></div>
+      <div style="font-size: 10.5px; text-align: left;">CAJERO / OPERADOR: <b id="ticketCajero">Admin</b></div>
     </div>
     
     <div class="sunat-link-box" id="sunatLinkBox" style="display: none;">
-      <b>Enlace SUNAT / ApisPerú:</b><br>
-      <a id="ticketEnlacePdf" href="#" target="_blank" style="color: #0056d2;">Ver Comprobante PDF oficial</a>
+      <b>Representación Impresa de Comprobante Electrónico</b><br>
+      <a id="ticketEnlacePdf" href="#" target="_blank" style="color: #0056d2;">Ver Comprobante Oficial en Línea</a>
     </div>
     
     <hr>
-    <p style="font-size: 11px; font-weight: bold;">¡Gracias por su preferencia!</p>
+    <p style="font-size: 10.5px; color: #64748b;">Autorizado mediante Operador de Servicios Electrónicos (OSE)</p>
+    <p style="font-size: 11.5px; font-weight: bold; margin-top: 4px; color: #0f172a;">¡Gracias por su preferencia!</p>
     
     <div class="btn-acciones no-print">
       <button class="btn btn-print" onclick="window.print()"><i class="fa-solid fa-print"></i> Imprimir</button>
@@ -98,6 +127,36 @@
 
   <script>
     window.addEventListener('DOMContentLoaded', () => {
+      // 1. CARGAR IDENTIDAD DEL NEGOCIO (LOGOTIPO Y DATOS DESDE FIREBASE O LOCALSTORAGE)
+      try {
+        const identidadStr = localStorage.getItem('inkabistro_identidad') || sessionStorage.getItem('inkabistro_identidad');
+        // O recuperamos del objeto global si estuviera guardado
+        const configLocal = JSON.parse(localStorage.getItem('config_restaurante') || '{}');
+        
+        const nombreRest = configLocal.nombre || "LA CUSQUEÑITA";
+        const rucRest = configLocal.ruc || "20601234567";
+        const dirRest = configLocal.direccion || "Portal de Carnes 214, Cusco";
+        const esloganRest = configLocal.eslogan || "Cusco • Gourmet";
+        const logoRest = configLocal.logo || "🍽️";
+        const telfRest = configLocal.whatsapp || "084 123456";
+
+        document.getElementById('ticketNombreLocal').innerText = nombreRest.toUpperCase();
+        document.getElementById('ticketRucLocal').innerText = `RUC: ${rucRest}`;
+        document.getElementById('ticketDirLocal').innerText = dirRest;
+        document.getElementById('ticketEslogan').innerText = esloganRest;
+        document.getElementById('ticketTelfLocal').innerText = `Teléf: ${telfRest}`;
+
+        const logoWrap = document.getElementById('ticketLogoWrap');
+        if (logoRest && (logoRest.startsWith('data:image') || logoRest.startsWith('http'))) {
+          logoWrap.innerHTML = `<img src="${logoRest}" alt="Logo">`;
+        } else {
+          logoWrap.innerText = logoRest || "🍽️";
+        }
+      } catch (e) {
+        console.warn("No se pudo cargar la identidad personalizada:", e);
+      }
+
+      // 2. CARGAR DATOS DE LA VENTA ACTUAL
       const dataStr = localStorage.getItem('factura_actual');
       if (!dataStr) {
         alert("No se encontró información del comprobante.");
@@ -105,37 +164,46 @@
       }
 
       const v = JSON.parse(dataStr);
+      const tipoComp = String(v.tipoComprobante || 'BOLETA').toUpperCase();
 
-      document.getElementById('ticketTipoComp').innerText = `*** ${String(v.tipoComprobante || 'BOLETA').toUpperCase()} ELECTRÓNICA ***`;
+      document.getElementById('ticketTipoComp').innerHTML = `
+        *** ${tipoComp} ELECTRÓNICA ***<br>
+        <span style="font-size: 10.5px; font-weight: normal; color: #64748b;">${v.id ? 'REF-' + v.id.slice(-8).toUpperCase() : 'BA01-000001'}</span>
+      `;
+      
       document.getElementById('ticketMesa').innerText = v.mesa || 'Salón';
       document.getElementById('ticketFecha').innerText = v.fecha || new Date().toLocaleString();
       document.getElementById('ticketClienteNom').innerText = v.razonSocialCliente || v.cliente || 'Público General';
       document.getElementById('ticketClienteDoc').innerText = v.rucCliente || v.dni || '00000000';
 
-      document.getElementById('ticketBase').innerText = `S/ ${(v.baseImponible || (v.totalPEN / 1.18)).toFixed(2)}`;
-      document.getElementById('ticketIgv').innerText = `S/ ${(v.igv || (v.totalPEN - v.totalPEN / 1.18)).toFixed(2)}`;
-      document.getElementById('ticketTotal').innerText = `S/ ${(v.totalPEN || v.total || 0).toFixed(2)}`;
+      const totalPEN = parseFloat(v.totalPEN || v.total || 0);
+      const baseImp = parseFloat(v.baseImponible || (totalPEN / 1.18)).toFixed(2);
+      const igvVal = parseFloat(v.igv || (totalPEN - parseFloat(baseImp))).toFixed(2);
+
+      document.getElementById('ticketBase').innerText = `S/ ${baseImp}`;
+      document.getElementById('ticketIgv').innerText = `S/ ${igvVal}`;
+      document.getElementById('ticketTotal').innerText = `S/ ${totalPEN.toFixed(2)}`;
       document.getElementById('ticketMetodoPago').innerText = v.pago || 'Efectivo';
-      document.getElementById('ticketCajero').innerText = v.cajero || 'Caja';
+      document.getElementById('ticketCajero').innerText = v.cajero || 'Caja (General)';
 
       const tbody = document.getElementById('ticketTablaItems');
       
-      // VERIFICAR Y DESGLOSAR LOS ÍTEMS CON PRECIO UNITARIO Y SUBTOTAL
+      // 3. RENDERIZAR ÍTEMS DETALLADOS
       if (v.items && Array.isArray(v.items) && v.items.length > 0) {
         tbody.innerHTML = v.items.map(it => {
           const cant = it.cantidad || 1;
-          const pUnit = parseFloat(it.precio || 0);
+          const pUnit = parseFloat(it.precio || it.precioPEN || 0);
           const subtotal = cant * pUnit;
           return `
             <tr>
-              <td>${cant}x ${it.nombre || 'Plato'}</td>
-              <td style="text-align: right;">S/ ${pUnit.toFixed(2)}</td>
-              <td style="text-align: right;">S/ ${subtotal.toFixed(2)}</td>
+              <td><b>${cant}x</b> ${it.nombre || it. plato || 'Plato Gourmet'}</td>
+              <td style="text-align: right;">${pUnit.toFixed(2)}</td>
+              <td style="text-align: right; font-weight: bold;">${subtotal.toFixed(2)}</td>
             </tr>
           `;
         }).join('');
       } else {
-        // Fallback si la comanda solo tiene texto plano
+        // Fallback si viene como texto plano en productos
         const productosArr = (v.productos || '').split(', ');
         tbody.innerHTML = productosArr.map(p => `
           <tr>
@@ -155,7 +223,7 @@
       // Auto disparar impresión al abrir
       setTimeout(() => {
         window.print();
-      }, 500);
+      }, 600);
     });
   </script>
 </body>
