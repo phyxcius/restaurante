@@ -7,13 +7,13 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> 
   <style> 
     /* ==========================================================
-       ARQUITECTURA VISUAL LUXURY ENTERPRISE B2B
-       - Fusión: Azul Royal TuBoleto + Oro Incaico La Chuspa Tech
-       - Tipografía en modo claro corregida a Negro Carbón (#0f172a)
-       - Oro Inca / Amber Gold: #f59e0b, #d97706, #fbbf24
-       - Azul Royal Fintech: #0056d2, #0284c7, #0b1a33
-       - Verde Transaccional: #10b981 | Rojo Alerta: #dc2626
-       ========================================================== */
+        ARQUITECTURA VISUAL LUXURY ENTERPRISE B2B
+        - Fusión: Azul Royal TuBoleto + Oro Incaico La Chuspa Tech
+        - Tipografía en modo claro corregida a Negro Carbón (#0f172a)
+        - Oro Inca / Amber Gold: #f59e0b, #d97706, #fbbf24
+        - Azul Royal Fintech: #0056d2, #0284c7, #0b1a33
+        - Verde Transaccional: #10b981 | Rojo Alerta: #dc2626
+        ========================================================== */
     :root { 
       --primary: #0056d2; 
       --primary-hover: #0043a8;
@@ -45,9 +45,9 @@
       --card-border: #cbd5e1;
       --chuspa-gold-border: rgba(217, 119, 6, 0.45);
       --input-bg: #f8fafc;
-      --text-main: #0f172a;       /* Negro Carbón */
-      --text-muted: #334155;      /* Grafito legible */
-      --gold: #0056d2;            /* Azul Royal de jerarquía */
+      --text-main: #0f172a;     /* Negro Carbón */
+      --text-muted: #334155;     /* Grafito legible */
+      --gold: #0056d2;           /* Azul Royal de jerarquía */
       --header-bg: #ffffff;
       --metric-bg: #eef4fc;
     }
@@ -1098,10 +1098,10 @@
               <strong style="color:#fbbf24; font-size:12.5px; display:block; margin-bottom:8px;"> 
                 <i class="fa-solid fa-image"></i> Logotipo Corporativo del Restaurante: 
               </strong> 
-              
+               
               <label style="margin-top:0;">Opción A: Subir imagen desde tu dispositivo (PNG o JPG):</label> 
               <input type="file" id="cfgLogoFileInput" accept="image/*" onchange="convertirLogoABase64(event)"> 
-              
+               
               <label style="margin-top:8px;">Opción B: O pega directamente el enlace web del logo (https://...):</label> 
               <input type="url" id="cfgLogoUrlInput" placeholder="https://ejemplo.com/mi-logo.png" oninput="actualizarLogoPorUrl(this.value)"> 
 
@@ -2157,85 +2157,108 @@
       document.getElementById('cajaDatosFactura').style.display = (tipo === 'Factura') ? 'block' : 'none'; 
     } 
 
-    /* COBRO DE COMANDA */ 
+    /* COBRO DE COMANDA INTEGRADO Y OPTIMIZADO */ 
     async function confirmarCobroFinalizado() { 
       if (!comandaCobrandoActual) return; 
 
-      const operador = sessionStorage.getItem("nombre_operador") || "Cajero"; 
-      const turno = sessionStorage.getItem("turno_rest") || "General"; 
-      const total = parseFloat(comandaCobrandoActual.totalPEN || comandaCobrandoActual.total || 0); 
-      const metodo = document.getElementById('cobroMetodoPago').value; 
-      const tipoComp = document.getElementById('cobroTipoComprobante').value; 
-      const docCliente = document.getElementById('cobroRucCliente').value.trim();
+      try {
+        const operador = sessionStorage.getItem("nombre_operador") || "Cajero"; 
+        const turno = sessionStorage.getItem("turno_rest") || "General"; 
+        const total = parseFloat(comandaCobrandoActual.totalPEN || comandaCobrandoActual.total || 0); 
+        
+        // Redondeo seguro a 2 decimales para Perú (IGV 18%)
+        const baseImponible = parseFloat((total / 1.18).toFixed(2));
+        const igv = parseFloat((total - baseImponible).toFixed(2));
 
-      const venta = { 
-        id: comandaCobrandoActual.id, 
-        fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }), 
-        mesa: comandaCobrandoActual.mesa, 
-        cliente: comandaCobrandoActual.cliente || comandaCobrandoActual.mesa, 
-        productos: comandaCobrandoActual.productos || "", 
-        baseImponible: total / 1.18, 
-        igv: total - (total / 1.18), 
-        totalPEN: total, 
-        pago: metodo, 
-        tipoComprobante: tipoComp, 
-        rucCliente: docCliente, 
-        razonSocialCliente: document.getElementById('cobroRazonCliente').value.trim(), 
-        cajero: `${operador} (${turno})` 
-      }; 
+        const metodo = document.getElementById('cobroMetodoPago').value; 
+        const tipoComp = document.getElementById('cobroTipoComprobante').value; 
+        const docCliente = document.getElementById('dni_cliente')?.value.trim() || document.getElementById('cobroRucCliente')?.value.trim() || '';
+        const razon = document.getElementById('nombre_cliente')?.value.trim() || document.getElementById('cobroRazonCliente')?.value.trim() || comandaCobrandoActual.cliente || 'CLIENTE VARIOS';
 
-      await fetch(`${FIREBASE_DB_URL}ventas/${comandaCobrandoActual.id}.json`, { 
-        method: 'PUT', 
-        headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify(venta) 
-      }); 
-
-      await fetch(`${FIREBASE_DB_URL}comandas/${comandaCobrandoActual.id}.json`, { 
-        method: 'PATCH', 
-        headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify({ 
-          estado: 'finalizado', 
+        const venta = { 
+          id: comandaCobrandoActual.id, 
+          fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }), 
+          mesa: comandaCobrandoActual.mesa, 
+          cliente: razon, 
+          productos: comandaCobrandoActual.productos || "", 
+          items: comandaCobrandoActual.items || [], 
+          baseImponible: baseImponible, 
+          igv: igv, 
+          totalPEN: total, 
           pago: metodo, 
           tipoComprobante: tipoComp, 
-          agradecimientoFinal: true, 
-          clientePidiendoCuenta: false 
-        }) 
-      }); 
+          rucCliente: docCliente, 
+          razonSocialCliente: razon, 
+          cajero: `${operador} (${turno})` 
+        }; 
 
-      try { 
-        canalPedidos.postMessage({ 
-          tipo: 'ESTADO_ACTUALIZADO', 
-          id: comandaCobrandoActual.id, 
-          mesa: comandaCobrandoActual.mesa || '', 
-          estado: 'finalizado', 
-          agradecimientoFinal: true 
-        }); 
-      } catch (e) {} 
+        // 1. Guardar la venta en Firebase
+        const resVenta = await fetch(`${FIREBASE_DB_URL}ventas/${comandaCobrandoActual.id}.json`, { 
+          method: 'PUT', 
+          headers: { 'Content-Type': 'application/json' }, 
+          body: JSON.stringify(venta) 
+        });
+        if (!resVenta.ok) throw new Error("Error al guardar la venta en Firebase.");
 
-      const dniCliente = docCliente || (comandaCobrandoActual.dni || '').trim(); 
-      if (dniCliente && dniCliente.length >= 8) { 
+        // 2. Actualizar el estado de la comanda en Firebase
+        const resComanda = await fetch(`${FIREBASE_DB_URL}comandas/${comandaCobrandoActual.id}.json`, { 
+          method: 'PATCH', 
+          headers: { 'Content-Type': 'application/json' }, 
+          body: JSON.stringify({ 
+            estado: 'finalizado', 
+            pago: metodo, 
+            tipoComprobante: tipoComp, 
+            agradecimientoFinal: true, 
+            clientePidiendoCuenta: false 
+          }) 
+        });
+        if (!resComanda.ok) throw new Error("Error al actualizar la comanda en Firebase.");
+
+        // 3. Notificar a otros canales (BroadcastChannel)
         try { 
-          const resSocio = await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${dniCliente}.json`); 
-          let socio = await resSocio.json() || { dni: dniCliente, nombre: "Socio", sellos: 0, totalVisitas: 0 }; 
-          socio.sellos = (socio.sellos || 0) + 1; 
-          socio.totalVisitas = (socio.totalVisitas || 0) + 1; 
-          await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${dniCliente}.json`, { 
-            method: 'PUT', 
-            headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify(socio) 
+          canalPedidos.postMessage({ 
+            tipo: 'ESTADO_ACTUALIZADO', 
+            id: comandaCobrandoActual.id, 
+            mesa: comandaCobrandoActual.mesa || '', 
+            estado: 'finalizado', 
+            agradecimientoFinal: true 
           }); 
-        } catch (err) {} 
-      } 
+        } catch (e) {
+          console.warn("No se pudo enviar el mensaje por el canal:", e);
+        }
 
-      await regenerarTokenMesa(comandaCobrandoActual.mesa); 
-      cerrarModalCobro(); 
-      localStorage.setItem('factura_actual', JSON.stringify(venta));
-window.open('factura.html', '_blank');
+        const dniCliente = docCliente || (comandaCobrandoActual.dni || '').trim(); 
+        if (dniCliente && dniCliente.length >= 8) { 
+          try { 
+            const resSocio = await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${dniCliente}.json`); 
+            let socio = await resSocio.json() || { dni: dniCliente, nombre: "Socio", sellos: 0, totalVisitas: 0 }; 
+            socio.sellos = (socio.sellos || 0) + 1; 
+            socio.totalVisitas = (socio.totalVisitas || 0) + 1; 
+            await fetch(`${FIREBASE_DB_URL}fidelidad_clientes/${dniCliente}.json`, { 
+              method: 'PUT', 
+              headers: { 'Content-Type': 'application/json' }, 
+              body: JSON.stringify(socio) 
+            }); 
+          } catch (err) {} 
+        } 
 
-      alert("✔ Venta cobrada y finalizada."); 
-      await cargarComandasEnVivo(); 
-      await cargarVentasDesdeFirebase(); 
-      actualizarQRVisualDirecto(); 
+        await regenerarTokenMesa(comandaCobrandoActual.mesa); 
+        cerrarModalCobro(); 
+        
+        // Guardar localmente y abrir factura
+        localStorage.setItem('factura_actual', JSON.stringify(venta));
+        window.open('factura.html', '_blank');
+
+        alert("✔ Venta cobrada y finalizada."); 
+
+        await cargarComandasEnVivo(); 
+        await cargarVentasDesdeFirebase(); 
+        actualizarQRVisualDirecto(); 
+
+      } catch (error) {
+        console.error("Error en el proceso de cobro:", error);
+        alert("❌ Ocurrió un error al procesar el cobro. Por favor, inténtalo de nuevo.");
+      }
     } 
 
     function reimprimirComprobanteFinalizado(idComanda) { 
@@ -2270,7 +2293,7 @@ window.open('factura.html', '_blank');
           ${v.rucCliente ? `<p style="text-align:left;"><b>RUC/DNI:</b> ${v.rucCliente}<br><b>Razón:</b> ${v.razonSocialCliente}</p>` : ''} 
           <hr> 
           <div style="text-align:left;font-size:13px;margin:8px 0;"> 
-            ${(v.productos || '').split(', ').map(p => `<div>• ${p}</div>`).join('')} 
+             ${(v.productos || '').split(', ').map(p => `<div>• ${p}</div>`).join('')} 
           </div> 
           <hr> 
           <div style="text-align:right;font-size:12px;"> 
@@ -2837,7 +2860,7 @@ window.open('factura.html', '_blank');
           const d = await res.json(); 
           if (d && typeof d === 'object') { 
             const lista = Object.keys(d).map(k => Object.assign({ id: k }, d[k])); 
-            
+             
             if (reservasCache.length > 0 && lista.length > totalReservasPrevias) { 
               const ultima = lista[lista.length - 1]; 
               dispararAlertaCentro( 
