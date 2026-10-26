@@ -388,9 +388,7 @@
             </div>
             <button class="btn btn-add" onclick="refrescarModuloDinamico()"><i class="fa-solid fa-rotate"></i> Sincronizar Datos</button>
           </div>
-          <div class="card" id="contenidoModuloDinamico">
-            <!-- Contenido dinámico generado por script -->
-          </div>
+          <div class="card" id="contenidoModuloDinamico"></div>
         </section>
 
         <!-- SECCIONES ORIGINALES -->
@@ -473,7 +471,7 @@
       if (window.innerWidth <= 860) document.getElementById('adminLayoutWrapper').classList.remove('sidebar-open');
     }
 
-    /* SISTEMA ERP CONTABLE INTEGRADO POR CADA SUBMENÚ */
+    /* MOTOR ERP CONTABLE POR SUBMENÚ */
     function renderizarModuloERPContable(modulo, subopcion) {
       ['comandas','socios','platos','usuarios','reservas','identidad','reportes','mesas','resenas'].forEach(id => { 
         const el = document.getElementById('view' + id.charAt(0).toUpperCase() + id.slice(1)); 
@@ -488,7 +486,6 @@
 
       const card = document.getElementById('contenidoModuloDinamico');
 
-      // Generadores específicos con tablas y formularios ERP profesionales
       if (subopcion === 'Insumos') {
         card.innerHTML = `
           <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
@@ -530,7 +527,7 @@
             </tbody>
           </table>
         `;
-      } else if (subopcion === 'KardexResumen' || subopcion === 'KardexDiario' || subopcion === 'KardexDetallado') {
+      } else if (subopcion.includes('Kardex')) {
         card.innerHTML = `
           <h3 style="color:var(--gold); margin-bottom:10px;">Kardex Valorizado y Movimientos de Inventario</h3>
           <table class="custom-table">
@@ -551,7 +548,7 @@
             <div class="card" style="padding:12px; margin:0;"><span>Total en Caja:</span><h3 style="color:#10b981;">S/ 2,370.00</h3></div>
           </div>
         `;
-      } else if (subopcion === 'ReporteVentas' || subopcion === 'TotalVentasMes') {
+      } else if (subopcion.includes('Ventas') || subopcion.includes('Boletas') || subopcion.includes('Facturas')) {
         card.innerHTML = `
           <h3 style="color:var(--gold); margin-bottom:10px;">Reporte Analítico de Ventas y Facturación</h3>
           <table class="custom-table">
@@ -599,7 +596,6 @@
     function cerrarSesionAdmin() { sessionStorage.clear(); window.location.reload(); }
 
     async function cargarComandasEnVivo() {
-      // Simulación de carga de comandas KDS
       const grid = document.getElementById('liveOrdersGrid');
       if (!grid) return;
       grid.innerHTML = `
