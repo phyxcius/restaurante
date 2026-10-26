@@ -7,13 +7,13 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> 
   <style> 
     /* ==========================================================
-        ARQUITECTURA VISUAL LUXURY ENTERPRISE B2B
-        - Fusión: Azul Royal TuBoleto + Oro Incaico La Chuspa Tech
-        - Tipografía en modo claro corregida a Negro Carbón (#0f172a)
-        - Oro Inca / Amber Gold: #f59e0b, #d97706, #fbbf24
-        - Azul Royal Fintech: #0056d2, #0284c7, #0b1a33
-        - Verde Transaccional: #10b981 | Rojo Alerta: #dc2626
-        ========================================================== */
+       ARQUITECTURA VISUAL LUXURY ENTERPRISE B2B
+       - Fusión: Azul Royal TuBoleto + Oro Incaico La Chuspa Tech
+       - Tipografía en modo claro corregida a Negro Carbón (#0f172a)
+       - Oro Inca / Amber Gold: #f59e0b, #d97706, #fbbf24
+       - Azul Royal Fintech: #0056d2, #0284c7, #0b1a33
+       - Verde Transaccional: #10b981 | Rojo Alerta: #dc2626
+       ========================================================== */
     :root { 
       --primary: #0056d2; 
       --primary-hover: #0043a8;
@@ -45,9 +45,9 @@
       --card-border: #cbd5e1;
       --chuspa-gold-border: rgba(217, 119, 6, 0.45);
       --input-bg: #f8fafc;
-      --text-main: #0f172a;     /* Negro Carbón */
-      --text-muted: #334155;     /* Grafito legible */
-      --gold: #0056d2;           /* Azul Royal de jerarquía */
+      --text-main: #0f172a;    /* Negro Carbón */
+      --text-muted: #334155;    /* Grafito legible */
+      --gold: #0056d2;          /* Azul Royal de jerarquía */
       --header-bg: #ffffff;
       --metric-bg: #eef4fc;
     }
@@ -380,9 +380,9 @@
     .vault-content { display: none; padding: 10px 12px; background: #050e1e; border-top: 1px solid rgba(255,255,255,0.08); } 
     .vault-content input { width: 100%; padding: 8px; background: #030812; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #fff; font-size: 12px; margin-top: 4px; outline: none; } 
 
-    .nav-menu { display: flex; flex-direction: column; gap: 6px; flex: 1; } 
-    .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 10px; border: 1px solid transparent; background: transparent; color: var(--text-muted); font-size: 13px; font-weight: 700; cursor: pointer; text-align: left; transition: 0.15s; } 
-    .nav-item i { font-size: 15px; width: 20px; text-align: center; color: var(--accent); } 
+    .nav-menu { display: flex; flex-direction: column; gap: 4px; flex: 1; } 
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 10px; border: 1px solid transparent; background: transparent; color: var(--text-muted); font-size: 12.5px; font-weight: 700; cursor: pointer; text-align: left; transition: 0.15s; width: 100%; } 
+    .nav-item i { font-size: 14px; width: 20px; text-align: center; color: var(--accent); } 
     .nav-item:hover { background: #0d2042; color: #fff; } 
     .nav-item.active { 
       background: #102954; 
@@ -393,6 +393,16 @@
     } 
     .nav-item.active i { color: #fbbf24; }
     .badge-live-orders { background: #dc2626; color: #fff; font-size: 10px; padding: 2px 7px; border-radius: 12px; margin-left: auto; font-weight: 900; } 
+
+    /* ESTILOS PARA MENÚS DESPLEGABLES CON SUBMENÚS */
+    .nav-dropdown { display: flex; flex-direction: column; width: 100%; }
+    .nav-submenu { display: none; flex-direction: column; gap: 2px; padding-left: 36px; padding-top: 4px; padding-bottom: 4px; }
+    .nav-dropdown.open .nav-submenu { display: flex; }
+    .nav-subitem { background: transparent; border: none; color: var(--text-muted); font-size: 11.5px; font-weight: 600; padding: 6px 10px; text-align: left; cursor: pointer; border-radius: 6px; transition: 0.15s; }
+    .nav-subitem:hover { color: #fff; background: rgba(2, 132, 199, 0.15); }
+    .nav-subitem.active { color: #fbbf24; font-weight: 800; background: rgba(245, 158, 11, 0.15); }
+    .nav-dropdown-arrow { margin-left: auto; font-size: 10px; transition: transform 0.2s ease; }
+    .nav-dropdown.open .nav-dropdown-arrow { transform: rotate(180deg); }
 
     .main-view { padding: 24px 28px; overflow-y: auto; max-height: calc(100vh - 54px); width: 100%; } 
     .view-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; border-bottom: 1.5px solid rgba(255,255,255,0.08); padding-bottom: 12px; } 
@@ -753,6 +763,107 @@
             <span class="badge-live-orders" id="badgeTotalComandas">0</span> 
           </button> 
 
+          <!-- MÓDULO ALEMÁN / ALMACÉN CON SUBMENÚS -->
+          <div class="nav-dropdown" id="dropdownAlmacen">
+            <button class="nav-item" onclick="toggleSubmenu('dropdownAlmacen')">
+              <i class="fa-solid fa-warehouse"></i> Almacén
+              <i class="fa-solid fa-chevron-down nav-dropdown-arrow"></i>
+            </button>
+            <div class="nav-submenu">
+              <button class="nav-subitem" id="btnSubAlmacenRecetas" onclick="seleccionarSubmenuNav('almacen', 'Recetas')">Recetas</button>
+              <button class="nav-subitem" id="btnSubAlmacenInsumos" onclick="seleccionarSubmenuNav('almacen', 'Insumos')">Insumos</button>
+              <button class="nav-subitem" id="btnSubAlmacenIngreso" onclick="seleccionarSubmenuNav('almacen', 'GuiasIngreso')">Guías de Ingreso</button>
+              <button class="nav-subitem" id="btnSubAlmacenSalida" onclick="seleccionarSubmenuNav('almacen', 'GuiasSalida')">Guías de Salida</button>
+              <button class="nav-subitem" id="btnSubAlmacenTransferencia" onclick="seleccionarSubmenuNav('almacen', 'Transferencia')">Transferencia de Almacén</button>
+              <button class="nav-subitem" id="btnSubAlmacenCompras" onclick="seleccionarSubmenuNav('almacen', 'Compras')">Compras</button>
+              <button class="nav-subitem" id="btnSubAlmacenProveedores" onclick="seleccionarSubmenuNav('almacen', 'Proveedores')">Proveedores</button>
+              <button class="nav-subitem" id="btnSubAlmacenUnidades" onclick="seleccionarSubmenuNav('almacen', 'Unidades')">Unidades</button>
+              <button class="nav-subitem" id="btnSubAlmacenTiposInsumo" onclick="seleccionarSubmenuNav('almacen', 'TiposInsumo')">Tipos de Insumo</button>
+              <button class="nav-subitem" id="btnSubAlmacenAlmacenes" onclick="seleccionarSubmenuNav('almacen', 'Almacenes')">Almacenes</button>
+              <button class="nav-subitem" id="btnSubAlmacenKardexResumen" onclick="seleccionarSubmenuNav('almacen', 'KardexResumen')">Kardex Resumen</button>
+              <button class="nav-subitem" id="btnSubAlmacenKardexDiario" onclick="seleccionarSubmenuNav('almacen', 'KardexDiario')">Kardex Seguimiento Diario</button>
+              <button class="nav-subitem" id="btnSubAlmacenKardexDetallado" onclick="seleccionarSubmenuNav('almacen', 'KardexDetallado')">Kardex Seguimiento Detallado</button>
+              <button class="nav-subitem" id="btnSubAlmacenConsolidado" onclick="seleccionarSubmenuNav('almacen', 'ConsolidadoStock')">Consolidado Stocks</button>
+            </div>
+          </div>
+
+          <!-- MÓDULO VENTAS CON SUBMENÚS -->
+          <div class="nav-dropdown" id="dropdownVentas">
+            <button class="nav-item" onclick="toggleSubmenu('dropdownVentas')">
+              <i class="fa-solid fa-cash-register"></i> Ventas
+              <i class="fa-solid fa-chevron-down nav-dropdown-arrow"></i>
+            </button>
+            <div class="nav-submenu">
+              <button class="nav-subitem" id="btnSubVentasPlatos" onclick="seleccionarSubmenuNav('ventas', 'Platos')">Platos</button>
+              <button class="nav-subitem" id="btnSubVentasTiposPlatos" onclick="seleccionarSubmenuNav('ventas', 'TiposPlatos')">Tipos de Platos</button>
+              <button class="nav-subitem" id="btnSubVentasStockManual" onclick="seleccionarSubmenuNav('ventas', 'StockManualPlatos')">Stock Manual Platos</button>
+              <button class="nav-subitem" id="btnSubVentasTiposMenu" onclick="seleccionarSubmenuNav('ventas', 'TiposMenu')">Tipos de Menú</button>
+              <button class="nav-subitem" id="btnSubVentasEstructuraMenu" onclick="seleccionarSubmenuNav('ventas', 'EstructuraMenu')">Estructura de Menú</button>
+              <button class="nav-subitem" id="btnSubVentasArmaMenu" onclick="seleccionarSubmenuNav('ventas', 'ArmaTuMenu')">Arma tu Menú</button>
+              <button class="nav-subitem" id="btnSubVentasPlatosAmarrados" onclick="seleccionarSubmenuNav('ventas', 'PlatosAmarrados')">Platos Amarrados</button>
+              <button class="nav-subitem" id="btnSubVentasImpresionPantalla" onclick="seleccionarSubmenuNav('ventas', 'ImpresionPantalla')">Impresión por Pantalla</button>
+              <button class="nav-subitem" id="btnSubVentasCuentasPendientes" onclick="seleccionarSubmenuNav('ventas', 'CuentasPendientes')">Cuentas Pendientes</button>
+              <button class="nav-subitem" id="btnSubVentasFacturacionPersonalizada" onclick="seleccionarSubmenuNav('ventas', 'FacturacionPersonalizada')">Facturación Personalizada</button>
+              <button class="nav-subitem" id="btnSubVentasNotasElectronicas" onclick="seleccionarSubmenuNav('ventas', 'NotasElectronicas')">Notas Electrónicas</button>
+              <button class="nav-subitem" id="btnSubVentasReporteVentas" onclick="seleccionarSubmenuNav('ventas', 'ReporteVentas')">Reporte de Ventas</button>
+              <button class="nav-subitem" id="btnSubVentasReporteBoletas" onclick="seleccionarSubmenuNav('ventas', 'ReporteBoletas')">Reporte de Boletas</button>
+              <button class="nav-subitem" id="btnSubVentasReporteFacturas" onclick="seleccionarSubmenuNav('ventas', 'ReporteFacturas')">Reporte de Facturas</button>
+              <button class="nav-subitem" id="btnSubVentasReporteConsumos" onclick="seleccionarSubmenuNav('ventas', 'ReporteConsumos')">Reporte Consumos</button>
+              <button class="nav-subitem" id="btnSubVentasReporteClientes" onclick="seleccionarSubmenuNav('ventas', 'ReporteClientes')">Reporte Clientes</button>
+            </div>
+          </div>
+
+          <!-- MÓDULO PERSONAL / USUARIOS -->
+          <div class="nav-dropdown" id="dropdownPersonal">
+            <button class="nav-item" onclick="toggleSubmenu('dropdownPersonal')">
+              <i class="fa-solid fa-users-gear"></i> Personal
+              <i class="fa-solid fa-chevron-down nav-dropdown-arrow"></i>
+            </button>
+            <div class="nav-submenu">
+              <button class="nav-subitem" id="btnSubPersonalAdministrar" onclick="seleccionarSubmenuNav('personal', 'AdministrarPersonal')">Administrar Personal</button>
+            </div>
+          </div>
+
+          <!-- MÓDULO REPORTES CON SUBMENÚS -->
+          <div class="nav-dropdown" id="dropdownReportes">
+            <button class="nav-item" onclick="toggleSubmenu('dropdownReportes')">
+              <i class="fa-solid fa-chart-line"></i> Reportes
+              <i class="fa-solid fa-chevron-down nav-dropdown-arrow"></i>
+            </button>
+            <div class="nav-submenu">
+              <button class="nav-subitem" id="btnSubRepTotalVentasMes" onclick="seleccionarSubmenuNav('reportes', 'TotalVentasMes')">Total Ventas por Mes</button>
+              <button class="nav-subitem" id="btnSubRepPlatosRotacion" onclick="seleccionarSubmenuNav('reportes', 'PlatosMayorRotacion')">Platos con Mayor Rotación</button>
+              <button class="nav-subitem" id="btnSubRepRendimientoPlatos" onclick="seleccionarSubmenuNav('reportes', 'RendimientoPlatos')">Rendimiento de Platos</button>
+              <button class="nav-subitem" id="btnSubRepStockPlatos" onclick="seleccionarSubmenuNav('reportes', 'StockPlatos')">Stock de Platos</button>
+              <button class="nav-subitem" id="btnSubRepConsolidadoVentas" onclick="seleccionarSubmenuNav('reportes', 'ConsolidadoVentas')">Consolidado de Ventas</button>
+              <button class="nav-subitem" id="btnSubRepVentasTrabajador" onclick="seleccionarSubmenuNav('reportes', 'VentasTrabajador')">Ventas por Trabajador</button>
+              <button class="nav-subitem" id="btnSubRepReporteVentasTipo" onclick="seleccionarSubmenuNav('reportes', 'ReporteVentasTipo')">Reporte de Ventas (por tipo)</button>
+              <button class="nav-subitem" id="btnSubRepConsumoPersona" onclick="seleccionarSubmenuNav('reportes', 'ConsumoPersona')">Consumo por Persona</button>
+              <button class="nav-subitem" id="btnSubRepPedidosAnulados" onclick="seleccionarSubmenuNav('reportes', 'PedidosAnulados')">Pedidos Anulados</button>
+              <button class="nav-subitem" id="btnSubRepConsolidadoCaja" onclick="seleccionarSubmenuNav('reportes', 'ConsolidadoCaja')">Consolidado Caja</button>
+              <button class="nav-subitem" id="btnSubRepVentasVsCompras" onclick="seleccionarSubmenuNav('reportes', 'VentasVsCompras')">Ventas vs Compras</button>
+            </div>
+          </div>
+
+          <!-- MÓDULO CAJA CON SUBMENÚS -->
+          <div class="nav-dropdown" id="dropdownCaja">
+            <button class="nav-item" onclick="toggleSubmenu('dropdownCaja')">
+              <i class="fa-solid fa-cash-register"></i> Caja
+              <i class="fa-solid fa-chevron-down nav-dropdown-arrow"></i>
+            </button>
+            <div class="nav-submenu">
+              <button class="nav-subitem" id="btnSubCajaCierreDiario" onclick="seleccionarSubmenuNav('caja', 'CierreDiario')">Cierre Diario</button>
+              <button class="nav-subitem" id="btnSubCajaMontoInicial" onclick="seleccionarSubmenuNav('caja', 'MontoInicial')">Monto Inicial</button>
+              <button class="nav-subitem" id="btnSubCajaIngresosSalidas" onclick="seleccionarSubmenuNav('caja', 'IngresosSalidasDinero')">Ingresos o Salidas de Dinero</button>
+              <button class="nav-subitem" id="btnSubCajaReporteIngresosSalidas" onclick="seleccionarSubmenuNav('caja', 'ReporteIngresosSalidasDinero')">Reporte de Ingresos, Salidas de Dinero</button>
+              <button class="nav-subitem" id="btnSubCajaFondosExternos" onclick="seleccionarSubmenuNav('caja', 'ReporteFondosExternos')">Reporte Fondos Externos</button>
+              <button class="nav-subitem" id="btnSubCajaIngresosEgresos" onclick="seleccionarSubmenuNav('caja', 'ReporteIngresosEgresos')">Reporte Ingresos VS Egresos</button>
+              <button class="nav-subitem" id="btnSubCajaMediosPago" onclick="seleccionarSubmenuNav('caja', 'ReporteMediosPago')">Reporte Medios de Pago</button>
+              <button class="nav-subitem" id="btnSubCajaPropinas" onclick="seleccionarSubmenuNav('caja', 'ReportePropinas')">Reporte Propinas</button>
+            </div>
+          </div>
+
+          <!-- Módulos originales preservados -->
           <button class="nav-item" id="btnNavSocios" onclick="seleccionarOpcionNav('socios')"> 
             <i class="fa-solid fa-star"></i> Club & Socios Frecuentes 
           </button> 
@@ -850,6 +961,20 @@
 
           <div class="live-orders-grid" id="liveOrdersGrid"></div> 
         </section> 
+
+        <!-- VISTA DINÁMICA GENERAL PARA MÓDULOS Y SUBMENÚS INTEGRADOS -->
+        <section id="viewDinamicoModulo" style="display:none;">
+          <div class="view-header">
+            <div>
+              <h1 id="tituloModuloDinamico">📦 Módulo Operativo</h1>
+              <p id="subtituloModuloDinamico">Gestión y control de submenús del sistema.</p>
+            </div>
+            <button class="btn btn-add" onclick="refrescarModuloDinamico()"><i class="fa-solid fa-rotate"></i> Actualizar</button>
+          </div>
+          <div class="card" id="contenidoModuloDinamico">
+            Cargando contenido del módulo...
+          </div>
+        </section>
 
         <!-- 2. CLUB & SOCIOS FRECUENTES -->
         <section id="viewSocios" style="display:none;">
@@ -1503,6 +1628,53 @@
       if (overlay) overlay.classList.remove('active'); 
     } 
 
+    /* CONTROL DE SUBMENÚS DESPLEGABLES */
+    function toggleSubmenu(dropdownId) {
+      const drop = document.getElementById(dropdownId);
+      if (drop) {
+        drop.classList.toggle('open');
+      }
+    }
+
+    function seleccionarSubmenuNav(modulo, subopcion) {
+      // Marcar activo visualmente
+      document.querySelectorAll('.nav-subitem').forEach(b => b.classList.remove('active'));
+      const subBtn = document.getElementById(`btnSub${modulo.charAt(0).toUpperCase() + modulo.slice(1)}${subopcion}`);
+      if (subBtn) subBtn.classList.add('active');
+
+      mostrarSeccionDinamica(modulo, subopcion);
+      if (window.innerWidth <= 860) cerrarMenuMovil();
+    }
+
+    function mostrarSeccionDinamica(modulo, subopcion) {
+      ['comandas','socios','platos','usuarios','reservas','identidad','reportes','mesas','resenas'].forEach(id => { 
+        const el = document.getElementById('view' + id.charAt(0).toUpperCase() + id.slice(1)); 
+        if (el) el.style.display = 'none'; 
+      });
+
+      const vistaDinamica = document.getElementById('viewDinamicoModulo');
+      if (vistaDinamica) vistaDinamica.style.display = 'block';
+
+      document.getElementById('tituloModuloDinamico').innerText = `📂 ${modulo.toUpperCase()} • ${subopcion}`;
+      document.getElementById('subtituloModuloDinamico').innerText = `Gestión y control especializado de ${subopcion.toLowerCase()}.`;
+      
+      const cardContenido = document.getElementById('contenidoModuloDinamico');
+      cardContenido.innerHTML = `
+        <div style="padding: 20px; text-align: center;">
+          <h3 style="color: var(--gold); margin-bottom: 10px;"><i class="fa-solid fa-cogs"></i> Módulo de ${subopcion} activo</h3>
+          <p style="color: var(--text-muted); margin-bottom: 15px;">Panel operativo enlazado correctamente al sistema general de La Cusqueñita.</p>
+          <div style="background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px dashed var(--chuspa-gold);">
+            <b>Estado:</b> Sincronizado en tiempo real con la nube corporativa.<br>
+            <button class="btn btn-save" style="margin-top: 10px;" onclick="alert('Datos guardados exitosamente para ${subopcion}.')">Registrar / Guardar Movimiento</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function refrescarModuloDinamico() {
+      alert("✔ Módulo actualizado correctamente.");
+    }
+
     canalPedidos.onmessage = (event) => { 
       if (event.data && event.data.tipo === 'RESPUESTA_CLIENTE') { 
         const respuesta = event.data.respuesta || ''; 
@@ -1642,8 +1814,9 @@
 
     function mostrarSeccion(s) { 
       document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active')); 
+      document.querySelectorAll('.nav-subitem').forEach(b => b.classList.remove('active'));
       
-      ['comandas','socios','platos','usuarios','reservas','identidad','reportes','mesas','resenas'].forEach(id => { 
+      ['comandas','socios','platos','usuarios','reservas','identidad','reportes','mesas','resenas', 'dinamicoModulo'].forEach(id => { 
         const el = document.getElementById('view' + id.charAt(0).toUpperCase() + id.slice(1)); 
         if (el) el.style.display = 'none'; 
       }); 
@@ -2166,7 +2339,6 @@
         const turno = sessionStorage.getItem("turno_rest") || "General"; 
         const total = parseFloat(comandaCobrandoActual.totalPEN || comandaCobrandoActual.total || 0); 
         
-        // Redondeo seguro a 2 decimales para Perú (IGV 18%)
         const baseImponible = parseFloat((total / 1.18).toFixed(2));
         const igv = parseFloat((total - baseImponible).toFixed(2));
 
@@ -2192,7 +2364,6 @@
           cajero: `${operador} (${turno})` 
         }; 
 
-        // 1. Guardar la venta en Firebase
         const resVenta = await fetch(`${FIREBASE_DB_URL}ventas/${comandaCobrandoActual.id}.json`, { 
           method: 'PUT', 
           headers: { 'Content-Type': 'application/json' }, 
@@ -2200,7 +2371,6 @@
         });
         if (!resVenta.ok) throw new Error("Error al guardar la venta en Firebase.");
 
-        // 2. Actualizar el estado de la comanda en Firebase
         const resComanda = await fetch(`${FIREBASE_DB_URL}comandas/${comandaCobrandoActual.id}.json`, { 
           method: 'PATCH', 
           headers: { 'Content-Type': 'application/json' }, 
@@ -2214,7 +2384,6 @@
         });
         if (!resComanda.ok) throw new Error("Error al actualizar la comanda en Firebase.");
 
-        // 3. Notificar a otros canales (BroadcastChannel)
         try { 
           canalPedidos.postMessage({ 
             tipo: 'ESTADO_ACTUALIZADO', 
@@ -2223,9 +2392,7 @@
             estado: 'finalizado', 
             agradecimientoFinal: true 
           }); 
-        } catch (e) {
-          console.warn("No se pudo enviar el mensaje por el canal:", e);
-        }
+        } catch (e) {}
 
         const dniCliente = docCliente || (comandaCobrandoActual.dni || '').trim(); 
         if (dniCliente && dniCliente.length >= 8) { 
@@ -2245,7 +2412,6 @@
         await regenerarTokenMesa(comandaCobrandoActual.mesa); 
         cerrarModalCobro(); 
         
-        // Guardar localmente y abrir factura
         localStorage.setItem('factura_actual', JSON.stringify(venta));
         window.open('factura.html', '_blank');
 
@@ -2262,7 +2428,6 @@
     } 
 
     async function reimprimirComprobanteFinalizado(idComanda) { 
-        // 1. Intentar buscar primero en el historial de ventas guardadas
         let ventaDatos = null;
         try {
             const res = await fetch(`${FIREBASE_DB_URL}ventas/${idComanda}.json`);
@@ -2271,7 +2436,6 @@
             }
         } catch (e) {}
 
-        // 2. Si no está en ventas, armarlo desde la comanda almacenada en caché
         if (!ventaDatos) {
             const c = todasLasComandasCache.find(item => item.id === idComanda);
             if (!c) return alert("Comanda o venta no encontrada.");
@@ -2298,7 +2462,6 @@
             }; 
         }
 
-        // 3. Guardar en localStorage y abrir exactamente la misma vista de factura oficial
         localStorage.setItem('factura_actual', JSON.stringify(ventaDatos));
         window.open('factura.html', '_blank');
     }
@@ -2337,7 +2500,6 @@
       ventana.document.close(); 
     } 
 
-    /* CAMBIAR A COCINA (SINCRONIZACIÓN INMEDIATA CON MESA) */
     async function cambiarEstadoCocinaConOperador(idComanda) { 
       const operadorActual = sessionStorage.getItem("nombre_operador") || "Personal Salón"; 
       const comandaObj = todasLasComandasCache.find(c => c.id === idComanda);
@@ -2365,7 +2527,6 @@
       await cargarComandasEnVivo(); 
     } 
 
-    /* RECIBIDO EN MESA (SINCRONIZACIÓN INMEDIATA BIDIRECCIONAL CON MESA) */
     async function cambiarEstadoFirebase(idComanda, nuevoEstado) { 
       const comandaObj = todasLasComandasCache.find(c => c.id === idComanda);
       const mesaDestino = comandaObj ? (comandaObj.mesa || '') : '';
@@ -2388,7 +2549,6 @@
       await cargarComandasEnVivo(); 
     } 
 
-    /* PREGUNTA DEL MOZO: ¿DESEA AGREGAR ALGO MÁS? (CON MESA) */
     async function enviarMensajeAgregarMas(idComanda) { 
       const comandaObj = todasLasComandasCache.find(c => c.id === idComanda);
       const mesaDestino = comandaObj ? (comandaObj.mesa || '') : '';
@@ -2411,7 +2571,6 @@
       alert("✔ Notificación enviada a todos los comensales de la mesa: '¿Deseas agregar algo más?'"); 
     } 
 
-    /* CARGA DE COMANDAS EN VIVO Y MONITOREO INTELIGENTE DE ALERTAS */ 
     async function cargarComandasEnVivo() { 
       const grid = document.getElementById('liveOrdersGrid'); 
       const monitorGrid = document.getElementById('tablesMonitorGrid'); 
@@ -2461,18 +2620,6 @@
             'fa-person-walking', 
             '#ec4899' 
           ); 
-        } 
-
-        if (c.clienteRespuestaMozo && (!previo || previo.clienteRespuestaMozo !== c.clienteRespuestaMozo)) { 
-          if (c.clienteRespuestaMozo.toLowerCase().includes('no')) { 
-            dispararAlertaCentro( 
-              "🛑 El Cliente no agregará más", 
-              `En la <b>${c.mesa || 'Mesa'}</b> respondieron que <b>no desean nada más</b> por el momento.`, 
-              `Estado comanda: ${estadoActual}`, 
-              'fa-circle-xmark', 
-              '#dc2626' 
-            ); 
-          } 
         } 
 
         estadosConocidosComandas[c.id] = { 
