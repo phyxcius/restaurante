@@ -20,7 +20,12 @@ let F={d:'',h:''},cur=null,edit=null,last=null;
 const mov=(id,s,o,tipo,alm)=>api.put('movs',id+s,{fecha:o.fecha,tipo,almacen:alm,insumo:o.insumo,cant:o.cant,costo:o.costo||0,doc:o.doc||o.comprobante||''});
 const delMovs=id=>Promise.all(['','o','d'].map(s=>api.del('movs',id+s)));
 const chk=async(o,alm)=>{const mv=await api.list('movs');return stock(mv,o.insumo,alm)<o.cant?`Stock insuficiente de ${o.insumo} en ${alm} (hay ${stock(mv,o.insumo,alm)}).`:''};
-const pv=(id,o,s)=>{const t=s*o.total,b=+(t/1.18).toFixed(2);return fetch(FIREBASE_DB_URL+'ventas/'+id+'.json',{method:'PUT',headers:H,body:JSON.stringify({id,fecha:new Date(o.fecha+'T12:00').toLocaleDateString('es-PE')+' 12:00',mesa:o.tipo,cliente:o.razon||o.docRef,productos:o.concepto||o.motivo,baseImponible:b,igv:+(t-b).toFixed(2),totalPEN:t,pago:'Transferencia',tipoComprobante:o.tipo,rucCliente:o.ruc||'',razonSocialCliente:o.razon||'',cajero:'ERP'})})};
+const DEFSER={'Boleta':'B001','Factura':'F001','Nota de Crédito':'FC01','Nota de Débito':'FD01'};
+async function nextNum(tipo){const id=tipo.replace(/[^a-z]/gi,'').toLowerCase(),u=FIREBASE_DB_URL+'erp/series/'+id+'.json';
+ for(let i=0;i<6;i++){const r=await fetch(u,{headers:{'X-Firebase-ETag':'true'}}),et=r.headers.get('ETag')||'null_etag',s=(await r.json())||{tipo,serie:DEFSER[tipo]||'X001',correlativo:0},n={...s,correlativo:(+s.correlativo||0)+1};
+  const w=await fetch(u,{method:'PUT',headers:{...H,'if-match':et},body:JSON.stringify(n)});if(w.ok)return n.serie+'-'+String(n.correlativo).padStart(8,'0')}
+ throw new Error('No se pudo reservar el correlativo de '+tipo)}
+const pv=async(id,o,s)=>{const t=s*o.total,b=+(t/1.18).toFixed(2),u=FIREBASE_DB_URL+'ventas/'+id+'.json',ex=await(await fetch(u)).json(),num=(ex&&ex.numero)||await nextNum(o.tipo);return fetch(u,{method:'PUT',headers:H,body:JSON.stringify({id,numero:num,fecha:new Date(o.fecha+'T12:00').toLocaleDateString('es-PE')+' 12:00',mesa:o.tipo,cliente:o.razon||o.docRef,productos:o.concepto||o.motivo,baseImponible:b,igv:+(t-b).toFixed(2),totalPEN:t,pago:'Transferencia',tipoComprobante:o.tipo,rucCliente:o.ruc||'',razonSocialCliente:o.razon||'',cajero:'ERP'})})};
 const dv=id=>fetch(FIREBASE_DB_URL+'ventas/'+id+'.json',{method:'DELETE'});
 
 /* ---------- definición de módulos ---------- */
@@ -48,8 +53,8 @@ const M={
  pamarr:{t:'Platos Amarrados',c:'platos_amarrados',f:[['plato','Plato principal','r','catalogo_platos'],['amarrado','Plato amarrado','r','catalogo_platos'],['cant','Cantidad','n']]},
  imp:{t:'Impresión por Pantalla',c:'impresion',f:[['doc','Documento','s',['Ticket cocina','Boleta','Factura','Pre-cuenta']],['formato','Formato','s',['Pantalla','Ticket 80mm','A4']],['copias','Copias','n']]},
  cpend:{t:'Cuentas Pendientes',c:'cuentas_pendientes',f:[['fecha','Fecha','d'],['cliente','Cliente','t'],['mesa','Mesa?','t'],['total','Monto (S/)','n'],['estado','Estado','s',['Pendiente','Pagado']]]},
- fpers:{t:'Facturación Personalizada',c:'facturacion_pers',f:[['fecha','Fecha','d'],['tipo','Comprobante','s',['Factura','Boleta']],['ruc','RUC/DNI','t'],['razon','Razón social / Cliente','t'],['concepto','Concepto','t'],['total','Total con IGV (S/)','n']],h:(o,id)=>pv(id,o,1),hd:dv},
- notas:{t:'Notas Electrónicas',c:'notas_electronicas',f:[['fecha','Fecha','d'],['tipo','Tipo','s',['Nota de Crédito','Nota de Débito']],['docRef','Documento afectado','t'],['motivo','Motivo','t'],['total','Monto (S/)','n']],h:(o,id)=>pv(id,o,o.tipo=='Nota de Crédito'?-1:1),hd:dv},
+ fpers:{t:'Facturación Personalizada',c:'facturacion_pers',f:[['fecha','Fecha','d'],['tipo','Comprobante','s',['Factura','Boleta']],['ruc','RUC/DNI','t'],['razon','Razón social / Cliente','t'],['concepto','Concepto','t'],['total','Total con IGV (S/)','n']],h:(o,id)=>pv(id,o,1),hd:dv,keep:1},
+ notas:{t:'Notas Electrónicas',c:'notas_electronicas',f:[['fecha','Fecha','d'],['tipo','Tipo','s',['Nota de Crédito','Nota de Débito']],['docRef','Documento afectado','t'],['motivo','Motivo','t'],['total','Monto (S/)','n']],h:(o,id)=>pv(id,o,o.tipo=='Nota de Crédito'?-1:1),hd:dv,keep:1},
  rventas:{t:'Reporte de Ventas',r:1},rbol:{t:'Reporte de Boletas',r:1},rfac:{t:'Reporte de Facturas',r:1},rcons:{t:'Reporte Consumos (insumos)',r:1},rcli:{t:'Reporte Clientes',r:1},
  /* PERSONAL */
  personal:{t:'Administrar Personal',c:'personal',f:[['nombre','Nombre completo','t'],['dni','DNI','t'],['cargo','Cargo','s',['Administrador','Cajero','Mozo','Cocinero','Ayudante']],['sueldo','Sueldo (S/)','n'],['telefono','Teléfono?','t'],['ingreso','Fecha ingreso','d']]},
@@ -61,7 +66,7 @@ const M={
  cmov:{t:'Ingresos o Salidas de dinero',c:'caja_movs',f:[['fecha','Fecha','d'],['tipo','Tipo','s',['Ingreso','Salida','Fondo externo','Propina']],['concepto','Concepto','t'],['medio','Medio','s',['Efectivo','Yape','Plin','Tarjeta POS','Transferencia']],['monto','Monto (S/)','n']]},
  rcm:{t:'Reporte de Ingresos y Salidas de dinero',r:1},rfond:{t:'Reporte Fondos Externos',r:1},ringe:{t:'Reporte Ingresos VS Egresos',r:1},rmed:{t:'Reporte Medios de Pago',r:1},rprop:{t:'Reporte Propinas',r:1},
  /* CONFIG / AYUDA */
- series:{t:'Series y Correlativos',c:'series',f:[['tipo','Comprobante','s',['Boleta','Factura','Nota de Crédito','Nota de Débito']],['serie','Serie','t'],['correlativo','Último correlativo','n']]},
+ series:{t:'Series y Correlativos',c:'series',key:o=>o.tipo.replace(/[^a-z]/gi,'').toLowerCase(),f:[['tipo','Comprobante','s',['Boleta','Factura','Nota de Crédito','Nota de Débito']],['serie','Serie','t'],['correlativo','Último correlativo','n']]},
  mpago:{t:'Métodos de Pago',c:'metodos_pago',f:[['nombre','Método','t'],['comision','Comisión %?','n']]},
  ident:{t:'Identidad & Redes',l:'identidad'},usu:{t:'Gestión de Usuarios',l:'usuarios'},
  ayuda:{t:'Guía del ERP',a:1}
@@ -78,11 +83,11 @@ const G=[
 
 /* ---------- reportes ---------- */
 const grp=(l,kf)=>d=>({h:[l,'Cant.','Base imp.','IGV','Total'],r:by(d.v,kf).map(([k,a])=>[k,a.length,money(sum(a,x=>x.baseImponible)),money(sum(a,x=>x.igv)),money(sum(a,x=>x.totalPEN))])});
-const lst=f=>d=>({h:['Fecha','Mesa/Cliente','Comprobante','Pago','Total'],r:d.v.filter(f).map(x=>[x.fecha,(x.mesa||'')+' '+(x.razonSocialCliente||x.cliente||''),x.tipoComprobante||'',x.pago||'',money(x.totalPEN)])});
+const lst=f=>d=>({h:['N°','Fecha','Mesa/Cliente','Comprobante','Pago','Total'],r:d.v.filter(f).map(x=>[x.numero||'-',x.fecha,(x.mesa||'')+' '+(x.razonSocialCliente||x.cliente||''),x.tipoComprobante||'',x.pago||'',money(x.totalPEN)])});
 const rotMap=d=>{const m={};d.v.forEach(x=>String(x.productos||'').split(', ').forEach(p=>{const q=p.match(/^(\d+)\s*x?\s*(.+)$/i),n=(q?q[2]:p).trim();if(n)m[n]=(m[n]||0)+(q?+q[1]:1)}));return m};
 const cm=(d,t)=>d.cm.filter(x=>x.tipo==t);
 const R={
- rventas:d=>({h:['Fecha','Mesa','Cliente','Operador','Platos','Pago','Total'],r:d.v.map(x=>[x.fecha,x.mesa,x.cliente,x.cajero,x.productos,x.pago,money(x.totalPEN)])}),
+ rventas:d=>({h:['N°','Fecha','Mesa','Cliente','Operador','Platos','Pago','Total'],r:d.v.map(x=>[x.numero||'-',x.fecha,x.mesa,x.cliente,x.cajero,x.productos,x.pago,money(x.totalPEN)])}),
  rbol:lst(x=>x.tipoComprobante=='Boleta'),rfac:lst(x=>x.tipoComprobante=='Factura'),
  rcons:d=>{const m={},rm=rotMap(d);Object.entries(rm).forEach(([p,q])=>d.rc.filter(r=>r.plato==p).forEach(r=>m[r.insumo]=(m[r.insumo]||0)+q*r.cant));return{h:['Insumo','Consumo teórico (según recetas)'],r:Object.entries(m).sort((a,b)=>b[1]-a[1]).map(([k,v])=>[k,v.toFixed(2)])}},
  rcli:d=>({h:['Cliente','Doc.','Visitas','Total consumido'],r:by(d.v,x=>x.razonSocialCliente||x.cliente).map(([k,a])=>[k,a[0].rucCliente||'-',a.length,money(sum(a,x=>x.totalPEN))])}),
@@ -138,8 +143,8 @@ async function crud(m,el){
 async function sv(){const m=M[cur],o={};
  for(const f of m.f){const v=$('#e_'+f[0]).value.trim();if(v===''&&!f[1].endsWith('?'))return alert('Completa: '+f[1]);o[f[0]]=f[2]=='n'?+v:v}
  if(m.pre){const e=await m.pre(o);if(e)return alert('⛔ '+e)}
- const id=edit||Date.now().toString(36);
- if(edit&&m.hd)await m.hd(id);
+ const id=edit||(m.key?m.key(o):Date.now().toString(36));
+ if(edit&&m.hd&&!m.keep)await m.hd(id);
  await api.put(m.c,id,o);if(m.h)await m.h(o,id);edit=null;draw()}
 function ed(id){const r=last.find(x=>x.id==id),m=M[cur];edit=id;m.f.forEach(f=>$('#e_'+f[0]).value=r[f[0]]??'');$('#erpFt').textContent='Editando registro';scrollTo({top:0,behavior:'smooth'});sec.scrollIntoView()}
 async function dl(id){if(!confirm('¿Eliminar registro?'))return;const m=M[cur];await api.del(m.c,id);if(m.hd)await m.hd(id);draw()}
@@ -156,5 +161,40 @@ async function cierre(m,el){const f=window._cf||today(),[v,ca,cmv,cs]=await Prom
 const cs=async()=>{await api.put('cierres',window._cr.id,{...window._cr,operador:sessionStorage.getItem('nombre_operador')||''});alert('✔ Cierre registrado.');draw()};
 function ayuda(m,el){el.innerHTML='<div class="card" style="line-height:1.6;font-size:13px"><b>Flujo contable-administrativo</b><br>1) Configura <b>Unidades, Tipos de Insumo, Almacenes, Proveedores e Insumos</b>.<br>2) Registra <b>Compras</b> y <b>Guías de Ingreso</b> (suben stock) o <b>Guías de Salida</b> (bajan stock; bloquea si no hay saldo). <b>Transferencias</b> mueven stock entre almacenes.<br>3) Define <b>Recetas</b> por plato: así se calcula el costo y margen en <b>Rendimiento de Platos</b> y el consumo teórico de insumos.<br>4) Las <b>Facturas personalizadas</b> y <b>Notas de crédito/débito</b> se registran también en ventas (la nota de crédito resta).<br>5) En <b>Caja</b> registra monto inicial y movimientos, y haz el <b>Cierre Diario</b>.<br>6) Todos los reportes tienen filtro de fechas, CSV e impresión.</div>'}
 
-window.ERP={go,sv,ed,dl,ap,csv,cs,rf:draw};
+
+/* ====== CORRECCIÓN TOKENS DE MESA ====== */
+window.sincronizarTokensDeMesasFirebase=async function(){
+ listaMesasDinamicas=listaMesasDinamicas.map(m=>m=='Mesa 010'?'Mesa 10':m);
+ try{const r=await fetch(FIREBASE_DB_URL+'config/tokens_mesas.json?_t='+Date.now());if(r.ok){const d=await r.json();if(d&&typeof d=='object')tokensMesasActivos=d}}catch(e){}
+ const nuevos={};
+ listaMesasDinamicas.forEach(m=>{const k=normalizarClaveMesa(m);if(!tokensMesasActivos[k]){const t='TK-'+Math.random().toString(36).substring(2,8).toUpperCase()+'-'+Date.now().toString(36).toUpperCase();tokensMesasActivos[k]=t;nuevos[k]=t}});
+ if(Object.keys(nuevos).length)await fetch(FIREBASE_DB_URL+'config/tokens_mesas.json',{method:'PATCH',headers:H,body:JSON.stringify(nuevos)});
+ if(typeof actualizarSelectoresDeMesas=='function')actualizarSelectoresDeMesas();
+};
+
+/* ====== COBRO CON SERIE Y CORRELATIVO ====== */
+window.confirmarCobroFinalizado=async function(){
+ if(!comandaCobrandoActual)return;
+ try{
+  const op=sessionStorage.getItem('nombre_operador')||'Cajero',turno=sessionStorage.getItem('turno_rest')||'General',
+  total=parseFloat(comandaCobrandoActual.totalPEN||comandaCobrandoActual.total||0),base=parseFloat((total/1.18).toFixed(2)),igv=parseFloat((total-base).toFixed(2)),
+  metodo=$('#cobroMetodoPago').value,tipoComp=$('#cobroTipoComprobante').value,
+  doc=($('#cobroRucCliente')?.value||'').trim(),razon=($('#cobroRazonCliente')?.value||'').trim()||comandaCobrandoActual.cliente||'CLIENTE VARIOS';
+  if(tipoComp=='Factura'&&(!/^\d{11}$/.test(doc)||!($('#cobroRazonCliente').value.trim())))return alert('⛔ Factura: ingresa RUC de 11 dígitos y Razón Social.');
+  let numero=comandaCobrandoActual.numero;
+  if(!numero){const ex=await(await fetch(FIREBASE_DB_URL+'ventas/'+comandaCobrandoActual.id+'.json')).json();numero=(ex&&ex.numero)||await nextNum(tipoComp)}
+  const venta={id:comandaCobrandoActual.id,numero,serie:numero.split('-')[0],fecha:new Date().toLocaleDateString('es-PE')+' '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),mesa:comandaCobrandoActual.mesa,cliente:razon,productos:comandaCobrandoActual.productos||'',items:comandaCobrandoActual.items||[],baseImponible:base,igv,totalPEN:total,pago:metodo,tipoComprobante:tipoComp,rucCliente:doc,razonSocialCliente:razon,cajero:op+' ('+turno+')'};
+  const r1=await fetch(FIREBASE_DB_URL+'ventas/'+venta.id+'.json',{method:'PUT',headers:H,body:JSON.stringify(venta)});if(!r1.ok)throw new Error('ventas');
+  const r2=await fetch(FIREBASE_DB_URL+'comandas/'+venta.id+'.json',{method:'PATCH',headers:H,body:JSON.stringify({estado:'finalizado',pago:metodo,tipoComprobante:tipoComp,numero,agradecimientoFinal:true,clientePidiendoCuenta:false})});if(!r2.ok)throw new Error('comanda');
+  try{canalPedidos.postMessage({tipo:'ESTADO_ACTUALIZADO',id:venta.id,mesa:venta.mesa||'',estado:'finalizado',agradecimientoFinal:true})}catch(e){}
+  const dni=doc||(comandaCobrandoActual.dni||'').trim();
+  if(dni.length>=8){try{const rs=await fetch(FIREBASE_DB_URL+'fidelidad_clientes/'+dni+'.json');const so=(await rs.json())||{dni,nombre:'Socio',sellos:0,totalVisitas:0};so.sellos=(so.sellos||0)+1;so.totalVisitas=(so.totalVisitas||0)+1;await fetch(FIREBASE_DB_URL+'fidelidad_clientes/'+dni+'.json',{method:'PUT',headers:H,body:JSON.stringify(so)})}catch(e){}}
+  await regenerarTokenMesa(comandaCobrandoActual.mesa);cerrarModalCobro();
+  localStorage.setItem('factura_actual',JSON.stringify(venta));window.open('factura.html','_blank');
+  alert('✔ Venta cobrada. '+tipoComp+' N° '+numero);
+  await cargarComandasEnVivo();await cargarVentasDesdeFirebase();actualizarQRVisualDirecto();
+ }catch(e){console.error(e);alert('❌ Error al procesar el cobro ('+e.message+'). Inténtalo de nuevo.')}
+};
+
+window.ERP={nextNum,go,sv,ed,dl,ap,csv,cs,rf:draw};
 })();
