@@ -1,0 +1,9 @@
+{
+  "name": "La Cusqueñita | Menú Digital & TPV ERP",
+  "description": "Sistema integral gastronómico con Menú Digital en video reels, pantalla de Cocina KDS en vivo, TPV con facturación electrónica y ERP administrativo (Almacén, Kardex, Caja, Personal y Reportes).",
+  "version": "1.0.0",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
