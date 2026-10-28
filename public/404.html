@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>La Cusqueñita | Redireccionando...</title>
+  <script>
+    (function() {
+      var l = window.location;
+      var path = l.pathname.toLowerCase();
+      var base = l.pathname.split('/')[1] ? '/' + l.pathname.split('/')[1] + '/' : '/';
+      
+      var target = 'index.html';
+      if (path.indexOf('admin') !== -1) {
+        target = 'admin.html';
+      } else if (path.indexOf('cocina') !== -1 || path.indexOf('kds') !== -1) {
+        target = 'cocina.html';
+      }
+      
+      var targetUrl = l.origin + base + target + (l.search || '') + (l.hash || '');
+      window.location.replace(targetUrl);
+    })();
+  </script>
+  <style>
+    body {
+      background: #050d1a;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    .btn {
+      display: inline-block;
+      margin: 8px;
+      padding: 12px 20px;
+      border-radius: 12px;
+      background: #2563eb;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .btn-admin { background: #d97706; }
+    .btn-cocina { background: #ea580c; }
+  </style>
+</head>
+<body>
+  <h2>🍽️ La Cusqueñita - Redireccionando...</h2>
+  <p>Si la pantalla no carga automáticamente, pulsa tu estación de trabajo:</p>
+  <div>
+    <a class="btn" href="./index.html">📱 Menú Digital (Mozos)</a>
+    <a class="btn btn-admin" href="./admin.html">📊 Panel de Control (Admin)</a>
+    <a class="btn btn-cocina" href="./cocina.html">👨‍🍳 Cocina KDS</a>
+  </div>
+</body>
+</html>

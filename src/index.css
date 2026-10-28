@@ -390,18 +390,33 @@ input, textarea, select { width: 100%; padding: 10px 13px; margin-top: 4px; bord
   .admin-layout { display: block !important; } 
   .sidebar { 
     position: fixed !important; top: 0 !important; left: 0 !important; 
-    width: 290px !important; height: 100vh !important; 
+    width: 310px !important; max-width: 86vw !important; height: 100vh !important; 
     transform: translateX(-100%) !important; 
     opacity: 0 !important; pointer-events: none !important; visibility: hidden !important; 
-    z-index: 250 !important; 
+    z-index: 99999 !important;
+    background: #0d1e38 !important;
+    box-shadow: 8px 0 35px rgba(0,0,0,0.85) !important;
+    border-right: 2px solid rgba(245, 158, 11, 0.4) !important;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease !important;
   } 
   .admin-layout.sidebar-open .sidebar { 
     transform: translateX(0) !important; opacity: 1 !important; 
     pointer-events: auto !important; visibility: visible !important; 
   } 
-  .admin-layout.sidebar-open .sidebar-backdrop { display: block !important; } 
+  .admin-layout.sidebar-open .sidebar-backdrop { 
+    display: block !important; 
+    z-index: 99990 !important; 
+    background: rgba(3, 7, 18, 0.75) !important;
+    backdrop-filter: blur(4px) !important;
+  } 
   .admin-layout.sidebar-collapsed { grid-template-columns: none !important; } 
-  .main-view { padding: 16px 14px !important; max-height: none !important; } 
+  .main-view { padding: 14px 10px !important; max-height: none !important; } 
+}
+
+/* Hide legacy overflowing top bar menus so modules live exclusively on the left */
+.usqay-nav-menus,
+.usqay-dropdown-menu {
+  display: none !important;
 }
 
 /* ==========================================================

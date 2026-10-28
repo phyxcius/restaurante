@@ -54,24 +54,67 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
   const [isSearchingDni, setIsSearchingDni] = useState<boolean>(false);
   const [socioEncontrado, setSocioEncontrado] = useState<string | null>(null);
 
-  // Active tracking
+  // Active tracking & lifecycle
   const [activeOrder, setActiveOrder] = useState<Comanda | null>(null);
+  const [lastOrderState, setLastOrderState] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [bloqueadoPorPago, setBloqueadoPorPago] = useState<boolean>(false);
+  const [ventaCompletada, setVentaCompletada] = useState<any>(null);
+  const [calificacionEstrellas, setCalificacionEstrellas] = useState<number>(5);
+  const [comentarioResena, setComentarioResena] = useState<string>('');
+  const [resenaEnviada, setResenaEnviada] = useState<boolean>(false);
+  const [showUnlockModal, setShowUnlockModal] = useState<boolean>(false);
+  const [pinUnlock, setPinUnlock] = useState<string>('');
+  const [errorPinUnlock, setErrorPinUnlock] = useState<string>('');
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
-    const unsub = storage.subscribe(() => {
+    const checkState = () => {
       setProductos(storage.getProductos());
-      // Check if current mesa has an active order
+      const myOrderId = sessionStorage.getItem('cusq_my_order_id');
       const comandas = storage.getComandas();
+
+      // Check if current mesa has an active comanda
       const current = comandas.find(
         (c) => c.mesa.toLowerCase() === selectedMesa.toLowerCase() && c.estado !== 'finalizado' && c.estado !== 'anulado'
       );
+
+      // Transition detection
+      if (current && lastOrderState && current.estado !== lastOrderState) {
+        if (current.estado === 'cocina') {
+          showToast('👨‍🍳 ¡El Chef aceptó tu pedido! Está en preparación al momento.');
+        } else if (current.estado === 'servido') {
+          showToast('🟢 ¡Tu pedido está LISTO! El mozo lo está llevando a tu mesa.');
+        }
+      }
+      if (current) setLastOrderState(current.estado);
       setActiveOrder(current || null);
-    });
+
+      // Check if my order was just paid/finalized in Admin or mesa flagged as paid
+      const mesaKey = 'cusq_mesa_pagada_' + selectedMesa.replace(/\s+/g, '_').toLowerCase();
+      const mesaPagadaRaw = localStorage.getItem(mesaKey);
+
+      if (myOrderId) {
+        const orderFound = comandas.find((c) => c.id === myOrderId);
+        if (orderFound && orderFound.estado === 'finalizado') {
+          setBloqueadoPorPago(true);
+          const ventas = storage.getVentas();
+          const v = ventas.find((x) => x.id === myOrderId || x.mesa.toLowerCase() === selectedMesa.toLowerCase());
+          if (v) setVentaCompletada(v);
+        }
+      } else if (mesaPagadaRaw) {
+        setBloqueadoPorPago(true);
+        try {
+          setVentaCompletada(JSON.parse(mesaPagadaRaw));
+        } catch {}
+      }
+    };
+
+    checkState();
+    const unsub = storage.subscribe(checkState);
     return unsub;
-  }, [selectedMesa]);
+  }, [selectedMesa, lastOrderState]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -126,7 +169,8 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
       return [...prev, { producto: prod, cantidad: 1 }];
     });
 
-    showToast(`¡${prod.i18n[lang]?.name || prod.i18n.es.name} agregado al pedido!`);
+    const pName = prod.i18n?.[lang]?.name || prod.i18n?.es?.name || (prod as any).nombre || 'Plato';
+    showToast(`¡${pName} agregado al pedido!`);
   };
 
   const updateCartQty = (prodId: string, delta: number) => {
@@ -190,7 +234,9 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
     }
 
     const orderId = `ORD-${Date.now().toString().slice(-6)}`;
-    const itemsSummary = cart.map((i) => `${i.cantidad}x ${i.producto.i18n[lang]?.name || i.producto.i18n.es.name}`).join(', ');
+    const itemsSummary = cart
+      .map((i) => `${i.cantidad}x ${i.producto.i18n?.[lang]?.name || i.producto.i18n?.es?.name || (i.producto as any).nombre || 'Plato'}`)
+      .join(', ');
 
     const newComanda: Comanda = {
       id: orderId,
@@ -201,9 +247,9 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
       productos: itemsSummary,
       items: cart.map((i) => ({
         id: i.producto.id,
-        nombre: i.producto.i18n[lang]?.name || i.producto.i18n.es.name,
+        nombre: i.producto.i18n?.[lang]?.name || i.producto.i18n?.es?.name || (i.producto as any).nombre || 'Plato',
         cantidad: i.cantidad,
-        precio: i.producto.precioPEN,
+        precio: i.producto.precioPEN || (i.producto as any).precio || 35,
         notas: i.notas,
       })),
       totalPEN: cartTotalPEN,
@@ -219,6 +265,10 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
     };
 
     storage.saveComanda(newComanda);
+    sessionStorage.setItem('cusq_my_order_id', newComanda.id);
+    try {
+      localStorage.removeItem('cusq_mesa_pagada_' + selectedMesa.replace(/\s+/g, '_').toLowerCase());
+    } catch {}
     setActiveOrder(newComanda);
     setCart([]);
     setIsCartOpen(false);
@@ -240,7 +290,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
   const handlePedirCuenta = () => {
     if (activeOrder) {
       storage.requestBill(activeOrder.id);
-      showToast('¡Has solicitado la cuenta! El mozo se acerca a tu mesa con el comprobante.');
+      showToast('🧾 ¡Has solicitado la cuenta! El mozo se acerca a tu mesa con el comprobante.');
     } else {
       alert('No tienes una orden activa en esta mesa para pedir la cuenta.');
     }
@@ -250,7 +300,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
     if (activeOrder) {
       storage.callWaiter(activeOrder.id);
     }
-    showToast(`¡Mozo llamado a ${selectedMesa}! Un mozo llegará a atenderte.`);
+    showToast(`🛎️ ¡Mozo llamado a ${selectedMesa}! Un mozo llegará a atenderte.`);
   };
 
   const categories = [
@@ -260,6 +310,207 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
     { id: 'bebidas', label: 'Bebidas & Tragos' },
     { id: 'postres', label: 'Postres' },
   ];
+
+  if (bloqueadoPorPago) {
+    return (
+      <div className="relative w-full max-w-lg mx-auto min-h-[calc(100vh-60px)] bg-gradient-to-b from-[#0a192f] via-[#050d1a] to-[#020617] text-slate-100 flex flex-col justify-between p-5 overflow-y-auto">
+        {/* Top Header */}
+        <div className="flex flex-col items-center text-center pt-6">
+          <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-amber-500 to-amber-300 p-1 shadow-[0_0_30px_rgba(245,158,11,0.5)] mb-4 flex items-center justify-center">
+            <div className="w-full h-full rounded-full bg-[#071224] flex items-center justify-center text-3xl">
+              {config.logo || '🏺'}
+            </div>
+          </div>
+          <span className="text-[11px] font-black uppercase tracking-widest text-amber-400 bg-amber-950/60 border border-amber-500/40 px-3 py-1 rounded-full mb-2">
+            {config.nombre} • {selectedMesa}
+          </span>
+          <h1 className="text-2xl font-black text-white font-latina-luxury tracking-wide">
+            ¡Muchas Gracias por su Preferencia!
+          </h1>
+          <p className="text-xs text-slate-300 max-w-xs mt-2 leading-relaxed">
+            Esperamos que haya disfrutado de nuestra auténtica tradición gastronómica. ¡Será un inmenso honor recibirle nuevamente en su casa!
+          </p>
+        </div>
+
+        {/* Voucher / Paid Details Card */}
+        <div className="my-5 bg-slate-900/90 border border-amber-500/30 rounded-2xl p-4 shadow-xl backdrop-blur-md">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+              <span className="text-xs font-bold text-slate-200">Cuenta Pagada y Cerrada</span>
+            </div>
+            <span className="text-[10px] uppercase font-black bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 px-2.5 py-0.5 rounded-full">
+              Finalizado
+            </span>
+          </div>
+
+          <div className="mt-3 space-y-1.5 text-xs text-slate-300">
+            <div className="flex justify-between">
+              <span className="text-slate-400">Mesa:</span>
+              <span className="font-extrabold text-white">{selectedMesa}</span>
+            </div>
+            {ventaCompletada && (
+              <>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Comprobante:</span>
+                  <span className="font-bold text-amber-300">
+                    {ventaCompletada.tipoComprobante || 'Boleta'} N° {ventaCompletada.numero || 'B001-XXXX'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Titular:</span>
+                  <span className="font-bold text-white">{ventaCompletada.cliente || 'Cliente'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Forma de Pago:</span>
+                  <span className="font-semibold text-slate-200">{ventaCompletada.pago || 'Cancelado'}</span>
+                </div>
+                <div className="flex justify-between pt-2 border-t border-slate-800">
+                  <span className="text-sm font-black text-amber-400">Total Pagado:</span>
+                  <span className="text-base font-black text-emerald-400">
+                    S/ {(ventaCompletada.totalPEN || ventaCompletada.total || 0).toFixed(2)}
+                  </span>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Rating and Feedback */}
+        <div className="bg-[#0b1b36] border border-sky-500/30 rounded-2xl p-4 shadow-xl">
+          <h3 className="text-xs font-extrabold text-sky-300 uppercase tracking-wider text-center mb-2">
+            ¿Cómo fue su experiencia gastronómica?
+          </h3>
+          <div className="flex justify-center items-center gap-2 mb-3">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <button
+                key={star}
+                type="button"
+                onClick={() => setCalificacionEstrellas(star)}
+                className="text-2xl transition-transform hover:scale-125 focus:outline-none"
+              >
+                {star <= calificacionEstrellas ? '⭐' : '☆'}
+              </button>
+            ))}
+          </div>
+
+          {!resenaEnviada ? (
+            <div className="space-y-2">
+              <input
+                type="text"
+                placeholder="Déjenos un comentario o felicitación (opcional)..."
+                value={comentarioResena}
+                onChange={(e) => setComentarioResena(e.target.value)}
+                className="w-full text-xs bg-slate-900/80 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 outline-none focus:border-amber-400"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  storage.addResena({
+                    id: 'res-' + Date.now(),
+                    cliente: ventaCompletada?.cliente || clienteNombre || 'Comensal',
+                    mesa: selectedMesa,
+                    comentario: comentarioResena.trim() || '¡Excelente sabor y atención!',
+                    calificacion: calificacionEstrellas,
+                    fecha: new Date().toISOString().slice(0, 10),
+                  });
+                  setResenaEnviada(true);
+                  try {
+                    confetti({ particleCount: 50, spread: 50, origin: { y: 0.7 } });
+                  } catch {}
+                }}
+                className="w-full py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-xs rounded-xl shadow cursor-pointer transition-all"
+              >
+                Enviar Calificación
+              </button>
+            </div>
+          ) : (
+            <div className="text-center py-2 bg-emerald-950/60 border border-emerald-500/40 rounded-xl text-emerald-300 text-xs font-bold flex items-center justify-center gap-2">
+              <CheckCircle2 className="w-4 h-4" />
+              <span>¡Gracias por valorar nuestro servicio!</span>
+            </div>
+          )}
+        </div>
+
+        {/* Lock footer note & Waiter Unlock */}
+        <div className="mt-5 pt-4 border-t border-slate-800 text-center flex flex-col items-center gap-2">
+          <p className="text-[11px] text-slate-400 flex items-center justify-center gap-1.5">
+            <span>🔒</span>
+            <span>Mesa bloqueada automáticamente al registrar el pago.</span>
+          </p>
+          <button
+            type="button"
+            onClick={() => setShowUnlockModal(true)}
+            className="text-[11px] font-bold text-slate-400 hover:text-amber-300 underline cursor-pointer transition-colors"
+          >
+            ¿Eres el Mozo? Desbloquear para nuevos comensales
+          </button>
+        </div>
+
+        {/* Unlock PIN Modal */}
+        {showUnlockModal && (
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-[#09152b] border border-amber-500/50 rounded-2xl p-5 w-full max-w-xs shadow-2xl text-center">
+              <h3 className="text-sm font-black text-amber-400 uppercase tracking-wider mb-1">
+                Desbloqueo de Mesa
+              </h3>
+              <p className="text-xs text-slate-300 mb-3">
+                Ingresa la clave de acceso del mozo o administrador para liberar la {selectedMesa}:
+              </p>
+              <input
+                type="password"
+                placeholder="Clave (Ej: mozo123)"
+                value={pinUnlock}
+                onChange={(e) => {
+                  setPinUnlock(e.target.value);
+                  setErrorPinUnlock('');
+                }}
+                className="w-full text-center tracking-widest text-lg font-black bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white mb-2 outline-none focus:border-amber-400"
+              />
+              {errorPinUnlock && (
+                <p className="text-xs text-red-400 font-bold mb-2">{errorPinUnlock}</p>
+              )}
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowUnlockModal(false);
+                    setPinUnlock('');
+                    setErrorPinUnlock('');
+                  }}
+                  className="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (storage.validarClave('mozo', pinUnlock) || storage.validarClave('admin', pinUnlock)) {
+                      sessionStorage.removeItem('cusq_my_order_id');
+                      try {
+                        localStorage.removeItem('cusq_mesa_pagada_' + selectedMesa.replace(/\s+/g, '_').toLowerCase());
+                      } catch {}
+                      setBloqueadoPorPago(false);
+                      setVentaCompletada(null);
+                      setActiveOrder(null);
+                      setShowUnlockModal(false);
+                      setPinUnlock('');
+                      showToast(`✔ ${selectedMesa} desbloqueada y lista para nuevos comensales.`);
+                    } else {
+                      setErrorPinUnlock('Clave incorrecta (Use mozo123 o clave de admin)');
+                    }
+                  }}
+                  className="flex-1 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 text-white font-black text-xs rounded-xl shadow"
+                >
+                  Desbloquear
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full max-w-lg mx-auto min-h-[calc(100vh-60px)] bg-[#050d1a] text-slate-100 overflow-hidden flex flex-col">
@@ -455,11 +706,11 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                 </span>
 
                 <h2 className="text-xl sm:text-2xl font-black text-white leading-tight font-latina-luxury drop-shadow-md">
-                  {currentDish.i18n[lang]?.name || currentDish.i18n.es.name}
+                  {currentDish?.i18n?.[lang]?.name || currentDish?.i18n?.es?.name || (currentDish as any)?.nombre || 'Plato'}
                 </h2>
 
                 <p className="text-xs sm:text-sm text-slate-200 line-clamp-2 mt-1 drop-shadow leading-relaxed">
-                  {currentDish.i18n[lang]?.desc || currentDish.i18n.es.desc}
+                  {currentDish?.i18n?.[lang]?.desc || currentDish?.i18n?.es?.desc || (currentDish as any)?.descripcion || ''}
                 </p>
 
                 <div className="flex items-center justify-between mt-3">
@@ -499,7 +750,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
               <div className="relative aspect-square w-full bg-black overflow-hidden group">
                 <img
                   src={prod.posterUrl}
-                  alt={prod.i18n[lang]?.name || prod.i18n.es.name}
+                  alt={prod.i18n?.[lang]?.name || prod.i18n?.es?.name || (prod as any)?.nombre || ''}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/75 border border-amber-400 text-[9px] font-black uppercase text-amber-300">
@@ -510,10 +761,10 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
               <div className="p-3 flex flex-col flex-1 justify-between gap-2">
                 <div>
                   <h3 className="text-xs sm:text-sm font-black text-white leading-tight font-latina-luxury line-clamp-1">
-                    {prod.i18n[lang]?.name || prod.i18n.es.name}
+                    {prod.i18n?.[lang]?.name || prod.i18n?.es?.name || (prod as any)?.nombre || 'Plato'}
                   </h3>
                   <p className="text-[11px] text-slate-400 line-clamp-2 mt-0.5">
-                    {prod.i18n[lang]?.desc || prod.i18n.es.desc}
+                    {prod.i18n?.[lang]?.desc || prod.i18n?.es?.desc || (prod as any)?.descripcion || ''}
                   </p>
                 </div>
 
@@ -592,10 +843,10 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
                         <h4 className="text-xs font-black text-white font-latina-luxury">
-                          {item.producto.i18n[lang]?.name || item.producto.i18n.es.name}
+                          {item.producto.i18n?.[lang]?.name || item.producto.i18n?.es?.name || (item.producto as any).nombre || 'Plato'}
                         </h4>
                         <span className="text-[11px] text-amber-400 font-bold">
-                          S/ {item.producto.precioPEN.toFixed(2)} c/u
+                          S/ {(item.producto.precioPEN || (item.producto as any).precio || 35).toFixed(2)} c/u
                         </span>
                       </div>
 

@@ -326,7 +326,7 @@ export const ErpSubmodules: React.FC<ErpSubmodulesProps> = ({ moduleId, onSelect
       e.preventDefault();
       const nueva: Receta = {
         id: editId || `rc-${Date.now()}`,
-        plato: String(formData.plato || productos[0]?.i18n.es.name || ''),
+        plato: String(formData.plato || productos[0]?.i18n?.es?.name || (productos[0] as any)?.nombre || ''),
         insumo: String(formData.insumo || insumos[0]?.nombre || ''),
         cant: parseFloat(String(formData.cant)) || 0,
       };
@@ -352,15 +352,18 @@ export const ErpSubmodules: React.FC<ErpSubmodulesProps> = ({ moduleId, onSelect
           <div>
             <label className="text-[10px] uppercase font-bold text-sky-400 block mb-1">Plato de la Carta</label>
             <select
-              value={formData.plato || productos[0]?.i18n.es.name}
+              value={formData.plato || productos[0]?.i18n?.es?.name || (productos[0] as any)?.nombre || ''}
               onChange={(e) => setFormData({ ...formData, plato: e.target.value })}
               className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white"
             >
-              {productos.map((p) => (
-                <option key={p.id} value={p.i18n.es.name}>
-                  {p.i18n.es.name} (S/ {p.precioPEN})
-                </option>
-              ))}
+              {productos.map((p) => {
+                const name = p.i18n?.es?.name || (p as any).nombre || 'Plato';
+                return (
+                  <option key={p.id} value={name}>
+                    {name} (S/ {p.precioPEN || (p as any).precio || 0})
+                  </option>
+                );
+              })}
             </select>
           </div>
           <div>
@@ -1411,17 +1414,19 @@ export const ErpSubmodules: React.FC<ErpSubmodulesProps> = ({ moduleId, onSelect
             </thead>
             <tbody className="divide-y divide-slate-800/60">
               {productos.map((p) => {
-                const prodRecetas = recetas.filter((r) => r.plato === p.i18n.es.name);
+                const pName = p.i18n?.es?.name || (p as any).nombre || 'Plato';
+                const prodRecetas = recetas.filter((r) => r.plato === pName);
                 const cost = prodRecetas.reduce((s, r) => {
                   const ins = insumos.find((i) => i.nombre === r.insumo);
                   return s + r.cant * (ins ? ins.costo : 0);
                 }, 0);
-                const margen = p.precioPEN - cost;
-                const margenPct = p.precioPEN > 0 ? ((margen / p.precioPEN) * 100).toFixed(1) : 0;
+                const pPrecio = p.precioPEN || (p as any).precio || 0;
+                const margen = pPrecio - cost;
+                const margenPct = pPrecio > 0 ? ((margen / pPrecio) * 100).toFixed(1) : 0;
                 return (
                   <tr key={p.id} className="hover:bg-slate-900/40">
-                    <td className="p-3 font-bold text-white">{p.i18n.es.name}</td>
-                    <td className="p-3 text-right font-mono text-amber-300">{formatMoney(p.precioPEN)}</td>
+                    <td className="p-3 font-bold text-white">{pName}</td>
+                    <td className="p-3 text-right font-mono text-amber-300">{formatMoney(pPrecio)}</td>
                     <td className="p-3 text-right font-mono text-slate-300">{formatMoney(cost)}</td>
                     <td className="p-3 text-right font-mono font-black text-emerald-400">{formatMoney(margen)}</td>
                     <td className="p-3 text-right font-mono font-bold text-sky-400">{margenPct}%</td>

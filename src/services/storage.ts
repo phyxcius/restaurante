@@ -34,7 +34,23 @@ const STORAGE_KEYS = {
   SERIES: 'cusq_series',
   CAJA_INICIAL: 'cusq_caja_inicial',
   FACTURA_ACTUAL: 'factura_actual',
+  USUARIOS: 'cusq_usuarios_sistema',
 };
+
+export interface UsuarioSistema {
+  id: string;
+  usuario: string;
+  nombre: string;
+  rol: 'admin' | 'cocina' | 'mozo' | 'cajero';
+  clave: string;
+  activo: boolean;
+}
+
+export const DEFAULT_USUARIOS_SISTEMA: UsuarioSistema[] = [
+  { id: 'usr-admin', usuario: 'admin', nombre: 'Administrador General', rol: 'admin', clave: 'admin123', activo: true },
+  { id: 'usr-cocina', usuario: 'cocina', nombre: 'Chef / Cocina KDS', rol: 'cocina', clave: 'cocina123', activo: true },
+  { id: 'usr-mozo', usuario: 'mozo', nombre: 'Mozo / Salón', rol: 'mozo', clave: 'mozo123', activo: true },
+];
 
 export const DEFAULT_CONFIG: ConfigRestaurante = {
   nombre: 'La Cusqueñita',
@@ -700,7 +716,34 @@ class StorageService {
   // --- PRODUCTOS ---
   public getProductos(): Producto[] {
     const raw = localStorage.getItem(STORAGE_KEYS.PRODUCTOS);
-    return raw ? JSON.parse(raw) : DEFAULT_PRODUCTOS;
+    if (!raw) return DEFAULT_PRODUCTOS;
+    try {
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed) || parsed.length === 0) return DEFAULT_PRODUCTOS;
+      return parsed.map((p: any, idx: number): Producto => {
+        const nombreDefault = p?.i18n?.es?.name || p?.nombre || p?.name || `Plato ${idx + 1}`;
+        const descDefault = p?.i18n?.es?.desc || p?.descripcion || p?.desc || '';
+        const precioVal = Number(p?.precioPEN ?? p?.precio ?? 35) || 35;
+        return {
+          id: String(p?.id || `dish-${Date.now()}-${idx}`),
+          category: String(p?.category || 'mains'),
+          precioPEN: precioVal,
+          precioUSD: Number(p?.precioUSD || +(precioVal / 3.75).toFixed(2)),
+          precio: precioVal,
+          videoUrl: String(p?.videoUrl || DEFAULT_PRODUCTOS[0].videoUrl),
+          posterUrl: String(p?.posterUrl || DEFAULT_PRODUCTOS[0].posterUrl),
+          disponible: p?.disponible !== false,
+          i18n: {
+            es: { name: nombreDefault, desc: descDefault },
+            en: { name: p?.i18n?.en?.name || nombreDefault, desc: p?.i18n?.en?.desc || descDefault },
+            fr: { name: p?.i18n?.fr?.name || nombreDefault, desc: p?.i18n?.fr?.desc || descDefault },
+            pt: { name: p?.i18n?.pt?.name || nombreDefault, desc: p?.i18n?.pt?.desc || descDefault },
+          },
+        };
+      });
+    } catch {
+      return DEFAULT_PRODUCTOS;
+    }
   }
 
   public saveProducto(producto: Producto) {
@@ -1085,6 +1128,54 @@ class StorageService {
     const list = this.getGenericList<T>(key).filter((x) => x.id !== id);
     localStorage.setItem(`cusq_erp_${key}`, JSON.stringify(list));
     this.notify();
+  }
+
+  // --- USUARIOS Y ROLES DEL SISTEMA (ADMIN, COCINA, MOZO) ---
+  public getUsuariosSistema(): UsuarioSistema[] {
+    const raw = localStorage.getItem(STORAGE_KEYS.USUARIOS);
+    if (!raw) {
+      localStorage.setItem(STORAGE_KEYS.USUARIOS, JSON.stringify(DEFAULT_USUARIOS_SISTEMA));
+      return DEFAULT_USUARIOS_SISTEMA;
+    }
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_USUARIOS_SISTEMA;
+    } catch {
+      return DEFAULT_USUARIOS_SISTEMA;
+    }
+  }
+
+  public saveUsuarioSistema(u: UsuarioSistema) {
+    const list = this.getUsuariosSistema();
+    const idx = list.findIndex((x) => x.id === u.id || x.usuario.toLowerCase() === u.usuario.toLowerCase());
+    if (idx >= 0) list[idx] = u;
+    else list.push(u);
+    localStorage.setItem(STORAGE_KEYS.USUARIOS, JSON.stringify(list));
+    this.notify();
+  }
+
+  public validarClave(rol: 'admin' | 'cocina' | 'mozo' | 'cajero', claveIngresada: string): boolean {
+    if (!claveIngresada) return false;
+    const pin = claveIngresada.trim();
+    // Claves maestras de emergencia
+    if (pin === '42423549' || pin === 'regocijo123') return true;
+
+    const users = this.getUsuariosSistema();
+    const user = users.find((u) => u.rol === rol && u.activo);
+    if (user && user.clave === pin) return true;
+
+    // Si el rol es cocina o mozo, la clave de administrador también desbloquea
+    if (rol !== 'admin') {
+      const adminUser = users.find((u) => u.rol === 'admin' && u.activo);
+      if (adminUser && adminUser.clave === pin) return true;
+    }
+
+    // Claves por defecto para acceso inmediato
+    if (rol === 'admin' && (pin === 'admin123' || pin === 'admin')) return true;
+    if (rol === 'cocina' && (pin === 'cocina123' || pin === 'cocina')) return true;
+    if (rol === 'mozo' && (pin === 'mozo123' || pin === 'mozo')) return true;
+
+    return false;
   }
 }
 

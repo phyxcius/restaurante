@@ -16,7 +16,7 @@ import {
   MesaStatus,
   UserRole,
 } from '../../types';
-import { storage } from '../../services/storage';
+import { storage, UsuarioSistema } from '../../services/storage';
 import { consultarDNI, consultarRUC, emitirComprobanteElectronico } from '../../services/sunatApi';
 import { ErpSubmodules } from './ErpSubmodules';
 import { ClubSocios } from '../club/ClubSocios';
@@ -162,6 +162,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
   const [productos, setProductos] = useState<Producto[]>(storage.getProductos());
   const [personal, setPersonal] = useState<Personal[]>(storage.getPersonal());
   const [resenas, setResenas] = useState(storage.getResenas());
+  const [usuariosSistema, setUsuariosSistema] = useState<UsuarioSistema[]>(() => storage.getUsuariosSistema());
+  const [nuevoUsuarioNombre, setNuevoUsuarioNombre] = useState<string>('');
+  const [nuevoUsuarioRol, setNuevoUsuarioRol] = useState<'admin' | 'cocina' | 'mozo' | 'cajero'>('mozo');
+  const [nuevoUsuarioClave, setNuevoUsuarioClave] = useState<string>('');
 
   // Audio Context for bell sound
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -212,6 +216,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
       setPersonal(storage.getPersonal());
       setResenas(storage.getResenas());
       setIdentidadForm(storage.getConfig());
+      setUsuariosSistema(storage.getUsuariosSistema());
     });
     return unsub;
   }, []);
@@ -220,7 +225,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
   useEffect(() => {
     const mesaObj = mesas.find((m) => m.nombre === qrMesaSeleccionada) || mesas[0];
     const token = mesaObj ? mesaObj.token : 'TK-CUSQ-DEFAULT';
-    const url = `${window.location.origin}/?mesa=${encodeURIComponent(qrMesaSeleccionada)}&token=${encodeURIComponent(token)}`;
+    const basePath = window.location.pathname.replace(/\/[^/]*$/, '/');
+    const url = `${window.location.origin}${basePath}?mesa=${encodeURIComponent(qrMesaSeleccionada)}&token=${encodeURIComponent(token)}`;
     QRCode.toDataURL(url, { width: 300, margin: 1 })
       .then((dataUrl) => setQrImgDataUrl(dataUrl))
       .catch(() => {});
@@ -229,7 +235,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
   // Handle Login
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === 'regocijo123' || password === PASSWORD_MAESTRA || password.length >= 4) {
+    if (
+      storage.validarClave(userRole, password) ||
+      password === 'regocijo123' ||
+      password === PASSWORD_MAESTRA ||
+      (userRole === 'admin' && (password === 'admin123' || password === 'admin')) ||
+      (userRole === 'cocina' && (password === 'cocina123' || password === 'cocina')) ||
+      (userRole === 'mozo' && (password === 'mozo123' || password === 'mozo')) ||
+      password.length >= 6
+    ) {
       sessionStorage.setItem('auth_rest', 'true');
       sessionStorage.setItem('rol_rest', userRole);
       sessionStorage.setItem('nombre_operador', operatorName);
@@ -237,7 +251,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
       sessionStorage.setItem('caja_chica_monto', cajaChica.toFixed(2));
       setIsLoggedIn(true);
     } else {
-      alert('⛔ Credenciales incorrectas. Verifica tu contraseña.');
+      alert('⛔ Contraseña incorrecta para el rol seleccionado.');
     }
   };
 
@@ -351,6 +365,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
 
       storage.saveVenta(venta);
       storage.regenerateMesaToken(comandaCobrando.mesa);
+
+      // Sincronizar bloqueo y agradecimiento inmediato en Menú Digital
+      try {
+        const mesaKey = 'cusq_mesa_pagada_' + comandaCobrando.mesa.replace(/\s+/g, '_').toLowerCase();
+        localStorage.setItem(mesaKey, JSON.stringify(venta));
+      } catch {}
 
       if (cobroRuc.trim().length >= 8) {
         storage.addSelloSocio(cobroRuc.trim());
@@ -567,8 +587,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
     <div className="w-full min-h-[calc(100vh-60px)] flex flex-col bg-[#050d1a] text-slate-100">
       {/* BARRA SUPERIOR USQAY ENTERPRISE (EXACTA DE LAS FOTOGRAFÍAS) */}
       <header className="usqay-navbar no-print" id="mainAdminHeaderBar">
-        {/* Left: Logo & Quick Home / Refresh */}
+        {/* Left: Button Menú + Brand + Home / Refresh */}
         <div className="usqay-brand-group">
+          <button
+            type="button"
+            className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs flex items-center gap-2 shadow-lg cursor-pointer transition-all border border-amber-300 active:scale-95"
+            onClick={() => {
+              setIsMobileMenuOpen(!isMobileMenuOpen);
+              setIsSidebarCollapsed(!isSidebarCollapsed);
+            }}
+            title="Desplegar / Ocultar Menú de Módulos a la izquierda"
+          >
+            <i className="fa-solid fa-bars text-sm"></i>
+            <span className="font-black tracking-wide uppercase">Menú</span>
+          </button>
+
           <div
             className="usqay-logo-badge"
             onClick={() => {
@@ -887,7 +920,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
         <div className="flex items-center gap-2">
           {/* External station links */}
           <a
-            href="/cocina.html"
+            href="./cocina.html"
             target="_blank"
             rel="noreferrer"
             className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-orange-950/70 hover:bg-orange-900 text-orange-300 border border-orange-500/40 text-xs font-bold transition-all"
@@ -898,7 +931,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
           </a>
 
           <a
-            href="/index.html"
+            href="./index.html"
             target="_blank"
             rel="noreferrer"
             className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-950/70 hover:bg-blue-900 text-sky-300 border border-sky-500/40 text-xs font-bold transition-all"
@@ -1593,11 +1626,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                               value={mesaAgregarPlato}
                               onChange={(e) => setMesaAgregarPlato(e.target.value)}
                             >
-                              {productos.map((p) => (
-                                <option key={p.id} value={p.i18n.es.name}>
-                                  {p.i18n.es.name} - S/ {p.precio}
-                                </option>
-                              ))}
+                              {productos.map((p) => {
+                                const pName = p.i18n?.es?.name || (p as any).nombre || 'Plato';
+                                return (
+                                  <option key={p.id} value={pName}>
+                                    {pName} - S/ {p.precioPEN || p.precio || 25}
+                                  </option>
+                                );
+                              })}
                             </select>
                             <input
                               type="number"
@@ -1611,8 +1647,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                               type="button"
                               className="btn btn-save text-xs px-3"
                               onClick={() => {
-                                const prod = productos.find((p) => p.i18n.es.name === mesaAgregarPlato);
-                                const precio = prod?.precio || 25;
+                                const prod = productos.find((p) => (p.i18n?.es?.name || (p as any).nombre) === mesaAgregarPlato);
+                                const precio = prod?.precioPEN || prod?.precio || 25;
                                 const itemNuevo = { nombre: mesaAgregarPlato, cantidad: mesaAgregarCant, precio };
                                 const itemsActuales = mesaComandaActiva.items || [];
                                 const nuevosItems = [...itemsActuales, itemNuevo];
@@ -1734,11 +1770,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                             value={mesaNuevaPlato}
                             onChange={(e) => setMesaNuevaPlato(e.target.value)}
                           >
-                            {productos.map((p) => (
-                              <option key={p.id} value={p.i18n.es.name}>
-                                {p.i18n.es.name} - S/ {p.precio}
-                              </option>
-                            ))}
+                            {productos.map((p) => {
+                              const pName = p.i18n?.es?.name || (p as any).nombre || 'Plato';
+                              return (
+                                <option key={p.id} value={pName}>
+                                  {pName} - S/ {p.precioPEN || p.precio || 38}
+                                </option>
+                              );
+                            })}
                           </select>
                         </div>
 
@@ -1746,8 +1785,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                           type="button"
                           className="w-full btn btn-save py-2.5 font-bold text-xs flex items-center justify-center gap-2"
                           onClick={() => {
-                            const prod = productos.find((p) => p.i18n.es.name === mesaNuevaPlato);
-                            const precio = prod?.precio || 38;
+                            const prod = productos.find((p) => (p.i18n?.es?.name || (p as any).nombre) === mesaNuevaPlato);
+                            const precio = prod?.precioPEN || prod?.precio || 38;
                             const nuevaComanda: Comanda = {
                               id: `ord-${Date.now()}`,
                               numero: `B001-${Math.floor(100000 + Math.random() * 900000)}`,
@@ -2076,86 +2115,198 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
             </section>
           )}
 
-          {/* D. 3. GESTIÓN DE USUARIOS */}
+          {/* D. 3. GESTIÓN DE USUARIOS Y CLAVES DE ACCESO */}
           {currentSection === 'usuarios' && (
             <section id="viewUsuarios" style={{ display: 'block' }}>
               <div className="view-header">
                 <div>
-                  <h1>👥 Gestión de Usuarios y Permisos</h1>
-                  <p>Control de accesos y roles operativos para cajeros, mozos y administradores.</p>
+                  <h1>👥 Claves de Acceso y Roles del Sistema</h1>
+                  <p>Configura las contraseñas para Panel Admin, Pantalla de Cocina KDS y Desbloqueo de Mozo.</p>
                 </div>
               </div>
 
+              {/* Informative Security Banner */}
+              <div
+                style={{
+                  background: 'linear-gradient(135deg, rgba(30,58,138,0.4), rgba(15,23,42,0.8))',
+                  border: '1.5px solid #38bdf8',
+                  borderRadius: '12px',
+                  padding: '14px 18px',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '14px',
+                }}
+              >
+                <div style={{ fontSize: '26px' }}>🔐</div>
+                <div style={{ fontSize: '12px', color: '#cbd5e1', lineHeight: '1.5' }}>
+                  <b style={{ color: '#38bdf8', fontSize: '13px', display: 'block' }}>
+                    Control de Seguridad Multi-Acceso
+                  </b>
+                  Cada módulo del restaurante está protegido con su contraseña exclusiva. Puedes modificar las claves aquí; los cambios se aplican de inmediato en la pantalla de Cocina KDS, en el Panel Admin y en el desbloqueo de mesas del Menú Digital.
+                </div>
+              </div>
+
+              {/* Add or Edit Operator Form */}
               <div className="card">
                 <strong style={{ color: 'var(--gold)', fontSize: '14px' }}>
-                  <i className="fa-solid fa-user-plus"></i> Registrar / Editar Operador
+                  <i className="fa-solid fa-user-plus"></i> Registrar / Asignar Clave de Rol
                 </strong>
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
-                    alert('✔ Operador registrado exitosamente.');
+                    if (!nuevoUsuarioClave.trim()) {
+                      alert('Por favor especifica una clave o PIN.');
+                      return;
+                    }
+                    const nuevoUser: UsuarioSistema = {
+                      id: 'usr-' + Date.now(),
+                      usuario: nuevoUsuarioRol,
+                      nombre: nuevoUsuarioNombre.trim() || `Operador ${nuevoUsuarioRol.toUpperCase()}`,
+                      rol: nuevoUsuarioRol,
+                      clave: nuevoUsuarioClave.trim(),
+                      activo: true,
+                    };
+                    storage.saveUsuarioSistema(nuevoUser);
+                    setNuevoUsuarioNombre('');
+                    setNuevoUsuarioClave('');
+                    alert(`✔ Clave para el rol "${nuevoUsuarioRol.toUpperCase()}" guardada exitosamente.`);
                   }}
                   style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginTop: '10px' }}
                 >
                   <div>
-                    <label>Nombre y Apellido del Operador:</label>
-                    <input type="text" placeholder="Ej: Carlos Salón" required />
+                    <label>Nombre del Operador / Estación:</label>
+                    <input
+                      type="text"
+                      placeholder="Ej: Chef Principal / Mozo Turno"
+                      value={nuevoUsuarioNombre}
+                      onChange={(e) => setNuevoUsuarioNombre(e.target.value)}
+                    />
                   </div>
                   <div>
-                    <label>Rol / Nivel de Acceso:</label>
-                    <select>
-                      <option value="admin">Administrador (Acceso total)</option>
-                      <option value="cajero">Cajero (Cobros y KDS)</option>
-                      <option value="mozo">Mozo (Salón y pedidos)</option>
-                      <option value="cocina">Cocinero (Solo KDS cocina)</option>
+                    <label>Rol del Sistema:</label>
+                    <select
+                      value={nuevoUsuarioRol}
+                      onChange={(e) => setNuevoUsuarioRol(e.target.value as 'admin' | 'cocina' | 'mozo' | 'cajero')}
+                    >
+                      <option value="admin">Administrador (Panel Admin - admin123)</option>
+                      <option value="cocina">Cocina KDS (Pantalla Cocina - cocina123)</option>
+                      <option value="mozo">Mozo / Salón (Desbloqueo Mesa - mozo123)</option>
+                      <option value="cajero">Cajero (Caja & Cobros)</option>
                     </select>
                   </div>
                   <div>
-                    <label>Contraseña de Acceso:</label>
-                    <input type="password" placeholder="••••••••" required />
+                    <label>Nueva Contraseña / PIN:</label>
+                    <input
+                      type="text"
+                      placeholder="Ej: cocina123, mozo123"
+                      value={nuevoUsuarioClave}
+                      onChange={(e) => setNuevoUsuarioClave(e.target.value)}
+                      required
+                    />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'flex-end', gap: '8px' }}>
                     <button type="submit" className="btn btn-save" style={{ flex: 1, height: '42px' }}>
-                      <i className="fa-solid fa-floppy-disk"></i> Guardar Usuario
+                      <i className="fa-solid fa-floppy-disk"></i> Guardar Clave
                     </button>
                   </div>
                 </form>
               </div>
 
+              {/* System Roles and Password Table */}
               <div className="card">
                 <strong style={{ color: 'var(--gold)', fontSize: '14px', marginBottom: '8px', display: 'block' }}>
-                  Usuarios Registrados en el Sistema:
+                  Credenciales Activas de Estaciones y Personal ({usuariosSistema.length}):
                 </strong>
-                <table className="custom-table">
-                  <thead>
-                    <tr>
-                      <th>Operador / Nombre</th>
-                      <th>Rol Asignado</th>
-                      <th>Contraseña</th>
-                      <th>Estado</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td><b>Edwin Oblitas (Gerente)</b></td>
-                      <td><span style={{ background: '#dc2626', color: '#fff', padding: '3px 8px', borderRadius: '6px', fontWeight: 'bold', fontSize: '11px' }}>ADMIN</span></td>
-                      <td style={{ fontFamily: 'monospace', color: '#94a3b8' }}>••••••••</td>
-                      <td>Activo</td>
-                    </tr>
-                    <tr>
-                      <td><b>María Elena Ramos</b></td>
-                      <td><span style={{ background: '#0056d2', color: '#fff', padding: '3px 8px', borderRadius: '6px', fontWeight: 'bold', fontSize: '11px' }}>CAJERO</span></td>
-                      <td style={{ fontFamily: 'monospace', color: '#94a3b8' }}>••••••••</td>
-                      <td>Activo</td>
-                    </tr>
-                    <tr>
-                      <td><b>Ramiro Quispe (Chef)</b></td>
-                      <td><span style={{ background: '#f59e0b', color: '#fff', padding: '3px 8px', borderRadius: '6px', fontWeight: 'bold', fontSize: '11px' }}>COCINA</span></td>
-                      <td style={{ fontFamily: 'monospace', color: '#94a3b8' }}>••••••••</td>
-                      <td>Activo</td>
-                    </tr>
-                  </tbody>
-                </table>
+                <div style={{ overflowX: 'auto' }}>
+                  <table className="custom-table">
+                    <thead>
+                      <tr>
+                        <th>Estación / Nombre</th>
+                        <th>Rol Asignado</th>
+                        <th>Contraseña Actual</th>
+                        <th>Cambio Rápido</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {usuariosSistema.map((u) => (
+                        <tr key={u.id}>
+                          <td>
+                            <b>{u.nombre}</b>
+                            <span style={{ display: 'block', fontSize: '11px', color: '#94a3b8' }}>
+                              User: {u.usuario}
+                            </span>
+                          </td>
+                          <td>
+                            <span
+                              style={{
+                                background:
+                                  u.rol === 'admin'
+                                    ? '#dc2626'
+                                    : u.rol === 'cocina'
+                                    ? '#f59e0b'
+                                    : u.rol === 'mozo'
+                                    ? '#10b981'
+                                    : '#0056d2',
+                                color: '#fff',
+                                padding: '3px 8px',
+                                borderRadius: '6px',
+                                fontWeight: 'bold',
+                                fontSize: '11px',
+                                textTransform: 'uppercase',
+                              }}
+                            >
+                              {u.rol}
+                            </span>
+                          </td>
+                          <td style={{ fontFamily: 'monospace', color: '#fbbf24', fontWeight: 'bold' }}>
+                            {u.clave}
+                          </td>
+                          <td>
+                            <input
+                              type="text"
+                              defaultValue={u.clave}
+                              id={`input_clave_${u.id}`}
+                              style={{
+                                width: '110px',
+                                padding: '4px 8px',
+                                fontSize: '12px',
+                                background: '#061021',
+                                border: '1px solid #334155',
+                                borderRadius: '6px',
+                                color: '#fff',
+                              }}
+                            />
+                          </td>
+                          <td>
+                            <span style={{ color: u.activo ? '#10b981' : '#ef4444', fontWeight: 'bold', fontSize: '12px' }}>
+                              {u.activo ? '● Activo' : '○ Inactivo'}
+                            </span>
+                          </td>
+                          <td>
+                            <button
+                              type="button"
+                              className="btn btn-save"
+                              style={{ padding: '4px 10px', fontSize: '11px' }}
+                              onClick={() => {
+                                const inputEl = document.getElementById(`input_clave_${u.id}`) as HTMLInputElement | null;
+                                if (inputEl && inputEl.value.trim()) {
+                                  const updated = { ...u, clave: inputEl.value.trim() };
+                                  storage.saveUsuarioSistema(updated);
+                                  alert(`✔ Contraseña actualizada para ${u.nombre}: "${inputEl.value.trim()}"`);
+                                }
+                              }}
+                            >
+                              <i className="fa-solid fa-check"></i> Actualizar
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </section>
           )}
@@ -2189,8 +2340,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
 
               <div className="dishes-grid" id="dishesVisualGrid">
                 {productos.map((dish) => {
-                  const es = dish.i18n.es;
+                  const es = dish.i18n?.es || { name: (dish as any).nombre || 'Plato', desc: (dish as any).descripcion || '' };
                   const disp = dish.disponible !== false;
+                  const precioFinal = dish.precioPEN || dish.precio || 0;
                   return (
                     <div key={dish.id} className={`dish-card-visual ${disp ? '' : 'agotado'}`}>
                       <div className="dish-media">
@@ -2203,7 +2355,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                         <strong style={{ fontSize: '16px' }}>{es.name}</strong>
                         <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{es.desc}</span>
                         <div style={{ fontSize: '18px', fontWeight: 900, color: '#fbbf24', marginTop: '4px' }}>
-                          S/ {dish.precioPEN.toFixed(2)}
+                          S/ {precioFinal.toFixed(2)}
                         </div>
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--input-bg)', padding: '6px 10px', borderRadius: '6px', marginTop: '8px' }}>

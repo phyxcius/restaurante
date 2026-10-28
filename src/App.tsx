@@ -21,6 +21,69 @@ const getInitialStation = (): StationType => {
   return 'menu';
 };
 
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('ErrorBoundary caught an error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-[#050d1a] text-slate-100 flex flex-col items-center justify-center p-6 text-center">
+          <div className="max-w-md w-full bg-[#09152b] border border-amber-500/40 rounded-2xl p-6 shadow-2xl">
+            <span className="text-4xl mb-3 block">🍽️</span>
+            <h1 className="text-xl font-black text-amber-400 mb-2">La Cusqueñita Restaurante</h1>
+            <p className="text-xs text-slate-300 mb-4">
+              Se detectó un problema al inicializar la vista. Puedes reiniciar los datos locales de prueba para continuar.
+            </p>
+            {this.state.error && (
+              <pre className="text-[10px] text-red-300 bg-black/50 p-2 rounded mb-4 overflow-x-auto text-left">
+                {this.state.error.message}
+              </pre>
+            )}
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  localStorage.clear();
+                  window.location.reload();
+                }}
+                className="flex-1 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs"
+              >
+                Restablecer Datos
+              </button>
+              <button
+                onClick={() => window.location.reload()}
+                className="flex-1 px-3 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs"
+              >
+                Recargar
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export const App: React.FC = () => {
   const [config, setConfig] = useState<ConfigRestaurante>(storage.getConfig());
   const [station, setStation] = useState<StationType>(getInitialStation);
@@ -41,62 +104,37 @@ export const App: React.FC = () => {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  return (
-    <div className="min-h-screen bg-[#050d1a] text-slate-100 selection:bg-amber-500 selection:text-slate-950 font-sans">
-      {/* 1. ESTACIÓN INDEPENDIENTE: MENÚ DIGITAL PARA EL MOZO / COMENSAL (index.html) */}
-      {station === 'menu' && (
-        <div className="w-full flex flex-col min-h-screen">
-          <MenuDigital config={config} />
+  const switchStation = (target: StationType) => {
+    setStation(target);
+    const newUrl = target === 'menu' ? './index.html' : target === 'cocina' ? './cocina.html' : './admin.html';
+    window.history.pushState({}, '', newUrl);
+  };
 
-          {/* Barra discreta inferior para el personal de servicio */}
-          <footer className="w-full max-w-lg mx-auto py-3 px-4 flex items-center justify-between text-[11px] text-slate-400 border-t border-slate-800/80 bg-[#071224]/80">
-            <span className="flex items-center gap-1.5 font-bold text-slate-300">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              Terminal Mozo & Comensal
-            </span>
-            <div className="flex items-center gap-3">
-              <a
-                href="/cocina.html"
-                className="hover:text-amber-400 transition-colors flex items-center gap-1 font-semibold"
-              >
-                <i className="fa-solid fa-fire-burner text-orange-400"></i> Cocina KDS
-              </a>
-              <span className="text-slate-600">|</span>
-              <a
-                href="/admin.html"
-                className="hover:text-sky-400 transition-colors flex items-center gap-1 font-semibold"
-              >
-                <i className="fa-solid fa-gauge-high text-blue-400"></i> Panel Admin
-              </a>
-            </div>
-          </footer>
-        </div>
-      )}
+  return (
+    <ErrorBoundary>
+      <div className="min-h-screen bg-[#050d1a] text-slate-100 selection:bg-amber-500 selection:text-slate-950 font-sans">
+        {/* 1. ESTACIÓN INDEPENDIENTE: MENÚ DIGITAL PARA EL MOZO / COMENSAL (index.html) */}
+        {station === 'menu' && (
+          <div className="w-full flex flex-col min-h-screen">
+            <MenuDigital config={config} />
+          </div>
+        )}
 
       {/* 2. ESTACIÓN INDEPENDIENTE: COCINA KDS PARA EL COCINERO (cocina.html) */}
       {station === 'cocina' && (
         <div className="w-full min-h-screen flex flex-col">
           {/* Cabecera exclusiva de Cocina KDS */}
-          <div className="w-full px-4 py-2 bg-gradient-to-r from-[#071224] via-[#09152b] to-[#071224] border-b border-amber-500/30 flex items-center justify-between">
+          <div className="w-full px-4 py-2.5 bg-gradient-to-r from-[#071224] via-[#09152b] to-[#071224] border-b border-amber-500/30 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="w-3 h-3 rounded-full bg-amber-500 animate-ping"></span>
               <b className="text-sm tracking-wide uppercase text-amber-400 font-extrabold flex items-center gap-2">
                 <i className="fa-solid fa-fire-burner"></i> COCINA KDS • PANTALLA EN VIVO DEL COCINERO
               </b>
             </div>
-            <div className="flex items-center gap-3 text-xs">
-              <a
-                href="/index.html"
-                className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold flex items-center gap-1 transition-all"
-              >
-                <i className="fa-solid fa-mobile-screen"></i> Menú Mozo
-              </a>
-              <a
-                href="/admin.html"
-                className="px-2.5 py-1 rounded-lg bg-blue-900/60 hover:bg-blue-800 text-sky-200 border border-sky-400/30 font-bold flex items-center gap-1 transition-all"
-              >
-                <i className="fa-solid fa-gauge-high"></i> Panel Admin
-              </a>
+            <div className="flex items-center gap-2 text-xs">
+              <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-amber-500/30 text-amber-300 font-bold">
+                Estación Chef Autorizada
+              </span>
             </div>
           </div>
 
@@ -113,6 +151,7 @@ export const App: React.FC = () => {
         </div>
       )}
     </div>
+    </ErrorBoundary>
   );
 };
 

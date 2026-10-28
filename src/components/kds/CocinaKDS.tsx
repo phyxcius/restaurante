@@ -15,11 +15,34 @@ import { Comanda } from '../../types';
 import { storage } from '../../services/storage';
 
 export const CocinaKDS: React.FC = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
+    return sessionStorage.getItem('auth_cocina') === 'true' || sessionStorage.getItem('auth_rest') === 'true';
+  });
+  const [pinInput, setPinInput] = useState<string>('');
+  const [loginError, setLoginError] = useState<string>('');
+
   const [comandas, setComandas] = useState<Comanda[]>(storage.getComandas());
   const [statusFilter, setStatusFilter] = useState<'todas' | 'iniciado' | 'cocina' | 'servido'>('todas');
   const [tableFilter, setTableFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
+
+  const handleLoginSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (storage.validarClave('cocina', pinInput)) {
+      sessionStorage.setItem('auth_cocina', 'true');
+      setIsLoggedIn(true);
+      setLoginError('');
+      setPinInput('');
+    } else {
+      setLoginError('⛔ Clave de cocina incorrecta. Revisa con el Administrador.');
+    }
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('auth_cocina');
+    setIsLoggedIn(false);
+  };
 
   // Clock tick every 10 seconds for real-time timers
   useEffect(() => {
@@ -119,6 +142,58 @@ export const CocinaKDS: React.FC = () => {
     );
   };
 
+  if (!isLoggedIn) {
+    return (
+      <div className="w-full min-h-[80vh] flex items-center justify-center p-4">
+        <div className="w-full max-w-sm bg-[#09152b] border border-amber-500/40 rounded-2xl p-6 shadow-2xl text-center flex flex-col items-center">
+          <div className="w-16 h-16 rounded-2xl bg-amber-500/20 border-2 border-amber-400 text-amber-300 flex items-center justify-center text-3xl mb-4 shadow-lg">
+            👨‍🍳
+          </div>
+          <h2 className="text-xl font-black text-amber-400 font-latina-luxury mb-1">
+            Estación Cocina KDS
+          </h2>
+          <p className="text-xs text-slate-300 mb-5">
+            Acceso restringido para el Jefe de Cocina y personal de despacho.
+          </p>
+
+          <form onSubmit={handleLoginSubmit} className="w-full flex flex-col gap-3">
+            <div className="text-left">
+              <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wide block mb-1">
+                Clave de Cocina:
+              </label>
+              <input
+                type="password"
+                value={pinInput}
+                onChange={(e) => setPinInput(e.target.value)}
+                placeholder="Ingresa clave (ej. cocina123)"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-amber-300 text-sm font-black text-center tracking-widest outline-none focus:border-amber-400 transition-colors"
+                autoFocus
+              />
+            </div>
+
+            {loginError && (
+              <p className="text-xs text-red-400 bg-red-950/50 p-2 rounded-lg border border-red-500/40 font-semibold">
+                {loginError}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              className="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm shadow-lg active:scale-98 transition-all cursor-pointer mt-1"
+            >
+              <i className="fa-solid fa-unlock-keyhole mr-1.5"></i>
+              Ingresar a Cocina
+            </button>
+          </form>
+
+          <div className="mt-5 p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 text-[11px] text-slate-400">
+            <span className="text-amber-400 font-bold">Clave por defecto:</span> <code className="text-white">cocina123</code> (editable en Panel Admin).
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 py-4 flex flex-col gap-4 text-slate-100">
       {/* Header bar */}
@@ -137,7 +212,7 @@ export const CocinaKDS: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {/* Live Clock */}
           <div className="px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-xl text-center">
             <span className="text-[10px] text-slate-400 block font-bold uppercase leading-none">Hora Local</span>
@@ -148,10 +223,19 @@ export const CocinaKDS: React.FC = () => {
 
           <button
             onClick={refreshOrders}
-            className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5 shadow active:scale-95 transition-transform"
+            className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5 shadow active:scale-95 transition-transform cursor-pointer"
           >
             <RotateCw className="w-3.5 h-3.5" />
             <span>Actualizar</span>
+          </button>
+
+          <button
+            onClick={handleLogout}
+            className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-red-950/80 hover:text-red-300 text-slate-300 border border-slate-700 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+            title="Bloquear pantalla de cocina"
+          >
+            <i className="fa-solid fa-lock text-xs"></i>
+            <span>Bloquear</span>
           </button>
         </div>
       </div>
@@ -342,21 +426,27 @@ export const CocinaKDS: React.FC = () => {
                   {isNuevo && (
                     <button
                       onClick={() => handleAvanzarEstado(cmd.id, 'cocina')}
-                      className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-98 transition-transform"
+                      className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-98 transition-transform cursor-pointer"
                     >
                       <ChefHat className="w-4 h-4" />
-                      <span>Empezar a Cocinar</span>
+                      <span>Aceptar Pedido (En Preparación)</span>
                     </button>
                   )}
 
                   {isCocina && (
                     <button
                       onClick={() => handleAvanzarEstado(cmd.id, 'servido')}
-                      className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-700 hover:to-sky-600 text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-98 transition-transform"
+                      className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-98 transition-transform cursor-pointer"
                     >
-                      <Utensils className="w-4 h-4 text-amber-300" />
-                      <span>Listo para Servir</span>
+                      <CheckCircle className="w-4 h-4" />
+                      <span>¡Listo para Servir!</span>
                     </button>
+                  )}
+
+                  {isServido && (
+                    <span className="flex-1 py-2 rounded-xl bg-emerald-950/70 border border-emerald-500/50 text-emerald-300 font-extrabold text-xs flex items-center justify-center gap-1">
+                      <CheckCircle className="w-3.5 h-3.5" /> Servido en Mesa
+                    </span>
                   )}
 
                   {isServido && (

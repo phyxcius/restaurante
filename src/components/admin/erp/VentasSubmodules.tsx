@@ -76,7 +76,8 @@ export const VentasSubmodules: React.FC<VentasSubmodulesProps> = ({
   if (['stock_platos', 'stock_manual', 'stock_manual_platos', 'stock_platos_rep'].includes(moduleId)) {
     const productosFiltrados = productos.filter((p) => {
       const matchCat = categoriaFiltro === 'todas' || p.category === categoriaFiltro;
-      const matchText = p.i18n.es.name.toLowerCase().includes(busqueda.toLowerCase());
+      const pName = p.i18n?.es?.name || (p as any).nombre || '';
+      const matchText = pName.toLowerCase().includes(busqueda.toLowerCase());
       return matchCat && matchText;
     });
 
@@ -179,8 +180,8 @@ export const VentasSubmodules: React.FC<VentasSubmodulesProps> = ({
                       <img src={p.posterUrl} alt="" className="w-10 h-10 rounded-lg object-cover border border-slate-700" />
                     </td>
                     <td className="p-3">
-                      <div className="font-bold text-white text-sm">{p.i18n.es.name}</div>
-                      <div className="text-[11px] text-slate-400 truncate max-w-xs">{p.i18n.es.desc}</div>
+                      <div className="font-bold text-white text-sm">{p.i18n?.es?.name || (p as any).nombre || 'Plato'}</div>
+                      <div className="text-[11px] text-slate-400 truncate max-w-xs">{p.i18n?.es?.desc || (p as any).descripcion || ''}</div>
                     </td>
                     <td className="p-3">
                       <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-800 text-slate-300">
@@ -342,7 +343,7 @@ export const VentasSubmodules: React.FC<VentasSubmodulesProps> = ({
                   <div className="flex flex-wrap gap-1.5">
                     {platosEnSec.slice(0, 5).map((pl) => (
                       <span key={pl.id} className="px-2 py-0.5 rounded bg-slate-900 text-slate-300 text-[10px]">
-                        {pl.i18n.es.name}
+                        {pl.i18n?.es?.name || (pl as any).nombre || 'Plato'}
                       </span>
                     ))}
                     {platosEnSec.length > 5 && (
@@ -443,25 +444,28 @@ export const VentasSubmodules: React.FC<VentasSubmodulesProps> = ({
           <div>
             <label className="text-[10px] uppercase font-bold text-sky-400 block mb-1">Entrada Incluida</label>
             <select name="entrada" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
-              {entradas.map((e) => (
-                <option key={e.id} value={e.i18n.es.name}>{e.i18n.es.name}</option>
-              ))}
+              {entradas.map((e) => {
+                const name = e.i18n?.es?.name || (e as any).nombre || 'Entrada';
+                return <option key={e.id} value={name}>{name}</option>;
+              })}
             </select>
           </div>
           <div>
             <label className="text-[10px] uppercase font-bold text-sky-400 block mb-1">Plato de Fondo</label>
             <select name="fondo" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
-              {fondos.map((f) => (
-                <option key={f.id} value={f.i18n.es.name}>{f.i18n.es.name}</option>
-              ))}
+              {fondos.map((f) => {
+                const name = f.i18n?.es?.name || (f as any).nombre || 'Fondo';
+                return <option key={f.id} value={name}>{name}</option>;
+              })}
             </select>
           </div>
           <div>
             <label className="text-[10px] uppercase font-bold text-sky-400 block mb-1">Bebida / Refresco</label>
             <select name="bebida" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
-              {bebidas.map((b) => (
-                <option key={b.id} value={b.i18n.es.name}>{b.i18n.es.name}</option>
-              ))}
+              {bebidas.map((b) => {
+                const name = b.i18n?.es?.name || (b as any).nombre || 'Bebida';
+                return <option key={b.id} value={name}>{name}</option>;
+              })}
             </select>
           </div>
           <div>
@@ -568,9 +572,10 @@ export const VentasSubmodules: React.FC<VentasSubmodulesProps> = ({
           <div className="sm:col-span-2">
             <label className="text-[10px] uppercase font-bold text-sky-400 block mb-1">Plato Principal</label>
             <select name="plato" className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
-              {productos.map((p) => (
-                <option key={p.id} value={p.i18n.es.name}>{p.i18n.es.name}</option>
-              ))}
+              {productos.map((p) => {
+                const name = p.i18n?.es?.name || (p as any).nombre || 'Plato';
+                return <option key={p.id} value={name}>{name}</option>;
+              })}
             </select>
           </div>
           <div>
