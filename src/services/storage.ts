@@ -634,9 +634,75 @@ export const DEFAULT_RESERVAS: Reserva[] = [
 
 class StorageService {
   private listeners: (() => void)[] = [];
+  private broadcastChannel: BroadcastChannel | null = null;
+  private lastStorageHash: string = '';
 
   constructor() {
     this.initDefaults();
+    this.initRealtimeSync();
+  }
+
+  private initRealtimeSync() {
+    if (typeof window === 'undefined') return;
+
+    // 1. High-speed BroadcastChannel across all tabs & windows (0-5ms latency)
+    try {
+      if ('BroadcastChannel' in window) {
+        this.broadcastChannel = new BroadcastChannel('la_cusquenita_realtime_bus');
+        this.broadcastChannel.onmessage = (event) => {
+          if (event && event.data && event.data.type === 'CUSQ_SYNC') {
+            this.dispatchLocalListeners();
+          }
+        };
+      }
+    } catch {
+      // Fallback if BroadcastChannel unavailable
+    }
+
+    // 2. Storage event listener when other windows or tabs write to localStorage
+    try {
+      window.addEventListener('storage', (e) => {
+        if (e.key && (e.key.startsWith('cusq_') || e.key === 'factura_actual')) {
+          this.dispatchLocalListeners();
+        }
+      });
+    } catch {}
+
+    // 3. Ultra-fast safeguard heartbeat (every 500ms) ensuring zero-delay auto sync
+    try {
+      this.lastStorageHash = this.computeStateHash();
+      setInterval(() => {
+        const currentHash = this.computeStateHash();
+        if (currentHash !== this.lastStorageHash) {
+          this.lastStorageHash = currentHash;
+          this.dispatchLocalListeners();
+        }
+      }, 500);
+    } catch {}
+  }
+
+  private computeStateHash(): string {
+    try {
+      return (
+        (localStorage.getItem(STORAGE_KEYS.COMANDAS) || '').length +
+        '_' +
+        (localStorage.getItem(STORAGE_KEYS.VENTAS) || '').length +
+        '_' +
+        (localStorage.getItem('cusq_realtime_ping') || '')
+      );
+    } catch {
+      return '';
+    }
+  }
+
+  private dispatchLocalListeners() {
+    this.listeners.forEach((listener) => {
+      try {
+        listener();
+      } catch (err) {
+        console.error('Error in storage listener:', err);
+      }
+    });
   }
 
   private initDefaults() {
@@ -698,8 +764,26 @@ class StorageService {
     };
   }
 
-  private notify() {
-    this.listeners.forEach((listener) => listener());
+  public notify(action?: string, payload?: any) {
+    // 1. Notify listeners in current window
+    this.dispatchLocalListeners();
+
+    // 2. Broadcast immediately to all other tabs and windows
+    try {
+      if (this.broadcastChannel) {
+        this.broadcastChannel.postMessage({
+          type: 'CUSQ_SYNC',
+          action: action || 'DATA_CHANGED',
+          payload: payload || null,
+          timestamp: Date.now(),
+        });
+      }
+    } catch {}
+
+    // 3. Write realtime ping to localStorage to wake up storage listeners across windows
+    try {
+      localStorage.setItem('cusq_realtime_ping', String(Date.now()));
+    } catch {}
   }
 
   // --- CONFIG ---

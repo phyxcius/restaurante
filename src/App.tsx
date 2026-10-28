@@ -121,48 +121,38 @@ export const App: React.FC = () => {
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-[#050d1a] text-slate-100 selection:bg-amber-500 selection:text-slate-950 font-sans relative">
-        {/* Selector Rápido de Estaciones de Trabajo */}
-        <div className="fixed top-2.5 right-3 z-[9999] flex items-center bg-[#071224]/95 border border-amber-500/40 rounded-2xl p-1 shadow-2xl backdrop-blur-md">
-          <button
-            type="button"
-            onClick={() => switchStation('menu')}
-            className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl font-black text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
-              station === 'menu'
-                ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-lg'
-                : 'text-slate-300 hover:text-white'
-            }`}
-            title="Menú Digital de Salón"
-          >
-            <i className="fa-solid fa-mobile-screen"></i>
-            <span className="hidden sm:inline">Menú Digital</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => switchStation('cocina')}
-            className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl font-black text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
-              station === 'cocina'
-                ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-lg'
-                : 'text-slate-300 hover:text-white'
-            }`}
-            title="Pantalla Cocina KDS"
-          >
-            <i className="fa-solid fa-fire-burner"></i>
-            <span className="hidden sm:inline">Cocina KDS</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => switchStation('admin')}
-            className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl font-black text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
-              station === 'admin'
-                ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-lg'
-                : 'text-slate-300 hover:text-white'
-            }`}
-            title="Panel Admin ERP & TPV"
-          >
-            <i className="fa-solid fa-gear"></i>
-            <span className="hidden sm:inline">Panel Admin</span>
-          </button>
-        </div>
+        {/* Selector Rápido de Estaciones de Trabajo (Solo visible en Panel Admin para navegación del administrador) */}
+        {station === 'admin' && (
+          <div className="fixed top-2.5 right-3 z-[9999] flex items-center bg-[#071224]/95 border border-amber-500/40 rounded-2xl p-1 shadow-2xl backdrop-blur-md">
+            <button
+              type="button"
+              onClick={() => switchStation('menu')}
+              className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl font-black text-xs flex items-center gap-1.5 transition-all cursor-pointer text-slate-300 hover:text-white"
+              title="Menú Digital de Salón"
+            >
+              <i className="fa-solid fa-mobile-screen"></i>
+              <span className="hidden sm:inline">Menú Digital</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => switchStation('cocina')}
+              className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl font-black text-xs flex items-center gap-1.5 transition-all cursor-pointer text-slate-300 hover:text-white"
+              title="Pantalla Cocina KDS"
+            >
+              <i className="fa-solid fa-fire-burner"></i>
+              <span className="hidden sm:inline">Cocina KDS</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => switchStation('admin')}
+              className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl font-black text-xs flex items-center gap-1.5 transition-all cursor-pointer bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-lg"
+              title="Panel Admin ERP & TPV"
+            >
+              <i className="fa-solid fa-gear"></i>
+              <span className="hidden sm:inline">Panel Admin</span>
+            </button>
+          </div>
+        )}
 
         {/* 1. ESTACIÓN INDEPENDIENTE: MENÚ DIGITAL PARA EL MOZO / COMENSAL (index.html) */}
         {station === 'menu' && (

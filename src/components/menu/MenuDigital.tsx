@@ -22,10 +22,15 @@ import {
   Receipt,
   UserCheck,
   Search,
+  Heart,
+  Share2,
+  MessageCircle,
+  Check,
 } from 'lucide-react';
 import { Producto, CartItem, Language, Comanda, ConfigRestaurante } from '../../types';
 import { storage } from '../../services/storage';
 import { consultarDNI } from '../../services/sunatApi';
+import { MENU_TRANSLATIONS } from './menuTranslations';
 
 interface MenuDigitalProps {
   config: ConfigRestaurante;
@@ -39,9 +44,19 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
   const [isMuted, setIsMuted] = useState<boolean>(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [lang, setLang] = useState<Language>('es');
+  const t = MENU_TRANSLATIONS[lang] || MENU_TRANSLATIONS.es;
+
+  // TikTok gestures tutorial & interactive likes state
+  const [showGestureTutorial, setShowGestureTutorial] = useState<boolean>(() => {
+    return !sessionStorage.getItem('cusq_tiktok_tutorial_seen');
+  });
+  const [likesMap, setLikesMap] = useState<Record<string, number>>({});
+  const [hasLikedMap, setHasLikedMap] = useState<Record<string, boolean>>({});
+  const [isFollowing, setIsFollowing] = useState<boolean>(false);
+  const [showReviewsModal, setShowReviewsModal] = useState<boolean>(false);
+
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
-  const [isGridModalOpen, setIsGridModalOpen] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<'reels' | 'grid'>('reels');
 
   // Order placement state
@@ -98,9 +113,9 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
       // Transition detection
       if (current && lastOrderState && current.estado !== lastOrderState) {
         if (current.estado === 'cocina') {
-          showToast('👨‍🍳 ¡El Chef aceptó tu pedido! Está en preparación al momento.');
+          showToast(t.chefAcceptedMessage);
         } else if (current.estado === 'servido') {
-          showToast('🟢 ¡Tu pedido está LISTO! El mozo lo está llevando a tu mesa.');
+          showToast(t.orderReadyMessage);
         }
       }
       if (current) setLastOrderState(current.estado);
@@ -129,11 +144,10 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
     checkState();
     const unsub = storage.subscribe(checkState);
     return unsub;
-  }, [selectedMesa, lastOrderState]);
+  }, [selectedMesa, lastOrderState, t]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
   };
 
   const filteredDishes = productos.filter((p) => {
@@ -146,11 +160,19 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
 
   const handleNextSlide = () => {
     if (filteredDishes.length === 0) return;
+    if (showGestureTutorial) {
+      setShowGestureTutorial(false);
+      sessionStorage.setItem('cusq_tiktok_tutorial_seen', 'true');
+    }
     setCurrentSlideIndex((prev) => (prev + 1) % filteredDishes.length);
   };
 
   const handlePrevSlide = () => {
     if (filteredDishes.length === 0) return;
+    if (showGestureTutorial) {
+      setShowGestureTutorial(false);
+      sessionStorage.setItem('cusq_tiktok_tutorial_seen', 'true');
+    }
     setCurrentSlideIndex((prev) => (prev - 1 + filteredDishes.length) % filteredDishes.length);
   };
 
@@ -171,7 +193,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
     setIsMuted(!isMuted);
   };
 
-  // Touch / Swipe Gesture Handlers for moving up and down the dish reels
+  // Touch / Swipe Gesture Handlers for moving up and down like TikTok
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
     touchStartX.current = e.touches[0].clientX;
@@ -225,6 +247,45 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
     }
   };
 
+  // Like Toggle
+  const handleToggleLike = (dishId: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    const alreadyLiked = !!hasLikedMap[dishId];
+    setHasLikedMap((prev) => ({ ...prev, [dishId]: !alreadyLiked }));
+    setLikesMap((prev) => {
+      const cur = prev[dishId] !== undefined ? prev[dishId] : 1420;
+      return { ...prev, [dishId]: alreadyLiked ? cur - 1 : cur + 1 };
+    });
+
+    if (!alreadyLiked) {
+      try {
+        confetti({
+          particleCount: 25,
+          spread: 45,
+          origin: { x: 0.9, y: 0.6 },
+          colors: ['#ef4444', '#f43f5e', '#fb7185'],
+        });
+      } catch {}
+    }
+  };
+
+  // Share Dish
+  const handleShareDish = (dish?: Producto, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!dish) return;
+    const dishName = dish.i18n?.[lang]?.name || dish.i18n?.es?.name || 'Plato Cusqueño';
+    if (navigator.share) {
+      navigator.share({
+        title: `${dishName} - ${config.nombre}`,
+        text: `¡Mira este delicioso plato en ${config.nombre}!`,
+        url: window.location.href,
+      }).catch(() => {});
+    } else {
+      navigator.clipboard?.writeText(window.location.href);
+      showToast(lang === 'en' ? '🔗 Link copied to clipboard!' : '🔗 ¡Enlace del plato copiado al portapapeles!');
+    }
+  };
+
   // Cart operations
   const addToCart = (prod: Producto, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
@@ -239,7 +300,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
     });
 
     const pName = prod.i18n?.[lang]?.name || prod.i18n?.es?.name || (prod as any).nombre || 'Plato';
-    showToast(`¡${pName} agregado al pedido!`);
+    showToast(`¡${pName} - ${t.addedToOrder}`);
   };
 
   const updateCartQty = (prodId: string, delta: number) => {
@@ -298,7 +359,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
   // Submit Order
   const handleEnviarPedido = () => {
     if (cart.length === 0) {
-      alert('Tu carrito está vacío. Agrega platos antes de ordenar.');
+      alert(t.cartEmpty);
       return;
     }
 
@@ -353,15 +414,15 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
       // Ignore
     }
 
-    showToast(`¡Comanda enviada a cocina para ${selectedMesa}!`);
+    showToast(`¡${newComanda.numero || newComanda.id} - ${t.sendOrderToKitchen}!`);
   };
 
   const handlePedirCuenta = () => {
     if (activeOrder) {
       storage.requestBill(activeOrder.id);
-      showToast('🧾 ¡Has solicitado la cuenta! El mozo se acerca a tu mesa con el comprobante.');
+      showToast(t.billRequestedMessage);
     } else {
-      alert('No tienes una orden activa en esta mesa para pedir la cuenta.');
+      alert(lang === 'en' ? 'No active order at this table.' : 'No tienes una orden activa en esta mesa.');
     }
   };
 
@@ -369,17 +430,18 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
     if (activeOrder) {
       storage.callWaiter(activeOrder.id);
     }
-    showToast(`🛎️ ¡Mozo llamado a ${selectedMesa}! Un mozo llegará a atenderte.`);
+    showToast(t.waiterCalledMessage);
   };
 
   const categories = [
-    { id: 'all', label: 'Todo el Menú' },
-    { id: 'entradas', label: 'Entradas' },
-    { id: 'mains', label: 'Platos de Fondo' },
-    { id: 'bebidas', label: 'Bebidas & Tragos' },
-    { id: 'postres', label: 'Postres' },
+    { id: 'all', label: t.catAll },
+    { id: 'entradas', label: t.catEntradas },
+    { id: 'mains', label: t.catMains },
+    { id: 'bebidas', label: t.catBebidas },
+    { id: 'postres', label: t.catPostres },
   ];
 
+  // PAID & LOCKED THANK YOU SCREEN
   if (bloqueadoPorPago) {
     return (
       <div className="relative w-full max-w-lg mx-auto min-h-[calc(100vh-60px)] bg-gradient-to-b from-[#0a192f] via-[#050d1a] to-[#020617] text-slate-100 flex flex-col justify-between p-5 overflow-y-auto">
@@ -394,10 +456,10 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
             {config.nombre} • {selectedMesa}
           </span>
           <h1 className="text-2xl font-black text-white font-latina-luxury tracking-wide">
-            ¡Muchas Gracias por su Preferencia!
+            {t.thankYouTitle}
           </h1>
           <p className="text-xs text-slate-300 max-w-xs mt-2 leading-relaxed">
-            Esperamos que haya disfrutado de nuestra auténtica tradición gastronómica. ¡Será un inmenso honor recibirle nuevamente en su casa!
+            {t.thankYouMessage}
           </p>
         </div>
 
@@ -406,7 +468,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
           <div className="flex items-center justify-between pb-3 border-b border-slate-800">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-              <span className="text-xs font-bold text-slate-200">Cuenta Pagada y Cerrada</span>
+              <span className="text-xs font-bold text-slate-200">{t.billPaidClosed}</span>
             </div>
             <span className="text-[10px] uppercase font-black bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 px-2.5 py-0.5 rounded-full">
               Finalizado
@@ -415,7 +477,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
 
           <div className="mt-3 space-y-1.5 text-xs text-slate-300">
             <div className="flex justify-between">
-              <span className="text-slate-400">Mesa:</span>
+              <span className="text-slate-400">{t.mesa}:</span>
               <span className="font-extrabold text-white">{selectedMesa}</span>
             </div>
             {ventaCompletada && (
@@ -431,11 +493,11 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                   <span className="font-bold text-white">{ventaCompletada.cliente || 'Cliente'}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Forma de Pago:</span>
+                  <span className="text-slate-400">{t.paymentMethod}</span>
                   <span className="font-semibold text-slate-200">{ventaCompletada.pago || 'Cancelado'}</span>
                 </div>
                 <div className="flex justify-between pt-2 border-t border-slate-800">
-                  <span className="text-sm font-black text-amber-400">Total Pagado:</span>
+                  <span className="text-sm font-black text-amber-400">{t.totalToPay}</span>
                   <span className="text-base font-black text-emerald-400">
                     S/ {(ventaCompletada.totalPEN || ventaCompletada.total || 0).toFixed(2)}
                   </span>
@@ -448,7 +510,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
         {/* Rating and Feedback */}
         <div className="bg-[#0b1b36] border border-sky-500/30 rounded-2xl p-4 shadow-xl">
           <h3 className="text-xs font-extrabold text-sky-300 uppercase tracking-wider text-center mb-2">
-            ¿Cómo fue su experiencia gastronómica?
+            {t.ratingQuestion}
           </h3>
           <div className="flex justify-center items-center gap-2 mb-3">
             {[1, 2, 3, 4, 5].map((star) => (
@@ -467,7 +529,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
             <div className="space-y-2">
               <input
                 type="text"
-                placeholder="Déjenos un comentario o felicitación (opcional)..."
+                placeholder={t.leaveCommentPlaceholder}
                 value={comentarioResena}
                 onChange={(e) => setComentarioResena(e.target.value)}
                 className="w-full text-xs bg-slate-900/80 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 outline-none focus:border-amber-400"
@@ -490,13 +552,13 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                 }}
                 className="w-full py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-xs rounded-xl shadow cursor-pointer transition-all"
               >
-                Enviar Calificación
+                {t.submitRating}
               </button>
             </div>
           ) : (
             <div className="text-center py-2 bg-emerald-950/60 border border-emerald-500/40 rounded-xl text-emerald-300 text-xs font-bold flex items-center justify-center gap-2">
               <CheckCircle2 className="w-4 h-4" />
-              <span>¡Gracias por valorar nuestro servicio!</span>
+              <span>{t.ratingSubmittedThanks}</span>
             </div>
           )}
         </div>
@@ -505,14 +567,14 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
         <div className="mt-5 pt-4 border-t border-slate-800 text-center flex flex-col items-center gap-2">
           <p className="text-[11px] text-slate-400 flex items-center justify-center gap-1.5">
             <span>🔒</span>
-            <span>Mesa bloqueada automáticamente al registrar el pago.</span>
+            <span>{t.tableLockedNotice}</span>
           </p>
           <button
             type="button"
             onClick={() => setShowUnlockModal(true)}
             className="text-[11px] font-bold text-slate-400 hover:text-amber-300 underline cursor-pointer transition-colors"
           >
-            ¿Eres el Mozo? Desbloquear para nuevos comensales
+            {t.unlockForNewGuests}
           </button>
         </div>
 
@@ -521,10 +583,10 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-[#09152b] border border-amber-500/50 rounded-2xl p-5 w-full max-w-xs shadow-2xl text-center">
               <h3 className="text-sm font-black text-amber-400 uppercase tracking-wider mb-1">
-                Desbloqueo de Mesa
+                {t.unlockTableModalTitle}
               </h3>
               <p className="text-xs text-slate-300 mb-3">
-                Ingresa la clave de acceso del mozo o administrador para liberar la {selectedMesa}:
+                {t.enterWaiterPin} ({selectedMesa}):
               </p>
               <input
                 type="password"
@@ -549,7 +611,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                   }}
                   className="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl"
                 >
-                  Cancelar
+                  {t.cancel}
                 </button>
                 <button
                   type="button"
@@ -564,14 +626,14 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                       setActiveOrder(null);
                       setShowUnlockModal(false);
                       setPinUnlock('');
-                      showToast(`✔ ${selectedMesa} desbloqueada y lista para nuevos comensales.`);
+                      showToast(`✔ ${selectedMesa} desbloqueada y lista.`);
                     } else {
-                      setErrorPinUnlock('Clave incorrecta (Use mozo123 o clave de admin)');
+                      setErrorPinUnlock(t.invalidMozoPin);
                     }
                   }}
                   className="flex-1 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 text-white font-black text-xs rounded-xl shadow"
                 >
-                  Desbloquear
+                  {t.unlock}
                 </button>
               </div>
             </div>
@@ -581,7 +643,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
     );
   }
 
-  // --- ACCESS GATE: MUST ENTER PASSWORD BEFORE OPENING MENÚ DIGITAL ---
+  // ACCESS GATE: MUST ENTER PASSWORD BEFORE OPENING MENÚ DIGITAL
   if (!isMenuUnlocked) {
     return (
       <div className="min-h-screen w-full bg-gradient-to-b from-[#0a192f] via-[#050d1a] to-[#020617] text-slate-100 flex flex-col items-center justify-center p-4">
@@ -595,10 +657,10 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
             {config.nombre}
           </span>
           <h1 className="text-xl font-black text-white font-latina-luxury mt-1">
-            Menú Digital & Salón
+            {t.lockScreenTitle}
           </h1>
           <p className="text-xs text-slate-300 mt-1 mb-4">
-            Ingreso autorizado con clave de acceso antes de abrir la carta:
+            {t.lockScreenSubtitle}
           </p>
 
           <form
@@ -619,14 +681,14 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                 setMenuAccessError('');
                 setMenuPinInput('');
               } else {
-                setMenuAccessError('⛔ Clave incorrecta. Use mozo123 o clave autorizada.');
+                setMenuAccessError(t.invalidPin);
               }
             }}
             className="w-full space-y-3 text-left"
           >
             <div>
               <label className="text-[11px] font-bold text-slate-300 uppercase block mb-1">
-                Mesa del Salón:
+                {t.diningTable}
               </label>
               <select
                 value={selectedMesa}
@@ -643,7 +705,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
 
             <div>
               <label className="text-[11px] font-bold text-slate-300 uppercase block mb-1">
-                Contraseña de Acceso (Mozo / Admin):
+                {t.accessPassword}
               </label>
               <input
                 type="password"
@@ -665,7 +727,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
               type="submit"
               className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-sm rounded-xl shadow-lg cursor-pointer active:scale-98 transition-all"
             >
-              <i className="fa-solid fa-lock-open mr-1.5"></i> Desbloquear e Ingresar al Menú
+              <i className="fa-solid fa-lock-open mr-1.5"></i> {t.unlockAndEnter}
             </button>
 
             <div className="pt-2 border-t border-slate-800 text-center">
@@ -677,7 +739,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                 }}
                 className="text-[11px] text-sky-400 hover:text-sky-300 font-bold cursor-pointer"
               >
-                👉 Ingreso directo como Comensal escaneando QR
+                {t.directGuestAccess}
               </button>
             </div>
           </form>
@@ -687,8 +749,8 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
   }
 
   return (
-    <div className="relative w-full max-w-lg mx-auto min-h-[calc(100vh-60px)] bg-[#050d1a] text-slate-100 overflow-hidden flex flex-col">
-      {/* Toast alert: CENTRADO EN LA PARTE DEL MEDIO */}
+    <div className="relative w-full max-w-lg mx-auto min-h-[calc(100vh-60px)] bg-[#050d1a] text-slate-100 overflow-hidden flex flex-col select-none">
+      {/* Toast alert: CENTRADO EN LA PARTE DEL MEDIO EXACTAMENTE */}
       {toastMessage && (
         <div className="fixed inset-0 z-[99999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 pointer-events-auto">
           <div className="w-full max-w-sm bg-gradient-to-b from-[#0f2142] via-[#09152b] to-[#071224] border-2 border-amber-400 rounded-3xl p-6 shadow-[0_0_50px_rgba(245,158,11,0.5)] text-center flex flex-col items-center gap-3 animate-in fade-in zoom-in-95 duration-200">
@@ -696,7 +758,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
               🔔
             </div>
             <h3 className="text-base font-black text-amber-400 uppercase tracking-wider font-latina-luxury">
-              La Cusqueñita
+              {t.tableNotification}
             </h3>
             <p className="text-sm font-bold text-slate-100 leading-relaxed">
               {toastMessage}
@@ -706,18 +768,62 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
               onClick={() => setToastMessage(null)}
               className="mt-2 px-6 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 text-slate-950 font-black text-xs rounded-xl shadow cursor-pointer active:scale-95 transition-all"
             >
-              Aceptar / Continuar
+              {t.acceptContinue}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* DEDO GESTUAL: ANIMATED INTERACTIVE TUTORIAL OVERLAY */}
+      {showGestureTutorial && (
+        <div
+          onClick={() => {
+            setShowGestureTutorial(false);
+            sessionStorage.setItem('cusq_tiktok_tutorial_seen', 'true');
+          }}
+          className="fixed inset-0 z-[99990] bg-black/80 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center cursor-pointer select-none animate-in fade-in duration-300"
+        >
+          {/* Animated Hand/Finger Gesture moving up and down */}
+          <div className="relative mb-6 flex flex-col items-center">
+            <div className="w-24 h-44 rounded-3xl border-2 border-dashed border-amber-400/70 flex flex-col items-center justify-between py-4 relative bg-slate-900/50 shadow-[0_0_30px_rgba(245,158,11,0.3)]">
+              <ChevronUp className="w-7 h-7 text-amber-400 animate-bounce" />
+              <div className="relative text-6xl filter drop-shadow-[0_0_20px_rgba(245,158,11,0.9)] animate-[bounce_1.5s_infinite]">
+                👆
+              </div>
+              <ChevronDown className="w-7 h-7 text-amber-400 animate-bounce" />
+            </div>
+          </div>
+
+          <div className="max-w-xs bg-slate-900/95 border-2 border-amber-400 rounded-3xl p-5 shadow-[0_0_40px_rgba(245,158,11,0.5)]">
+            <div className="inline-block px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 font-black text-xs uppercase mb-2 border border-amber-400/40">
+              {lang === 'es' ? 'Experiencia TikTok' : lang === 'en' ? 'TikTok Experience' : lang === 'fr' ? 'Expérience TikTok' : 'Experiência TikTok'}
+            </div>
+            <h3 className="text-lg font-black text-white font-latina-luxury mb-2">
+              {t.gestureHelp}
+            </h3>
+            <p className="text-xs text-slate-200 leading-relaxed mb-4">
+              {t.tiktokSwipeTutorial}
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setShowGestureTutorial(false);
+                sessionStorage.setItem('cusq_tiktok_tutorial_seen', 'true');
+              }}
+              className="w-full py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-black text-xs rounded-xl shadow-lg cursor-pointer transition-transform active:scale-95"
+            >
+              {t.tapToDismiss}
             </button>
           </div>
         </div>
       )}
 
       {/* Top Filter Bar (Reels header) */}
-      <div className="sticky top-0 z-30 w-full px-3 py-2 bg-gradient-to-b from-[#071224]/95 via-[#071224]/80 to-transparent flex flex-col gap-2">
+      <div className="sticky top-0 z-30 w-full px-3 py-2 bg-gradient-to-b from-[#071224]/95 via-[#071224]/85 to-transparent flex flex-col gap-2">
         <div className="flex items-center justify-between gap-2">
           {/* Table select pill */}
           <div className="flex items-center gap-1.5 bg-slate-900/90 border border-amber-400/40 rounded-xl px-2.5 py-1 text-xs">
-            <span className="text-[10px] uppercase font-bold text-sky-400">Mesa:</span>
+            <span className="text-[10px] uppercase font-bold text-sky-400">{t.mesa}:</span>
             <select
               value={selectedMesa}
               onChange={(e) => setSelectedMesa(e.target.value)}
@@ -738,7 +844,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
               className={`p-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all ${
                 viewMode === 'reels' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
               }`}
-              title="Modo Video Reels"
+              title={t.reelsMode}
             >
               <Film className="w-3.5 h-3.5" />
             </button>
@@ -747,11 +853,21 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
               className={`p-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all ${
                 viewMode === 'grid' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
               }`}
-              title="Modo Catálogo Cuadrícula"
+              title={t.gridMode}
             >
               <LayoutGrid className="w-3.5 h-3.5" />
             </button>
           </div>
+
+          {/* Dedo Gestual Help Button */}
+          <button
+            type="button"
+            onClick={() => setShowGestureTutorial(true)}
+            className="p-1.5 bg-slate-900/90 border border-amber-400/50 hover:border-amber-400 rounded-xl text-amber-300 text-xs flex items-center gap-1 transition-colors animate-pulse"
+            title={t.gestureHelp}
+          >
+            <span className="text-xs">👆</span>
+          </button>
 
           {/* Lock station button */}
           <button
@@ -761,7 +877,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
               setIsMenuUnlocked(false);
             }}
             className="p-1.5 bg-slate-900/90 border border-slate-700 hover:border-amber-400 rounded-xl text-slate-400 hover:text-amber-400 text-xs flex items-center gap-1 transition-colors"
-            title="Bloquear Menú con Clave"
+            title={t.lockMenu}
           >
             <i className="fa-solid fa-lock text-[11px]"></i>
           </button>
@@ -782,7 +898,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
           </div>
         </div>
 
-        {/* Category Pills */}
+        {/* Category Pills (100% translated) */}
         <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1">
           {categories.map((cat) => (
             <button
@@ -803,43 +919,43 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
         </div>
       </div>
 
-      {/* Active Order Banner if order in kitchen */}
+      {/* Active Order Banner if order in kitchen (100% translated) */}
       {activeOrder && (
         <div className="px-3 py-2 bg-gradient-to-r from-blue-900/90 via-sky-900/90 to-blue-900/90 border-y border-amber-400/50 flex items-center justify-between gap-2 text-xs">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
             <div>
               <p className="font-extrabold text-white">
-                Comanda {activeOrder.numero || activeOrder.id}:{' '}
+                {t.activeOrderTitle} ({activeOrder.numero || activeOrder.id}):{' '}
                 <span className="text-amber-300 uppercase">
                   {activeOrder.estado === 'iniciado'
-                    ? '🛎️ Recibida'
+                    ? t.statusReceived
                     : activeOrder.estado === 'cocina'
-                    ? '🍳 En Cocina'
-                    : '🍽️ Servido en Mesa'}
+                    ? t.statusInKitchen
+                    : t.statusServed}
                 </span>
               </p>
-              <p className="text-[10px] text-sky-200">Total: S/ {activeOrder.totalPEN.toFixed(2)}</p>
+              <p className="text-[10px] text-sky-200">{t.total}: S/ {activeOrder.totalPEN.toFixed(2)}</p>
             </div>
           </div>
           <div className="flex gap-1.5">
             <button
               onClick={handleLlamarMozo}
-              className="px-2 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded text-[11px] flex items-center gap-1 shadow"
+              className="px-2 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded text-[11px] flex items-center gap-1 shadow cursor-pointer"
             >
-              <HelpCircle className="w-3 h-3" /> Mozo
+              <HelpCircle className="w-3 h-3" /> {t.callWaiter}
             </button>
             <button
               onClick={handlePedirCuenta}
-              className="px-2 py-1 bg-purple-600 hover:bg-purple-500 text-white font-black rounded text-[11px] flex items-center gap-1 shadow"
+              className="px-2 py-1 bg-purple-600 hover:bg-purple-500 text-white font-black rounded text-[11px] flex items-center gap-1 shadow cursor-pointer"
             >
-              <Receipt className="w-3 h-3" /> Cuenta
+              <Receipt className="w-3 h-3" /> {t.requestBill}
             </button>
           </div>
         </div>
       )}
 
-      {/* MAIN VIEW: REELS OR GRID */}
+      {/* MAIN VIEW: TIKTOK REELS OR GRID */}
       {viewMode === 'reels' ? (
         <div
           className="relative flex-1 w-full h-[calc(100vh-170px)] bg-black overflow-hidden flex flex-col justify-end select-none cursor-grab active:cursor-grabbing touch-none"
@@ -852,9 +968,12 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
           {currentDish ? (
             <>
               {/* Swipe Guide Indicator */}
-              <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 pointer-events-none flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950/80 border border-amber-400/50 text-[10px] text-amber-300 font-extrabold shadow-lg backdrop-blur-sm animate-pulse">
-                <i className="fa-solid fa-arrows-up-down text-amber-400"></i>
-                <span>Desliza arriba o abajo con tu dedo</span>
+              <div 
+                onClick={() => setShowGestureTutorial(true)}
+                className="absolute top-3 left-1/2 -translate-x-1/2 z-20 cursor-pointer flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950/80 border border-amber-400/50 text-[10px] text-amber-300 font-extrabold shadow-lg backdrop-blur-sm animate-pulse"
+              >
+                <span>👆</span>
+                <span>{t.tiktokSwipeHint}</span>
               </div>
 
               {/* Video Player */}
@@ -871,39 +990,120 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                 onClick={togglePlay}
               />
 
-              {/* Gradient Overlay */}
+              {/* Gradient Overlay for high readability */}
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-slate-950/40 pointer-events-none" />
 
-              {/* Right Side Video Controls */}
-              <div className="absolute right-3 bottom-28 z-20 flex flex-col items-center gap-3">
+              {/* TIKTOK FLOATING ACTION COLUMN ON RIGHT */}
+              <div className="absolute right-3 bottom-24 z-20 flex flex-col items-center gap-3.5">
+                {/* 1. Restaurant Avatar with Follow "+" badge */}
+                <div className="relative mb-1">
+                  <div className="w-11 h-11 rounded-full p-0.5 bg-gradient-to-tr from-amber-400 to-amber-200 border border-white shadow-xl flex items-center justify-center text-lg bg-[#071224]">
+                    {config.logo || '🏺'}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsFollowing(!isFollowing)}
+                    className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full flex items-center justify-center text-[10px] text-white font-black shadow transition-all ${
+                      isFollowing ? 'bg-emerald-500' : 'bg-red-500 hover:scale-110'
+                    }`}
+                  >
+                    {isFollowing ? <Check className="w-2.5 h-2.5" /> : <Plus className="w-3 h-3" />}
+                  </button>
+                </div>
+
+                {/* 2. TikTok Heart / Like Button with Counter */}
+                <div className="flex flex-col items-center">
+                  <button
+                    type="button"
+                    onClick={(e) => handleToggleLike(currentDish.id, e)}
+                    className="w-10 h-10 rounded-full bg-slate-900/80 border border-white/20 flex items-center justify-center backdrop-blur shadow-lg active:scale-125 transition-transform cursor-pointer"
+                    title="Me gusta"
+                  >
+                    <Heart
+                      className={`w-5 h-5 transition-colors ${
+                        hasLikedMap[currentDish.id]
+                          ? 'text-red-500 fill-red-500 animate-pulse'
+                          : 'text-white hover:text-red-400'
+                      }`}
+                    />
+                  </button>
+                  <span className="text-[10px] font-black text-white drop-shadow mt-0.5">
+                    {likesMap[currentDish.id] !== undefined ? likesMap[currentDish.id] : t.likes}
+                  </span>
+                </div>
+
+                {/* 3. TikTok Comment Bubble */}
+                <div className="flex flex-col items-center">
+                  <button
+                    type="button"
+                    onClick={() => setShowReviewsModal(true)}
+                    className="w-10 h-10 rounded-full bg-slate-900/80 border border-white/20 text-white flex items-center justify-center backdrop-blur shadow-lg active:scale-110 transition-transform cursor-pointer"
+                    title="Reseñas"
+                  >
+                    <MessageCircle className="w-5 h-5" />
+                  </button>
+                  <span className="text-[10px] font-black text-white drop-shadow mt-0.5">
+                    {t.reviews}
+                  </span>
+                </div>
+
+                {/* 4. Share Button */}
+                <div className="flex flex-col items-center">
+                  <button
+                    type="button"
+                    onClick={(e) => handleShareDish(currentDish, e)}
+                    className="w-10 h-10 rounded-full bg-slate-900/80 border border-white/20 text-white flex items-center justify-center backdrop-blur shadow-lg active:scale-110 transition-transform cursor-pointer"
+                    title={t.share}
+                  >
+                    <Share2 className="w-5 h-5" />
+                  </button>
+                  <span className="text-[10px] font-black text-white drop-shadow mt-0.5">
+                    {t.share}
+                  </span>
+                </div>
+
+                {/* 5. Sound / Audio Mute Toggle */}
                 <button
+                  type="button"
                   onClick={toggleMute}
-                  className="w-10 h-10 rounded-full bg-slate-900/80 border border-amber-400/40 text-amber-300 flex items-center justify-center backdrop-blur shadow-lg active:scale-95"
-                  title={isMuted ? 'Activar Sonido' : 'Silenciar'}
+                  className="w-9 h-9 rounded-full bg-slate-900/80 border border-amber-400/40 text-amber-300 flex items-center justify-center backdrop-blur shadow-lg active:scale-95 cursor-pointer"
+                  title={isMuted ? t.unmute : t.mute}
                 >
-                  {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5 text-emerald-400" />}
+                  {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-emerald-400" />}
                 </button>
 
-                <button
-                  onClick={togglePlay}
-                  className="w-10 h-10 rounded-full bg-slate-900/80 border border-sky-400/40 text-sky-300 flex items-center justify-center backdrop-blur shadow-lg active:scale-95"
-                  title={isPlaying ? 'Pausar' : 'Reproducir'}
-                >
-                  {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
-                </button>
+                {/* 6. Spinning Vinyl Record (TikTok Disc) */}
+                <div className="relative flex items-center justify-center mt-1">
+                  <div
+                    onClick={togglePlay}
+                    className={`w-10 h-10 rounded-full bg-gradient-to-tr from-slate-900 via-slate-800 to-slate-950 border-2 border-slate-700 p-1 shadow-2xl flex items-center justify-center cursor-pointer ${
+                      isPlaying ? 'animate-[spin_4s_linear_infinite]' : ''
+                    }`}
+                  >
+                    <div className="w-full h-full rounded-full overflow-hidden bg-cover bg-center border border-amber-400/60 flex items-center justify-center text-[10px] bg-amber-950">
+                      {config.logo || '🏺'}
+                    </div>
+                  </div>
+                  {isPlaying && (
+                    <span className="absolute -top-2 -left-2 text-[10px] text-amber-300 animate-bounce pointer-events-none">
+                      🎵
+                    </span>
+                  )}
+                </div>
 
-                <div className="flex flex-col gap-1.5 mt-2">
+                {/* Up/Down Quick Navigation buttons */}
+                <div className="flex flex-col gap-1 mt-1">
                   <button
                     onClick={handlePrevSlide}
-                    className="w-8 h-8 rounded-full bg-slate-900/70 text-white flex items-center justify-center hover:bg-slate-800"
-                    title="Plato anterior"
+                    className="w-7 h-7 rounded-full bg-slate-900/70 text-white flex items-center justify-center hover:bg-slate-800 cursor-pointer"
+                    title={t.previousDish}
                   >
                     <ChevronUp className="w-4 h-4" />
                   </button>
                   <button
                     onClick={handleNextSlide}
-                    className="w-8 h-8 rounded-full bg-slate-900/70 text-white flex items-center justify-center hover:bg-slate-800"
-                    title="Siguiente plato"
+                    className="w-7 h-7 rounded-full bg-slate-900/70 text-white flex items-center justify-center hover:bg-slate-800 cursor-pointer"
+                    title={t.nextDish}
                   >
                     <ChevronDown className="w-4 h-4" />
                   </button>
@@ -915,11 +1115,19 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                 {currentSlideIndex + 1} / {filteredDishes.length}
               </div>
 
-              {/* Bottom Dish Information */}
-              <div className="relative z-20 px-4 pb-20 pt-4 w-full">
-                <span className="inline-block px-2 py-0.5 mb-1.5 text-[10px] font-black uppercase tracking-wider rounded-md bg-blue-600/80 border border-amber-400 text-amber-300 shadow">
-                  {currentDish.category}
-                </span>
+              {/* Bottom Dish Information (TikTok metadata overlay) */}
+              <div className="relative z-20 px-4 pb-20 pt-4 w-[78%]">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <span className="text-xs font-black text-white flex items-center gap-1 drop-shadow">
+                    @{config.nombre.toLowerCase().replace(/\s+/g, '')}
+                    <span className="w-3.5 h-3.5 rounded-full bg-sky-400 text-slate-950 flex items-center justify-center text-[9px] font-black">
+                      ✓
+                    </span>
+                  </span>
+                  <span className="inline-block px-2 py-0.5 text-[9px] font-black uppercase tracking-wider rounded bg-blue-600/80 border border-amber-400 text-amber-300 shadow">
+                    {categories.find((c) => c.id === currentDish.category)?.label || currentDish.category}
+                  </span>
+                </div>
 
                 <h2 className="text-xl sm:text-2xl font-black text-white leading-tight font-latina-luxury drop-shadow-md">
                   {currentDish?.i18n?.[lang]?.name || currentDish?.i18n?.es?.name || (currentDish as any)?.nombre || 'Plato'}
@@ -929,7 +1137,13 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                   {currentDish?.i18n?.[lang]?.desc || currentDish?.i18n?.es?.desc || (currentDish as any)?.descripcion || ''}
                 </p>
 
-                <div className="flex items-center justify-between mt-3">
+                {/* Sound Marquee */}
+                <div className="flex items-center gap-1.5 text-[11px] text-amber-300 font-bold mt-1.5 drop-shadow">
+                  <span>🎵</span>
+                  <span className="truncate">Sonido original - {config.nombre} Gourmet Cusco</span>
+                </div>
+
+                <div className="flex items-center justify-between mt-3 gap-2">
                   <div className="flex items-baseline gap-2">
                     <span className="text-2xl font-black text-amber-400 drop-shadow">
                       S/ {currentDish.precioPEN.toFixed(2)}
@@ -941,10 +1155,10 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
 
                   <button
                     onClick={(e) => addToCart(currentDish, e)}
-                    className="px-5 py-2.5 rounded-full bg-gradient-to-r from-red-500 to-rose-600 text-white font-extrabold text-sm flex items-center gap-2 shadow-[0_4px_16px_rgba(239,68,68,0.5)] border border-rose-300 active:scale-95 transition-transform"
+                    className="px-4 py-2 rounded-full bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white font-black text-xs flex items-center gap-1.5 shadow-[0_4px_16px_rgba(239,68,68,0.6)] border border-rose-300 active:scale-95 transition-transform cursor-pointer"
                   >
                     <Plus className="w-4 h-4" />
-                    <span>Agregar al Pedido</span>
+                    <span>{t.addToOrder}</span>
                   </button>
                 </div>
               </div>
@@ -970,8 +1184,15 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/75 border border-amber-400 text-[9px] font-black uppercase text-amber-300">
-                  {prod.category}
+                  {categories.find((c) => c.id === prod.category)?.label || prod.category}
                 </span>
+                <button
+                  type="button"
+                  onClick={(e) => handleToggleLike(prod.id, e)}
+                  className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 flex items-center justify-center text-white cursor-pointer"
+                >
+                  <Heart className={`w-3.5 h-3.5 ${hasLikedMap[prod.id] ? 'text-red-500 fill-red-500' : 'text-white'}`} />
+                </button>
               </div>
 
               <div className="p-3 flex flex-col flex-1 justify-between gap-2">
@@ -992,8 +1213,8 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                   </div>
                   <button
                     onClick={() => addToCart(prod)}
-                    className="p-2 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 text-white font-black text-xs flex items-center justify-center hover:shadow-[0_0_10px_rgba(2,132,199,0.5)] active:scale-90"
-                    title="Agregar"
+                    className="p-2 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 text-white font-black text-xs flex items-center justify-center hover:shadow-[0_0_10px_rgba(2,132,199,0.5)] active:scale-90 cursor-pointer"
+                    title={t.addToOrder}
                   >
                     <Plus className="w-4 h-4" />
                   </button>
@@ -1008,10 +1229,10 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
       <div className="fixed bottom-4 right-4 sm:right-6 z-40 flex items-center gap-2">
         <button
           onClick={() => setIsCartOpen(true)}
-          className="relative px-4 py-3 rounded-full bg-gradient-to-r from-blue-600 to-sky-500 border-2 border-amber-400 shadow-[0_6px_25px_rgba(0,86,210,0.6)] flex items-center gap-2.5 text-white font-black text-sm active:scale-95 transition-transform"
+          className="relative px-4 py-3 rounded-full bg-gradient-to-r from-blue-600 to-sky-500 border-2 border-amber-400 shadow-[0_6px_25px_rgba(0,86,210,0.6)] flex items-center gap-2.5 text-white font-black text-sm active:scale-95 transition-transform cursor-pointer"
         >
           <ShoppingBag className="w-5 h-5 text-amber-300" />
-          <span>Ver Comanda</span>
+          <span>{t.viewOrder}</span>
           {totalItemsCount > 0 && (
             <span className="px-2 py-0.5 rounded-full bg-red-600 text-white text-xs font-black">
               {totalItemsCount}
@@ -1023,7 +1244,42 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
         </button>
       </div>
 
-      {/* CART & ORDERING MODAL DRAWER */}
+      {/* REVIEWS DRAWER MODAL (TikTok Comments) */}
+      {showReviewsModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end justify-center p-0">
+          <div className="w-full max-w-lg max-h-[75vh] bg-[#09152b] border-t-2 border-amber-400 rounded-t-3xl p-5 flex flex-col shadow-2xl text-slate-100 overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <h3 className="text-sm font-black text-amber-400 uppercase tracking-wider flex items-center gap-2 font-latina-luxury">
+                <MessageCircle className="w-4 h-4" /> Comentarios & Valoraciones
+              </h3>
+              <button
+                onClick={() => setShowReviewsModal(false)}
+                className="w-7 h-7 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="my-3 space-y-2.5">
+              <div className="p-3 bg-slate-900/80 border border-slate-800 rounded-xl">
+                <div className="flex justify-between items-center text-xs mb-1">
+                  <span className="font-bold text-white">Luciana Ramos ⭐⭐⭐⭐⭐</span>
+                  <span className="text-[10px] text-slate-400">Hace 15 min</span>
+                </div>
+                <p className="text-xs text-slate-300">¡El mejor sabor andino de Cusco! La sazón es auténtica y la presentación insuperable.</p>
+              </div>
+              <div className="p-3 bg-slate-900/80 border border-slate-800 rounded-xl">
+                <div className="flex justify-between items-center text-xs mb-1">
+                  <span className="font-bold text-white">Michael Smith ⭐⭐⭐⭐⭐</span>
+                  <span className="text-[10px] text-slate-400">Hace 1 hora</span>
+                </div>
+                <p className="text-xs text-slate-300">Amazing experience! The meat was juicy, tender and cooked to perfection.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CART & ORDERING MODAL DRAWER (100% translated) */}
       {isCartOpen && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="w-full max-w-lg max-h-[90vh] bg-slate-900 border-t-4 sm:border-2 border-blue-600 sm:border-amber-400 rounded-t-3xl sm:rounded-2xl p-4 sm:p-5 flex flex-col shadow-2xl text-slate-100 overflow-y-auto">
@@ -1031,13 +1287,13 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
             <div className="flex items-center justify-between pb-3 border-b border-slate-700/80">
               <div>
                 <h3 className="text-base sm:text-lg font-black uppercase text-amber-400 font-latina-luxury flex items-center gap-2">
-                  <ShoppingBag className="w-5 h-5 text-amber-400" /> Tu Comanda Digital
+                  <ShoppingBag className="w-5 h-5 text-amber-400" /> {t.yourOrder}
                 </h3>
-                <span className="text-xs text-sky-300 font-bold">Mesa seleccionada: {selectedMesa}</span>
+                <span className="text-xs text-sky-300 font-bold">{t.mesa}: {selectedMesa}</span>
               </div>
               <button
                 onClick={() => setIsCartOpen(false)}
-                className="w-8 h-8 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center hover:text-white"
+                className="w-8 h-8 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center hover:text-white cursor-pointer"
               >
                 ✕
               </button>
@@ -1047,8 +1303,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
             <div className="my-3 flex flex-col gap-2.5 max-h-48 overflow-y-auto pr-1">
               {cart.length === 0 ? (
                 <div className="py-8 text-center text-slate-400 text-xs">
-                  <p>No has agregado ningún plato aún.</p>
-                  <p className="text-[11px] text-slate-500 mt-1">Explora el menú y pulsa "Agregar al Pedido".</p>
+                  <p>{t.cartEmpty}</p>
                 </div>
               ) : (
                 cart.map((item) => (
@@ -1070,7 +1325,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                       <div className="flex items-center gap-2 bg-slate-900 px-2 py-1 rounded-lg border border-slate-700">
                         <button
                           onClick={() => updateCartQty(item.producto.id, -1)}
-                          className="w-5 h-5 flex items-center justify-center text-slate-300 hover:text-red-400 font-black"
+                          className="w-5 h-5 flex items-center justify-center text-slate-300 hover:text-red-400 font-black cursor-pointer"
                         >
                           <Minus className="w-3 h-3" />
                         </button>
@@ -1079,7 +1334,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                         </span>
                         <button
                           onClick={() => updateCartQty(item.producto.id, 1)}
-                          className="w-5 h-5 flex items-center justify-center text-slate-300 hover:text-emerald-400 font-black"
+                          className="w-5 h-5 flex items-center justify-center text-slate-300 hover:text-emerald-400 font-black cursor-pointer"
                         >
                           <Plus className="w-3 h-3" />
                         </button>
@@ -1093,7 +1348,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                     {/* Dish notes */}
                     <input
                       type="text"
-                      placeholder="Nota especial (ej. sin cebolla, término medio...)"
+                      placeholder={t.specialNotes}
                       value={item.notas || ''}
                       onChange={(e) => updateItemNote(item.producto.id, e.target.value)}
                       className="w-full text-[11px] bg-slate-900/90 border border-slate-700/80 rounded px-2 py-1 text-slate-200 outline-none"
@@ -1106,7 +1361,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
             {/* Customer Details & Socio Lookup */}
             <div className="pt-2 border-t border-slate-700/80 flex flex-col gap-2">
               <label className="text-[10px] font-black uppercase text-sky-400 tracking-wider">
-                Datos del Comensal & Club de Recompensas
+                {t.yourNameOptional}
               </label>
 
               <div className="flex gap-2">
@@ -1122,10 +1377,10 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                   type="button"
                   onClick={handleBuscarSocio}
                   disabled={isSearchingDni}
-                  className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5 disabled:opacity-50 shrink-0"
+                  className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5 disabled:opacity-50 shrink-0 cursor-pointer"
                 >
                   <Search className="w-3 h-3" />
-                  {isSearchingDni ? 'Buscando...' : 'Validar'}
+                  {isSearchingDni ? '...' : 'DNI'}
                 </button>
               </div>
 
@@ -1137,7 +1392,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
 
               <input
                 type="text"
-                placeholder="Nombre completo del cliente"
+                placeholder={t.yourNameOptional}
                 value={clienteNombre}
                 onChange={(e) => setClienteNombre(e.target.value)}
                 className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none"
@@ -1147,21 +1402,25 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
             {/* Payment Method Selector */}
             <div className="mt-3">
               <label className="text-[10px] font-black uppercase text-sky-400 tracking-wider block mb-1.5">
-                Método de Pago Preferido
+                {t.paymentMethod}
               </label>
-              <div className="grid grid-cols-4 gap-1.5">
-                {['Efectivo', 'Yape', 'Plin', 'Tarjeta POS'].map((metodo) => (
+              <div className="grid grid-cols-3 gap-1.5">
+                {[
+                  { id: 'Efectivo', label: t.cash },
+                  { id: 'Tarjeta POS', label: t.posCard },
+                  { id: 'Yape / Plin', label: t.digitalWallet },
+                ].map((met) => (
                   <button
-                    key={metodo}
+                    key={met.id}
                     type="button"
-                    onClick={() => setMetodoPago(metodo)}
-                    className={`py-1.5 rounded-lg text-xs font-bold transition-all ${
-                      metodoPago === metodo
+                    onClick={() => setMetodoPago(met.id)}
+                    className={`py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      metodoPago === met.id
                         ? 'bg-blue-600 text-white border border-amber-400 shadow'
                         : 'bg-slate-800 text-slate-300 border border-slate-700 hover:text-white'
                     }`}
                   >
-                    {metodo}
+                    {met.label}
                   </button>
                 ))}
               </div>
@@ -1171,7 +1430,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
             {metodoPago === 'Efectivo' && (
               <div className="mt-2.5 p-2.5 bg-slate-800/60 border border-amber-400/30 rounded-xl">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-300 font-bold">¿Con cuánto pagas?</span>
+                  <span className="text-slate-300 font-bold">{t.cashGivenQuestion}</span>
                   <input
                     type="number"
                     placeholder="S/ 0.00"
@@ -1187,7 +1446,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                       key={monto}
                       type="button"
                       onClick={() => setEfectivoEntregado(monto.toString())}
-                      className="px-2 py-0.5 bg-slate-900 hover:bg-slate-700 border border-slate-600 rounded text-[11px] font-bold text-sky-300"
+                      className="px-2 py-0.5 bg-slate-900 hover:bg-slate-700 border border-slate-600 rounded text-[11px] font-bold text-sky-300 cursor-pointer"
                     >
                       S/ {monto}
                     </button>
@@ -1195,7 +1454,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                 </div>
                 {cashNum > 0 && (
                   <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-slate-700 text-xs font-black">
-                    <span className="text-slate-300">Tu vuelto estimado:</span>
+                    <span className="text-slate-300">{t.estimatedChange}</span>
                     <span className={`text-sm ${vuelto >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                       S/ {vuelto.toFixed(2)}
                     </span>
@@ -1206,7 +1465,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
 
             {/* Totals Summary */}
             <div className="mt-4 pt-3 border-t border-slate-700 flex items-baseline justify-between">
-              <span className="text-sm font-extrabold uppercase text-slate-300">Total a Pagar:</span>
+              <span className="text-sm font-extrabold uppercase text-slate-300">{t.totalToPay}</span>
               <div className="text-right">
                 <span className="text-2xl font-black text-amber-400 font-latina-luxury">
                   S/ {cartTotalPEN.toFixed(2)}
@@ -1226,25 +1485,25 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                 className="w-full py-3 rounded-2xl bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 disabled:opacity-50 text-white font-black text-sm flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(239,68,68,0.4)] border border-rose-300 cursor-pointer active:scale-98 transition-transform"
               >
                 <Send className="w-4 h-4" />
-                <span>Enviar Comanda a Cocina</span>
+                <span>{t.sendOrderToKitchen}</span>
               </button>
 
               <div className="grid grid-cols-2 gap-2 mt-1">
                 <button
                   type="button"
                   onClick={handlePedirCuenta}
-                  className="py-2.5 rounded-xl bg-purple-700 hover:bg-purple-600 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 shadow"
+                  className="py-2.5 rounded-xl bg-purple-700 hover:bg-purple-600 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 shadow cursor-pointer"
                 >
                   <Receipt className="w-3.5 h-3.5" />
-                  <span>Pedir la Cuenta</span>
+                  <span>{t.requestBill}</span>
                 </button>
                 <button
                   type="button"
                   onClick={handleLlamarMozo}
-                  className="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-extrabold text-xs flex items-center justify-center gap-1.5"
+                  className="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <HelpCircle className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Llamar al Mozo</span>
+                  <span>{t.callWaiter}</span>
                 </button>
               </div>
             </div>
