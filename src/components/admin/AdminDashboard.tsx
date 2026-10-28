@@ -19,10 +19,12 @@ import {
 import { storage } from '../../services/storage';
 import { consultarDNI, consultarRUC, emitirComprobanteElectronico } from '../../services/sunatApi';
 import { ErpSubmodules } from './ErpSubmodules';
+import { ClubSocios } from '../club/ClubSocios';
+import { FacturaTicket } from '../factura/FacturaTicket';
 
 interface AdminDashboardProps {
   config: ConfigRestaurante;
-  onNavigateToFactura: () => void;
+  onNavigateToFactura?: () => void;
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNavigateToFactura }) => {
@@ -68,17 +70,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
     return () => clearInterval(timer);
   }, []);
 
-  // Close dropdown on outside click
-  useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (!target.closest('.usqay-menu-container')) {
-        setTopDropdownOpen(null);
-      }
-    };
-    window.addEventListener('click', handleOutsideClick);
-    return () => window.removeEventListener('click', handleOutsideClick);
-  }, []);
+
 
   // Vault security locks (Master Password: 42423549)
   const PASSWORD_MAESTRA = '42423549';
@@ -264,6 +256,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
   // Select Nav Option
   const handleNavClick = (sectionId: string) => {
     setCurrentSection(sectionId);
+    setTopDropdownOpen(null);
     if (window.innerWidth <= 860) setIsMobileMenuOpen(false);
   };
 
@@ -365,7 +358,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
 
       setComandaCobrando(null);
       alert(`✔ Venta cobrada con éxito: ${cobroTipo} N° ${numero}`);
-      onNavigateToFactura();
+      setCurrentSection('factura');
+      if (onNavigateToFactura) onNavigateToFactura();
     } catch {
       alert('Error al cobrar la venta.');
     }
@@ -561,9 +555,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
 
   // Active check if currently in an ERP submodule view
   const isErpModuleActive = [
-    'recetas', 'insumos', 'guias_ingreso', 'guias_salida', 'transferencias', 'compras', 'proveedores', 'unidades', 'tipos_insumo', 'almacenes', 'kardex_resumen', 'kardex_diario', 'kardex_detallado', 'consolidado_stocks',
-    'tipos_platos', 'stock_platos', 'tipos_menu', 'estructura_menu', 'arma_menu', 'platos_amarrados', 'impresion', 'cuentas_pendientes', 'facturacion_pers', 'notas_electronicas', 'reporte_ventas', 'reporte_boletas', 'reporte_facturas', 'reporte_consumos', 'reporte_clientes',
-    'administrar_personal',
+    'recetas', 'insumos', 'guias_ingreso', 'guias_salida', 'transferencias', 'transferencia', 'compras', 'proveedores', 'unidades', 'tipos_insumo', 'almacenes', 'kardex_resumen', 'kardex_diario', 'kardex_detallado', 'consolidado_stocks',
+    'tipos_platos', 'stock_platos', 'stock_manual', 'tipos_menu', 'estructura_menu', 'arma_menu', 'platos_amarrados', 'impresion', 'cuentas_pendientes', 'facturacion_pers', 'notas_electronicas', 'reporte_ventas', 'reporte_boletas', 'reporte_facturas', 'reporte_consumos', 'reporte_clientes',
+    'administrar_personal', 'personal',
     'total_ventas_mes', 'platos_mayor_rotacion', 'rendimiento_platos', 'stock_platos_rep', 'consolidado_ventas', 'ventas_trabajador', 'reporte_ventas_tipo', 'consumo_persona', 'pedidos_anulados', 'consolidado_caja', 'ventas_vs_compras',
     'cierre_diario', 'monto_inicial', 'ingresos_salidas_dinero', 'reporte_ingresos_salidas', 'reporte_fondos_externos', 'reporte_ingresos_egresos', 'reporte_medios_pago', 'reporte_propinas',
     'series_correlativos', 'metodos_pago', 'ayuda'
@@ -618,9 +612,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
         </div>
 
         {/* Center: Dropdown Menus */}
-        <nav className="usqay-nav-menus">
+        <nav className="usqay-nav-menus relative">
           {/* 1. ALMACÉN */}
-          <div className="usqay-menu-container">
+          <div
+            className="usqay-menu-container"
+            onMouseEnter={() => setTopDropdownOpen('almacen')}
+            onMouseLeave={() => setTopDropdownOpen(null)}
+          >
             <button
               type="button"
               className={`usqay-menu-trigger ${topDropdownOpen === 'almacen' ? 'active' : ''}`}
@@ -635,27 +633,31 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
             </button>
             {topDropdownOpen === 'almacen' && (
               <div className="usqay-dropdown-menu">
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('recetas'); setTopDropdownOpen(null); }}>Recetas</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('insumos'); setTopDropdownOpen(null); }}>Insumos</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('guias_ingreso'); setTopDropdownOpen(null); }}>Guías de Ingreso</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('guias_salida'); setTopDropdownOpen(null); }}>Guías de Salida</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('transferencias'); setTopDropdownOpen(null); }}>Transferencia de Almacén</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('compras'); setTopDropdownOpen(null); }}>Compras</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('proveedores'); setTopDropdownOpen(null); }}>Proveedores</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('unidades'); setTopDropdownOpen(null); }}>Unidades</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('tipos_insumo'); setTopDropdownOpen(null); }}>Tipos de Insumo</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('almacenes'); setTopDropdownOpen(null); }}>Almacenes</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('recetas')}>Recetas</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('insumos')}>Insumos</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('guias_ingreso')}>Guías de Ingreso</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('guias_salida')}>Guías de Salida</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('transferencias')}>Transferencia de Almacén</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('compras')}>Compras</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('proveedores')}>Proveedores</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('unidades')}>Unidades</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('tipos_insumo')}>Tipos de Insumo</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('almacenes')}>Almacenes</button>
                 <div className="usqay-dropdown-divider"></div>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('kardex_resumen'); setTopDropdownOpen(null); }}>Kardex Resumen</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('kardex_diario'); setTopDropdownOpen(null); }}>Kardex Seguimiento Diario</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('kardex_detallado'); setTopDropdownOpen(null); }}>Kardex Seguimiento Detallado</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('consolidado_stocks'); setTopDropdownOpen(null); }}>Consolidado Stocks</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('kardex_resumen')}>Kardex Resumen</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('kardex_diario')}>Kardex Seguimiento Diario</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('kardex_detallado')}>Kardex Seguimiento Detallado</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('consolidado_stocks')}>Consolidado Stocks</button>
               </div>
             )}
           </div>
 
           {/* 2. VENTAS */}
-          <div className="usqay-menu-container">
+          <div
+            className="usqay-menu-container"
+            onMouseEnter={() => setTopDropdownOpen('ventas')}
+            onMouseLeave={() => setTopDropdownOpen(null)}
+          >
             <button
               type="button"
               className={`usqay-menu-trigger ${topDropdownOpen === 'ventas' ? 'active' : ''}`}
@@ -670,29 +672,33 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
             </button>
             {topDropdownOpen === 'ventas' && (
               <div className="usqay-dropdown-menu">
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('platos'); setTopDropdownOpen(null); }}>Platos</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('tipos_platos'); setTopDropdownOpen(null); }}>Tipos de Platos</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('stock_platos'); setTopDropdownOpen(null); }}>Stock Manual Platos</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('tipos_menu'); setTopDropdownOpen(null); }}>Tipos de Menú</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('estructura_menu'); setTopDropdownOpen(null); }}>Estructura de Menú</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('arma_menu'); setTopDropdownOpen(null); }}>Arma tu Menú</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('platos_amarrados'); setTopDropdownOpen(null); }}>Platos Amarrados</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('impresion'); setTopDropdownOpen(null); }}>Impresión por Pantalla</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('cuentas_pendientes'); setTopDropdownOpen(null); }}>Cuentas Pendientes</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('facturacion_pers'); setTopDropdownOpen(null); }}>Facturación Personalizada</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('notas_electronicas'); setTopDropdownOpen(null); }}>Notas Electrónicas</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('platos')}>Platos</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('tipos_platos')}>Tipos de Platos</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('stock_platos')}>Stock Manual Platos</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('tipos_menu')}>Tipos de Menú</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('estructura_menu')}>Estructura de Menú</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('arma_menu')}>Arma tu Menú</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('platos_amarrados')}>Platos Amarrados</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('impresion')}>Impresión por Pantalla</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('cuentas_pendientes')}>Cuentas Pendientes</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('facturacion_pers')}>Facturación Personalizada</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('notas_electronicas')}>Notas Electrónicas</button>
                 <div className="usqay-dropdown-divider"></div>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('reporte_ventas'); setTopDropdownOpen(null); }}>Reporte de Ventas</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('reporte_boletas'); setTopDropdownOpen(null); }}>Reporte de Boletas</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('reporte_facturas'); setTopDropdownOpen(null); }}>Reporte de Facturas</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('reporte_consumos'); setTopDropdownOpen(null); }}>Reporte Consumos</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('reporte_clientes'); setTopDropdownOpen(null); }}>Reporte Clientes</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('reporte_ventas')}>Reporte de Ventas</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('reporte_boletas')}>Reporte de Boletas</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('reporte_facturas')}>Reporte de Facturas</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('reporte_consumos')}>Reporte Consumos</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('reporte_clientes')}>Reporte Clientes</button>
               </div>
             )}
           </div>
 
           {/* 3. PERSONAL */}
-          <div className="usqay-menu-container">
+          <div
+            className="usqay-menu-container"
+            onMouseEnter={() => setTopDropdownOpen('personal')}
+            onMouseLeave={() => setTopDropdownOpen(null)}
+          >
             <button
               type="button"
               className={`usqay-menu-trigger ${topDropdownOpen === 'personal' ? 'active' : ''}`}
@@ -707,13 +713,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
             </button>
             {topDropdownOpen === 'personal' && (
               <div className="usqay-dropdown-menu">
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('administrar_personal'); setTopDropdownOpen(null); }}>Administrar Personal</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('administrar_personal')}>Administrar Personal</button>
               </div>
             )}
           </div>
 
           {/* 4. REPORTES */}
-          <div className="usqay-menu-container">
+          <div
+            className="usqay-menu-container"
+            onMouseEnter={() => setTopDropdownOpen('reportes')}
+            onMouseLeave={() => setTopDropdownOpen(null)}
+          >
             <button
               type="button"
               className={`usqay-menu-trigger ${topDropdownOpen === 'reportes' ? 'active' : ''}`}
@@ -728,23 +738,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
             </button>
             {topDropdownOpen === 'reportes' && (
               <div className="usqay-dropdown-menu">
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('total_ventas_mes'); setTopDropdownOpen(null); }}>Total Ventas por Mes</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('platos_mayor_rotacion'); setTopDropdownOpen(null); }}>Platos con mayor rotación</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('rendimiento_platos'); setTopDropdownOpen(null); }}>Rendimiento de Platos</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('stock_platos_rep'); setTopDropdownOpen(null); }}>Stock de Platos</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('consolidado_ventas'); setTopDropdownOpen(null); }}>Consolidado de Ventas</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('ventas_trabajador'); setTopDropdownOpen(null); }}>Ventas por Trabajador</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('reporte_ventas_tipo'); setTopDropdownOpen(null); }}>Reporte de Ventas (por tipo)</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('consumo_persona'); setTopDropdownOpen(null); }}>Consumo por Persona</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('pedidos_anulados'); setTopDropdownOpen(null); }}>Pedidos Anulados</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('consolidado_caja'); setTopDropdownOpen(null); }}>Consolidado Caja</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('ventas_vs_compras'); setTopDropdownOpen(null); }}>Ventas vs Compras</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('total_ventas_mes')}>Total Ventas por Mes</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('platos_mayor_rotacion')}>Platos con mayor rotación</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('rendimiento_platos')}>Rendimiento de Platos</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('stock_platos_rep')}>Stock de Platos</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('consolidado_ventas')}>Consolidado de Ventas</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('ventas_trabajador')}>Ventas por Trabajador</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('reporte_ventas_tipo')}>Reporte de Ventas (por tipo)</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('consumo_persona')}>Consumo por Persona</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('pedidos_anulados')}>Pedidos Anulados</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('consolidado_caja')}>Consolidado Caja</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('ventas_vs_compras')}>Ventas vs Compras</button>
               </div>
             )}
           </div>
 
           {/* 5. $ CAJA */}
-          <div className="usqay-menu-container">
+          <div
+            className="usqay-menu-container"
+            onMouseEnter={() => setTopDropdownOpen('caja')}
+            onMouseLeave={() => setTopDropdownOpen(null)}
+          >
             <button
               type="button"
               className={`usqay-menu-trigger ${topDropdownOpen === 'caja' ? 'active' : ''}`}
@@ -759,21 +773,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
             </button>
             {topDropdownOpen === 'caja' && (
               <div className="usqay-dropdown-menu">
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('cierre_diario'); setTopDropdownOpen(null); }}>Cierre Diario</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('monto_inicial'); setTopDropdownOpen(null); }}>Monto Inicial</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('ingresos_salidas_dinero'); setTopDropdownOpen(null); }}>Ingresos o Salidas de dinero</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('cierre_diario')}>Cierre Diario</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('monto_inicial')}>Monto Inicial</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('ingresos_salidas_dinero')}>Ingresos o Salidas de dinero</button>
                 <div className="usqay-dropdown-divider"></div>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('reporte_ingresos_salidas'); setTopDropdownOpen(null); }}>Reporte de Ingresos y Salidas de dinero</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('reporte_fondos_externos'); setTopDropdownOpen(null); }}>Reporte Fondos Externos</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('reporte_ingresos_egresos'); setTopDropdownOpen(null); }}>Reporte Ingresos VS Egresos</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('reporte_medios_pago'); setTopDropdownOpen(null); }}>Reporte Medios de Pago</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('reporte_propinas'); setTopDropdownOpen(null); }}>Reporte Propinas</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('reporte_ingresos_salidas')}>Reporte de Ingresos y Salidas de dinero</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('reporte_fondos_externos')}>Reporte Fondos Externos</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('reporte_ingresos_egresos')}>Reporte Ingresos VS Egresos</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('reporte_medios_pago')}>Reporte Medios de Pago</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('reporte_propinas')}>Reporte Propinas</button>
               </div>
             )}
           </div>
 
           {/* 6. CONFIGURACION */}
-          <div className="usqay-menu-container">
+          <div
+            className="usqay-menu-container"
+            onMouseEnter={() => setTopDropdownOpen('configuracion')}
+            onMouseLeave={() => setTopDropdownOpen(null)}
+          >
             <button
               type="button"
               className={`usqay-menu-trigger ${topDropdownOpen === 'configuracion' ? 'active' : ''}`}
@@ -788,17 +806,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
             </button>
             {topDropdownOpen === 'configuracion' && (
               <div className="usqay-dropdown-menu">
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('identidad'); setTopDropdownOpen(null); }}>Datos del Restaurante (Identidad)</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('series_correlativos'); setTopDropdownOpen(null); }}>Series y Correlativos SUNAT</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('metodos_pago'); setTopDropdownOpen(null); }}>Métodos de Pago</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('usuarios'); setTopDropdownOpen(null); }}>Usuarios y Roles</button>
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('mesas'); setTopDropdownOpen(null); }}>Mesas y Códigos QR</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('identidad')}>Datos del Restaurante (Identidad)</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('series_correlativos')}>Series y Correlativos SUNAT</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('metodos_pago')}>Métodos de Pago</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('usuarios')}>Usuarios y Roles</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('mesas')}>Mesas y Códigos QR</button>
               </div>
             )}
           </div>
 
           {/* 7. AYUDA */}
-          <div className="usqay-menu-container">
+          <div
+            className="usqay-menu-container"
+            onMouseEnter={() => setTopDropdownOpen('ayuda')}
+            onMouseLeave={() => setTopDropdownOpen(null)}
+          >
             <button
               type="button"
               className={`usqay-menu-trigger ${topDropdownOpen === 'ayuda' ? 'active' : ''}`}
@@ -813,15 +835,79 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
             </button>
             {topDropdownOpen === 'ayuda' && (
               <div className="usqay-dropdown-menu">
-                <button className="usqay-dropdown-item" onClick={() => { setCurrentSection('ayuda'); setTopDropdownOpen(null); }}>Manual del Sistema Usqay</button>
+                <button className="usqay-dropdown-item" onClick={() => handleNavClick('ayuda')}>Manual del Sistema Usqay</button>
                 <button className="usqay-dropdown-item" onClick={() => { window.open('https://wa.me/51969773064', '_blank'); setTopDropdownOpen(null); }}>Soporte Técnico WhatsApp</button>
               </div>
             )}
           </div>
+
+          {/* 8. CLUB SOCIOS (DENTRO DEL PANEL ADMIN) */}
+          <button
+            type="button"
+            className={`usqay-menu-trigger ${currentSection === 'socios' ? 'active' : ''}`}
+            onClick={() => handleNavClick('socios')}
+            title="Club de Socios y Fidelización de Clientes"
+          >
+            <i className="fa-solid fa-star text-xs text-amber-400"></i>
+            <span>CLUB SOCIOS</span>
+          </button>
+
+          {/* 9. RESERVAS (DENTRO DEL PANEL ADMIN) */}
+          <button
+            type="button"
+            className={`usqay-menu-trigger ${currentSection === 'reservas' ? 'active' : ''}`}
+            onClick={() => handleNavClick('reservas')}
+            title="Módulo de Reservas y Bloqueo de Mesas"
+          >
+            <i className="fa-solid fa-calendar-check text-xs text-sky-400"></i>
+            <span>RESERVAS</span>
+          </button>
+
+          {/* 10. TICKET / BOLETA (DENTRO DEL PANEL ADMIN) */}
+          <button
+            type="button"
+            className={`usqay-menu-trigger ${currentSection === 'factura' || currentSection === 'ticket' ? 'active' : ''}`}
+            onClick={() => handleNavClick('factura')}
+            title="Emisión e Impresión de Ticket / Boleta Electrónica SUNAT"
+          >
+            <i className="fa-solid fa-receipt text-xs text-emerald-400"></i>
+            <span>TICKET / BOLETA</span>
+          </button>
         </nav>
+
+        {/* Backdrop for outside click dismissal */}
+        {topDropdownOpen && (
+          <div
+            className="fixed inset-0 z-[550] bg-transparent cursor-default"
+            onClick={() => setTopDropdownOpen(null)}
+          />
+        )}
 
         {/* Right side controls */}
         <div className="flex items-center gap-2">
+          {/* External station links */}
+          <a
+            href="/cocina.html"
+            target="_blank"
+            rel="noreferrer"
+            className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-orange-950/70 hover:bg-orange-900 text-orange-300 border border-orange-500/40 text-xs font-bold transition-all"
+            title="Abrir pantalla Cocina KDS en nueva ventana para el cocinero"
+          >
+            <i className="fa-solid fa-fire-burner"></i>
+            <span>Cocina KDS</span>
+          </a>
+
+          <a
+            href="/index.html"
+            target="_blank"
+            rel="noreferrer"
+            className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-950/70 hover:bg-blue-900 text-sky-300 border border-sky-500/40 text-xs font-bold transition-all"
+            title="Abrir Menú Digital en nueva ventana para el mozo"
+          >
+            <i className="fa-solid fa-mobile-screen"></i>
+            <span>Menú Mozo</span>
+          </a>
+
           <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900/80 border border-slate-700/60 text-xs">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             <b className="text-slate-200">{operatorName}</b>
@@ -1123,11 +1209,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
 
             {/* MÓDULOS DIRECTOS */}
             <button className={`nav-item ${currentSection === 'socios' ? 'active' : ''}`} onClick={() => handleNavClick('socios')}>
-              <i className="fa-solid fa-star"></i> Club & Socios Frecuentes
+              <i className="fa-solid fa-star text-amber-400"></i> Club & Socios Frecuentes
             </button>
 
             <button className={`nav-item ${currentSection === 'reservas' ? 'active' : ''}`} onClick={() => handleNavClick('reservas')}>
-              <i className="fa-solid fa-calendar-check"></i> Generación de Reservas
+              <i className="fa-solid fa-calendar-check text-sky-400"></i> Generación de Reservas
+            </button>
+
+            <button className={`nav-item ${currentSection === 'factura' || currentSection === 'ticket' ? 'active' : ''}`} onClick={() => handleNavClick('factura')}>
+              <i className="fa-solid fa-receipt text-emerald-400"></i> Ticket / Boleta SUNAT
             </button>
 
             <button className={`nav-item ${currentSection === 'mesas' ? 'active' : ''}`} onClick={() => handleNavClick('mesas')}>
@@ -1807,9 +1897,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                               type="button"
                               className="btn btn-print"
                               style={{ width: '100%' }}
-                              onClick={() => onNavigateToFactura()}
+                              onClick={() => {
+                                setCurrentSection('factura');
+                                if (onNavigateToFactura) onNavigateToFactura();
+                              }}
                             >
-                              <i className="fa-solid fa-print"></i> 🧾 Reimprimir Boleta / Factura
+                              <i className="fa-solid fa-print"></i> 🧾 Ver / Reimprimir Boleta / Factura
                             </button>
                           )}
                         </div>
@@ -1821,19 +1914,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
             </section>
           )}
 
-          {/* C. 2. CLUB & SOCIOS FRECUENTES */}
+          {/* C. 2. CLUB & SOCIOS FRECUENTES (INTEGRADO EN PANEL ADMIN) */}
           {currentSection === 'socios' && (
             <section id="viewSocios" style={{ display: 'block' }}>
               <div className="view-header">
                 <div>
-                  <h1>⭐ Club de Recompensas: Consulta de Socios</h1>
-                  <p>Ingresa el DNI del comensal para ver su tarjeta de sellos acumulados y canjear premios.</p>
+                  <h1>⭐ Club de Recompensas: Socios & Tarjetas Digitales</h1>
+                  <p>Módulo de fidelización con sellos virtuales de consumo, premios, consulta por DNI y código QR.</p>
                 </div>
+              </div>
+
+              {/* Módulo interactivo ClubSocios integrado */}
+              <div style={{ marginBottom: '24px' }}>
+                <ClubSocios config={config} />
               </div>
 
               <div className="card" style={{ borderColor: 'var(--chuspa-gold-border)' }}>
                 <strong style={{ color: '#fbbf24', fontSize: '14px' }}>
-                  <i className="fa-solid fa-id-card"></i> Buscar Socio por DNI o Escaneo:
+                  <i className="fa-solid fa-id-card"></i> Búsqueda Rápida de Ficha por DNI:
                 </strong>
                 <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
                   <input
@@ -2565,6 +2663,31 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                     </p>
                   </div>
                 ))}
+              </div>
+            </section>
+          )}
+
+          {/* K. 10. TICKET / BOLETA SUNAT (DENTRO DEL PANEL ADMIN) */}
+          {(currentSection === 'factura' || currentSection === 'ticket') && (
+            <section id="viewFacturaTicket" style={{ display: 'block' }}>
+              <div className="view-header">
+                <div>
+                  <h1>🧾 Emisión & Consulta de Ticket / Boleta Electrónica</h1>
+                  <p>Visualización en formato térmico 80mm con código QR SUNAT e impresión rápida para caja.</p>
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-save"
+                  onClick={() => handleNavClick('comandas')}
+                >
+                  <i className="fa-solid fa-arrow-left"></i> Volver a Salón
+                </button>
+              </div>
+              <div className="card" style={{ display: 'flex', justifyContent: 'center', padding: '16px', background: '#050d1a' }}>
+                <FacturaTicket
+                  config={config}
+                  onBack={() => handleNavClick('comandas')}
+                />
               </div>
             </section>
           )}

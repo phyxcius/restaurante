@@ -416,9 +416,10 @@ input, textarea, select { width: 100%; padding: 10px 13px; margin-top: 4px; bord
   padding: 0 12px;
   position: sticky;
   top: 0;
-  z-index: 400;
+  z-index: 600;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
   user-select: none;
+  overflow: visible !important;
 }
 
 .usqay-brand-group {
@@ -464,15 +465,12 @@ input, textarea, select { width: 100%; padding: 10px 13px; margin-top: 4px; bord
   display: flex;
   align-items: center;
   gap: 2px;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.usqay-nav-menus::-webkit-scrollbar {
-  display: none;
+  overflow: visible !important;
 }
 
 .usqay-menu-container {
   position: relative;
+  overflow: visible !important;
 }
 
 .usqay-menu-trigger {
@@ -489,7 +487,7 @@ input, textarea, select { width: 100%; padding: 10px 13px; margin-top: 4px; bord
   gap: 6px;
   text-transform: uppercase;
   transition: all 0.15s ease-in-out;
-  border-bottom: 3px solid transparent;
+  border-bottom: 3.5px solid transparent;
   margin-bottom: -3.5px;
 }
 
@@ -504,16 +502,18 @@ input, textarea, select { width: 100%; padding: 10px 13px; margin-top: 4px; bord
   position: absolute;
   top: 100%;
   left: 0;
-  min-width: 245px;
-  background: #ffffff;
-  color: #1e293b;
+  min-width: 250px;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: #ffffff !important;
+  color: #0f172a !important;
   border-radius: 0 0 10px 10px;
-  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.5), 0 0 0 1px #cbd5e1;
   border: 1px solid #cbd5e1;
   border-top: none;
-  z-index: 500;
+  z-index: 999999 !important;
   padding: 6px 0;
-  animation: dropMenuAnim 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: dropMenuAnim 0.16s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes dropMenuAnim {

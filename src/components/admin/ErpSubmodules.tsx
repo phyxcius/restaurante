@@ -22,6 +22,10 @@ import {
 } from 'lucide-react';
 import { storage } from '../../services/storage';
 import { Venta, Insumo, Receta, MovimientoAlmacen, Producto, Comanda } from '../../types';
+import { AlmacenSubmodules } from './erp/AlmacenSubmodules';
+import { VentasSubmodules } from './erp/VentasSubmodules';
+import { PersonalSubmodules } from './erp/PersonalSubmodules';
+import { ReportesCajaSubmodules } from './erp/ReportesCajaSubmodules';
 
 export interface ErpSubmodulesProps {
   moduleId: string; // e.g. 'recetas', 'insumos', 'guias_ingreso', etc.
@@ -77,6 +81,25 @@ export const ErpSubmodules: React.FC<ErpSubmodulesProps> = ({ moduleId, onSelect
     link.click();
     document.body.removeChild(link);
   };
+
+  /* =========================================================================
+     MODULAR DELEGATED SUBMODULE ROUTING
+     ========================================================================= */
+  if (['transferencias', 'transferencia', 'compras', 'unidades', 'tipos_insumo', 'almacenes', 'kardex_diario', 'kardex_detallado'].includes(moduleId)) {
+    return <AlmacenSubmodules moduleId={moduleId} onRefresh={forceRefresh} />;
+  }
+
+  if (['stock_platos', 'stock_manual', 'stock_platos_rep', 'estructura_menu', 'arma_menu', 'platos_amarrados', 'impresion', 'facturacion_pers', 'notas_electronicas', 'reporte_ventas', 'reporte_boletas', 'reporte_facturas', 'reporte_consumos', 'reporte_clientes'].includes(moduleId)) {
+    return <VentasSubmodules moduleId={moduleId} onSelectSubmenu={onSelectSubmenu} onRefresh={forceRefresh} />;
+  }
+
+  if (['administrar_personal', 'personal'].includes(moduleId)) {
+    return <PersonalSubmodules moduleId={moduleId} onRefresh={forceRefresh} />;
+  }
+
+  if (['monto_inicial', 'reporte_ingresos_salidas', 'reporte_fondos_externos', 'reporte_ingresos_egresos', 'reporte_propinas', 'consolidado_caja', 'consolidado_ventas', 'ventas_trabajador', 'reporte_ventas_tipo', 'consumo_persona', 'pedidos_anulados', 'series_correlativos', 'metodos_pago'].includes(moduleId)) {
+    return <ReportesCajaSubmodules moduleId={moduleId} onRefresh={forceRefresh} />;
+  }
 
   /* =========================================================================
      1. ALMACÉN MODULES
