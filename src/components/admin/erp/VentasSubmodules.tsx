@@ -35,6 +35,15 @@ export const VentasSubmodules: React.FC<VentasSubmodulesProps> = ({
   onRefresh,
 }) => {
   const [, setTick] = useState(0);
+  const [tipo, setTipo] = useState<'Factura' | 'Boleta'>('Factura');
+  const [docNumero, setDocNumero] = useState('');
+  const [razon, setRazon] = useState('');
+  const [direccion, setDireccion] = useState('');
+  const [concepto, setConcepto] = useState('Consumo Restaurante La Cusqueñita');
+  const [montoTotal, setMontoTotal] = useState<number>(150);
+  const [busqueda, setBusqueda] = useState('');
+  const [categoriaFiltro, setCategoriaFiltro] = useState('todas');
+
   const forceUpdate = () => {
     setTick((t) => t + 1);
     if (onRefresh) onRefresh();
@@ -64,10 +73,7 @@ export const VentasSubmodules: React.FC<VentasSubmodulesProps> = ({
   /* =========================================================================
      1. STOCK MANUAL DE PLATOS
      ========================================================================= */
-  if (moduleId === 'stock_platos' || moduleId === 'stock_manual' || moduleId === 'stock_platos_rep') {
-    const [busqueda, setBusqueda] = useState('');
-    const [categoriaFiltro, setCategoriaFiltro] = useState('todas');
-
+  if (['stock_platos', 'stock_manual', 'stock_manual_platos', 'stock_platos_rep'].includes(moduleId)) {
     const productosFiltrados = productos.filter((p) => {
       const matchCat = categoriaFiltro === 'todas' || p.category === categoriaFiltro;
       const matchText = p.i18n.es.name.toLowerCase().includes(busqueda.toLowerCase());
@@ -728,13 +734,6 @@ export const VentasSubmodules: React.FC<VentasSubmodulesProps> = ({
      6. FACTURACIÓN PERSONALIZADA
      ========================================================================= */
   if (moduleId === 'facturacion_pers') {
-    const [tipo, setTipo] = useState<'Factura' | 'Boleta'>('Factura');
-    const [docNumero, setDocNumero] = useState('');
-    const [razon, setRazon] = useState('');
-    const [direccion, setDireccion] = useState('');
-    const [concepto, setConcepto] = useState('Consumo Restaurante La Cusqueñita');
-    const [montoTotal, setMontoTotal] = useState<number>(150);
-
     const base = +(montoTotal / 1.18).toFixed(2);
     const igv = +(montoTotal - base).toFixed(2);
 

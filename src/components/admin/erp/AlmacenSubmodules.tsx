@@ -25,6 +25,8 @@ interface AlmacenSubmodulesProps {
 
 export const AlmacenSubmodules: React.FC<AlmacenSubmodulesProps> = ({ moduleId, onRefresh }) => {
   const [, setTick] = useState(0);
+  const [fechaFiltro, setFechaFiltro] = useState(new Date().toISOString().slice(0, 10));
+  const [insumoFiltro, setInsumoFiltro] = useState<string>('');
   const forceUpdate = () => {
     setTick((t) => t + 1);
     if (onRefresh) onRefresh();
@@ -50,7 +52,7 @@ export const AlmacenSubmodules: React.FC<AlmacenSubmodulesProps> = ({ moduleId, 
   /* =========================================================================
      1. TRANSFERENCIAS ENTRE ALMACENES
      ========================================================================= */
-  if (moduleId === 'transferencias' || moduleId === 'transferencia') {
+  if (['transferencias', 'transferencia', 'transferencia_almacen', 'transferencia_de_almacen'].includes(moduleId)) {
     const defaultAlmacenes = [
       { id: 'alm-1', nombre: 'Almacén Central (Bodega)' },
       { id: 'alm-2', nombre: 'Cocina Principal' },
@@ -920,8 +922,7 @@ export const AlmacenSubmodules: React.FC<AlmacenSubmodulesProps> = ({ moduleId, 
   /* =========================================================================
      6. KARDEX SEGUIMIENTO DIARIO
      ========================================================================= */
-  if (moduleId === 'kardex_diario') {
-    const [fechaFiltro, setFechaFiltro] = useState(new Date().toISOString().slice(0, 10));
+  if (['kardex_diario', 'kardex_seguimiento_diario'].includes(moduleId)) {
     const movs = storage.getMovimientosAlmacen();
 
     // Calcular entradas y salidas por insumo en la fecha seleccionada
@@ -1023,8 +1024,7 @@ export const AlmacenSubmodules: React.FC<AlmacenSubmodulesProps> = ({ moduleId, 
   /* =========================================================================
      7. KARDEX SEGUIMIENTO DETALLADO
      ========================================================================= */
-  if (moduleId === 'kardex_detallado') {
-    const [insumoFiltro, setInsumoFiltro] = useState<string>('');
+  if (['kardex_detallado', 'kardex_seguimiento_detallado'].includes(moduleId)) {
     const movs = storage.getMovimientosAlmacen();
 
     const filtrados = movs.filter((m) => (!insumoFiltro || m.insumo === insumoFiltro));
