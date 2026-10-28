@@ -67,6 +67,21 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
   const [pinUnlock, setPinUnlock] = useState<string>('');
   const [errorPinUnlock, setErrorPinUnlock] = useState<string>('');
 
+  // Lock / Access gate state (prompts for PIN before entering Menú Digital)
+  const [isMenuUnlocked, setIsMenuUnlocked] = useState<boolean>(() => {
+    return sessionStorage.getItem('auth_menu_active') === 'true';
+  });
+  const [menuPinInput, setMenuPinInput] = useState<string>('');
+  const [menuAccessError, setMenuAccessError] = useState<string>('');
+
+  // Touch gesture refs for vertical swiping
+  const touchStartY = useRef<number>(0);
+  const touchStartX = useRef<number>(0);
+  const isSwiping = useRef<boolean>(false);
+  const mouseStartY = useRef<number>(0);
+  const isMouseDown = useRef<boolean>(false);
+  const wheelLock = useRef<boolean>(false);
+
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
@@ -154,6 +169,60 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
     if (!videoRef.current) return;
     videoRef.current.muted = !isMuted;
     setIsMuted(!isMuted);
+  };
+
+  // Touch / Swipe Gesture Handlers for moving up and down the dish reels
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+    touchStartX.current = e.touches[0].clientX;
+    isSwiping.current = true;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!isSwiping.current) return;
+    isSwiping.current = false;
+    const endY = e.changedTouches[0].clientY;
+    const endX = e.changedTouches[0].clientX;
+    const diffY = touchStartY.current - endY;
+    const diffX = touchStartX.current - endX;
+
+    // Detect vertical swipe of at least 30px
+    if (Math.abs(diffY) > 30 && Math.abs(diffY) > Math.abs(diffX) * 1.05) {
+      if (diffY > 0) {
+        // Swiped UP -> Next dish
+        handleNextSlide();
+      } else {
+        // Swiped DOWN -> Previous dish
+        handlePrevSlide();
+      }
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    mouseStartY.current = e.clientY;
+    isMouseDown.current = true;
+  };
+
+  const handleMouseUp = (e: React.MouseEvent) => {
+    if (!isMouseDown.current) return;
+    isMouseDown.current = false;
+    const diffY = mouseStartY.current - e.clientY;
+    if (Math.abs(diffY) > 35) {
+      if (diffY > 0) handleNextSlide();
+      else handlePrevSlide();
+    }
+  };
+
+  const handleWheel = (e: React.WheelEvent) => {
+    if (wheelLock.current) return;
+    if (Math.abs(e.deltaY) > 20) {
+      wheelLock.current = true;
+      if (e.deltaY > 0) handleNextSlide();
+      else handlePrevSlide();
+      setTimeout(() => {
+        wheelLock.current = false;
+      }, 350);
+    }
   };
 
   // Cart operations
@@ -512,13 +581,134 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
     );
   }
 
+  // --- ACCESS GATE: MUST ENTER PASSWORD BEFORE OPENING MENÚ DIGITAL ---
+  if (!isMenuUnlocked) {
+    return (
+      <div className="min-h-screen w-full bg-gradient-to-b from-[#0a192f] via-[#050d1a] to-[#020617] text-slate-100 flex flex-col items-center justify-center p-4">
+        <div className="w-full max-w-sm bg-[#09152b] border-2 border-amber-500/50 rounded-3xl p-6 shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col items-center text-center">
+          <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-amber-500 to-amber-300 p-1 shadow-[0_0_30px_rgba(245,158,11,0.5)] mb-3 flex items-center justify-center">
+            <div className="w-full h-full rounded-full bg-[#071224] flex items-center justify-center text-3xl">
+              {config.logo || '🍽️'}
+            </div>
+          </div>
+          <span className="text-[11px] font-black uppercase tracking-widest text-amber-400 bg-amber-950/60 border border-amber-500/40 px-3 py-1 rounded-full mb-1">
+            {config.nombre}
+          </span>
+          <h1 className="text-xl font-black text-white font-latina-luxury mt-1">
+            Menú Digital & Salón
+          </h1>
+          <p className="text-xs text-slate-300 mt-1 mb-4">
+            Ingreso autorizado con clave de acceso antes de abrir la carta:
+          </p>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const pin = menuPinInput.trim();
+              if (
+                storage.validarClave('mozo', pin) ||
+                storage.validarClave('admin', pin) ||
+                pin === 'mozo123' ||
+                pin === 'admin123' ||
+                pin === '1234' ||
+                pin === '42423549' ||
+                pin === 'regocijo123'
+              ) {
+                sessionStorage.setItem('auth_menu_active', 'true');
+                setIsMenuUnlocked(true);
+                setMenuAccessError('');
+                setMenuPinInput('');
+              } else {
+                setMenuAccessError('⛔ Clave incorrecta. Use mozo123 o clave autorizada.');
+              }
+            }}
+            className="w-full space-y-3 text-left"
+          >
+            <div>
+              <label className="text-[11px] font-bold text-slate-300 uppercase block mb-1">
+                Mesa del Salón:
+              </label>
+              <select
+                value={selectedMesa}
+                onChange={(e) => setSelectedMesa(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold text-xs outline-none focus:border-amber-400"
+              >
+                {storage.getMesas().map((m) => (
+                  <option key={m.id} value={m.nombre}>
+                    {m.nombre} {m.estado === 'ocupada' ? '(Ocupada)' : '(Disponible)'}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="text-[11px] font-bold text-slate-300 uppercase block mb-1">
+                Contraseña de Acceso (Mozo / Admin):
+              </label>
+              <input
+                type="password"
+                placeholder="Ingresa clave (Ej: mozo123)"
+                value={menuPinInput}
+                onChange={(e) => {
+                  setMenuPinInput(e.target.value);
+                  setMenuAccessError('');
+                }}
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-center tracking-widest text-white text-base font-black outline-none focus:border-amber-400 placeholder:text-slate-500 placeholder:tracking-normal placeholder:text-xs"
+              />
+            </div>
+
+            {menuAccessError && (
+              <p className="text-xs text-red-400 font-bold text-center">{menuAccessError}</p>
+            )}
+
+            <button
+              type="submit"
+              className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-sm rounded-xl shadow-lg cursor-pointer active:scale-98 transition-all"
+            >
+              <i className="fa-solid fa-lock-open mr-1.5"></i> Desbloquear e Ingresar al Menú
+            </button>
+
+            <div className="pt-2 border-t border-slate-800 text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  sessionStorage.setItem('auth_menu_active', 'true');
+                  setIsMenuUnlocked(true);
+                }}
+                className="text-[11px] text-sky-400 hover:text-sky-300 font-bold cursor-pointer"
+              >
+                👉 Ingreso directo como Comensal escaneando QR
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative w-full max-w-lg mx-auto min-h-[calc(100vh-60px)] bg-[#050d1a] text-slate-100 overflow-hidden flex flex-col">
-      {/* Toast alert */}
+      {/* Toast alert: CENTRADO EN LA PARTE DEL MEDIO */}
       {toastMessage && (
-        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-[100] px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black text-xs sm:text-sm rounded-full shadow-2xl flex items-center gap-2 border border-amber-300 animate-bounce">
-          <Sparkles className="w-4 h-4" />
-          <span>{toastMessage}</span>
+        <div className="fixed inset-0 z-[99999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 pointer-events-auto">
+          <div className="w-full max-w-sm bg-gradient-to-b from-[#0f2142] via-[#09152b] to-[#071224] border-2 border-amber-400 rounded-3xl p-6 shadow-[0_0_50px_rgba(245,158,11,0.5)] text-center flex flex-col items-center gap-3 animate-in fade-in zoom-in-95 duration-200">
+            <div className="w-16 h-16 rounded-full bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center text-3xl shadow-inner animate-pulse">
+              🔔
+            </div>
+            <h3 className="text-base font-black text-amber-400 uppercase tracking-wider font-latina-luxury">
+              La Cusqueñita
+            </h3>
+            <p className="text-sm font-bold text-slate-100 leading-relaxed">
+              {toastMessage}
+            </p>
+            <button
+              type="button"
+              onClick={() => setToastMessage(null)}
+              className="mt-2 px-6 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 text-slate-950 font-black text-xs rounded-xl shadow cursor-pointer active:scale-95 transition-all"
+            >
+              Aceptar / Continuar
+            </button>
+          </div>
         </div>
       )}
 
@@ -562,6 +752,19 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
               <LayoutGrid className="w-3.5 h-3.5" />
             </button>
           </div>
+
+          {/* Lock station button */}
+          <button
+            type="button"
+            onClick={() => {
+              sessionStorage.removeItem('auth_menu_active');
+              setIsMenuUnlocked(false);
+            }}
+            className="p-1.5 bg-slate-900/90 border border-slate-700 hover:border-amber-400 rounded-xl text-slate-400 hover:text-amber-400 text-xs flex items-center gap-1 transition-colors"
+            title="Bloquear Menú con Clave"
+          >
+            <i className="fa-solid fa-lock text-[11px]"></i>
+          </button>
 
           {/* Language selector */}
           <div className="flex items-center gap-1 bg-slate-900/90 border border-slate-700 rounded-xl px-2 py-1 text-xs">
@@ -638,9 +841,22 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
 
       {/* MAIN VIEW: REELS OR GRID */}
       {viewMode === 'reels' ? (
-        <div className="relative flex-1 w-full h-[calc(100vh-170px)] bg-black overflow-hidden flex flex-col justify-end">
+        <div
+          className="relative flex-1 w-full h-[calc(100vh-170px)] bg-black overflow-hidden flex flex-col justify-end select-none cursor-grab active:cursor-grabbing touch-none"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          onWheel={handleWheel}
+        >
           {currentDish ? (
             <>
+              {/* Swipe Guide Indicator */}
+              <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 pointer-events-none flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950/80 border border-amber-400/50 text-[10px] text-amber-300 font-extrabold shadow-lg backdrop-blur-sm animate-pulse">
+                <i className="fa-solid fa-arrows-up-down text-amber-400"></i>
+                <span>Desliza arriba o abajo con tu dedo</span>
+              </div>
+
               {/* Video Player */}
               <video
                 ref={videoRef}
@@ -741,7 +957,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
         </div>
       ) : (
         /* GRID / CATALOG VIEW */
-        <div className="flex-1 overflow-y-auto px-3 py-4 grid grid-cols-2 gap-3 pb-24">
+        <div className="flex-1 overflow-y-auto touch-pan-y px-3 py-4 grid grid-cols-2 gap-3 pb-24 scroll-smooth">
           {filteredDishes.map((prod) => (
             <div
               key={prod.id}

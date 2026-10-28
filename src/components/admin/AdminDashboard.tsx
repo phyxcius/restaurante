@@ -28,13 +28,13 @@ interface AdminDashboardProps {
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNavigateToFactura }) => {
-  // Session authentication
+  // Session authentication (requires password before entering)
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
-    return sessionStorage.getItem('auth_rest') === 'true' || sessionStorage.getItem('admin_logged') === 'true';
+    return sessionStorage.getItem('auth_admin_active') === 'true';
   });
   const [userRole, setUserRole] = useState<UserRole>('admin');
   const [operatorName, setOperatorName] = useState<string>('Administrador');
-  const [password, setPassword] = useState<string>('regocijo123');
+  const [password, setPassword] = useState<string>('');
   const [shift, setShift] = useState<string>('Turno Mañana (07:00 - 15:00)');
   const [cajaChica, setCajaChica] = useState<number>(100.0);
 
@@ -244,20 +244,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
       (userRole === 'mozo' && (password === 'mozo123' || password === 'mozo')) ||
       password.length >= 6
     ) {
-      sessionStorage.setItem('auth_rest', 'true');
+      sessionStorage.setItem('auth_admin_active', 'true');
       sessionStorage.setItem('rol_rest', userRole);
       sessionStorage.setItem('nombre_operador', operatorName);
       sessionStorage.setItem('turno_rest', shift);
       sessionStorage.setItem('caja_chica_monto', cajaChica.toFixed(2));
       setIsLoggedIn(true);
     } else {
-      alert('⛔ Contraseña incorrecta para el rol seleccionado.');
+      alert('⛔ Contraseña incorrecta para el rol seleccionado (Use admin123 o clave configurada).');
     }
   };
 
   const handleCerrarCaja = () => {
     if (confirm('¿Cerrar sesión y turno de caja?')) {
-      sessionStorage.clear();
+      sessionStorage.removeItem('auth_admin_active');
       setIsLoggedIn(false);
     }
   };

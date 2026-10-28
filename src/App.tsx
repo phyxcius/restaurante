@@ -10,12 +10,13 @@ export type StationType = 'menu' | 'cocina' | 'admin';
 const getInitialStation = (): StationType => {
   const path = window.location.pathname.toLowerCase();
   const params = new URLSearchParams(window.location.search);
-  const viewParam = params.get('view')?.toLowerCase();
+  const hash = window.location.hash.toLowerCase();
+  const viewParam = (params.get('view') || params.get('station'))?.toLowerCase();
 
-  if (viewParam === 'cocina' || viewParam === 'kds' || path.includes('cocina')) {
+  if (viewParam === 'cocina' || viewParam === 'kds' || path.includes('cocina') || hash.includes('cocina')) {
     return 'cocina';
   }
-  if (viewParam === 'admin' || path.includes('admin')) {
+  if (viewParam === 'admin' || path.includes('admin') || hash.includes('admin')) {
     return 'admin';
   }
   return 'menu';
@@ -63,6 +64,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
               <button
                 onClick={() => {
                   localStorage.clear();
+                  sessionStorage.clear();
                   window.location.reload();
                 }}
                 className="flex-1 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs"
@@ -101,18 +103,67 @@ export const App: React.FC = () => {
       setStation(getInitialStation());
     };
     window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    window.addEventListener('hashchange', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('hashchange', handlePopState);
+    };
   }, []);
 
   const switchStation = (target: StationType) => {
     setStation(target);
-    const newUrl = target === 'menu' ? './index.html' : target === 'cocina' ? './cocina.html' : './admin.html';
-    window.history.pushState({}, '', newUrl);
+    const targetFile = target === 'menu' ? 'index.html' : target === 'cocina' ? 'cocina.html' : 'admin.html';
+    try {
+      window.history.pushState({}, '', `./${targetFile}?station=${target}#${target}`);
+    } catch {}
   };
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-[#050d1a] text-slate-100 selection:bg-amber-500 selection:text-slate-950 font-sans">
+      <div className="min-h-screen bg-[#050d1a] text-slate-100 selection:bg-amber-500 selection:text-slate-950 font-sans relative">
+        {/* Selector Rápido de Estaciones de Trabajo */}
+        <div className="fixed top-2.5 right-3 z-[9999] flex items-center bg-[#071224]/95 border border-amber-500/40 rounded-2xl p-1 shadow-2xl backdrop-blur-md">
+          <button
+            type="button"
+            onClick={() => switchStation('menu')}
+            className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl font-black text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
+              station === 'menu'
+                ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-lg'
+                : 'text-slate-300 hover:text-white'
+            }`}
+            title="Menú Digital de Salón"
+          >
+            <i className="fa-solid fa-mobile-screen"></i>
+            <span className="hidden sm:inline">Menú Digital</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => switchStation('cocina')}
+            className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl font-black text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
+              station === 'cocina'
+                ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-lg'
+                : 'text-slate-300 hover:text-white'
+            }`}
+            title="Pantalla Cocina KDS"
+          >
+            <i className="fa-solid fa-fire-burner"></i>
+            <span className="hidden sm:inline">Cocina KDS</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => switchStation('admin')}
+            className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl font-black text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
+              station === 'admin'
+                ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-lg'
+                : 'text-slate-300 hover:text-white'
+            }`}
+            title="Panel Admin ERP & TPV"
+          >
+            <i className="fa-solid fa-gear"></i>
+            <span className="hidden sm:inline">Panel Admin</span>
+          </button>
+        </div>
+
         {/* 1. ESTACIÓN INDEPENDIENTE: MENÚ DIGITAL PARA EL MOZO / COMENSAL (index.html) */}
         {station === 'menu' && (
           <div className="w-full flex flex-col min-h-screen">
@@ -120,37 +171,36 @@ export const App: React.FC = () => {
           </div>
         )}
 
-      {/* 2. ESTACIÓN INDEPENDIENTE: COCINA KDS PARA EL COCINERO (cocina.html) */}
-      {station === 'cocina' && (
-        <div className="w-full min-h-screen flex flex-col">
-          {/* Cabecera exclusiva de Cocina KDS */}
-          <div className="w-full px-4 py-2.5 bg-gradient-to-r from-[#071224] via-[#09152b] to-[#071224] border-b border-amber-500/30 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-amber-500 animate-ping"></span>
-              <b className="text-sm tracking-wide uppercase text-amber-400 font-extrabold flex items-center gap-2">
-                <i className="fa-solid fa-fire-burner"></i> COCINA KDS • PANTALLA EN VIVO DEL COCINERO
-              </b>
+        {/* 2. ESTACIÓN INDEPENDIENTE: COCINA KDS PARA EL COCINERO (cocina.html) */}
+        {station === 'cocina' && (
+          <div className="w-full min-h-screen flex flex-col">
+            <div className="w-full px-4 py-2.5 bg-gradient-to-r from-[#071224] via-[#09152b] to-[#071224] border-b border-amber-500/30 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-amber-500 animate-ping"></span>
+                <b className="text-sm tracking-wide uppercase text-amber-400 font-extrabold flex items-center gap-2">
+                  <i className="fa-solid fa-fire-burner"></i> COCINA KDS • PANTALLA EN VIVO DEL COCINERO
+                </b>
+              </div>
+              <div className="flex items-center gap-2 text-xs mr-28 sm:mr-64">
+                <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-amber-500/30 text-amber-300 font-bold hidden md:inline">
+                  Estación Chef Autorizada
+                </span>
+              </div>
             </div>
-            <div className="flex items-center gap-2 text-xs">
-              <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-amber-500/30 text-amber-300 font-bold">
-                Estación Chef Autorizada
-              </span>
+
+            <div className="flex-1 w-full">
+              <CocinaKDS />
             </div>
           </div>
+        )}
 
-          <div className="flex-1 w-full">
-            <CocinaKDS />
+        {/* 3. ESTACIÓN INDEPENDIENTE: PANEL DE CONTROL TPV & ERP (admin.html) */}
+        {station === 'admin' && (
+          <div className="w-full min-h-screen">
+            <AdminDashboard config={config} />
           </div>
-        </div>
-      )}
-
-      {/* 3. ESTACIÓN INDEPENDIENTE: PANEL DE CONTROL TPV & ERP (admin.html) */}
-      {station === 'admin' && (
-        <div className="w-full min-h-screen">
-          <AdminDashboard config={config} />
-        </div>
-      )}
-    </div>
+        )}
+      </div>
     </ErrorBoundary>
   );
 };

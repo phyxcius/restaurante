@@ -8,18 +8,7 @@
   <meta property="og:title" content="La Cusqueñita | Cocina KDS en Vivo" />
   <meta property="og:description" content="Pantalla KDS en vivo para cocineros y chefs de La Cusqueñita: recepción, tiempos y despacho de comandas en tiempo real." />
   <link rel="icon" href="./CHUSPITA-circulo.png" />
-  <script>
-    if (window.location.pathname.length > 1 && !window.location.pathname.endsWith('/') && !window.location.pathname.includes('.')) {
-      window.location.replace(window.location.pathname + '/' + window.location.search + window.location.hash);
-    }
-    window.addEventListener('error', function(e) {
-      console.error('Cocina loader error:', e);
-      var root = document.getElementById('root');
-      if (root && (!root.children.length || root.querySelector('.initial-loader'))) {
-        root.innerHTML = '<div style="min-height:100vh;background:#050d1a;color:#f8fafc;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:sans-serif;"><div style="max-width:420px;background:#09152b;border:1px solid rgba(245,158,11,0.5);border-radius:20px;padding:28px;box-shadow:0 20px 40px rgba(0,0,0,0.8);"><span style="font-size:42px;display:block;margin-bottom:12px;">🍳</span><h2 style="color:#f59e0b;font-size:20px;font-weight:900;margin-bottom:8px;">Cocina KDS en Vivo</h2><p style="color:#94a3b8;font-size:13px;line-height:1.5;margin-bottom:20px;">Cargando pantalla de órdenes y comandas...</p><button onclick="localStorage.clear();location.reload();" style="background:#f59e0b;color:#050d1a;font-weight:900;border:none;padding:12px 24px;border-radius:12px;cursor:pointer;font-size:13px;">Restablecer Datos y Recargar</button></div></div>';
-      }
-    });
-  </script>
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
