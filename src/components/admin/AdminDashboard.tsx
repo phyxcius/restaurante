@@ -205,8 +205,40 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
     }
   };
 
+  // Solicitud de Pago en Caja (Modal centrado con resplandor giratorio)
+  const [solicitudPagoModal, setSolicitudPagoModal] = useState<{
+    comandaId: string;
+    numero?: string;
+    mesa: string;
+    cliente: string;
+    totalPEN: number;
+    metodo: string;
+    timestamp: number;
+  } | null>(() => storage.getSolicitudPagoActiva());
+
+  const handleAceptarYCobrarSolicitud = (solicitud: { comandaId: string; mesa: string; metodo?: string }) => {
+    storage.clearSolicitudPago();
+    setSolicitudPagoModal(null);
+
+    const coms = storage.getComandas();
+    let target = coms.find((c) => c.id === solicitud.comandaId);
+    if (!target) {
+      target = coms.find((c) => c.mesa.toLowerCase() === solicitud.mesa.toLowerCase() && c.estado !== 'finalizado');
+    }
+
+    if (target) {
+      setComandaCobrando(target);
+      setCobroRuc(target.dni || '');
+      setCobroRazon(target.cliente || '');
+      if (solicitud.metodo) setCobroMetodo(solicitud.metodo);
+      setCurrentSection('comandas');
+    } else {
+      alert(`No se encontró comanda pendiente para ${solicitud.mesa}.`);
+    }
+  };
+
   useEffect(() => {
-    const unsub = storage.subscribe(() => {
+    const handleUpdate = () => {
       setComandas(storage.getComandas());
       setVentas(storage.getVentas());
       setMesas(storage.getMesas());
@@ -217,7 +249,32 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
       setResenas(storage.getResenas());
       setIdentidadForm(storage.getConfig());
       setUsuariosSistema(storage.getUsuariosSistema());
-    });
+
+      // Check for incoming bill request
+      const activeReq = storage.getSolicitudPagoActiva();
+      if (activeReq) {
+        setSolicitudPagoModal(activeReq);
+        reproducirCampana();
+      } else {
+        const coms = storage.getComandas();
+        const reqFromComanda = coms.find((c) => c.pideCuenta && c.estado !== 'finalizado');
+        if (reqFromComanda) {
+          setSolicitudPagoModal({
+            comandaId: reqFromComanda.id,
+            numero: reqFromComanda.numero || reqFromComanda.id,
+            mesa: reqFromComanda.mesa,
+            cliente: reqFromComanda.cliente,
+            totalPEN: reqFromComanda.totalPEN || reqFromComanda.total || 0,
+            metodo: reqFromComanda.pago || 'Efectivo',
+            timestamp: Date.now(),
+          });
+          reproducirCampana();
+        }
+      }
+    };
+
+    handleUpdate();
+    const unsub = storage.subscribe(handleUpdate);
     return unsub;
   }, []);
 
@@ -3078,6 +3135,80 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
             >
               <i className="fa-solid fa-check"></i> Entendido / Cerrar Aviso
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* NOTIFICACIÓN CENTRADA RESPLANDECIENTE DANDO VUELTAS ALREDEDOR DE LAS LÍNEAS - SOLICITUD DE PAGO */}
+      {solicitudPagoModal && (
+        <div className="fixed inset-0 z-[99999] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="relative p-[4px] rounded-3xl overflow-hidden shadow-[0_0_80px_rgba(245,158,11,0.85)] max-w-md w-full animate-in zoom-in-95 duration-200">
+            {/* Resplandor giratorio dando vueltas alrededor de las líneas del cuadro */}
+            <div className="absolute inset-[-150%] bg-[conic-gradient(from_0deg,#f59e0b_0deg,#ef4444_90deg,#10b981_180deg,#3b82f6_270deg,#f59e0b_360deg)] animate-[spin_3s_linear_infinite]" />
+
+            {/* Contenido interior de la notificación */}
+            <div className="relative bg-[#071224] rounded-[22px] p-6 sm:p-7 flex flex-col items-center text-center">
+              <div className="w-16 h-16 rounded-full bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center text-3xl shadow-[0_0_30px_rgba(245,158,11,0.5)] mb-3 animate-bounce">
+                🔔
+              </div>
+
+              <span className="px-3 py-1 rounded-full bg-red-600/90 text-white font-black text-[11px] uppercase tracking-wider mb-2 border border-amber-400 animate-pulse">
+                ¡Solicitud de Pago en Caja!
+              </span>
+
+              <h2 className="text-2xl font-black text-amber-400 font-latina-luxury tracking-wide">
+                El cliente viene a pagar su cuenta
+              </h2>
+
+              <div className="my-4 w-full bg-slate-900/90 border border-amber-400/40 rounded-2xl p-4 text-left space-y-2">
+                <div className="flex justify-between items-center pb-2 border-b border-slate-800">
+                  <span className="text-xs text-slate-400 uppercase font-bold">Mesa del Salón:</span>
+                  <span className="text-lg font-black text-white bg-blue-600/60 border border-sky-400 px-3 py-0.5 rounded-lg">
+                    {solicitudPagoModal.mesa}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-slate-400 font-bold">Cliente:</span>
+                  <span className="font-extrabold text-white">{solicitudPagoModal.cliente || 'Comensal Salón'}</span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-slate-400 font-bold">Comanda:</span>
+                  <span className="font-mono text-amber-300 font-bold">{solicitudPagoModal.numero || solicitudPagoModal.comandaId}</span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-slate-400 font-bold">Método Previsto:</span>
+                  <span className="font-extrabold text-emerald-400">{solicitudPagoModal.metodo || 'Efectivo'}</span>
+                </div>
+                <div className="flex justify-between items-center pt-2 border-t border-slate-800">
+                  <span className="text-sm font-black text-amber-400">Total a Cobrar:</span>
+                  <span className="text-xl font-black text-emerald-400">
+                    S/ {(solicitudPagoModal.totalPEN || 0).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="w-full flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleAceptarYCobrarSolicitud(solicitudPagoModal)}
+                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black text-sm shadow-[0_0_25px_rgba(16,185,129,0.5)] border-2 border-emerald-300 active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <i className="fa-solid fa-cash-register text-base"></i>
+                  <span>Aceptar y Cobrar Cuenta de {solicitudPagoModal.mesa}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    storage.clearSolicitudPago();
+                    setSolicitudPagoModal(null);
+                  }}
+                  className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                >
+                  Posponer / Cerrar Aviso
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

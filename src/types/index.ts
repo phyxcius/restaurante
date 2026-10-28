@@ -67,6 +67,8 @@ export interface Comanda {
   llamaMozo?: boolean;
   agradecimientoFinal?: boolean;
   serie?: string;
+  despachadoCocina?: boolean;
+  horaDespachoCocina?: string;
 }
 
 export interface Venta {

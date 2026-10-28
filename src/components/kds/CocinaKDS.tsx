@@ -82,6 +82,12 @@ export const CocinaKDS: React.FC = () => {
 
   // Status transitions
   const handleAvanzarEstado = (comandaId: string, siguienteEstado: Comanda['estado']) => {
+    if (siguienteEstado === 'finalizado') {
+      // The chef dispatches from kitchen only; cashier handles final payment
+      storage.despacharCocina(comandaId);
+      playBellChime();
+      return;
+    }
     storage.updateComandaEstado(comandaId, siguienteEstado);
     playBellChime();
   };
@@ -94,7 +100,7 @@ export const CocinaKDS: React.FC = () => {
 
   // Filter logic
   const filteredComandas = comandas.filter((c) => {
-    if (c.estado === 'finalizado' || c.estado === 'anulado') return false;
+    if (c.estado === 'finalizado' || c.estado === 'anulado' || c.despachadoCocina) return false;
     if (statusFilter !== 'todas' && c.estado !== statusFilter) return false;
     if (tableFilter !== 'all' && c.mesa.toLowerCase() !== tableFilter.toLowerCase()) return false;
     if (searchQuery.trim()) {
@@ -451,11 +457,14 @@ export const CocinaKDS: React.FC = () => {
 
                   {isServido && (
                     <button
-                      onClick={() => handleAvanzarEstado(cmd.id, 'finalizado')}
-                      className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-98 transition-transform"
+                      onClick={() => {
+                        storage.despacharCocina(cmd.id);
+                        playBellChime();
+                      }}
+                      className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-98 transition-transform cursor-pointer"
                     >
                       <CheckCircle className="w-4 h-4" />
-                      <span>Despachado / Archivar</span>
+                      <span>Despachado / Archivar de Cocina</span>
                     </button>
                   )}
                 </div>

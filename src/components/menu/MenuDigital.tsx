@@ -111,33 +111,66 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
       );
 
       // Transition detection
-      if (current && lastOrderState && current.estado !== lastOrderState) {
-        if (current.estado === 'cocina') {
-          showToast(t.chefAcceptedMessage);
-        } else if (current.estado === 'servido') {
-          showToast(t.orderReadyMessage);
+      if (current) {
+        if (lastOrderState && current.estado !== lastOrderState) {
+          if (current.estado === 'cocina') {
+            showToast(t.chefAcceptedMessage);
+          } else if (current.estado === 'servido') {
+            showToast(t.orderReadyMessage);
+          }
+        }
+        if (current.despachadoCocina && !sessionStorage.getItem('notif_despachado_' + current.id)) {
+          sessionStorage.setItem('notif_despachado_' + current.id, 'true');
+          showToast(
+            lang === 'en'
+              ? '🍽️ Your order was dispatched by the Chef! Enjoy your meal. You can request the bill whenever you are ready.'
+              : '🍽️ ¡Tu pedido fue despachado por el Chef y está en tu mesa! Buen provecho. Puedes pulsar «Pagar Cuenta» cuando desees.'
+          );
         }
       }
       if (current) setLastOrderState(current.estado);
       setActiveOrder(current || null);
 
-      // Check if my order was just paid/finalized in Admin or mesa flagged as paid
+      // Check if this specific order was officially PAID and finalized by the cashier
       const mesaKey = 'cusq_mesa_pagada_' + selectedMesa.replace(/\s+/g, '_').toLowerCase();
       const mesaPagadaRaw = localStorage.getItem(mesaKey);
+      let wasPaid = false;
+      let completedSale: any = null;
 
       if (myOrderId) {
         const orderFound = comandas.find((c) => c.id === myOrderId);
+        // Only block if this exact order was finalized AND there is a real Venta matching its exact ID
         if (orderFound && orderFound.estado === 'finalizado') {
-          setBloqueadoPorPago(true);
           const ventas = storage.getVentas();
-          const v = ventas.find((x) => x.id === myOrderId || x.mesa.toLowerCase() === selectedMesa.toLowerCase());
-          if (v) setVentaCompletada(v);
+          const matchingVenta = ventas.find((x) => x.id === myOrderId);
+          if (matchingVenta) {
+            wasPaid = true;
+            completedSale = matchingVenta;
+          }
         }
-      } else if (mesaPagadaRaw) {
-        setBloqueadoPorPago(true);
+      }
+
+      // Check mesaPagadaRaw ONLY if it matches the current active order ID and was paid in this session
+      if (!wasPaid && mesaPagadaRaw) {
         try {
-          setVentaCompletada(JSON.parse(mesaPagadaRaw));
-        } catch {}
+          const parsed = JSON.parse(mesaPagadaRaw);
+          if (parsed && (parsed.id === myOrderId || (current && parsed.id === current.id))) {
+            wasPaid = true;
+            completedSale = parsed;
+          } else {
+            // It belongs to a past cycle or different order: remove it so it never falsely blocks the client!
+            localStorage.removeItem(mesaKey);
+          }
+        } catch {
+          localStorage.removeItem(mesaKey);
+        }
+      }
+
+      setBloqueadoPorPago(wasPaid);
+      if (wasPaid && completedSale) {
+        setVentaCompletada(completedSale);
+      } else {
+        setVentaCompletada(null);
       }
     };
 
@@ -419,8 +452,12 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
 
   const handlePedirCuenta = () => {
     if (activeOrder) {
-      storage.requestBill(activeOrder.id);
-      showToast(t.billRequestedMessage);
+      storage.requestBill(activeOrder.id, metodoPago);
+      showToast(
+        lang === 'en'
+          ? '🧾 Payment request sent to Cashier! The cashier has been notified with high priority.'
+          : '🧾 ¡Solicitud de pago enviada a Caja! El cajero ha recibido la alerta con resplandor en el Panel de Control para cobrar la cuenta.'
+      );
     } else {
       alert(lang === 'en' ? 'No active order at this table.' : 'No tienes una orden activa en esta mesa.');
     }
@@ -932,6 +969,8 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                     ? t.statusReceived
                     : activeOrder.estado === 'cocina'
                     ? t.statusInKitchen
+                    : activeOrder.despachadoCocina
+                    ? '🍽️ Servido en Mesa'
                     : t.statusServed}
                 </span>
               </p>
@@ -947,11 +986,44 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
             </button>
             <button
               onClick={handlePedirCuenta}
-              className="px-2 py-1 bg-purple-600 hover:bg-purple-500 text-white font-black rounded text-[11px] flex items-center gap-1 shadow cursor-pointer"
+              className={`px-2.5 py-1 text-white font-black rounded-lg text-[11px] flex items-center gap-1 shadow-md cursor-pointer transition-all ${
+                activeOrder.pideCuenta
+                  ? 'bg-emerald-700 text-emerald-100 border border-emerald-400'
+                  : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 border border-purple-300 animate-pulse'
+              }`}
             >
-              <Receipt className="w-3 h-3" /> {t.requestBill}
+              <Receipt className="w-3 h-3 text-amber-300" />
+              <span>{activeOrder.pideCuenta ? '⏳ Cuenta Solicitada' : '💳 Pagar Cuenta'}</span>
             </button>
           </div>
+        </div>
+      )}
+
+      {/* FLOATING PROMPT WHEN DISHES ARE SERVED / DISPATCHED */}
+      {activeOrder && (activeOrder.despachadoCocina || activeOrder.estado === 'servido') && (
+        <div className="mx-3 mt-1 px-3 py-2 bg-gradient-to-r from-purple-950/90 via-[#0d1c3b]/90 to-purple-950/90 border border-purple-400/60 rounded-xl flex items-center justify-between gap-2 shadow-lg backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="flex items-center gap-2">
+            <span className="text-base">🍽️</span>
+            <div>
+              <p className="text-[11px] font-black text-white">¡Platos servidos en tu mesa!</p>
+              <p className="text-[10px] text-slate-300">
+                {activeOrder.pideCuenta ? '✔ El cajero ya tiene tu cuenta en pantalla.' : 'Cuando desees terminar tu estadía, pulsa Pagar Cuenta.'}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handlePedirCuenta}
+            disabled={activeOrder.pideCuenta}
+            className={`px-2.5 py-1.5 rounded-lg text-[11px] font-black flex items-center gap-1 shadow transition-all ${
+              activeOrder.pideCuenta
+                ? 'bg-emerald-800/80 text-emerald-200 border border-emerald-500/50 cursor-default'
+                : 'bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 text-white border border-purple-300 animate-pulse cursor-pointer active:scale-95'
+            }`}
+          >
+            <Receipt className="w-3 h-3" />
+            <span>{activeOrder.pideCuenta ? 'Cuenta Pedida' : 'Pagar Cuenta'}</span>
+          </button>
         </div>
       )}
 

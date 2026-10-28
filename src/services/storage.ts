@@ -884,14 +884,54 @@ class StorageService {
     }
   }
 
-  public requestBill(id: string) {
+  public despacharCocina(id: string) {
+    const list = this.getComandas();
+    const comanda = list.find((c) => c.id === id);
+    if (comanda) {
+      comanda.despachadoCocina = true;
+      comanda.estado = 'servido';
+      comanda.horaDespachoCocina = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      localStorage.setItem(STORAGE_KEYS.COMANDAS, JSON.stringify(list));
+      this.notify('COCINA_DESPACHADO', { comandaId: id, mesa: comanda.mesa });
+    }
+  }
+
+  public requestBill(id: string, metodoPago?: string) {
     const list = this.getComandas();
     const comanda = list.find((c) => c.id === id);
     if (comanda) {
       comanda.pideCuenta = true;
+      if (metodoPago) comanda.pago = metodoPago;
       localStorage.setItem(STORAGE_KEYS.COMANDAS, JSON.stringify(list));
-      this.notify();
+
+      const payload = {
+        comandaId: comanda.id,
+        numero: comanda.numero || comanda.id,
+        mesa: comanda.mesa,
+        cliente: comanda.cliente,
+        totalPEN: comanda.totalPEN || comanda.total || 0,
+        metodo: comanda.pago || 'Efectivo',
+        timestamp: Date.now(),
+      };
+      localStorage.setItem('cusq_solicitud_pago_activa', JSON.stringify(payload));
+      this.notify('PAGO_SOLICITADO', payload);
     }
+  }
+
+  public getSolicitudPagoActiva(): any | null {
+    try {
+      const raw = localStorage.getItem('cusq_solicitud_pago_activa');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  public clearSolicitudPago() {
+    try {
+      localStorage.removeItem('cusq_solicitud_pago_activa');
+    } catch {}
+    this.notify('PAGO_ATENDIDO');
   }
 
   public callWaiter(id: string) {
@@ -900,7 +940,7 @@ class StorageService {
     if (comanda) {
       comanda.llamaMozo = true;
       localStorage.setItem(STORAGE_KEYS.COMANDAS, JSON.stringify(list));
-      this.notify();
+      this.notify('MOZO_LLAMADO', { comandaId: id, mesa: comanda.mesa });
     }
   }
 
