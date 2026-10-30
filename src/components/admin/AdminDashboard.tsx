@@ -28,10 +28,8 @@ interface AdminDashboardProps {
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNavigateToFactura }) => {
-  // Session authentication (requires password before entering)
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
-    return sessionStorage.getItem('auth_admin_active') === 'true';
-  });
+  // Session authentication (no password gate requested)
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
   const [userRole, setUserRole] = useState<UserRole>('admin');
   const [operatorName, setOperatorName] = useState<string>('Administrador');
   const [password, setPassword] = useState<string>('');
@@ -553,82 +551,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
     win.document.close();
   };
 
-  // If not logged in, show exact login screen
-  if (!isLoggedIn) {
-    return (
-      <div id="pantallaLogin">
-        <div className="card-login">
-          <div className="login-logos-header">
-            <div className="login-chuspa-logo-wrap" title="La Chuspa Tech">
-              <img
-                src="/CHUSPITA-circulo.png"
-                alt="La Chuspa Tech"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src =
-                    'https://lachuspaanuncios.com/wp-content/uploads/2023/10/cropped-logo-la-chuspa.png';
-                }}
-              />
-            </div>
-            <div className="login-brand-logo-wrap" id="loginBrandLogoWrap" title="Logo del Restaurante">
-              {config.logo || '🍽️'}
-            </div>
-          </div>
-          <h3 id="loginTitlePreview">{config.nombre}</h3>
-          <p className="sub">Plataforma Cloud de Gestión & TPV Comercial</p>
 
-          <form onSubmit={handleLoginSubmit}>
-            <label>Usuario / Rol:</label>
-            <select value={userRole} onChange={(e) => setUserRole(e.target.value as UserRole)}>
-              <option value="admin">Administrador (Gerencia)</option>
-              <option value="cajero">Cajero / Cobranzas</option>
-              <option value="mozo">Mozo / Salón</option>
-              <option value="cocina">Cocinero</option>
-            </select>
-
-            <label>Nombre del Operador:</label>
-            <input
-              type="text"
-              value={operatorName}
-              onChange={(e) => setOperatorName(e.target.value)}
-              required
-            />
-
-            <label>Contraseña:</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-
-            <div className="caja-chica-box">
-              <div style={{ fontSize: '12px', fontWeight: 900, color: '#fbbf24', marginBottom: '6px' }}>
-                <i className="fa-solid fa-cash-register"></i> APERTURA DE CAJA CHICA
-              </div>
-              <label style={{ marginTop: 0 }}>Turno:</label>
-              <select value={shift} onChange={(e) => setShift(e.target.value)}>
-                <option value="Mañana (07:00 - 15:00)">Turno Mañana (07:00 - 15:00)</option>
-                <option value="Tarde (15:00 - 23:00)">Turno Tarde (15:00 - 23:00)</option>
-                <option value="Noche (23:00 - 07:00)">Turno Noche (23:00 - 07:00)</option>
-              </select>
-              <label>Monto Inicial de Caja (S/):</label>
-              <input
-                type="number"
-                step="0.5"
-                value={cajaChica}
-                onChange={(e) => setCajaChica(parseFloat(e.target.value) || 0)}
-                required
-              />
-            </div>
-
-            <button type="submit" className="btn btn-save" style={{ marginTop: '16px', width: '100%' }}>
-              <i className="fa-solid fa-right-to-bracket"></i> Abrir Caja & Entrar al Sistema
-            </button>
-          </form>
-        </div>
-      </div>
-    );
-  }
 
   // Active check if currently in an ERP submodule view
   const isErpModuleActive = [
@@ -975,28 +898,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
 
         {/* Right side controls */}
         <div className="flex items-center gap-2">
-          {/* External station links */}
-          <a
-            href="./cocina.html"
-            target="_blank"
-            rel="noreferrer"
-            className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-orange-950/70 hover:bg-orange-900 text-orange-300 border border-orange-500/40 text-xs font-bold transition-all"
-            title="Abrir pantalla Cocina KDS en nueva ventana para el cocinero"
-          >
-            <i className="fa-solid fa-fire-burner"></i>
-            <span>Cocina KDS</span>
-          </a>
-
-          <a
-            href="./index.html"
-            target="_blank"
-            rel="noreferrer"
-            className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-950/70 hover:bg-blue-900 text-sky-300 border border-sky-500/40 text-xs font-bold transition-all"
-            title="Abrir Menú Digital en nueva ventana para el mozo"
-          >
-            <i className="fa-solid fa-mobile-screen"></i>
-            <span>Menú Mozo</span>
-          </a>
 
           <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900/80 border border-slate-700/60 text-xs">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
