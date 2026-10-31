@@ -185,6 +185,13 @@ export interface Socio {
   fechaRegistro: string;
 }
 
+export interface ReservaItemPedido {
+  id?: string;
+  nombre: string;
+  cantidad: number;
+  precio: number;
+}
+
 export interface Reserva {
   id: string;
   cliente: string;
@@ -197,9 +204,13 @@ export interface Reserva {
   fechaCreacion: string;
   estado: 'Confirmada' | 'Por confirmar' | 'Cancelada' | 'Pendiente';
   platosPreseleccionados?: string[];
+  itemsPedidos?: ReservaItemPedido[];
+  totalEstimado?: number;
   pagoConfirmado?: boolean;
   montoAdelanto?: number;
   metodoPagoAdelanto?: string;
+  saldoRestante?: number;
+  pagoLiquidado?: boolean;
 }
 
 export interface Resena {
@@ -224,6 +235,7 @@ export interface ConfigRestaurante {
   facebook?: string;
   instagram?: string;
   tiktok?: string;
+  googleBusinessUrl?: string;
 }
 
 export interface MesaStatus {

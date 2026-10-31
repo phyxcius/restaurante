@@ -15,6 +15,7 @@ import {
   ConfigRestaurante,
   MesaStatus,
   UserRole,
+  ReservaItemPedido,
 } from '../../types';
 import { storage, UsuarioSistema } from '../../services/storage';
 import { consultarDNI, consultarRUC, emitirComprobanteElectronico } from '../../services/sunatApi';
@@ -22,6 +23,8 @@ import { ErpSubmodules } from './ErpSubmodules';
 import { ClubSocios } from '../club/ClubSocios';
 import { FacturaTicket } from '../factura/FacturaTicket';
 import { CHUSPA_TECH_LOGO } from '../../constants/chuspaLogo';
+import { isFechaHoy, matchMesa, normalizeDate } from '../../utils/dateUtils';
+import { DishCatalogPickerModal } from '../reservas/DishCatalogPickerModal';
 
 interface AdminDashboardProps {
   config: ConfigRestaurante;
@@ -158,6 +161,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
     notas: string;
     estado: 'Confirmada' | 'Por confirmar' | 'Cancelada';
     platosPreseleccionados: string[];
+    itemsPedidos: ReservaItemPedido[];
+    totalEstimado: number;
     pagoConfirmado: boolean;
     montoAdelanto: number;
     metodoPagoAdelanto: string;
@@ -171,26 +176,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
     notas: '',
     estado: 'Confirmada',
     platosPreseleccionados: [],
+    itemsPedidos: [],
+    totalEstimado: 0,
     pagoConfirmado: false,
     montoAdelanto: 50,
     metodoPagoAdelanto: 'Yape',
   });
   const [mesaReservaBloqueadaModal, setMesaReservaBloqueadaModal] = useState<Reserva | null>(null);
+  const [isCatalogPickerOpen, setIsCatalogPickerOpen] = useState<boolean>(false);
+  const [pickerTargetReserva, setPickerTargetReserva] = useState<Reserva | null>(null);
 
   const getEsHoy = (fechaStr?: string) => {
-    if (!fechaStr) return false;
-    const hoyISO = new Date().toISOString().slice(0, 10);
-    const hoyLocal = new Date().toLocaleDateString('es-PE');
-    const f = fechaStr.trim();
-    if (f === hoyISO || f === hoyLocal) return true;
-    try {
-      const d1 = new Date(f);
-      const now = new Date();
-      if (!isNaN(d1.getTime()) && d1.getFullYear() === now.getFullYear() && d1.getMonth() === now.getMonth() && d1.getDate() === now.getDate()) {
-        return true;
-      }
-    } catch {}
-    return false;
+    return isFechaHoy(fechaStr);
   };
 
   // Identidad Form
@@ -1723,15 +1720,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                     const mozoNombre = comandaMesa?.mozo || (m.nombre.includes('08') || m.nombre.includes('09') || m.nombre.includes('10') ? 'CHARLE' : m.nombre.includes('11') ? 'SEBASTIAN' : 'YOSUKI');
                     const totalMesa = comandaMesa ? (comandaMesa.total || comandaMesa.totalPEN || 0) : 79.0;
 
-                    // Verificar si la mesa tiene reserva para HOY
+                    // Verificar si la mesa tiene reserva para HOY con fecha exacta y mesa estricta
                     const reservaHoyMesa = reservas.find((r) => {
-                      const mNom = m.nombre.toLowerCase().replace(/\s+/g, '');
-                      const rNom = (r.mesaAsignada || '').toLowerCase().replace(/\s+/g, '');
-                      const coincideMesa = rNom === mNom || rNom.includes(mNom) || mNom.includes(rNom);
-                      return coincideMesa && getEsHoy(r.fechaReserva) && r.estado !== 'Cancelada';
+                      const coincideMesa = matchMesa(r.mesaAsignada, m.nombre);
+                      return coincideMesa && isFechaHoy(r.fechaReserva) && r.estado !== 'Cancelada';
                     });
 
-                    // La mesa está bloqueada SIEMPRE Y CUANDO confirmó previamente su pago
+                    // La mesa está bloqueada ÚNICAMENTE SI confirmó previamente su pago para la fecha de hoy
                     const estaBloqueadaPorReserva = !estaOcupada && reservaHoyMesa && reservaHoyMesa.pagoConfirmado === true;
 
                     if (estaBloqueadaPorReserva && reservaHoyMesa) {
@@ -1754,7 +1749,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                             }
                             setMesaReservaBloqueadaModal(reservaHoyMesa);
                           }}
-                          title="Mesa bloqueada por reserva confirmada con pago previo"
+                          title="Mesa bloqueada por reserva confirmada con pago previo para hoy"
                         >
                           <div className="usqay-table-title" style={{ color: '#f3e8ff' }}>{m.nombre.toUpperCase()}</div>
                           <div className="text-[11px] font-black text-purple-300 flex items-center gap-1.5 mb-1">
@@ -1770,13 +1765,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                           <div className="text-[11px] text-emerald-400 font-extrabold mt-1">
                             ✓ Adelanto: S/ {Number(reservaHoyMesa.montoAdelanto || 0).toFixed(2)} ({reservaHoyMesa.metodoPagoAdelanto || 'Yape'})
                           </div>
-                          {reservaHoyMesa.platosPreseleccionados && reservaHoyMesa.platosPreseleccionados.length > 0 && (
+                          {(reservaHoyMesa.itemsPedidos?.length || reservaHoyMesa.platosPreseleccionados?.length) ? (
                             <div className="text-[10px] text-sky-300 truncate mt-1 bg-purple-950/60 px-2 py-0.5 rounded border border-purple-400/30">
-                              🍽️ {reservaHoyMesa.platosPreseleccionados.length} platos preseleccionados
+                              🍽️ {reservaHoyMesa.itemsPedidos?.length || reservaHoyMesa.platosPreseleccionados?.length} pedidos del catálogo
                             </div>
-                          )}
+                          ) : null}
                           <div className="mt-2 text-[10px] font-bold text-purple-200 bg-purple-900/60 border border-purple-400/40 rounded-full px-2 py-0.5 text-center">
-                            Gestionar Reserva ➜
+                            Ver Pedidos & Gestionar ➜
                           </div>
                         </div>
                       );
@@ -1845,149 +1840,220 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                   })}
               </div>
 
-              {/* MODAL GESTIÓN DE MESA BLOQUEADA POR RESERVA */}
-              {mesaReservaBloqueadaModal && (
-                <div className="fixed inset-0 z-[650] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
-                  <div className="bg-[#0b1a33] border-2 border-purple-500 rounded-3xl max-w-lg w-full p-6 text-white shadow-2xl relative">
-                    <button
-                      type="button"
-                      className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg cursor-pointer"
-                      onClick={() => setMesaReservaBloqueadaModal(null)}
-                    >
-                      ✕
-                    </button>
+              {/* MODAL GESTIÓN DE MESA BLOQUEADA POR RESERVA CON PEDIDOS Y BOTONES SOLICITADOS */}
+              {mesaReservaBloqueadaModal && (() => {
+                const totalPedidos = mesaReservaBloqueadaModal.totalEstimado ||
+                  (mesaReservaBloqueadaModal.itemsPedidos || []).reduce((acc, it) => acc + it.cantidad * it.precio, 0) ||
+                  (Number(mesaReservaBloqueadaModal.montoAdelanto || 0) * 2);
+                const adelanto = Number(mesaReservaBloqueadaModal.montoAdelanto || 0);
+                const saldo50 = Math.max(0, totalPedidos - adelanto);
+                const googleUrl = config.googleBusinessUrl || 'https://search.google.com/local/writereview?placeid=ChIJlacusquenita-cusco-peru';
+                const dishesText = (mesaReservaBloqueadaModal.itemsPedidos && mesaReservaBloqueadaModal.itemsPedidos.length > 0)
+                  ? mesaReservaBloqueadaModal.itemsPedidos.map(i => `${i.cantidad}x ${i.nombre}`).join(', ')
+                  : (mesaReservaBloqueadaModal.platosPreseleccionados || []).join(', ');
 
-                    <div className="flex items-center gap-3 mb-4 pb-3 border-b border-purple-500/40">
-                      <div className="w-12 h-12 rounded-2xl bg-purple-500/20 border-2 border-purple-400 flex items-center justify-center text-2xl text-purple-300">
-                        🔒
-                      </div>
-                      <div>
-                        <h2 className="text-xl font-black text-white flex items-center gap-2">
-                          <span>{mesaReservaBloqueadaModal.mesaAsignada}</span>
-                          <span className="text-xs font-black bg-purple-600 text-white px-2 py-0.5 rounded-full uppercase">
-                            Bloqueada por Pago Previo
-                          </span>
-                        </h2>
-                        <span className="text-xs text-purple-300 font-bold">
-                          Reserva ID: {mesaReservaBloqueadaModal.id}
-                        </span>
-                      </div>
-                    </div>
+                return (
+                  <div className="fixed inset-0 z-[650] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-in fade-in">
+                    <div className="bg-[#0b1a33] border-2 border-purple-500 rounded-3xl max-w-lg w-full p-5 sm:p-6 text-white shadow-2xl relative max-h-[92vh] overflow-y-auto custom-scroll">
+                      <button
+                        type="button"
+                        className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg cursor-pointer"
+                        onClick={() => setMesaReservaBloqueadaModal(null)}
+                      >
+                        ✕
+                      </button>
 
-                    <div className="space-y-3 text-xs">
-                      <div className="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-3.5 space-y-1.5">
-                        <div className="flex justify-between">
-                          <span className="text-slate-400">Titular:</span>
-                          <span className="font-bold text-white text-sm">{mesaReservaBloqueadaModal.cliente}</span>
+                      <div className="flex items-center gap-3 mb-4 pb-3 border-b border-purple-500/40">
+                        <div className="w-12 h-12 rounded-2xl bg-purple-500/20 border-2 border-purple-400 flex items-center justify-center text-2xl text-purple-300">
+                          🔒
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-slate-400">Teléfono WhatsApp:</span>
-                          <span className="font-bold text-amber-300">{mesaReservaBloqueadaModal.telefono}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-slate-400">Fecha & Hora:</span>
-                          <span className="font-bold text-white">📅 {mesaReservaBloqueadaModal.fechaReserva} a las ⏰ {mesaReservaBloqueadaModal.horaReserva}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-slate-400">Comensales:</span>
-                          <span className="font-bold text-white">👥 {mesaReservaBloqueadaModal.personas} personas</span>
-                        </div>
-                        <div className="flex justify-between pt-1 border-t border-slate-800">
-                          <span className="text-slate-400">Pago Previo Confirmado:</span>
-                          <span className="font-black text-emerald-400">
-                            S/ {Number(mesaReservaBloqueadaModal.montoAdelanto || 0).toFixed(2)} ({mesaReservaBloqueadaModal.metodoPagoAdelanto || 'Yape'})
+                        <div>
+                          <h2 className="text-xl font-black text-white flex items-center gap-2">
+                            <span>{mesaReservaBloqueadaModal.mesaAsignada}</span>
+                            <span className="text-xs font-black bg-purple-600 text-white px-2.5 py-0.5 rounded-full uppercase">
+                              Bloqueada Hoy con Pago Previo
+                            </span>
+                          </h2>
+                          <span className="text-xs text-purple-300 font-bold">
+                            Reserva: {mesaReservaBloqueadaModal.cliente} • {mesaReservaBloqueadaModal.personas} personas
                           </span>
                         </div>
-                        {mesaReservaBloqueadaModal.notas && (
-                          <div className="text-[11px] text-slate-300 pt-1 border-t border-slate-800">
-                            <b>Notas:</b> {mesaReservaBloqueadaModal.notas}
+                      </div>
+
+                      <div className="space-y-3 text-xs">
+                        {/* Datos de contacto y reserva */}
+                        <div className="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-3.5 space-y-1.5">
+                          <div className="flex justify-between">
+                            <span className="text-slate-400">Titular:</span>
+                            <span className="font-bold text-white text-sm">{mesaReservaBloqueadaModal.cliente}</span>
                           </div>
-                        )}
-                      </div>
-
-                      {/* Platos preseleccionados */}
-                      {mesaReservaBloqueadaModal.platosPreseleccionados && mesaReservaBloqueadaModal.platosPreseleccionados.length > 0 && (
-                        <div className="bg-purple-950/40 border border-purple-500/40 rounded-2xl p-3">
-                          <span className="text-[11px] font-black text-purple-300 block mb-1.5">
-                            🍲 Platos Preseleccionados por el Cliente:
-                          </span>
-                          <ul className="space-y-1">
-                            {mesaReservaBloqueadaModal.platosPreseleccionados.map((plato, idx) => (
-                              <li key={idx} className="flex items-center gap-2 text-slate-200 text-xs">
-                                <span className="text-amber-400 font-bold">•</span>
-                                <span>{plato}</span>
-                              </li>
-                            ))}
-                          </ul>
+                          <div className="flex justify-between">
+                            <span className="text-slate-400">WhatsApp / Teléfono:</span>
+                            <span className="font-bold text-amber-300">{mesaReservaBloqueadaModal.telefono}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-400">Fecha & Hora:</span>
+                            <span className="font-bold text-white">📅 {mesaReservaBloqueadaModal.fechaReserva} a las ⏰ {mesaReservaBloqueadaModal.horaReserva}</span>
+                          </div>
+                          <div className="flex justify-between pt-1 border-t border-slate-800">
+                            <span className="text-slate-400">Adelanto Registrado:</span>
+                            <span className="font-black text-emerald-400">
+                              S/ {adelanto.toFixed(2)} ({mesaReservaBloqueadaModal.metodoPagoAdelanto || 'Yape'})
+                            </span>
+                          </div>
                         </div>
-                      )}
 
-                      {/* Cambiar Estado Rápido */}
-                      <div className="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-3">
-                        <span className="text-[11px] font-black text-slate-300 block mb-2">
-                          Cambiar Estado de la Reserva:
-                        </span>
-                        <div className="grid grid-cols-3 gap-2">
-                          {(['Confirmada', 'Por confirmar', 'Cancelada'] as const).map((est) => (
+                        {/* Pedidos del catálogo digital con cantidades y precios */}
+                        <div className="bg-purple-950/40 border border-purple-500/40 rounded-2xl p-3.5">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-[11px] font-black text-purple-300 uppercase tracking-wider flex items-center gap-1.5">
+                              <span>🍲</span> Pedidos del Catálogo Digital:
+                            </span>
+                            <span className="text-[10px] text-amber-400 font-bold">
+                              {mesaReservaBloqueadaModal.itemsPedidos?.length || mesaReservaBloqueadaModal.platosPreseleccionados?.length || 0} plato(s)
+                            </span>
+                          </div>
+
+                          {mesaReservaBloqueadaModal.itemsPedidos && mesaReservaBloqueadaModal.itemsPedidos.length > 0 ? (
+                            <div className="space-y-1.5 max-h-36 overflow-y-auto custom-scroll pr-1">
+                              {mesaReservaBloqueadaModal.itemsPedidos.map((it, idx) => (
+                                <div key={idx} className="flex items-center justify-between p-2 rounded-xl bg-slate-900/80 border border-purple-500/20 text-xs">
+                                  <div className="flex items-center gap-2">
+                                    <span className="w-5 h-5 rounded-md bg-purple-900/80 text-purple-200 flex items-center justify-center font-bold text-[10px]">
+                                      {it.cantidad}x
+                                    </span>
+                                    <span className="font-bold text-slate-100">{it.nombre}</span>
+                                  </div>
+                                  <span className="font-black text-amber-300">
+                                    S/ {(it.cantidad * it.precio).toFixed(2)}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          ) : mesaReservaBloqueadaModal.platosPreseleccionados && mesaReservaBloqueadaModal.platosPreseleccionados.length > 0 ? (
+                            <div className="space-y-1">
+                              {mesaReservaBloqueadaModal.platosPreseleccionados.map((plato, idx) => (
+                                <div key={idx} className="p-1.5 rounded-lg bg-slate-900/60 text-slate-200 text-xs flex items-center gap-2">
+                                  <span className="text-amber-400 font-bold">•</span>
+                                  <span>{plato}</span>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-slate-400 italic text-center py-2">Sin platos preseleccionados aún</p>
+                          )}
+
+                          {/* Resumen de cuentas y saldo del 50% */}
+                          <div className="mt-3 pt-2.5 border-t border-purple-500/30 space-y-1 text-xs">
+                            <div className="flex justify-between">
+                              <span className="text-slate-300">Total Pedidos Estimado:</span>
+                              <span className="font-black text-white">S/ {totalPedidos.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-slate-300">Adelanto Ya Pagado:</span>
+                              <span className="font-black text-emerald-400">- S/ {adelanto.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between text-sm font-black pt-1 border-t border-slate-800">
+                              <span className="text-amber-300">Saldo Pendiente (50% / restante):</span>
+                              <span className="text-rose-400">S/ {saldo50.toFixed(2)}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Opción de Completar Pago del 50% restante */}
+                        {saldo50 > 0 && (
+                          <div className="bg-emerald-950/60 border border-emerald-500/40 rounded-2xl p-3">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-[11px] font-black text-emerald-300">
+                                💳 Completar Pago del 50% Restante:
+                              </span>
+                              <span className="text-xs font-black text-emerald-400">
+                                S/ {saldo50.toFixed(2)}
+                              </span>
+                            </div>
                             <button
-                              key={est}
                               type="button"
                               onClick={() => {
-                                const act = { ...mesaReservaBloqueadaModal, estado: est };
+                                const act = {
+                                  ...mesaReservaBloqueadaModal,
+                                  pagoLiquidado: true,
+                                  montoAdelanto: totalPedidos,
+                                  saldoRestante: 0,
+                                };
                                 storage.saveReserva(act);
                                 setMesaReservaBloqueadaModal(act);
+                                alert(`✔ Pago completado con éxito. Se liquidó el 100% de la reserva (S/ ${totalPedidos.toFixed(2)}).`);
                               }}
-                              className={`py-1.5 px-2 rounded-xl text-[10px] font-black uppercase transition-all cursor-pointer border ${
-                                mesaReservaBloqueadaModal.estado === est
-                                  ? est === 'Confirmada'
-                                    ? 'bg-emerald-600 border-emerald-400 text-white shadow'
-                                    : est === 'Por confirmar'
-                                    ? 'bg-amber-600 border-amber-400 text-white shadow'
-                                    : 'bg-red-700 border-red-500 text-white shadow'
-                                  : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
-                              }`}
+                              className="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow cursor-pointer active:scale-95 transition-all"
                             >
-                              {est}
+                              <i className="fa-solid fa-check-double"></i>
+                              <span>Registrar Pago Completado del 50% (S/ {saldo50.toFixed(2)})</span>
                             </button>
-                          ))}
+                          </div>
+                        )}
+
+                        {/* Botones Solicitados: WhatsApp Recordatorio & WhatsApp Agradecimiento + Google Business */}
+                        <div className="space-y-2 pt-1">
+                          {/* Botón WhatsApp Recordatorio */}
+                          <a
+                            href={`https://wa.me/${mesaReservaBloqueadaModal.telefono.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                              `¡Hola ${mesaReservaBloqueadaModal.cliente}! Te saludamos de *${config.nombre}* 🍽️🍷✨\n\n` +
+                              `⏰ *RECORDATORIO DE TU RESERVA DE HOY:*\n` +
+                              `📅 Fecha: ${mesaReservaBloqueadaModal.fechaReserva}\n` +
+                              `⏰ Hora: ${mesaReservaBloqueadaModal.horaReserva}\n` +
+                              `🪑 Mesa Asignada: ${mesaReservaBloqueadaModal.mesaAsignada}\n` +
+                              `👥 Comensales: ${mesaReservaBloqueadaModal.personas} personas\n` +
+                              (dishesText ? `🍲 Platos reservados: ${dishesText}\n` : '') +
+                              `🔒 Adelanto confirmado: S/ ${adelanto.toFixed(2)}\n\n` +
+                              `¡Tu mesa se encuentra lista y reservada para ti! Te esperamos.`
+                            )}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-400 text-slate-950 font-black text-xs flex items-center justify-center gap-2 shadow cursor-pointer active:scale-95 transition-all"
+                          >
+                            <i className="fa-brands fa-whatsapp text-base"></i>
+                            <span>Enviar Recordatorio por WhatsApp</span>
+                          </a>
+
+                          {/* Botón WhatsApp Agradecimiento con Reseña de Google */}
+                          <a
+                            href={`https://wa.me/${mesaReservaBloqueadaModal.telefono.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                              `¡Hola ${mesaReservaBloqueadaModal.cliente}! Muchísimas gracias por reservar y visitarnos en *${config.nombre}* 🍽️✨\n\n` +
+                              `Esperamos que hayas disfrutado de tu estadía y de nuestros platos tradicionales cusqueños.\n\n` +
+                              `Nos encantaría conocer tu opinión. ¿Nos apoyarías con una reseña en Google Business aquí? 👇\n` +
+                              `⭐ ${googleUrl}\n\n` +
+                              `¡Gracias por tu preferencia y esperamos verte pronto de nuevo!`
+                            )}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 text-white font-black text-xs flex items-center justify-center gap-2 shadow cursor-pointer active:scale-95 transition-all"
+                          >
+                            <i className="fa-brands fa-google text-sm"></i>
+                            <span>Enviar Agradecimiento & Reseña de Google</span>
+                          </a>
                         </div>
-                      </div>
 
-                      {/* Botones de acción */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
-                        <a
-                          href={`https://wa.me/${mesaReservaBloqueadaModal.telefono.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
-                            `¡Hola ${mesaReservaBloqueadaModal.cliente}! Te saludamos de *${config.nombre}* 🍽️\n` +
-                            `Tu mesa *${mesaReservaBloqueadaModal.mesaAsignada}* se encuentra reservada y lista para hoy a las *${mesaReservaBloqueadaModal.horaReserva}*.\n` +
-                            `¡Los esperamos!`
-                          )}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow"
-                        >
-                          <i className="fa-brands fa-whatsapp text-sm"></i>
-                          <span>WhatsApp Cliente</span>
-                        </a>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            // Desbloquear mesa cambiando pagoConfirmado a false
-                            const act = { ...mesaReservaBloqueadaModal, pagoConfirmado: false };
-                            storage.saveReserva(act);
-                            setMesaReservaBloqueadaModal(null);
-                            alert(`✔ Se liberó el bloqueo de ${act.mesaAsignada}.`);
-                          }}
-                          className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold text-xs flex items-center justify-center gap-1.5 border border-amber-500/40 cursor-pointer"
-                        >
-                          <i className="fa-solid fa-lock-open"></i>
-                          <span>Desbloquear Mesa</span>
-                        </button>
+                        {/* Desbloquear / Liberar Mesa */}
+                        <div className="pt-2 flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const act = { ...mesaReservaBloqueadaModal, pagoConfirmado: false };
+                              storage.saveReserva(act);
+                              setMesaReservaBloqueadaModal(null);
+                              alert(`✔ Se liberó el bloqueo de ${act.mesaAsignada}.`);
+                            }}
+                            className="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold text-xs flex items-center justify-center gap-1.5 border border-amber-500/40 cursor-pointer"
+                          >
+                            <i className="fa-solid fa-lock-open"></i>
+                            <span>Liberar / Desbloquear Mesa</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
 
               {/* MODAL DETALLE / GESTIÓN DE MESA */}
               {mesaDetalleModal && (
@@ -2878,6 +2944,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                       alert('Por favor complete titular y teléfono.');
                       return;
                     }
+                    const totalEst = resAdminForm.totalEstimado || resAdminForm.itemsPedidos.reduce((acc, it) => acc + it.cantidad * it.precio, 0);
+                    const adelanto = resAdminForm.pagoConfirmado ? Number(resAdminForm.montoAdelanto) : 0;
+                    const saldo = Math.max(0, totalEst - adelanto);
                     const n: Reserva = {
                       id: `RES-${Date.now().toString().slice(-6)}`,
                       cliente: resAdminForm.titular.trim(),
@@ -2888,20 +2957,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                       mesaAsignada: resAdminForm.mesa,
                       estado: resAdminForm.estado,
                       platosPreseleccionados: resAdminForm.platosPreseleccionados,
+                      itemsPedidos: resAdminForm.itemsPedidos,
+                      totalEstimado: totalEst,
+                      saldoRestante: saldo,
+                      pagoLiquidado: resAdminForm.pagoConfirmado && adelanto >= totalEst && totalEst > 0,
                       pagoConfirmado: resAdminForm.pagoConfirmado,
-                      montoAdelanto: resAdminForm.pagoConfirmado ? Number(resAdminForm.montoAdelanto) : 0,
+                      montoAdelanto: adelanto,
                       metodoPagoAdelanto: resAdminForm.pagoConfirmado ? resAdminForm.metodoPagoAdelanto : undefined,
                       notas: resAdminForm.notas.trim() || 'Sin notas especiales',
                       fechaCreacion: new Date().toLocaleDateString('es-PE'),
                     };
                     storage.saveReserva(n);
-                    alert(`✔ Reserva guardada en estado ${n.estado}. ${n.pagoConfirmado ? '🔒 Mesa bloqueada por pago previo.' : 'Mesa libre hasta confirmar pago.'}`);
+                    alert(`✔ Reserva guardada en estado ${n.estado}. ${n.pagoConfirmado ? '🔒 Mesa bloqueada solo para la fecha de reserva (' + n.fechaReserva + ').' : 'Mesa libre hasta confirmar pago.'}`);
                     setResAdminForm({
                       ...resAdminForm,
                       titular: '',
                       telefono: '',
                       notas: '',
                       platosPreseleccionados: [],
+                      itemsPedidos: [],
+                      totalEstimado: 0,
                       pagoConfirmado: false,
                     });
                   }}
@@ -3004,15 +3079,66 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                     </div>
                   </div>
 
-                  {/* Escoger tipos de platos a pedir */}
-                  <div style={{ gridColumn: '1 / -1', background: 'rgba(15, 23, 42, 0.6)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                      <strong style={{ fontSize: '12px', color: 'var(--gold)' }}>
-                        <i className="fa-solid fa-utensils"></i> Escoger qué tipos de platos van a pedir ({resAdminForm.platosPreseleccionados.length} seleccionados):
+                  {/* Escoger tipos de platos a pedir con Catálogo Digital */}
+                  <div style={{ gridColumn: '1 / -1', background: 'rgba(15, 23, 42, 0.75)', padding: '14px', borderRadius: '12px', border: '1.5px solid rgba(245, 158, 11, 0.4)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
+                      <strong style={{ fontSize: '13px', color: 'var(--gold)' }}>
+                        <i className="fa-solid fa-utensils"></i> Platos y Pedidos de la Reserva:
                       </strong>
-                      <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Opcional para cocina y mozo</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPickerTargetReserva(null);
+                          setIsCatalogPickerOpen(true);
+                        }}
+                        style={{
+                          padding: '6px 14px',
+                          borderRadius: '8px',
+                          background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                          color: '#020617',
+                          fontWeight: 900,
+                          fontSize: '11px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          boxShadow: '0 0 12px rgba(245, 158, 11, 0.4)'
+                        }}
+                      >
+                        <i className="fa-solid fa-book-open"></i> 📖 Abrir Catálogo Digital de Platos
+                      </button>
                     </div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', maxHeight: '110px', overflowY: 'auto' }}>
+
+                    {/* Resumen de items pedidos seleccionados */}
+                    {resAdminForm.itemsPedidos && resAdminForm.itemsPedidos.length > 0 ? (
+                      <div style={{ background: '#020617', padding: '10px', borderRadius: '10px', border: '1px solid #0284c7', marginBottom: '10px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                          <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#38bdf8' }}>
+                            🛒 Pedido Armado ({resAdminForm.itemsPedidos.reduce((acc, it) => acc + it.cantidad, 0)} unidades seleccionadas):
+                          </span>
+                          <span style={{ fontSize: '12px', fontWeight: 900, color: '#fbbf24' }}>
+                            Total: S/ {(resAdminForm.totalEstimado || 0).toFixed(2)}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                          {resAdminForm.itemsPedidos.map((it, idx) => (
+                            <div key={idx} style={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '4px 8px', fontSize: '11px', color: '#e2e8f0', display: 'flex', gap: '6px' }}>
+                              <b style={{ color: '#38bdf8' }}>{it.cantidad}x</b>
+                              <span>{it.nombre}</span>
+                              <span style={{ color: '#fbbf24', fontWeight: 'bold' }}>S/ {(it.cantidad * it.precio).toFixed(2)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '8px' }}>
+                        No hay platos seleccionados aún. Pulsa el botón de arriba para abrir el catálogo con fotos, precios y cantidades.
+                      </div>
+                    )}
+
+                    {/* Selección rápida opcional de platos */}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', maxHeight: '90px', overflowY: 'auto' }}>
                       {productos.map((prod) => {
                         const nombrePlato = prod.nombre || prod.i18n?.es?.name || prod.id;
                         const precioPlato = prod.precioPEN || prod.precio || 0;
@@ -3028,9 +3154,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                               setResAdminForm({ ...resAdminForm, platosPreseleccionados: nuevo });
                             }}
                             style={{
-                              padding: '5px 10px',
-                              borderRadius: '8px',
-                              fontSize: '11px',
+                              padding: '4px 8px',
+                              borderRadius: '6px',
+                              fontSize: '10px',
                               fontWeight: 'bold',
                               cursor: 'pointer',
                               border: isChecked ? '1.5px solid var(--gold)' : '1px solid #334155',
@@ -3052,16 +3178,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                       <input
                         type="checkbox"
                         checked={resAdminForm.pagoConfirmado}
-                        onChange={(e) => setResAdminForm({ ...resAdminForm, pagoConfirmado: e.target.checked })}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          const total = resAdminForm.totalEstimado || 0;
+                          const sugerido = total > 0 ? Number((total * 0.5).toFixed(2)) : 50;
+                          setResAdminForm({
+                            ...resAdminForm,
+                            pagoConfirmado: checked,
+                            montoAdelanto: checked ? (resAdminForm.montoAdelanto || sugerido) : 0,
+                          });
+                        }}
                         style={{ width: '16px', height: '16px', accentColor: '#a855f7', cursor: 'pointer' }}
                       />
-                      <span>🔒 Confirmar Pago Previo de Adelanto (Bloquea la mesa en el salón el día de la reserva)</span>
+                      <span>🔒 Confirmar Pago Previo de Adelanto (50%) • Bloquea la mesa en el salón el día de la reserva</span>
                     </label>
 
                     {resAdminForm.pagoConfirmado && (
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px', marginTop: '10px' }}>
                         <div>
-                          <label style={{ fontSize: '11px', color: '#d8b4fe' }}>Monto de Adelanto (S/):</label>
+                          <label style={{ fontSize: '11px', color: '#d8b4fe' }}>
+                            Monto Adelanto 50% (S/): {resAdminForm.totalEstimado > 0 && `(Total: S/ ${resAdminForm.totalEstimado.toFixed(2)})`}
+                          </label>
                           <input
                             type="number"
                             min={0}
@@ -3204,8 +3341,55 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                         </select>
                       </div>
 
-                      {/* Platos Preseleccionados */}
-                      {r.platosPreseleccionados && r.platosPreseleccionados.length > 0 && (
+                      {/* Platos y Pedidos del Catálogo Digital */}
+                      {r.itemsPedidos && r.itemsPedidos.length > 0 ? (
+                        <div style={{ background: '#020617', padding: '8px 10px', borderRadius: '10px', border: '1px solid #0284c7' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                            <span style={{ fontSize: '10px', color: '#38bdf8', fontWeight: 900 }}>
+                              🛒 Pedido de Catálogo ({r.itemsPedidos.reduce((acc, it) => acc + it.cantidad, 0)} platos):
+                            </span>
+                            <span style={{ fontSize: '11px', color: '#fbbf24', fontWeight: 900 }}>
+                              Total: S/ {(r.totalEstimado || 0).toFixed(2)}
+                            </span>
+                          </div>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '6px' }}>
+                            {r.itemsPedidos.map((it, idx) => (
+                              <span key={idx} style={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '5px', padding: '2px 6px', fontSize: '10px', color: '#e2e8f0' }}>
+                                <b style={{ color: '#38bdf8' }}>{it.cantidad}x</b> {it.nombre} <span style={{ color: '#fbbf24' }}>S/ {(it.cantidad * it.precio).toFixed(2)}</span>
+                              </span>
+                            ))}
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '10px', paddingTop: '4px', borderTop: '1px dashed #334155' }}>
+                            <span style={{ color: '#94a3b8' }}>
+                              Adelanto: <b style={{ color: '#a855f7' }}>S/ {Number(r.montoAdelanto || 0).toFixed(2)}</b> • Saldo: <b style={{ color: '#f59e0b' }}>S/ {Math.max(0, (r.totalEstimado || 0) - (r.montoAdelanto || 0)).toFixed(2)}</b>
+                            </span>
+                            {r.pagoLiquidado ? (
+                              <span style={{ color: '#10b981', fontWeight: 900 }}>✓ 100% Liquidado</span>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const act = { ...r, pagoLiquidado: true, saldoRestante: 0 };
+                                  storage.saveReserva(act);
+                                  alert('✔ Saldo restante del 50% completado y liquidado con éxito.');
+                                }}
+                                style={{
+                                  background: '#047857',
+                                  color: '#fff',
+                                  fontSize: '10px',
+                                  fontWeight: 900,
+                                  padding: '3px 7px',
+                                  borderRadius: '5px',
+                                  border: 'none',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                💳 Completar Pago 50%
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ) : r.platosPreseleccionados && r.platosPreseleccionados.length > 0 ? (
                         <div style={{ background: 'rgba(15, 23, 42, 0.7)', padding: '6px 10px', borderRadius: '8px', border: '1px solid #334155' }}>
                           <span style={{ fontSize: '10px', color: '#38bdf8', fontWeight: 'bold', display: 'block', marginBottom: '2px' }}>
                             🍲 Platos Preseleccionados ({r.platosPreseleccionados.length}):
@@ -3214,7 +3398,32 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                             {r.platosPreseleccionados.join(', ')}
                           </span>
                         </div>
-                      )}
+                      ) : null}
+
+                      {/* Botón para Abrir/Modificar Catálogo de Platos de esta Reserva */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPickerTargetReserva(r);
+                          setIsCatalogPickerOpen(true);
+                        }}
+                        style={{
+                          background: 'rgba(30, 58, 138, 0.4)',
+                          border: '1px solid #3b82f6',
+                          color: '#93c5fd',
+                          padding: '5px 8px',
+                          borderRadius: '7px',
+                          fontSize: '10px',
+                          fontWeight: 'bold',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        <i className="fa-solid fa-book-open"></i> {r.itemsPedidos && r.itemsPedidos.length > 0 ? 'Modificar Platos del Catálogo' : 'Elegir Platos del Catálogo Digital'}
+                      </button>
 
                       {r.notas && (
                         <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
@@ -3255,37 +3464,71 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                         ))}
                       </div>
 
-                      {/* Botones de acción WhatsApp & Eliminar */}
-                      <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                      {/* Botones de acción WhatsApp Recordatorio, WhatsApp Agradecimiento/Google & Eliminar */}
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '6px', marginTop: '4px' }}>
+                        {/* 1. Botón de Recordatorio por WhatsApp */}
                         <a
                           href={`https://wa.me/${r.telefono.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
-                            `¡Hola ${r.cliente}! Te saludamos de *${config.nombre}* 🍽️\n` +
-                            `Tu reserva para el *${r.fechaReserva}* a las *${r.horaReserva}* en la *${r.mesaAsignada}* se encuentra en estado: *${r.estado}*.\n` +
+                            `¡Hola ${r.cliente}! Te saludamos cordialmente de *${config.nombre}* 🍽️🍷✨\n\n` +
+                            `Te recordamos tu reserva agendada para el día *${r.fechaReserva}* a las *${r.horaReserva}* en la *${r.mesaAsignada}* para *${r.personas} comensales*.\n` +
+                            (r.itemsPedidos && r.itemsPedidos.length > 0 ? `🍲 *Platos Seleccionados del Menú:*\n${r.itemsPedidos.map(it => `• ${it.cantidad}x ${it.nombre} (S/ ${(it.cantidad * it.precio).toFixed(2)})`).join('\n')}\n` : '') +
                             (r.pagoConfirmado ? `🔒 Adelanto confirmado: S/ ${Number(r.montoAdelanto || 0).toFixed(2)}\n` : '') +
-                            (r.platosPreseleccionados && r.platosPreseleccionados.length > 0 ? `🍲 Platos: ${r.platosPreseleccionados.join(', ')}\n` : '') +
-                            `¡Te esperamos con la mejor gastronomía cusqueña!`
+                            (r.saldoRestante && r.saldoRestante > 0 ? `💳 Saldo restante: S/ ${Number(r.saldoRestante).toFixed(2)}\n` : '') +
+                            `\n¡Te esperamos con la más fina gastronomía cusqueña!`
                           )}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           style={{
-                            flex: 1,
-                            padding: '6px 10px',
+                            padding: '6px 8px',
                             borderRadius: '8px',
                             background: '#10b981',
                             color: '#fff',
                             textDecoration: 'none',
-                            fontSize: '11px',
+                            fontSize: '10px',
                             fontWeight: 'bold',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            gap: '6px',
+                            gap: '4px',
                           }}
+                          title="Enviar Recordatorio por WhatsApp"
                         >
                           <i className="fa-brands fa-whatsapp"></i>
-                          <span>WhatsApp</span>
+                          <span>Recordatorio</span>
                         </a>
 
+                        {/* 2. Botón de Agradecimiento con Enlace a Reseñas de Google */}
+                        <a
+                          href={`https://wa.me/${r.telefono.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                            `¡Muchas gracias por reservar y visitarnos en *${config.nombre}*, estimado(a) ${r.cliente}! 🍽️✨\n\n` +
+                            `Ha sido un honor brindarte nuestra experiencia culinaria cusqueña.\n` +
+                            `Tu opinión es de gran valor para nuestro equipo y nos ayuda a seguir mejorando cada día.\n\n` +
+                            `⭐ *¿Nos dejarías tu reseña y calificación en Google Business?* Puedes hacerlo rápidamente pulsando aquí:\n` +
+                            `${config.googleBusinessUrl || 'https://search.google.com/local/writereview?placeid=ChIJlacusquenita-cusco-peru'}\n\n` +
+                            `¡Gracias por tu preferencia y esperamos recibirte pronto de nuevo!`
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            padding: '6px 8px',
+                            borderRadius: '8px',
+                            background: 'linear-gradient(135deg, #d97706, #b45309)',
+                            color: '#fff',
+                            textDecoration: 'none',
+                            fontSize: '10px',
+                            fontWeight: 'bold',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '4px',
+                          }}
+                          title="Enviar Agradecimiento y Link de Reseña de Google"
+                        >
+                          <i className="fa-brands fa-google"></i>
+                          <span>Agradecer & Google</span>
+                        </a>
+
+                        {/* 3. Eliminar Reserva */}
                         <button
                           type="button"
                           onClick={() => {
@@ -3500,6 +3743,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                         onChange={(e) => setIdentidadForm({ ...identidadForm, tiktok: e.target.value })}
                       />
                     </div>
+                    <div style={{ gridColumn: '1 / -1', background: 'rgba(245, 158, 11, 0.08)', padding: '10px 12px', borderRadius: '10px', border: '1px solid rgba(245, 158, 11, 0.35)' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#fbbf24', fontWeight: 900 }}>
+                        <i className="fa-brands fa-google text-amber-400"></i> ⭐ Dirección de Reseñas del Negocio en Google Business:
+                      </label>
+                      <input
+                        type="url"
+                        placeholder="Ej: https://search.google.com/local/writereview?placeid=... o https://g.page/r/..."
+                        value={identidadForm.googleBusinessUrl || ''}
+                        onChange={(e) => setIdentidadForm({ ...identidadForm, googleBusinessUrl: e.target.value })}
+                        style={{ marginTop: '4px' }}
+                      />
+                      <span style={{ fontSize: '11px', color: '#94a3b8', display: 'block', marginTop: '4px' }}>
+                        * Este enlace se enviará automáticamente en los mensajes de WhatsApp de agradecimiento al cliente y se abrirá en segundo plano en la pantalla de agradecimiento del Menú Digital para captar reseñas positivas.
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -3508,7 +3766,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                   style={{ marginTop: '16px', width: '100%' }}
                   onClick={() => {
                     storage.saveConfig(identidadForm);
-                    alert('✔ Identidad del restaurante y redes guardadas con éxito.');
+                    alert('✔ Identidad del restaurante, redes y enlace de Google Business guardados con éxito.');
                   }}
                 >
                   <i className="fa-solid fa-floppy-disk"></i> Guardar Identidad, Logo & Redes
@@ -4055,6 +4313,50 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
             </div>
           </div>
         </div>
+      )}
+
+      {/* MODAL POPUP PARA AGREGAR / ELEGIR PLATOS DEL CATÁLOGO DIGITAL */}
+      {isCatalogPickerOpen && (
+        <DishCatalogPickerModal
+          initialItems={
+            pickerTargetReserva
+              ? (pickerTargetReserva.itemsPedidos || [])
+              : (resAdminForm.itemsPedidos || [])
+          }
+          onConfirm={(items, total) => {
+            if (pickerTargetReserva) {
+              const platosNombres = items.map((it) => `${it.cantidad}x ${it.nombre}`);
+              const adelanto = pickerTargetReserva.montoAdelanto || 0;
+              const saldo = Math.max(0, total - adelanto);
+              const updated: Reserva = {
+                ...pickerTargetReserva,
+                itemsPedidos: items,
+                totalEstimado: total,
+                saldoRestante: saldo,
+                platosPreseleccionados: platosNombres,
+              };
+              storage.saveReserva(updated);
+              setPickerTargetReserva(null);
+              setIsCatalogPickerOpen(false);
+              alert(`✔ Pedido del catálogo actualizado para ${pickerTargetReserva.cliente} (Total: S/ ${total.toFixed(2)}).`);
+            } else {
+              const platosNombres = items.map((it) => `${it.cantidad}x ${it.nombre}`);
+              const adelantoSugerido = total > 0 ? Number((total * 0.5).toFixed(2)) : resAdminForm.montoAdelanto;
+              setResAdminForm((prev) => ({
+                ...prev,
+                itemsPedidos: items,
+                totalEstimado: total,
+                platosPreseleccionados: platosNombres,
+                montoAdelanto: prev.pagoConfirmado ? adelantoSugerido : prev.montoAdelanto,
+              }));
+              setIsCatalogPickerOpen(false);
+            }
+          }}
+          onClose={() => {
+            setIsCatalogPickerOpen(false);
+            setPickerTargetReserva(null);
+          }}
+        />
       )}
     </div>
   );

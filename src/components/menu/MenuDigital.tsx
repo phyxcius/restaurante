@@ -27,11 +27,12 @@ import {
   MessageCircle,
   Check,
 } from 'lucide-react';
-import { Producto, CartItem, Language, Comanda, ConfigRestaurante } from '../../types';
+import { Producto, CartItem, Language, Comanda, ConfigRestaurante, ReservaItemPedido } from '../../types';
 import { storage } from '../../services/storage';
 import { consultarDNI } from '../../services/sunatApi';
 import { MENU_TRANSLATIONS } from './menuTranslations';
 import { CHUSPA_TECH_LOGO } from '../../constants/chuspaLogo';
+import { DishCatalogPickerModal } from '../reservas/DishCatalogPickerModal';
 
 interface MenuDigitalProps {
   config: ConfigRestaurante;
@@ -121,6 +122,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
   // Modals requested for Thank You Notification: Club Sellos & Reservas
   const [showClubSellosModal, setShowClubSellosModal] = useState<boolean>(false);
   const [showReservaModal, setShowReservaModal] = useState<boolean>(false);
+  const [isCatalogPickerOpen, setIsCatalogPickerOpen] = useState<boolean>(false);
   const [reservaForm, setReservaForm] = useState({
     nombre: '',
     telefono: '',
@@ -130,6 +132,8 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
     mesaAsignada: 'Mesa 01',
     estado: 'Confirmada' as 'Confirmada' | 'Por confirmar' | 'Cancelada',
     platosPreseleccionados: [] as string[],
+    itemsPedidos: [] as ReservaItemPedido[],
+    totalEstimado: 0,
     pagoConfirmado: false,
     montoAdelanto: 30,
     metodoPagoAdelanto: 'Yape',
@@ -725,6 +729,13 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                     fecha: new Date().toISOString().slice(0, 10),
                   });
                   setResenaEnviada(true);
+
+                  // Abrir en segundo plano la reseña de Google Business del negocio
+                  const googleUrl = config.googleBusinessUrl || 'https://search.google.com/local/writereview?placeid=ChIJlacusquenita-cusco-peru';
+                  try {
+                    window.open(googleUrl, '_blank');
+                  } catch {}
+
                   try {
                     confetti({ particleCount: 50, spread: 50, origin: { y: 0.7 } });
                   } catch {}
@@ -740,6 +751,29 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
               <span>{t.ratingSubmittedThanks}</span>
             </div>
           )}
+        </div>
+
+        {/* Enlace destacado a Google Business Reseñas */}
+        <div className="mt-4 bg-gradient-to-r from-amber-500/15 via-[#0c2242] to-amber-500/15 border-2 border-amber-400/80 rounded-2xl p-4 text-center shadow-[0_0_20px_rgba(245,158,11,0.25)] animate-in fade-in">
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <span className="text-xl">⭐</span>
+            <h4 className="text-xs font-black uppercase text-amber-300 tracking-wider font-latina-luxury">
+              Déjanos tu Reseña en Google Business
+            </h4>
+            <span className="text-xl">⭐</span>
+          </div>
+          <p className="text-[11px] text-slate-200 mb-3">
+            ¡Tu calificación en Google nos ayuda a seguir compartiendo la auténtica tradición cusqueña con nuevos visitantes!
+          </p>
+          <a
+            href={config.googleBusinessUrl || 'https://search.google.com/local/writereview?placeid=ChIJlacusquenita-cusco-peru'}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg cursor-pointer active:scale-95 transition-all"
+          >
+            <i className="fa-brands fa-google text-base"></i>
+            <span>Abrir Reseñas en Google Business</span>
+          </a>
         </div>
 
         {/* Redes Sociales del Negocio en la Ventana de Agradecimiento */}
@@ -1031,6 +1065,10 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                       mesaAsignada: reservaForm.mesaAsignada || selectedMesa || 'Mesa 01',
                       estado: reservaForm.estado,
                       platosPreseleccionados: reservaForm.platosPreseleccionados,
+                      itemsPedidos: reservaForm.itemsPedidos,
+                      totalEstimado: reservaForm.totalEstimado || reservaForm.itemsPedidos.reduce((acc, it) => acc + it.cantidad * it.precio, 0),
+                      saldoRestante: reservaForm.pagoConfirmado ? Math.max(0, (reservaForm.totalEstimado || 0) - Number(reservaForm.montoAdelanto)) : reservaForm.totalEstimado,
+                      pagoLiquidado: reservaForm.pagoConfirmado && Number(reservaForm.montoAdelanto) >= (reservaForm.totalEstimado || 0) && (reservaForm.totalEstimado || 0) > 0,
                       pagoConfirmado: reservaForm.pagoConfirmado,
                       montoAdelanto: reservaForm.pagoConfirmado ? Number(reservaForm.montoAdelanto) : 0,
                       metodoPagoAdelanto: reservaForm.pagoConfirmado ? reservaForm.metodoPagoAdelanto : undefined,
@@ -1151,18 +1189,39 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                     </div>
                   </div>
 
-                  {/* Escoger qué tipos de platos van a pedir */}
+                  {/* Escoger qué tipos de platos van a pedir con Catálogo */}
                   <div className="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-3">
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
                       <label className="text-[11px] font-black text-amber-300 flex items-center gap-1.5">
-                        <span>🍽️</span> Preseleccionar Platos a Pedir:
+                        <span>🍽️</span> Catálogo Digital de Platos & Pedido:
                       </label>
-                      <span className="text-[9px] text-sky-400 font-bold">
-                        {reservaForm.platosPreseleccionados.length} seleccionados
-                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setIsCatalogPickerOpen(true)}
+                        className="px-2.5 py-1 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-black text-[10px] flex items-center gap-1 shadow cursor-pointer active:scale-95"
+                      >
+                        <span>Abrir Catálogo de Platos</span>
+                      </button>
                     </div>
-                    <div className="max-h-32 overflow-y-auto space-y-1.5 custom-scroll pr-1">
-                      {productos.map((prod) => {
+
+                    {reservaForm.itemsPedidos && reservaForm.itemsPedidos.length > 0 && (
+                      <div className="bg-slate-950 p-2 rounded-xl border border-sky-400/50 mb-2">
+                        <div className="flex justify-between items-center text-[10px] font-bold text-sky-300 mb-1">
+                          <span>Platos seleccionados ({reservaForm.itemsPedidos.reduce((acc, it) => acc + it.cantidad, 0)} items):</span>
+                          <span className="text-amber-400">Total: S/ {(reservaForm.totalEstimado || 0).toFixed(2)}</span>
+                        </div>
+                        <div className="flex flex-wrap gap-1 max-h-20 overflow-y-auto">
+                          {reservaForm.itemsPedidos.map((it, idx) => (
+                            <span key={idx} className="bg-slate-900 border border-slate-700 px-2 py-0.5 rounded text-[10px] text-white">
+                              <b className="text-sky-400">{it.cantidad}x</b> {it.nombre} <span className="text-amber-300">S/ {(it.cantidad * it.precio).toFixed(2)}</span>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="max-h-28 overflow-y-auto space-y-1.5 custom-scroll pr-1">
+                      {productos.slice(0, 8).map((prod) => {
                         const nombrePlato = prod.nombre || prod.i18n?.es?.name || prod.id;
                         const precioPlato = prod.precioPEN || prod.precio || 0;
                         const isChecked = reservaForm.platosPreseleccionados.includes(nombrePlato);
@@ -1186,7 +1245,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                               <span className={`w-4 h-4 rounded flex items-center justify-center text-[10px] font-black border ${isChecked ? 'bg-amber-500 border-amber-300 text-slate-950' : 'border-slate-600'}`}>
                                 {isChecked && '✓'}
                               </span>
-                              <span className="text-xs font-semibold">{nombrePlato}</span>
+                              <span className="text-xs font-semibold truncate">{nombrePlato}</span>
                             </div>
                             <span className="text-[11px] font-bold text-amber-400 shrink-0">
                               S/ {precioPlato.toFixed(2)}
@@ -2357,6 +2416,26 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
             </div>
           </div>
         </div>
+      )}
+
+      {/* Pop-up modal de Catálogo Digital de Platos para Reserva */}
+      {isCatalogPickerOpen && (
+        <DishCatalogPickerModal
+          initialItems={reservaForm.itemsPedidos}
+          onConfirm={(items, total) => {
+            const platosNombres = items.map((it) => `${it.cantidad}x ${it.nombre}`);
+            const adelantoSugerido = total > 0 ? Number((total * 0.5).toFixed(2)) : reservaForm.montoAdelanto;
+            setReservaForm((prev) => ({
+              ...prev,
+              itemsPedidos: items,
+              totalEstimado: total,
+              platosPreseleccionados: platosNombres,
+              montoAdelanto: prev.pagoConfirmado ? adelantoSugerido : prev.montoAdelanto,
+            }));
+            setIsCatalogPickerOpen(false);
+          }}
+          onClose={() => setIsCatalogPickerOpen(false)}
+        />
       )}
     </div>
   );

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
-import { CalendarCheck, Clock, Users, Utensils, MessageSquare, CheckCircle, ArrowLeft, Share2, DollarSign } from 'lucide-react';
-import { Reserva, ConfigRestaurante, Producto } from '../../types';
+import { CalendarCheck, Clock, Users, Utensils, MessageSquare, CheckCircle, ArrowLeft, Share2, DollarSign, BookOpen } from 'lucide-react';
+import { Reserva, ConfigRestaurante, Producto, ReservaItemPedido } from '../../types';
 import { storage } from '../../services/storage';
 import { CHUSPA_TECH_LOGO } from '../../constants/chuspaLogo';
+import { DishCatalogPickerModal } from './DishCatalogPickerModal';
 
 interface ReservasPublicaProps {
   config: ConfigRestaurante;
@@ -23,6 +24,9 @@ export const ReservasPublica: React.FC<ReservasPublicaProps> = ({ config, onBack
   const [notas, setNotas] = useState<string>('');
   const [estadoReserva, setEstadoReserva] = useState<'Confirmada' | 'Por confirmar' | 'Cancelada'>('Por confirmar');
   const [platosSeleccionados, setPlatosSeleccionados] = useState<string[]>([]);
+  const [itemsPedidos, setItemsPedidos] = useState<ReservaItemPedido[]>([]);
+  const [totalEstimado, setTotalEstimado] = useState<number>(0);
+  const [isCatalogPickerOpen, setIsCatalogPickerOpen] = useState<boolean>(false);
   const [pagoConfirmado, setPagoConfirmado] = useState<boolean>(false);
   const [montoAdelanto, setMontoAdelanto] = useState<number>(50);
   const [metodoPagoAdelanto, setMetodoPagoAdelanto] = useState<string>('Yape');
@@ -45,6 +49,10 @@ export const ReservasPublica: React.FC<ReservasPublicaProps> = ({ config, onBack
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const id = `RES-${Date.now().toString().slice(-6)}`;
+    const totalEst = totalEstimado || itemsPedidos.reduce((acc, it) => acc + it.cantidad * it.precio, 0);
+    const adelanto = pagoConfirmado ? montoAdelanto : 0;
+    const saldo = Math.max(0, totalEst - adelanto);
+
     const nuevaReserva: Reserva = {
       id,
       cliente: nombre.trim(),
@@ -57,8 +65,12 @@ export const ReservasPublica: React.FC<ReservasPublicaProps> = ({ config, onBack
       fechaCreacion: new Date().toLocaleDateString('es-PE'),
       estado: pagoConfirmado ? 'Confirmada' : estadoReserva,
       platosPreseleccionados: platosSeleccionados,
+      itemsPedidos,
+      totalEstimado: totalEst,
+      saldoRestante: saldo,
+      pagoLiquidado: pagoConfirmado && adelanto >= totalEst && totalEst > 0,
       pagoConfirmado,
-      montoAdelanto: pagoConfirmado ? montoAdelanto : 0,
+      montoAdelanto: adelanto,
       metodoPagoAdelanto: pagoConfirmado ? metodoPagoAdelanto : undefined,
     };
 
@@ -83,7 +95,10 @@ export const ReservasPublica: React.FC<ReservasPublicaProps> = ({ config, onBack
   };
 
   const openWhatsAppConfirmation = () => {
-    const platosTexto = platosSeleccionados.length > 0 ? platosSeleccionados.join(', ') : 'A elegir en mesa';
+    const dishesListText = itemsPedidos.length > 0
+      ? itemsPedidos.map((it) => `• ${it.cantidad}x ${it.nombre} (S/ ${(it.cantidad * it.precio).toFixed(2)})`).join('\n')
+      : (platosSeleccionados.length > 0 ? platosSeleccionados.join(', ') : 'A elegir en mesa');
+
     const text = encodeURIComponent(
       `¡Hola *${config.nombre}*! Acabo de registrar una reserva online:\n` +
         `• Código: ${lastReservaId}\n` +
@@ -92,8 +107,10 @@ export const ReservasPublica: React.FC<ReservasPublicaProps> = ({ config, onBack
         `• Personas: ${personas}\n` +
         `• Mesa asignada: ${mesaPreferida}\n` +
         `• Estado: ${pagoConfirmado ? 'Confirmada' : estadoReserva}\n` +
-        `• Platos preseleccionados: ${platosTexto}\n` +
+        (totalEstimado > 0 ? `• Total estimado de platos: S/ ${totalEstimado.toFixed(2)}\n` : '') +
+        `• Platos seleccionados:\n${dishesListText}\n` +
         `• Pago previo adelantado: ${pagoConfirmado ? `S/ ${montoAdelanto.toFixed(2)} (${metodoPagoAdelanto})` : 'Pendiente'}\n` +
+        (pagoConfirmado && totalEstimado > montoAdelanto ? `• Saldo restante: S/ ${(totalEstimado - montoAdelanto).toFixed(2)}\n` : '') +
         `• Notas: ${notas || 'Ninguna'}\n\n` +
         `Enlace directo de reservas: ${getPublicShareUrl()}`
     );
@@ -312,36 +329,67 @@ export const ReservasPublica: React.FC<ReservasPublicaProps> = ({ config, onBack
                 </div>
               </div>
 
-              {/* Escoger qué tipos de platos van a pedir */}
-              <div>
-                <label className="text-[10px] font-black uppercase text-sky-400 block mb-1">
-                  🍽️ ¿Qué platos desean pedir con anticipación? (Opcional):
-                </label>
-                <div className="grid grid-cols-2 gap-1.5 max-h-36 overflow-y-auto p-2 bg-slate-950/80 border border-slate-800 rounded-xl">
-                  {productos.map((prod) => {
-                    const pName = prod.i18n?.es?.name || (prod as any).nombre || 'Plato';
-                    const isSelected = platosSeleccionados.includes(pName);
-                    return (
-                      <button
-                        key={prod.id}
-                        type="button"
-                        onClick={() => handleTogglePlato(pName)}
-                        className={`text-left p-1.5 rounded-lg text-[10px] font-bold border transition-all flex items-center justify-between cursor-pointer ${
-                          isSelected
-                            ? 'bg-blue-600/60 border-amber-400 text-white shadow'
-                            : 'bg-slate-900/60 border-slate-800 text-slate-300 hover:text-white'
-                        }`}
-                      >
-                        <span className="truncate">{pName}</span>
-                        <span className="text-[9px] text-amber-300 ml-1">S/ {prod.precioPEN}</span>
-                      </button>
-                    );
-                  })}
+              {/* Escoger platos con Catálogo Digital */}
+              <div className="p-3 bg-gradient-to-r from-slate-950 to-[#0c1f3d] border border-amber-400/50 rounded-2xl space-y-2">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div>
+                    <label className="text-[10px] font-black uppercase text-amber-300 block leading-tight">
+                      📖 Catálogo Digital de Platos & Pedido
+                    </label>
+                    <span className="text-[9px] text-sky-300">
+                      Elige platos, cantidades y precios para tu reserva
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsCatalogPickerOpen(true)}
+                    className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-md cursor-pointer active:scale-95 transition-all"
+                  >
+                    <BookOpen className="w-3.5 h-3.5" />
+                    <span>Abrir Catálogo de Platos</span>
+                  </button>
                 </div>
-                {platosSeleccionados.length > 0 && (
-                  <p className="text-[10px] text-emerald-400 mt-1 font-bold">
-                    Seleccionados: {platosSeleccionados.length} plato(s)
-                  </p>
+
+                {itemsPedidos.length > 0 ? (
+                  <div className="bg-slate-900/90 border border-sky-400/40 rounded-xl p-2.5 space-y-1.5">
+                    <div className="flex justify-between items-center text-[10px] font-black">
+                      <span className="text-sky-300 uppercase">
+                        Platos seleccionados ({itemsPedidos.reduce((acc, it) => acc + it.cantidad, 0)} items):
+                      </span>
+                      <span className="text-amber-400 text-xs">Total: S/ {totalEstimado.toFixed(2)}</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
+                      {itemsPedidos.map((it, idx) => (
+                        <div key={idx} className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-[10px] text-white flex items-center gap-1.5">
+                          <b className="text-sky-400">{it.cantidad}x</b>
+                          <span className="truncate max-w-[140px]">{it.nombre}</span>
+                          <span className="text-amber-300 font-bold">S/ {(it.cantidad * it.precio).toFixed(2)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-1.5 max-h-28 overflow-y-auto p-1.5 bg-slate-950/80 border border-slate-800 rounded-xl">
+                    {productos.slice(0, 6).map((prod) => {
+                      const pName = prod.i18n?.es?.name || (prod as any).nombre || 'Plato';
+                      const isSelected = platosSeleccionados.includes(pName);
+                      return (
+                        <button
+                          key={prod.id}
+                          type="button"
+                          onClick={() => handleTogglePlato(pName)}
+                          className={`text-left p-1.5 rounded-lg text-[10px] font-bold border transition-all flex items-center justify-between cursor-pointer ${
+                            isSelected
+                              ? 'bg-blue-600/60 border-amber-400 text-white shadow'
+                              : 'bg-slate-900/60 border-slate-800 text-slate-300 hover:text-white'
+                          }`}
+                        >
+                          <span className="truncate">{pName}</span>
+                          <span className="text-[9px] text-amber-300 ml-1">S/ {prod.precioPEN}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 )}
               </div>
 
@@ -424,6 +472,22 @@ export const ReservasPublica: React.FC<ReservasPublicaProps> = ({ config, onBack
           </>
         )}
       </div>
+
+      {isCatalogPickerOpen && (
+        <DishCatalogPickerModal
+          initialItems={itemsPedidos}
+          onConfirm={(items, total) => {
+            setItemsPedidos(items);
+            setTotalEstimado(total);
+            setPlatosSeleccionados(items.map((it) => `${it.cantidad}x ${it.nombre}`));
+            if (pagoConfirmado && total > 0) {
+              setMontoAdelanto(Number((total * 0.5).toFixed(2)));
+            }
+            setIsCatalogPickerOpen(false);
+          }}
+          onClose={() => setIsCatalogPickerOpen(false)}
+        />
+      )}
     </div>
   );
 };
