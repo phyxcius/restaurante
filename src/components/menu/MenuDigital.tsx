@@ -718,7 +718,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
               </p>
               <input
                 type="password"
-                placeholder="Clave (Ej: mozo123)"
+                placeholder="Ingresar clave de mozo"
                 value={pinUnlock}
                 onChange={(e) => {
                   setPinUnlock(e.target.value);
@@ -1086,7 +1086,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
               </label>
               <input
                 type="password"
-                placeholder="Ingresa clave registrada (Mozo/Admin)"
+                placeholder="••••••"
                 value={menuPinInput}
                 onChange={(e) => {
                   setMenuPinInput(e.target.value);
@@ -1198,8 +1198,8 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
       {/* Top Filter Bar (Reels header) */}
       <div className="sticky top-0 z-30 w-full px-3 py-2 bg-gradient-to-b from-[#071224]/95 via-[#071224]/85 to-transparent flex flex-col gap-2">
         <div className="flex items-center justify-between gap-2">
-          {/* Brand group: Logo Negocio + La Chuspa Tech (logo + texto) + Botón de Mesa */}
-          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+          {/* Brand group: Logo Negocio + La Chuspa Tech (logo + texto) */}
+          <div className="flex items-center gap-2">
             {/* 1. Restaurant Logo */}
             <div className="w-8 h-8 rounded-full bg-[#071224] border border-amber-400 overflow-hidden flex items-center justify-center shrink-0 shadow">
               {config.logo && (config.logo.startsWith('data:') || config.logo.startsWith('http') || config.logo.startsWith('/')) ? (
@@ -1210,7 +1210,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
             </div>
 
             {/* 2. La Chuspa Tech (Logo y Texto) a lado del logo del negocio */}
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded-xl bg-slate-900/90 border border-amber-400/50 shadow-sm shrink-0">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-900/90 border border-amber-400/50 shadow-sm shrink-0">
               <div className="w-5 h-5 rounded-full bg-white p-0.5 overflow-hidden flex items-center justify-center border border-amber-400 shrink-0">
                 <img
                   src={CHUSPA_TECH_LOGO}
@@ -1221,22 +1221,6 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
               <span className="text-[10px] font-black uppercase text-amber-300 tracking-wider">
                 La Chuspa Tech
               </span>
-            </div>
-
-            {/* 3. Botón de Mesa al lado de La Chuspa Tech */}
-            <div className="flex items-center gap-1 bg-slate-900/90 border border-amber-400/40 rounded-xl px-2 py-1 text-xs shrink-0">
-              <span className="text-[10px] uppercase font-bold text-sky-400">{t.mesa}:</span>
-              <select
-                value={selectedMesa}
-                onChange={(e) => setSelectedMesa(e.target.value)}
-                className="bg-transparent text-amber-300 font-extrabold outline-none cursor-pointer text-xs"
-              >
-                {storage.getMesas().map((m) => (
-                  <option key={m.id} value={m.nombre} className="bg-slate-900 text-white">
-                    {m.nombre} {m.estado === 'ocupada' ? '(Ocupada)' : ''}
-                  </option>
-                ))}
-              </select>
             </div>
           </div>
 
@@ -1715,20 +1699,39 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
         </div>
       )}
 
-      {/* Floating Cart Trigger Button */}
-      <div className="fixed bottom-4 right-4 sm:right-6 z-40 flex items-center gap-2">
+      {/* Floating Bottom Bar: Selector de Mesa + Botón Ver Pedido (Ergonómico & Fácil para el cliente) */}
+      <div className="fixed bottom-3 left-3 right-3 sm:left-auto sm:right-6 z-40 flex items-center justify-between sm:justify-end gap-2 max-w-lg mx-auto pointer-events-auto">
+        {/* Selector de Mesa reubicado en la parte inferior */}
+        <div className="flex items-center gap-1.5 px-3 py-2.5 rounded-full bg-[#071224]/95 border-2 border-amber-400/80 shadow-[0_4px_25px_rgba(0,0,0,0.85)] backdrop-blur-md">
+          <span className="text-[11px] uppercase font-black text-amber-300 flex items-center gap-1 shrink-0">
+            <span>🪑</span> {t.mesa}:
+          </span>
+          <select
+            value={selectedMesa}
+            onChange={(e) => setSelectedMesa(e.target.value)}
+            className="bg-transparent text-white font-black outline-none cursor-pointer text-xs pr-1"
+          >
+            {storage.getMesas().map((m) => (
+              <option key={m.id} value={m.nombre} className="bg-slate-900 text-white font-bold">
+                {m.nombre} {m.estado === 'ocupada' ? '(Ocupada)' : ''}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Botón Ver Pedido */}
         <button
           onClick={() => setIsCartOpen(true)}
-          className="relative px-4 py-3 rounded-full bg-gradient-to-r from-blue-600 to-sky-500 border-2 border-amber-400 shadow-[0_6px_25px_rgba(0,86,210,0.6)] flex items-center gap-2.5 text-white font-black text-sm active:scale-95 transition-transform cursor-pointer"
+          className="relative flex-1 sm:flex-initial px-4 py-2.5 rounded-full bg-gradient-to-r from-blue-600 via-sky-500 to-blue-600 border-2 border-amber-400 shadow-[0_6px_25px_rgba(0,86,210,0.6)] flex items-center justify-center gap-2 text-white font-black text-xs sm:text-sm active:scale-95 transition-transform cursor-pointer"
         >
-          <ShoppingBag className="w-5 h-5 text-amber-300" />
-          <span>{t.viewOrder}</span>
+          <ShoppingBag className="w-4 h-4 text-amber-300 shrink-0" />
+          <span className="whitespace-nowrap">{t.viewOrder}</span>
           {totalItemsCount > 0 && (
-            <span className="px-2 py-0.5 rounded-full bg-red-600 text-white text-xs font-black">
+            <span className="px-1.5 py-0.5 rounded-full bg-red-600 text-white text-[10px] font-black animate-pulse">
               {totalItemsCount}
             </span>
           )}
-          <span className="text-amber-300 font-extrabold text-sm ml-1">
+          <span className="text-amber-300 font-extrabold text-xs sm:text-sm ml-0.5 whitespace-nowrap">
             S/ {cartTotalPEN.toFixed(2)}
           </span>
         </button>

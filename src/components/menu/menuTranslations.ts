@@ -148,7 +148,7 @@ export const MENU_TRANSLATIONS: Record<Language, MenuTexts> = {
     accessPassword: 'Contraseña de Acceso (Mozo / Admin):',
     unlockAndEnter: 'Desbloquear e Ingresar al Menú',
     directGuestAccess: '👉 Ingreso directo como Comensal escaneando QR',
-    invalidPin: '⛔ Clave incorrecta. Usa mozo123 o tu PIN autorizado.',
+    invalidPin: '⛔ Clave incorrecta. Ingrese su clave autorizada.',
 
     thankYouTitle: '¡Muchas Gracias por su Preferencia!',
     thankYouMessage: 'Esperamos que haya disfrutado de nuestra auténtica tradición gastronómica. ¡Será un inmenso honor recibirle nuevamente en su casa!',
@@ -163,7 +163,7 @@ export const MENU_TRANSLATIONS: Record<Language, MenuTexts> = {
     enterWaiterPin: 'Ingresa la clave del mozo o administrador para liberar la mesa:',
     cancel: 'Cancelar',
     unlock: 'Desbloquear',
-    invalidMozoPin: 'Clave incorrecta (Use mozo123 o clave de admin)',
+    invalidMozoPin: 'Clave incorrecta. Ingrese una clave autorizada.',
 
     tableNotification: 'Notificación de Mesa',
     acceptContinue: 'Aceptar / Continuar',
@@ -229,7 +229,7 @@ export const MENU_TRANSLATIONS: Record<Language, MenuTexts> = {
     accessPassword: 'Access Password (Waiter / Admin):',
     unlockAndEnter: 'Unlock and Open Menu',
     directGuestAccess: '👉 Direct Guest access by scanning QR',
-    invalidPin: '⛔ Incorrect PIN. Use mozo123 or authorized code.',
+    invalidPin: '⛔ Incorrect PIN. Enter an authorized code.',
 
     thankYouTitle: 'Thank You for Dining With Us!',
     thankYouMessage: 'We hope you enjoyed our authentic Andean gastronomic tradition. It will be our great honor to welcome you back!',
@@ -244,7 +244,7 @@ export const MENU_TRANSLATIONS: Record<Language, MenuTexts> = {
     enterWaiterPin: 'Enter waiter or admin password to release this table:',
     cancel: 'Cancel',
     unlock: 'Unlock',
-    invalidMozoPin: 'Incorrect password (Use mozo123 or admin password)',
+    invalidMozoPin: 'Incorrect password. Enter an authorized password.',
 
     tableNotification: 'Table Notification',
     acceptContinue: 'Accept / Continue',
@@ -310,7 +310,7 @@ export const MENU_TRANSLATIONS: Record<Language, MenuTexts> = {
     accessPassword: 'Mot de Passe (Serveur / Admin) :',
     unlockAndEnter: 'Déverrouiller et Ouvrir',
     directGuestAccess: '👉 Accès direct Client en scannant le QR',
-    invalidPin: '⛔ Code incorrect. Utilisez mozo123 ou code autorisé.',
+    invalidPin: '⛔ Code incorrect. Entrez un code autorisé.',
 
     thankYouTitle: 'Merci Beaucoup pour Votre Visite !',
     thankYouMessage: 'Nous espérons que vous avez apprécié notre authentique tradition culinaire. Ce sera un immense honneur de vous accueillir à nouveau !',
@@ -325,7 +325,7 @@ export const MENU_TRANSLATIONS: Record<Language, MenuTexts> = {
     enterWaiterPin: 'Entrez le mot de passe serveur ou administrateur :',
     cancel: 'Annuler',
     unlock: 'Déverrouiller',
-    invalidMozoPin: 'Mot de passe incorrect (Utilisez mozo123)',
+    invalidMozoPin: 'Mot de passe incorrect. Entrez un mot de passe autorisé.',
 
     tableNotification: 'Notification de Table',
     acceptContinue: 'Accepter / Continuer',
@@ -391,7 +391,7 @@ export const MENU_TRANSLATIONS: Record<Language, MenuTexts> = {
     accessPassword: 'Senha de Acesso (Garçom / Admin):',
     unlockAndEnter: 'Desbloquear e Abrir Cardápio',
     directGuestAccess: '👉 Acesso direto Cliente escaneando o QR',
-    invalidPin: '⛔ Senha incorreta. Use mozo123 ou seu código autorizado.',
+    invalidPin: '⛔ Senha incorreta. Digite um código autorizado.',
 
     thankYouTitle: 'Muito Obrigado pela Preferência!',
     thankYouMessage: 'Esperamos que tenha apreciado nossa autêntica tradição gastronômica andina. Será uma imensa honra recebê-lo novamente!',
@@ -406,7 +406,7 @@ export const MENU_TRANSLATIONS: Record<Language, MenuTexts> = {
     enterWaiterPin: 'Digite a senha do garçom ou administrador para liberar:',
     cancel: 'Cancelar',
     unlock: 'Desbloquear',
-    invalidMozoPin: 'Senha incorreta (Use mozo123 ou senha de admin)',
+    invalidMozoPin: 'Senha incorreta. Digite uma senha autorizada.',
 
     tableNotification: 'Notificação da Mesa',
     acceptContinue: 'Aceitar / Continuar',
