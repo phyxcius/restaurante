@@ -558,23 +558,32 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
     return (
       <div id="pantallaLogin" className="min-h-screen w-full flex items-center justify-center p-4 bg-[#050d1a]">
         <div className="card-login w-full max-w-sm bg-[#09152b] border-2 border-amber-500/40 rounded-3xl p-6 shadow-2xl text-center">
-          <div className="login-logos-header flex items-center justify-center gap-3 mb-3">
-            <div className="login-chuspa-logo-wrap w-16 h-16 rounded-full bg-white p-1 shadow-lg border-2 border-amber-400 overflow-hidden flex items-center justify-center" title="La Chuspa Tech">
-              <img
-                src="/CHUSPITA-circulo.png"
-                alt="La Chuspa Tech"
-                className="w-full h-full object-contain"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/assets/aistudio/1000367606_24125dba.jpg';
-                }}
-              />
-            </div>
-            <div className="login-brand-logo-wrap w-16 h-16 rounded-full bg-slate-900 border-2 border-amber-400 flex items-center justify-center overflow-hidden shadow-lg" id="loginBrandLogoWrap" title="Logo del Restaurante">
-              {config.logo && (config.logo.startsWith('data:') || config.logo.startsWith('http') || config.logo.startsWith('/')) ? (
-                <img src={config.logo} alt="Logo" className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-3xl">{config.logo || '🍽️'}</span>
-              )}
+          <div className="login-logos-header flex flex-col items-center justify-center gap-2 mb-3">
+            <div className="flex items-center justify-center gap-3">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-amber-400/50 backdrop-blur">
+                <div className="w-10 h-10 rounded-full bg-white p-0.5 shadow-md border border-amber-400 overflow-hidden flex items-center justify-center" title="La Chuspa Tech">
+                  <img
+                    src="/CHUSPITA-circulo.png"
+                    alt="La Chuspa Tech"
+                    className="w-full h-full object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/assets/aistudio/1000367606_24125dba.jpg';
+                    }}
+                  />
+                </div>
+                <div className="text-left">
+                  <span className="text-[11px] font-black uppercase text-amber-300 block leading-tight tracking-wider">La Chuspa Tech</span>
+                  <span className="text-[9px] text-slate-300 block leading-none font-bold">Cloud POS & TPV</span>
+                </div>
+              </div>
+
+              <div className="w-12 h-12 rounded-full bg-slate-900 border-2 border-amber-400 flex items-center justify-center overflow-hidden shadow-lg" id="loginBrandLogoWrap" title="Logo del Restaurante">
+                {config.logo && (config.logo.startsWith('data:') || config.logo.startsWith('http') || config.logo.startsWith('/')) ? (
+                  <img src={config.logo} alt="Logo" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-2xl">{config.logo || '🍽️'}</span>
+                )}
+              </div>
             </div>
           </div>
           <h3 id="loginTitlePreview" className="text-xl font-black text-amber-400 font-latina-luxury mb-0.5">{config.nombre}</h3>
@@ -710,6 +719,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
             <span className="hidden sm:inline font-black tracking-tight text-white">
               {config.nombre.toUpperCase()}
             </span>
+          </div>
+
+          {/* La Chuspa Tech Powered Badge in Navbar */}
+          <div className="hidden md:flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-900/90 border border-amber-500/40 text-[10px]" title="Tecnología por La Chuspa Tech">
+            <div className="w-5 h-5 rounded-full bg-white p-0.5 overflow-hidden flex items-center justify-center border border-amber-400 shrink-0">
+              <img
+                src="/CHUSPITA-circulo.png"
+                alt="La Chuspa Tech"
+                className="w-full h-full object-contain"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/assets/aistudio/1000367606_24125dba.jpg';
+                }}
+              />
+            </div>
+            <span className="font-extrabold text-amber-300 uppercase tracking-wide">La Chuspa Tech</span>
           </div>
 
           <button
@@ -1030,18 +1054,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
             <i className="fa-solid fa-bell text-sm"></i>
           </button>
 
-          <button
-            type="button"
-            className="btn-toggle-global text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1"
-            onClick={() => {
-              if (window.innerWidth <= 860) setIsMobileMenuOpen(!isMobileMenuOpen);
-              else setIsSidebarCollapsed(!isSidebarCollapsed);
-            }}
-            title="Abrir Panel Lateral (Bóveda & Configuración)"
-          >
-            <i className="fa-solid fa-bars"></i>
-            <span className="hidden sm:inline">Panel</span>
-          </button>
+
 
           <button
             type="button"
@@ -2757,13 +2770,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
 
                 <div style={{ borderTop: '1px dashed rgba(255,255,255,0.15)', marginTop: '14px', paddingTop: '10px' }}>
                   <strong style={{ color: 'var(--gold)', fontSize: '13px' }}>
-                    <i className="fa-solid fa-share-nodes"></i> Canales Oficiales & Contacto:
+                    <i className="fa-solid fa-share-nodes"></i> Redes Sociales & Canales Oficiales:
                   </strong>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '6px' }}>
                     <div>
                       <label>WhatsApp Oficial:</label>
                       <input
                         type="text"
+                        placeholder="Ej: 51969773064"
                         value={identidadForm.whatsapp}
                         onChange={(e) => setIdentidadForm({ ...identidadForm, whatsapp: e.target.value })}
                       />
@@ -2772,8 +2786,42 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                       <label>Teléfono Yape / Plin:</label>
                       <input
                         type="text"
+                        placeholder="Ej: 987 654 321"
                         value={identidadForm.yapePhone}
                         onChange={(e) => setIdentidadForm({ ...identidadForm, yapePhone: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <i className="fa-brands fa-facebook text-blue-500"></i> Facebook:
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="https://facebook.com/tupagina"
+                        value={identidadForm.facebook || ''}
+                        onChange={(e) => setIdentidadForm({ ...identidadForm, facebook: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <i className="fa-brands fa-instagram text-pink-500"></i> Instagram:
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="https://instagram.com/tuperfil"
+                        value={identidadForm.instagram || ''}
+                        onChange={(e) => setIdentidadForm({ ...identidadForm, instagram: e.target.value })}
+                      />
+                    </div>
+                    <div style={{ gridColumn: '1 / -1' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <i className="fa-brands fa-tiktok text-slate-200"></i> TikTok:
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="https://tiktok.com/@tucuenta"
+                        value={identidadForm.tiktok || ''}
+                        onChange={(e) => setIdentidadForm({ ...identidadForm, tiktok: e.target.value })}
                       />
                     </div>
                   </div>

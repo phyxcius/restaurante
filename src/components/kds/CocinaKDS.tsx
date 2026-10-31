@@ -240,21 +240,28 @@ export const CocinaKDS: React.FC = () => {
       <div className="w-full min-h-[80vh] flex items-center justify-center p-4">
         <div className="w-full max-w-sm bg-[#09152b] border-2 border-amber-500/40 rounded-3xl p-6 shadow-2xl text-center flex flex-col items-center">
           <div className="flex items-center justify-center gap-3 mb-3">
-            <div className="w-16 h-16 rounded-full bg-white p-1 shadow-lg border-2 border-amber-400 overflow-hidden flex items-center justify-center" title="La Chuspa Tech">
-              <img
-                src="/CHUSPITA-circulo.png"
-                alt="La Chuspa Tech"
-                className="w-full h-full object-contain"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/assets/aistudio/1000367606_24125dba.jpg';
-                }}
-              />
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-amber-400/50 backdrop-blur">
+              <div className="w-10 h-10 rounded-full bg-white p-0.5 shadow-md border border-amber-400 overflow-hidden flex items-center justify-center" title="La Chuspa Tech">
+                <img
+                  src="/CHUSPITA-circulo.png"
+                  alt="La Chuspa Tech"
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/assets/aistudio/1000367606_24125dba.jpg';
+                  }}
+                />
+              </div>
+              <div className="text-left">
+                <span className="text-[11px] font-black uppercase text-amber-300 block leading-tight tracking-wider">La Chuspa Tech</span>
+                <span className="text-[9px] text-slate-300 block leading-none font-bold">Cloud POS & KDS</span>
+              </div>
             </div>
-            <div className="w-16 h-16 rounded-full bg-slate-900 border-2 border-amber-400 flex items-center justify-center overflow-hidden shadow-lg" title="Logo del Restaurante">
+
+            <div className="w-12 h-12 rounded-full bg-slate-900 border-2 border-amber-400 flex items-center justify-center overflow-hidden shadow-lg" title="Logo del Restaurante">
               {config.logo && (config.logo.startsWith('data:') || config.logo.startsWith('http') || config.logo.startsWith('/')) ? (
                 <img src={config.logo} alt="Logo" className="w-full h-full object-cover" />
               ) : (
-                <span className="text-3xl">{config.logo || '👨‍🍳'}</span>
+                <span className="text-2xl">{config.logo || '👨‍🍳'}</span>
               )}
             </div>
           </div>
@@ -316,9 +323,22 @@ export const CocinaKDS: React.FC = () => {
             <ChefHat className="w-6 h-6 text-amber-300" />
           </div>
           <div>
-            <h1 className="text-lg sm:text-xl font-black uppercase text-white tracking-wide font-latina-luxury flex items-center gap-2">
-              Pantalla KDS Cocina en Vivo
-            </h1>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-lg sm:text-xl font-black uppercase text-white tracking-wide font-latina-luxury flex items-center gap-2">
+                Pantalla KDS Cocina en Vivo
+              </h1>
+              <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/10 border border-amber-400/40 text-[10px]">
+                <img
+                  src="/CHUSPITA-circulo.png"
+                  alt="La Chuspa Tech"
+                  className="w-4 h-4 object-contain rounded-full bg-white"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/assets/aistudio/1000367606_24125dba.jpg';
+                  }}
+                />
+                <span className="font-bold text-amber-300">La Chuspa Tech</span>
+              </div>
+            </div>
             <p className="text-xs text-sky-300">
               Control de despachos, tiempos de cocción y comandas activas
             </p>

@@ -690,17 +690,24 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
       <div className="min-h-screen w-full bg-gradient-to-b from-[#0a192f] via-[#050d1a] to-[#020617] text-slate-100 flex flex-col items-center justify-center p-4">
         <div className="w-full max-w-sm bg-[#09152b] border-2 border-amber-500/50 rounded-3xl p-6 shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col items-center text-center">
           <div className="flex items-center justify-center gap-3 mb-3">
-            <div className="w-16 h-16 rounded-full bg-white p-1 shadow-lg border-2 border-amber-400 overflow-hidden flex items-center justify-center" title="La Chuspa Tech">
-              <img
-                src="/CHUSPITA-circulo.png"
-                alt="La Chuspa Tech"
-                className="w-full h-full object-contain"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/assets/aistudio/1000367606_24125dba.jpg';
-                }}
-              />
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-amber-400/50 backdrop-blur">
+              <div className="w-10 h-10 rounded-full bg-white p-0.5 shadow-md border border-amber-400 overflow-hidden flex items-center justify-center" title="La Chuspa Tech">
+                <img
+                  src="/CHUSPITA-circulo.png"
+                  alt="La Chuspa Tech"
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/assets/aistudio/1000367606_24125dba.jpg';
+                  }}
+                />
+              </div>
+              <div className="text-left">
+                <span className="text-[11px] font-black uppercase text-amber-300 block leading-tight tracking-wider">La Chuspa Tech</span>
+                <span className="text-[9px] text-slate-300 block leading-none font-bold">Menú Digital QR</span>
+              </div>
             </div>
-            <div className="w-16 h-16 rounded-full bg-[#071224] border-2 border-amber-400 flex items-center justify-center overflow-hidden text-2xl shadow-lg">
+
+            <div className="w-12 h-12 rounded-full bg-[#071224] border-2 border-amber-400 flex items-center justify-center overflow-hidden text-2xl shadow-lg">
               {config.logo && (config.logo.startsWith('data:') || config.logo.startsWith('http') || config.logo.startsWith('/')) ? (
                 <img src={config.logo} alt="Logo" className="w-full h-full object-cover" />
               ) : (
@@ -797,6 +804,17 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
       {toastMessage && (
         <div className="fixed inset-0 z-[99999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 pointer-events-auto">
           <div className="w-full max-w-sm bg-gradient-to-b from-[#0f2142] via-[#09152b] to-[#071224] border-2 border-amber-400 rounded-3xl p-6 shadow-[0_0_50px_rgba(245,158,11,0.5)] text-center flex flex-col items-center gap-3 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-amber-400/40 text-[10px]">
+              <img
+                src="/CHUSPITA-circulo.png"
+                alt="La Chuspa Tech"
+                className="w-4 h-4 object-contain rounded-full bg-white"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/assets/aistudio/1000367606_24125dba.jpg';
+                }}
+              />
+              <span className="font-extrabold text-amber-300">La Chuspa Tech</span>
+            </div>
             <div className="w-16 h-16 rounded-full bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center text-3xl shadow-inner animate-pulse">
               🔔
             </div>
@@ -864,20 +882,34 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
       {/* Top Filter Bar (Reels header) */}
       <div className="sticky top-0 z-30 w-full px-3 py-2 bg-gradient-to-b from-[#071224]/95 via-[#071224]/85 to-transparent flex flex-col gap-2">
         <div className="flex items-center justify-between gap-2">
-          {/* Table select pill */}
-          <div className="flex items-center gap-1.5 bg-slate-900/90 border border-amber-400/40 rounded-xl px-2.5 py-1 text-xs">
-            <span className="text-[10px] uppercase font-bold text-sky-400">{t.mesa}:</span>
-            <select
-              value={selectedMesa}
-              onChange={(e) => setSelectedMesa(e.target.value)}
-              className="bg-transparent text-amber-300 font-extrabold outline-none cursor-pointer text-xs"
-            >
-              {storage.getMesas().map((m) => (
-                <option key={m.id} value={m.nombre} className="bg-slate-900 text-white">
-                  {m.nombre} {m.estado === 'ocupada' ? '(Ocupada)' : ''}
-                </option>
-              ))}
-            </select>
+          {/* Table select pill & La Chuspa Tech Brand */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <div className="flex items-center gap-1.5 bg-slate-900/90 border border-amber-400/40 rounded-xl px-2.5 py-1 text-xs">
+              <span className="text-[10px] uppercase font-bold text-sky-400">{t.mesa}:</span>
+              <select
+                value={selectedMesa}
+                onChange={(e) => setSelectedMesa(e.target.value)}
+                className="bg-transparent text-amber-300 font-extrabold outline-none cursor-pointer text-xs"
+              >
+                {storage.getMesas().map((m) => (
+                  <option key={m.id} value={m.nombre} className="bg-slate-900 text-white">
+                    {m.nombre} {m.estado === 'ocupada' ? '(Ocupada)' : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="hidden xs:flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-900/80 border border-amber-500/30 text-[9.5px]">
+              <img
+                src="/CHUSPITA-circulo.png"
+                alt="La Chuspa Tech"
+                className="w-3.5 h-3.5 object-contain rounded-full bg-white"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/assets/aistudio/1000367606_24125dba.jpg';
+                }}
+              />
+              <span className="font-black text-amber-300">La Chuspa Tech</span>
+            </div>
           </div>
 
           {/* View toggle (Reels / Grid) */}
@@ -1227,6 +1259,54 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                 <div className="flex items-center gap-1.5 text-[11px] text-amber-300 font-bold mt-1.5 drop-shadow">
                   <span>🎵</span>
                   <span className="truncate">Sonido original - {config.nombre} Gourmet Cusco</span>
+                </div>
+
+                {/* Social Networks Bar (Facebook, Instagram, TikTok) */}
+                <div className="flex items-center gap-2 mt-2">
+                  {config.facebook && (
+                    <a
+                      href={config.facebook.startsWith('http') ? config.facebook : `https://${config.facebook}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-7 h-7 rounded-full bg-blue-600/80 hover:bg-blue-600 text-white flex items-center justify-center text-xs shadow transition-transform active:scale-90"
+                      title="Facebook"
+                    >
+                      <i className="fa-brands fa-facebook-f"></i>
+                    </a>
+                  )}
+                  {config.instagram && (
+                    <a
+                      href={config.instagram.startsWith('http') ? config.instagram : `https://${config.instagram}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white flex items-center justify-center text-xs shadow transition-transform active:scale-90"
+                      title="Instagram"
+                    >
+                      <i className="fa-brands fa-instagram"></i>
+                    </a>
+                  )}
+                  {config.tiktok && (
+                    <a
+                      href={config.tiktok.startsWith('http') ? config.tiktok : `https://${config.tiktok}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-7 h-7 rounded-full bg-black/80 border border-slate-700 text-white flex items-center justify-center text-xs shadow transition-transform active:scale-90"
+                      title="TikTok"
+                    >
+                      <i className="fa-brands fa-tiktok"></i>
+                    </a>
+                  )}
+                  {config.whatsapp && (
+                    <a
+                      href={`https://wa.me/${config.whatsapp.replace(/\D/g, '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-7 h-7 rounded-full bg-emerald-600/90 text-white flex items-center justify-center text-xs shadow transition-transform active:scale-90"
+                      title="WhatsApp"
+                    >
+                      <i className="fa-brands fa-whatsapp"></i>
+                    </a>
+                  )}
                 </div>
 
                 <div className="flex items-center justify-between mt-3 gap-2">

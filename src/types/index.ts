@@ -215,6 +215,9 @@ export interface ConfigRestaurante {
   ruc: string;
   direccion: string;
   exchangeRateUSD: number;
+  facebook?: string;
+  instagram?: string;
+  tiktok?: string;
 }
 
 export interface MesaStatus {

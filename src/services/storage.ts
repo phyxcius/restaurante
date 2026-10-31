@@ -62,6 +62,9 @@ export const DEFAULT_CONFIG: ConfigRestaurante = {
   ruc: '20601234567',
   direccion: 'Calle Pumapaccha 290, San Blas, Cusco',
   exchangeRateUSD: 3.75,
+  facebook: 'https://facebook.com/lacusquenita',
+  instagram: 'https://instagram.com/lacusquenita',
+  tiktok: 'https://tiktok.com/@lacusquenita',
 };
 
 export const DEFAULT_PRODUCTOS: Producto[] = [

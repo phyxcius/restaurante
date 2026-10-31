@@ -65,9 +65,23 @@ export const Navigation: React.FC<NavigationProps> = ({
             <h1 className="font-extrabold text-sm sm:text-base tracking-wide text-slate-100 uppercase leading-none font-latina-luxury">
               {config.nombre}
             </h1>
-            <span className="text-[10px] font-bold text-sky-400 tracking-wider uppercase">
-              {config.eslogan || 'Cusco • Gourmet'}
-            </span>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className="text-[10px] font-bold text-sky-400 tracking-wider uppercase">
+                {config.eslogan || 'Cusco • Gourmet'}
+              </span>
+              <span className="text-slate-500 text-[9px]">•</span>
+              <div className="flex items-center gap-1">
+                <img
+                  src="/CHUSPITA-circulo.png"
+                  alt="La Chuspa Tech"
+                  className="w-3.5 h-3.5 object-contain rounded-full bg-white border border-amber-400/50"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/assets/aistudio/1000367606_24125dba.jpg';
+                  }}
+                />
+                <span className="text-[9.5px] font-extrabold text-amber-300">La Chuspa Tech</span>
+              </div>
+            </div>
           </div>
         </div>
 
