@@ -619,16 +619,35 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
           )}
         </div>
 
-        {/* Lock footer note & Waiter Unlock */}
-        <div className="mt-5 pt-4 border-t border-slate-800 text-center flex flex-col items-center gap-2">
-          <p className="text-[11px] text-slate-400 flex items-center justify-center gap-1.5">
+        {/* Action Buttons: Salir del Menú & Desbloquear Mozo */}
+        <div className="mt-5 pt-4 border-t border-slate-800 text-center flex flex-col items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => {
+              sessionStorage.removeItem('cusq_my_order_id');
+              sessionStorage.removeItem('auth_menu_active');
+              try {
+                localStorage.removeItem('cusq_mesa_pagada_' + selectedMesa.replace(/\s+/g, '_').toLowerCase());
+              } catch {}
+              setBloqueadoPorPago(false);
+              setVentaCompletada(null);
+              setActiveOrder(null);
+              setIsMenuUnlocked(false);
+            }}
+            className="w-full py-3 rounded-2xl bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-red-900/40 cursor-pointer active:scale-95 transition-all"
+          >
+            <i className="fa-solid fa-right-from-bracket text-sm"></i>
+            <span>Salir / Cerrar Sesión del Menú</span>
+          </button>
+
+          <p className="text-[11px] text-slate-400 flex items-center justify-center gap-1.5 mt-1">
             <span>🔒</span>
             <span>{t.tableLockedNotice}</span>
           </p>
           <button
             type="button"
             onClick={() => setShowUnlockModal(true)}
-            className="text-[11px] font-bold text-slate-400 hover:text-amber-300 underline cursor-pointer transition-colors"
+            className="text-[11px] font-bold text-amber-400/90 hover:text-amber-300 underline cursor-pointer transition-colors"
           >
             {t.unlockForNewGuests}
           </button>
@@ -897,8 +916,18 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
       {/* Top Filter Bar (Reels header) */}
       <div className="sticky top-0 z-30 w-full px-3 py-2 bg-gradient-to-b from-[#071224]/95 via-[#071224]/85 to-transparent flex flex-col gap-2">
         <div className="flex items-center justify-between gap-2">
-          {/* Table select pill & La Chuspa Tech Brand */}
-          <div className="flex items-center gap-1.5 flex-wrap">
+          {/* Brand group: Restaurant Logo + Table select pill + La Chuspa Tech Brand */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Restaurant Logo */}
+            <div className="w-8 h-8 rounded-full bg-[#071224] border border-amber-400 overflow-hidden flex items-center justify-center shrink-0 shadow">
+              {config.logo && (config.logo.startsWith('data:') || config.logo.startsWith('http') || config.logo.startsWith('/')) ? (
+                <img src={config.logo} alt="Logo" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-base">{config.logo || '🍽️'}</span>
+              )}
+            </div>
+
+            {/* Table Select */}
             <div className="flex items-center gap-1.5 bg-slate-900/90 border border-amber-400/40 rounded-xl px-2.5 py-1 text-xs">
               <span className="text-[10px] uppercase font-bold text-sky-400">{t.mesa}:</span>
               <select
@@ -914,16 +943,21 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
               </select>
             </div>
 
-            <div className="hidden xs:flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-900/80 border border-amber-500/30 text-[9.5px]">
-              <img
-                src="/CHUSPITA-circulo.png"
-                alt="La Chuspa Tech"
-                className="w-3.5 h-3.5 object-contain rounded-full bg-white"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/assets/aistudio/1000367606_24125dba.jpg';
-                }}
-              />
-              <span className="font-black text-amber-300">La Chuspa Tech</span>
+            {/* La Chuspa Tech Official Badge */}
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-900/90 border border-amber-400/50 shadow-sm">
+              <div className="w-5 h-5 rounded-full bg-white p-0.5 overflow-hidden flex items-center justify-center border border-amber-400 shrink-0">
+                <img
+                  src="/CHUSPITA-circulo.png"
+                  alt="La Chuspa Tech"
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/assets/aistudio/1792365845772_ae4721e2.jpg';
+                  }}
+                />
+              </div>
+              <span className="text-[10px] font-black uppercase text-amber-300 tracking-wider">
+                La Chuspa Tech
+              </span>
             </div>
           </div>
 
@@ -1033,21 +1067,24 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
           <div className="flex gap-1.5">
             <button
               onClick={handleLlamarMozo}
-              className="px-2 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded text-[11px] flex items-center gap-1 shadow cursor-pointer"
+              className="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-lg text-[11px] flex items-center gap-1 shadow cursor-pointer active:scale-95 transition-all"
             >
               <HelpCircle className="w-3 h-3" /> {t.callWaiter}
             </button>
-            <button
-              onClick={handlePedirCuenta}
-              className={`px-2.5 py-1 text-white font-black rounded-lg text-[11px] flex items-center gap-1 shadow-md cursor-pointer transition-all ${
-                activeOrder.pideCuenta
-                  ? 'bg-emerald-700 text-emerald-100 border border-emerald-400'
-                  : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 border border-purple-300 animate-pulse'
-              }`}
-            >
-              <Receipt className="w-3 h-3 text-amber-300" />
-              <span>{activeOrder.pideCuenta ? '⏳ Cuenta Solicitada' : '💳 Pagar Cuenta'}</span>
-            </button>
+            {/* Solo se habilita pagar cuenta si la cocina ya despachó o ya se sirvió el plato al cliente */}
+            {(activeOrder.despachadoCocina || activeOrder.estado === 'servido') && (
+              <button
+                onClick={handlePedirCuenta}
+                className={`px-2.5 py-1.5 text-white font-black rounded-lg text-[11px] flex items-center gap-1 shadow-md cursor-pointer transition-all ${
+                  activeOrder.pideCuenta
+                    ? 'bg-emerald-700 text-emerald-100 border border-emerald-400'
+                    : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 border border-purple-300 animate-pulse'
+                }`}
+              >
+                <Receipt className="w-3 h-3 text-amber-300" />
+                <span>{activeOrder.pideCuenta ? '⏳ Cuenta Solicitada' : '💳 Pagar Cuenta'}</span>
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -1725,26 +1762,22 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                 <span>{t.sendOrderToKitchen}</span>
               </button>
 
-              <div className="grid grid-cols-2 gap-2">
-                {/* Solamente mostrar Pedir Cuenta si ya existe un pedido activo enviado a cocina */}
-                {activeOrder ? (
+              <div className="flex flex-col gap-2">
+                {/* Solo se habilita pagar cuenta en el popup cuando la comida ya está servida al cliente */}
+                {activeOrder && (activeOrder.despachadoCocina || activeOrder.estado === 'servido') && (
                   <button
                     type="button"
                     onClick={handlePedirCuenta}
-                    className="py-2.5 rounded-xl bg-purple-700 hover:bg-purple-600 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 shadow cursor-pointer transition-all active:scale-95"
+                    className="w-full py-2.5 rounded-xl bg-purple-700 hover:bg-purple-600 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 shadow cursor-pointer transition-all active:scale-95 animate-pulse"
                   >
                     <Receipt className="w-3.5 h-3.5" />
-                    <span>{t.requestBill}</span>
+                    <span>{activeOrder.pideCuenta ? '⏳ Cuenta Solicitada' : '💳 Pagar Cuenta'}</span>
                   </button>
-                ) : (
-                  <div className="py-2 px-2.5 rounded-xl bg-slate-950/60 border border-slate-800 text-[10px] text-slate-400 flex items-center justify-center text-center">
-                    <span>Envía un pedido para pedir cuenta</span>
-                  </div>
                 )}
                 <button
                   type="button"
                   onClick={handleLlamarMozo}
-                  className="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-all active:scale-95"
+                  className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-all active:scale-95"
                 >
                   <HelpCircle className="w-3.5 h-3.5 text-amber-400" />
                   <span>{t.callWaiter}</span>
