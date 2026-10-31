@@ -20,6 +20,8 @@ export interface Producto {
   videoUrl: string;
   posterUrl: string;
   disponible: boolean;
+  nombre?: string;
+  descripcion?: string;
   i18n: {
     es: DishTranslation;
     en: DishTranslation;
@@ -193,7 +195,11 @@ export interface Reserva {
   mesaAsignada: string;
   notas: string;
   fechaCreacion: string;
-  estado: 'Pendiente' | 'Confirmada' | 'Cancelada';
+  estado: 'Confirmada' | 'Por confirmar' | 'Cancelada' | 'Pendiente';
+  platosPreseleccionados?: string[];
+  pagoConfirmado?: boolean;
+  montoAdelanto?: number;
+  metodoPagoAdelanto?: string;
 }
 
 export interface Resena {
@@ -230,6 +236,8 @@ export interface MesaStatus {
   montoActual?: number;
   tiempoTranscurrido?: string;
   seccion?: 'salon' | 'delivery' | 'llevar';
+  capacidad?: number;
+  zona?: string;
 }
 
 // Usqay ERP Submodule Entities

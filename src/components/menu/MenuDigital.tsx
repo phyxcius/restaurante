@@ -127,6 +127,12 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
     personas: 2,
     fecha: new Date().toISOString().slice(0, 10),
     hora: '19:30',
+    mesaAsignada: 'Mesa 01',
+    estado: 'Confirmada' as 'Confirmada' | 'Por confirmar' | 'Cancelada',
+    platosPreseleccionados: [] as string[],
+    pagoConfirmado: false,
+    montoAdelanto: 30,
+    metodoPagoAdelanto: 'Yape',
     notas: 'Reserva solicitada desde Menú Digital'
   });
   const [reservaExito, setReservaExito] = useState<boolean>(false);
@@ -605,12 +611,34 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
             </button>
             <button
               type="button"
-              onClick={() => setShowReservaModal(true)}
+              onClick={() => {
+                setReservaForm((prev) => ({ ...prev, mesaAsignada: selectedMesa || 'Mesa 01' }));
+                setShowReservaModal(true);
+              }}
               className="px-3 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-500 text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-blue-600/30 cursor-pointer active:scale-95 transition-all"
             >
               <span>📅</span>
               <span>Reservar Mesa</span>
             </button>
+          </div>
+
+          {/* Opción de Compartir por WhatsApp el enlace de Reservas con otras personas */}
+          <div className="w-full max-w-xs mt-2.5">
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(
+                `¡Hola! Te comparto el enlace para reservar mesa en *${config.nombre}* 🍽️🍷✨\n\n` +
+                `👉 Entra con este link directo a la sección de reservas:\n` +
+                `${window.location.origin}${window.location.pathname}?view=reservas\n\n` +
+                `¡Acomoda tu mesa, preselecciona tus platos favoritos y reserva con nosotros!`
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 text-white font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/60 cursor-pointer active:scale-95 transition-all border border-emerald-400/40"
+              title="Compartir enlace de reservas con amigos o familiares"
+            >
+              <i className="fa-brands fa-whatsapp text-base text-white"></i>
+              <span>Compartir Link de Reservas por WhatsApp</span>
+            </a>
           </div>
         </div>
 
@@ -936,18 +964,20 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
           </div>
         )}
 
-        {/* Modal: Reservar Mesa con opción de Compartir por WhatsApp */}
+        {/* Modal: Reservar Mesa con opción de Compartir por WhatsApp y Sincronización */}
         {showReservaModal && (
-          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
-            <div className="bg-[#09152b] border-2 border-amber-400 rounded-3xl p-5 w-full max-w-sm shadow-2xl text-slate-100 flex flex-col max-h-[90vh] overflow-y-auto">
+          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-in fade-in">
+            <div className="bg-[#09152b] border-2 border-amber-400 rounded-3xl p-5 w-full max-w-md shadow-2xl text-slate-100 flex flex-col max-h-[92vh] overflow-y-auto custom-scroll">
               <div className="flex items-center justify-between pb-3 border-b border-slate-700">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">📅</span>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-full bg-white p-0.5 border border-amber-400 flex items-center justify-center shrink-0">
+                    <img src={CHUSPA_TECH_LOGO} alt="Chuspa" className="w-full h-full object-contain" />
+                  </div>
                   <div>
-                    <h3 className="text-sm font-black text-amber-400 uppercase font-latina-luxury leading-tight">
-                      Reservar Mesa
+                    <h3 className="text-sm font-black text-amber-400 uppercase font-latina-luxury leading-tight flex items-center gap-1.5">
+                      <span>📅</span> Reservar Mesa
                     </h3>
-                    <span className="text-[10px] text-sky-300">{config.nombre}</span>
+                    <span className="text-[10px] text-sky-300 font-bold">{config.nombre} • Sincronizado</span>
                   </div>
                 </div>
                 <button
@@ -960,6 +990,27 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                 >
                   ✕
                 </button>
+              </div>
+
+              {/* Botón rápido para compartir el link público de reservas por WhatsApp */}
+              <div className="mt-3 bg-emerald-950/50 border border-emerald-500/30 rounded-2xl p-2.5 flex items-center justify-between gap-2">
+                <div className="text-left">
+                  <span className="text-[10px] font-black text-emerald-400 block uppercase tracking-wider">¿Invitar a amigos / familiares?</span>
+                  <span className="text-[9px] text-slate-300 block">Comparte el link para que entren directo a reservar</span>
+                </div>
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent(
+                    `¡Hola! Te comparto el enlace para reservar mesa en *${config.nombre}* 🍽️✨\n` +
+                    `👉 Entra aquí para reservar tu mesa y escoger tus platos favoritos:\n` +
+                    `${window.location.origin}${window.location.pathname}?view=reservas`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-[11px] flex items-center gap-1.5 shadow shrink-0 active:scale-95 transition-all"
+                >
+                  <i className="fa-brands fa-whatsapp text-sm"></i>
+                  <span>Compartir Link</span>
+                </a>
               </div>
 
               {!reservaExito ? (
@@ -977,30 +1028,33 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                       fechaReserva: reservaForm.fecha,
                       horaReserva: reservaForm.hora,
                       personas: Number(reservaForm.personas),
-                      mesaAsignada: selectedMesa,
-                      estado: 'Confirmada',
+                      mesaAsignada: reservaForm.mesaAsignada || selectedMesa || 'Mesa 01',
+                      estado: reservaForm.estado,
+                      platosPreseleccionados: reservaForm.platosPreseleccionados,
+                      pagoConfirmado: reservaForm.pagoConfirmado,
+                      montoAdelanto: reservaForm.pagoConfirmado ? Number(reservaForm.montoAdelanto) : 0,
+                      metodoPagoAdelanto: reservaForm.pagoConfirmado ? reservaForm.metodoPagoAdelanto : undefined,
                       notas: reservaForm.notas,
                       fechaCreacion: new Date().toISOString(),
                     });
                     setReservaExito(true);
                   }}
-                  className="my-3 space-y-2.5 text-xs"
+                  className="my-3 space-y-3 text-xs"
                 >
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-400 block mb-1">Nombre Completo:</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Tu nombre"
-                      value={reservaForm.nombre}
-                      onChange={(e) => setReservaForm({ ...reservaForm, nombre: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none focus:border-amber-400"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div>
-                      <label className="text-[10px] font-bold text-slate-400 block mb-1">Teléfono:</label>
+                      <label className="text-[10px] font-bold text-slate-400 block mb-1">Nombre Completo:</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Ej. Juan Pérez"
+                        value={reservaForm.nombre}
+                        onChange={(e) => setReservaForm({ ...reservaForm, nombre: e.target.value })}
+                        className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none focus:border-amber-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 block mb-1">WhatsApp / Celular:</label>
                       <input
                         type="tel"
                         required
@@ -1008,6 +1062,29 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                         value={reservaForm.telefono}
                         onChange={(e) => setReservaForm({ ...reservaForm, telefono: e.target.value })}
                         className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none focus:border-amber-400"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 block mb-1">Fecha:</label>
+                      <input
+                        type="date"
+                        required
+                        value={reservaForm.fecha}
+                        onChange={(e) => setReservaForm({ ...reservaForm, fecha: e.target.value })}
+                        className="w-full bg-slate-950 border border-slate-700 rounded-xl px-2 py-1.5 text-white outline-none focus:border-amber-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 block mb-1">Hora:</label>
+                      <input
+                        type="time"
+                        required
+                        value={reservaForm.hora}
+                        onChange={(e) => setReservaForm({ ...reservaForm, hora: e.target.value })}
+                        className="w-full bg-slate-950 border border-slate-700 rounded-xl px-2 py-1.5 text-white outline-none focus:border-amber-400"
                       />
                     </div>
                     <div>
@@ -1018,39 +1095,162 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                         max={30}
                         value={reservaForm.personas}
                         onChange={(e) => setReservaForm({ ...reservaForm, personas: Number(e.target.value) })}
-                        className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none focus:border-amber-400 font-bold text-center"
+                        className="w-full bg-slate-950 border border-slate-700 rounded-xl px-2 py-1.5 text-white outline-none focus:border-amber-400 font-bold text-center"
                       />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="text-[10px] font-bold text-slate-400 block mb-1">Fecha:</label>
-                      <input
-                        type="date"
-                        required
-                        value={reservaForm.fecha}
-                        onChange={(e) => setReservaForm({ ...reservaForm, fecha: e.target.value })}
-                        className="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-white outline-none focus:border-amber-400"
-                      />
+                  {/* Acomodar la mesa para el día de su reserva */}
+                  <div className="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-3">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-[11px] font-black text-amber-300 flex items-center gap-1.5">
+                        <span>🪑</span> Acomodar Mesa Asignada:
+                      </label>
+                      <span className="text-[9px] text-slate-400">Para el día de la reserva</span>
                     </div>
-                    <div>
-                      <label className="text-[10px] font-bold text-slate-400 block mb-1">Hora:</label>
-                      <input
-                        type="time"
-                        required
-                        value={reservaForm.hora}
-                        onChange={(e) => setReservaForm({ ...reservaForm, hora: e.target.value })}
-                        className="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-white outline-none focus:border-amber-400"
-                      />
+                    <select
+                      value={reservaForm.mesaAsignada}
+                      onChange={(e) => setReservaForm({ ...reservaForm, mesaAsignada: e.target.value })}
+                      className="w-full bg-slate-950 border border-amber-500/50 rounded-xl px-3 py-2 text-white outline-none font-bold text-xs"
+                    >
+                      {storage.getMesas().map((m) => (
+                        <option key={m.id} value={m.nombre}>
+                          {m.nombre} ({m.capacidad || 4} comensales) - {m.zona || 'Salón Principal'}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Estado de la reserva: Confirmada, Por confirmar, Cancelada */}
+                  <div className="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-3">
+                    <label className="text-[11px] font-black text-slate-300 block mb-2">
+                      Estado de la Reserva:
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {(['Confirmada', 'Por confirmar', 'Cancelada'] as const).map((est) => (
+                        <button
+                          key={est}
+                          type="button"
+                          onClick={() => setReservaForm({ ...reservaForm, estado: est })}
+                          className={`py-1.5 px-2 rounded-xl text-[10px] font-black uppercase transition-all cursor-pointer border ${
+                            reservaForm.estado === est
+                              ? est === 'Confirmada'
+                                ? 'bg-emerald-600 border-emerald-400 text-white shadow-md'
+                                : est === 'Por confirmar'
+                                ? 'bg-amber-600 border-amber-400 text-white shadow-md'
+                                : 'bg-red-700 border-red-500 text-white shadow-md'
+                              : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                          }`}
+                        >
+                          {est === 'Confirmada' && '✓ '}
+                          {est === 'Por confirmar' && '⏳ '}
+                          {est === 'Cancelada' && '✕ '}
+                          {est}
+                        </button>
+                      ))}
                     </div>
+                  </div>
+
+                  {/* Escoger qué tipos de platos van a pedir */}
+                  <div className="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-[11px] font-black text-amber-300 flex items-center gap-1.5">
+                        <span>🍽️</span> Preseleccionar Platos a Pedir:
+                      </label>
+                      <span className="text-[9px] text-sky-400 font-bold">
+                        {reservaForm.platosPreseleccionados.length} seleccionados
+                      </span>
+                    </div>
+                    <div className="max-h-32 overflow-y-auto space-y-1.5 custom-scroll pr-1">
+                      {productos.map((prod) => {
+                        const nombrePlato = prod.nombre || prod.i18n?.es?.name || prod.id;
+                        const precioPlato = prod.precioPEN || prod.precio || 0;
+                        const isChecked = reservaForm.platosPreseleccionados.includes(nombrePlato);
+                        return (
+                          <button
+                            key={prod.id}
+                            type="button"
+                            onClick={() => {
+                              const nuevo = isChecked
+                                ? reservaForm.platosPreseleccionados.filter((p) => p !== nombrePlato)
+                                : [...reservaForm.platosPreseleccionados, nombrePlato];
+                              setReservaForm({ ...reservaForm, platosPreseleccionados: nuevo });
+                            }}
+                            className={`w-full flex items-center justify-between p-2 rounded-xl text-left border transition-all cursor-pointer ${
+                              isChecked
+                                ? 'bg-amber-500/20 border-amber-400/80 text-white'
+                                : 'bg-slate-950/70 border-slate-800 text-slate-300 hover:border-slate-600'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className={`w-4 h-4 rounded flex items-center justify-center text-[10px] font-black border ${isChecked ? 'bg-amber-500 border-amber-300 text-slate-950' : 'border-slate-600'}`}>
+                                {isChecked && '✓'}
+                              </span>
+                              <span className="text-xs font-semibold">{nombrePlato}</span>
+                            </div>
+                            <span className="text-[11px] font-bold text-amber-400 shrink-0">
+                              S/ {precioPlato.toFixed(2)}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Confirmación previa de pago para bloqueo de mesa */}
+                  <div className="bg-gradient-to-r from-purple-950/60 to-slate-900/90 border border-purple-500/40 rounded-2xl p-3">
+                    <label className="flex items-start gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={reservaForm.pagoConfirmado}
+                        onChange={(e) => setReservaForm({ ...reservaForm, pagoConfirmado: e.target.checked })}
+                        className="mt-1 w-4 h-4 accent-amber-400 cursor-pointer"
+                      />
+                      <div className="text-left">
+                        <span className="text-[11px] font-black text-amber-300 block">
+                          🔒 Confirmar Pago Previo / Adelanto
+                        </span>
+                        <span className="text-[9px] text-slate-300 leading-tight block">
+                          Al confirmar el pago del cliente, la mesa reservada quedará <b>bloqueada en el salón</b> el día de su reserva.
+                        </span>
+                      </div>
+                    </label>
+
+                    {reservaForm.pagoConfirmado && (
+                      <div className="mt-2.5 pt-2.5 border-t border-purple-500/30 grid grid-cols-2 gap-2 animate-in fade-in">
+                        <div>
+                          <label className="text-[9px] font-bold text-slate-400 block mb-1">Monto Adelanto (S/):</label>
+                          <input
+                            type="number"
+                            min={0}
+                            value={reservaForm.montoAdelanto}
+                            onChange={(e) => setReservaForm({ ...reservaForm, montoAdelanto: Number(e.target.value) })}
+                            className="w-full bg-slate-950 border border-purple-400 rounded-xl px-2.5 py-1.5 text-white font-bold text-xs"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[9px] font-bold text-slate-400 block mb-1">Método de Pago:</label>
+                          <select
+                            value={reservaForm.metodoPagoAdelanto}
+                            onChange={(e) => setReservaForm({ ...reservaForm, metodoPagoAdelanto: e.target.value })}
+                            className="w-full bg-slate-950 border border-purple-400 rounded-xl px-2 py-1.5 text-white text-xs font-semibold"
+                          >
+                            <option value="Yape">Yape</option>
+                            <option value="Plin">Plin</option>
+                            <option value="Transferencia BCP">Transferencia BCP</option>
+                            <option value="Tarjeta">Tarjeta Débito/Crédito</option>
+                            <option value="Efectivo">Efectivo en Caja</option>
+                          </select>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div>
                     <label className="text-[10px] font-bold text-slate-400 block mb-1">Notas especiales:</label>
                     <input
                       type="text"
-                      placeholder="Ocasión especial, vista panorámica, etc."
+                      placeholder="Cumpleaños, aniversario, flores, etc."
                       value={reservaForm.notas}
                       onChange={(e) => setReservaForm({ ...reservaForm, notas: e.target.value })}
                       className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-white outline-none focus:border-amber-400 text-xs"
@@ -1059,9 +1259,9 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
 
                   <button
                     type="submit"
-                    className="w-full py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-500 text-white font-black text-xs uppercase tracking-wider cursor-pointer shadow-lg active:scale-95 transition-all mt-2"
+                    className="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider cursor-pointer shadow-lg active:scale-95 transition-all mt-2"
                   >
-                    Confirmar Reserva
+                    Guardar y Sincronizar Reserva
                   </button>
                 </form>
               ) : (
@@ -1070,22 +1270,39 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                     ✓
                   </div>
                   <h4 className="text-sm font-black text-emerald-400 font-latina-luxury">
-                    ¡Reserva Registrada con Éxito!
+                    ¡Reserva Sincronizada con Éxito!
                   </h4>
-                  <p className="text-xs text-slate-300">
-                    Mesa para <b>{reservaForm.personas} personas</b> el <b>{reservaForm.fecha}</b> a las <b>{reservaForm.hora}</b> a nombre de <b>{reservaForm.nombre}</b>.
-                  </p>
+                  <div className="bg-slate-900/90 border border-slate-700 rounded-2xl p-3 text-left space-y-1 text-xs">
+                    <p className="text-slate-300"><b>Titular:</b> {reservaForm.nombre} ({reservaForm.telefono})</p>
+                    <p className="text-slate-300"><b>Mesa:</b> {reservaForm.mesaAsignada} • <b>Pax:</b> {reservaForm.personas}</p>
+                    <p className="text-slate-300"><b>Fecha & Hora:</b> {reservaForm.fecha} a las {reservaForm.hora}</p>
+                    <p className="text-slate-300"><b>Estado:</b> <span className="text-amber-400 font-bold">{reservaForm.estado}</span></p>
+                    {reservaForm.pagoConfirmado ? (
+                      <p className="text-emerald-400 font-bold">🔒 Pago confirmado: S/ {Number(reservaForm.montoAdelanto).toFixed(2)} ({reservaForm.metodoPagoAdelanto}) - Mesa Bloqueada para el día</p>
+                    ) : (
+                      <p className="text-slate-400">⚠️ Sin pago previo (Mesa libre hasta confirmar pago)</p>
+                    )}
+                    {reservaForm.platosPreseleccionados.length > 0 && (
+                      <p className="text-sky-300 text-[11px] pt-1 border-t border-slate-800">
+                        <b>Platos preseleccionados:</b> {reservaForm.platosPreseleccionados.join(', ')}
+                      </p>
+                    )}
+                  </div>
 
-                  {/* Compartir por WhatsApp la ventana / datos de reservas */}
+                  {/* Compartir por WhatsApp la reserva efectuada con link */}
                   <a
                     href={`https://wa.me/?text=${encodeURIComponent(
-                      `¡Hola! Acabo de hacer una reserva en *${config.nombre}* 🍽️✨\n` +
-                      `📅 Fecha: ${reservaForm.fecha}\n` +
-                      `⏰ Hora: ${reservaForm.hora}\n` +
-                      `👥 Personas: ${reservaForm.personas}\n` +
-                      `👤 Titular: ${reservaForm.nombre}\n` +
-                      `📍 Restaurante: ${config.nombre} - ${config.direccion || 'Cusco'}\n` +
-                      `¡Te espero allí!`
+                      `¡Hola! Confirmamos la reserva en *${config.nombre}* 🍽️🍷✨\n\n` +
+                      `👤 *Titular:* ${reservaForm.nombre}\n` +
+                      `🪑 *Mesa Asignada:* ${reservaForm.mesaAsignada}\n` +
+                      `📅 *Fecha:* ${reservaForm.fecha}\n` +
+                      `⏰ *Hora:* ${reservaForm.hora}\n` +
+                      `👥 *Comensales:* ${reservaForm.personas} personas\n` +
+                      `🏷️ *Estado:* ${reservaForm.estado}\n` +
+                      (reservaForm.pagoConfirmado ? `🔒 *Pago Previo:* Confirmado (S/ ${Number(reservaForm.montoAdelanto).toFixed(2)})\n` : '') +
+                      (reservaForm.platosPreseleccionados.length > 0 ? `🍲 *Platos:* ${reservaForm.platosPreseleccionados.join(', ')}\n` : '') +
+                      `📍 *Ubicación:* ${config.nombre} - ${config.direccion || 'Cusco, Perú'}\n\n` +
+                      `👉 Enlace de Reservas: ${window.location.origin}${window.location.pathname}?view=reservas`
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -1101,7 +1318,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                       setShowReservaModal(false);
                       setReservaExito(false);
                     }}
-                    className="w-full py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white text-xs font-bold"
+                    className="w-full py-2.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white text-xs font-bold cursor-pointer"
                   >
                     Cerrar
                   </button>

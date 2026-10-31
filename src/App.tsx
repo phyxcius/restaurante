@@ -5,7 +5,9 @@ import { AdminDashboard } from './components/admin/AdminDashboard';
 import { storage } from './services/storage';
 import { ConfigRestaurante } from './types';
 
-export type StationType = 'menu' | 'cocina' | 'admin';
+import { ReservasPublica } from './components/reservas/ReservasPublica';
+
+export type StationType = 'menu' | 'cocina' | 'admin' | 'reservas';
 
 const getInitialStation = (): StationType => {
   const path = window.location.pathname.toLowerCase();
@@ -13,6 +15,9 @@ const getInitialStation = (): StationType => {
   const hash = window.location.hash.toLowerCase();
   const viewParam = (params.get('view') || params.get('station'))?.toLowerCase();
 
+  if (viewParam === 'reservas' || viewParam === 'reserva' || path.includes('reserva') || hash.includes('reserva')) {
+    return 'reservas';
+  }
   if (viewParam === 'cocina' || viewParam === 'kds' || path.includes('cocina') || hash.includes('cocina')) {
     return 'cocina';
   }
@@ -157,6 +162,13 @@ export const App: React.FC = () => {
         {station === 'admin' && (
           <div className="w-full min-h-screen">
             <AdminDashboard config={config} />
+          </div>
+        )}
+
+        {/* 4. ESTACIÓN PÚBLICA: RESERVAS ONLINE Y COMPARTIR WHATSAPP */}
+        {station === 'reservas' && (
+          <div className="w-full min-h-screen flex flex-col">
+            <ReservasPublica config={config} onBackToMenu={() => switchStation('menu')} />
           </div>
         )}
       </div>

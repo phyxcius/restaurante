@@ -156,6 +156,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
     personas: number;
     mesa: string;
     notas: string;
+    estado: 'Confirmada' | 'Por confirmar' | 'Cancelada';
+    platosPreseleccionados: string[];
+    pagoConfirmado: boolean;
+    montoAdelanto: number;
+    metodoPagoAdelanto: string;
   }>({
     titular: '',
     telefono: '',
@@ -164,7 +169,29 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
     personas: 4,
     mesa: 'Mesa 01',
     notas: '',
+    estado: 'Confirmada',
+    platosPreseleccionados: [],
+    pagoConfirmado: false,
+    montoAdelanto: 50,
+    metodoPagoAdelanto: 'Yape',
   });
+  const [mesaReservaBloqueadaModal, setMesaReservaBloqueadaModal] = useState<Reserva | null>(null);
+
+  const getEsHoy = (fechaStr?: string) => {
+    if (!fechaStr) return false;
+    const hoyISO = new Date().toISOString().slice(0, 10);
+    const hoyLocal = new Date().toLocaleDateString('es-PE');
+    const f = fechaStr.trim();
+    if (f === hoyISO || f === hoyLocal) return true;
+    try {
+      const d1 = new Date(f);
+      const now = new Date();
+      if (!isNaN(d1.getTime()) && d1.getFullYear() === now.getFullYear() && d1.getMonth() === now.getMonth() && d1.getDate() === now.getDate()) {
+        return true;
+      }
+    } catch {}
+    return false;
+  };
 
   // Identidad Form
   const [identidadForm, setIdentidadForm] = useState<ConfigRestaurante>(config);
@@ -1098,6 +1125,77 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
         </div>
       </header>
 
+      {/* RECORDATORIO ACTIVO DE RESERVAS DEL DÍA */}
+      {(() => {
+        const reservasHoy = reservas.filter((r) => getEsHoy(r.fechaReserva) && r.estado !== 'Cancelada');
+        if (reservasHoy.length === 0) return null;
+        return (
+          <div className="bg-gradient-to-r from-amber-950 via-[#0d1f3d] to-amber-950 border-b-2 border-amber-400 p-3 sm:px-6 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-3 animate-in fade-in z-30">
+            <div className="flex items-start sm:items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/20 border-2 border-amber-400 text-amber-400 flex items-center justify-center text-xl shrink-0 animate-bounce">
+                🔔
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-xs font-black uppercase text-amber-300 tracking-wider">
+                    Recordatorio Activo: {reservasHoy.length} Reserva(s) Programada(s) para Hoy ({new Date().toISOString().slice(0, 10)})
+                  </span>
+                  <span className="text-[10px] bg-red-600 text-white font-black px-2 py-0.5 rounded-full animate-pulse">
+                    HOY
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-1.5">
+                  {reservasHoy.map((r) => (
+                    <div
+                      key={r.id}
+                      onClick={() => {
+                        if (r.pagoConfirmado) {
+                          setMesaReservaBloqueadaModal(r);
+                        } else {
+                          setCurrentSection('reservas');
+                        }
+                      }}
+                      className={`text-[11px] px-2.5 py-1 rounded-xl border font-bold flex items-center gap-1.5 cursor-pointer hover:scale-105 transition-all shadow ${
+                        r.pagoConfirmado
+                          ? 'bg-purple-950/90 border-purple-400 text-purple-200 shadow-purple-900/40'
+                          : 'bg-slate-900/90 border-amber-400/60 text-amber-200'
+                      }`}
+                      title={r.pagoConfirmado ? 'Mesa bloqueada por pago confirmado' : 'Pago pendiente - Mesa libre'}
+                    >
+                      <span>{r.pagoConfirmado ? '🔒' : '⏳'}</span>
+                      <b>{r.mesaAsignada}</b>
+                      <span>•</span>
+                      <span>⏰ {r.horaReserva}</span>
+                      <span>•</span>
+                      <span>{r.cliente} ({r.personas}p)</span>
+                      {r.pagoConfirmado ? (
+                        <span className="text-[9px] bg-purple-600 text-white px-1.5 py-0.5 rounded font-black">
+                          BLOQUEADA S/ {Number(r.montoAdelanto || 0).toFixed(2)}
+                        </span>
+                      ) : (
+                        <span className="text-[9px] text-amber-400 bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-500/40">
+                          Sin pago
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 self-end md:self-auto shrink-0">
+              <button
+                type="button"
+                onClick={() => setCurrentSection('reservas')}
+                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 text-xs font-black flex items-center gap-1.5 shadow-lg cursor-pointer active:scale-95 transition-all"
+              >
+                <i className="fa-solid fa-calendar-days"></i>
+                <span>Gestionar Reservas</span>
+              </button>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* ADMIN MAIN LAYOUT */}
       <div
         className={`admin-layout ${isSidebarCollapsed ? 'sidebar-collapsed' : ''} ${
@@ -1625,6 +1723,65 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                     const mozoNombre = comandaMesa?.mozo || (m.nombre.includes('08') || m.nombre.includes('09') || m.nombre.includes('10') ? 'CHARLE' : m.nombre.includes('11') ? 'SEBASTIAN' : 'YOSUKI');
                     const totalMesa = comandaMesa ? (comandaMesa.total || comandaMesa.totalPEN || 0) : 79.0;
 
+                    // Verificar si la mesa tiene reserva para HOY
+                    const reservaHoyMesa = reservas.find((r) => {
+                      const mNom = m.nombre.toLowerCase().replace(/\s+/g, '');
+                      const rNom = (r.mesaAsignada || '').toLowerCase().replace(/\s+/g, '');
+                      const coincideMesa = rNom === mNom || rNom.includes(mNom) || mNom.includes(rNom);
+                      return coincideMesa && getEsHoy(r.fechaReserva) && r.estado !== 'Cancelada';
+                    });
+
+                    // La mesa está bloqueada SIEMPRE Y CUANDO confirmó previamente su pago
+                    const estaBloqueadaPorReserva = !estaOcupada && reservaHoyMesa && reservaHoyMesa.pagoConfirmado === true;
+
+                    if (estaBloqueadaPorReserva && reservaHoyMesa) {
+                      return (
+                        <div
+                          key={m.id}
+                          className="usqay-table-card ocupada"
+                          style={{
+                            borderColor: '#c084fc',
+                            background: 'linear-gradient(135deg, #2e1065 0%, #0f172a 100%)',
+                            boxShadow: '0 0 16px rgba(192, 132, 252, 0.45)',
+                            cursor: 'pointer',
+                          }}
+                          onClick={() => {
+                            if (modoEliminarMesas) {
+                              if (confirm(`¿Eliminar ${m.nombre}?`)) {
+                                setMesas(mesas.filter((item) => item.id !== m.id));
+                              }
+                              return;
+                            }
+                            setMesaReservaBloqueadaModal(reservaHoyMesa);
+                          }}
+                          title="Mesa bloqueada por reserva confirmada con pago previo"
+                        >
+                          <div className="usqay-table-title" style={{ color: '#f3e8ff' }}>{m.nombre.toUpperCase()}</div>
+                          <div className="text-[11px] font-black text-purple-300 flex items-center gap-1.5 mb-1">
+                            <span className="w-2 h-2 rounded-full bg-purple-400 animate-ping"></span>
+                            🔒 BLOQUEADA (PAGO PREVIO)
+                          </div>
+                          <div className="text-xs text-white font-black truncate">
+                            👤 {reservaHoyMesa.cliente}
+                          </div>
+                          <div className="text-[11px] text-amber-300 font-bold mt-0.5">
+                            ⏰ {reservaHoyMesa.horaReserva} • 👥 {reservaHoyMesa.personas} pax
+                          </div>
+                          <div className="text-[11px] text-emerald-400 font-extrabold mt-1">
+                            ✓ Adelanto: S/ {Number(reservaHoyMesa.montoAdelanto || 0).toFixed(2)} ({reservaHoyMesa.metodoPagoAdelanto || 'Yape'})
+                          </div>
+                          {reservaHoyMesa.platosPreseleccionados && reservaHoyMesa.platosPreseleccionados.length > 0 && (
+                            <div className="text-[10px] text-sky-300 truncate mt-1 bg-purple-950/60 px-2 py-0.5 rounded border border-purple-400/30">
+                              🍽️ {reservaHoyMesa.platosPreseleccionados.length} platos preseleccionados
+                            </div>
+                          )}
+                          <div className="mt-2 text-[10px] font-bold text-purple-200 bg-purple-900/60 border border-purple-400/40 rounded-full px-2 py-0.5 text-center">
+                            Gestionar Reserva ➜
+                          </div>
+                        </div>
+                      );
+                    }
+
                     if (estaOcupada) {
                       return (
                         <div
@@ -1671,9 +1828,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                         }}
                       >
                         <div className="usqay-table-title text-slate-300">{m.nombre.toUpperCase()}</div>
-                        <div className="text-xs font-bold text-emerald-400 mb-2 flex items-center gap-1">
+                        <div className="text-xs font-bold text-emerald-400 mb-1 flex items-center gap-1">
                           <i className="fa-solid fa-circle-check"></i> DISPONIBLE
                         </div>
+                        {reservaHoyMesa && !reservaHoyMesa.pagoConfirmado && (
+                          <div className="text-[10px] font-bold text-amber-300 bg-amber-950/80 border border-amber-500/40 rounded px-1.5 py-0.5 mb-1.5">
+                            ⏳ Reserva {reservaHoyMesa.horaReserva} (Sin pago previo • Libre)
+                          </div>
+                        )}
                         <div className="text-sm font-black text-slate-400 mb-2">S/ 0.00</div>
                         <span className="text-[11px] font-extrabold text-blue-400 bg-blue-950/80 border border-blue-500/40 rounded-full px-3 py-1">
                           + Abrir Mesa
@@ -1682,6 +1844,150 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                     );
                   })}
               </div>
+
+              {/* MODAL GESTIÓN DE MESA BLOQUEADA POR RESERVA */}
+              {mesaReservaBloqueadaModal && (
+                <div className="fixed inset-0 z-[650] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
+                  <div className="bg-[#0b1a33] border-2 border-purple-500 rounded-3xl max-w-lg w-full p-6 text-white shadow-2xl relative">
+                    <button
+                      type="button"
+                      className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg cursor-pointer"
+                      onClick={() => setMesaReservaBloqueadaModal(null)}
+                    >
+                      ✕
+                    </button>
+
+                    <div className="flex items-center gap-3 mb-4 pb-3 border-b border-purple-500/40">
+                      <div className="w-12 h-12 rounded-2xl bg-purple-500/20 border-2 border-purple-400 flex items-center justify-center text-2xl text-purple-300">
+                        🔒
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-black text-white flex items-center gap-2">
+                          <span>{mesaReservaBloqueadaModal.mesaAsignada}</span>
+                          <span className="text-xs font-black bg-purple-600 text-white px-2 py-0.5 rounded-full uppercase">
+                            Bloqueada por Pago Previo
+                          </span>
+                        </h2>
+                        <span className="text-xs text-purple-300 font-bold">
+                          Reserva ID: {mesaReservaBloqueadaModal.id}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3 text-xs">
+                      <div className="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-3.5 space-y-1.5">
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">Titular:</span>
+                          <span className="font-bold text-white text-sm">{mesaReservaBloqueadaModal.cliente}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">Teléfono WhatsApp:</span>
+                          <span className="font-bold text-amber-300">{mesaReservaBloqueadaModal.telefono}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">Fecha & Hora:</span>
+                          <span className="font-bold text-white">📅 {mesaReservaBloqueadaModal.fechaReserva} a las ⏰ {mesaReservaBloqueadaModal.horaReserva}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">Comensales:</span>
+                          <span className="font-bold text-white">👥 {mesaReservaBloqueadaModal.personas} personas</span>
+                        </div>
+                        <div className="flex justify-between pt-1 border-t border-slate-800">
+                          <span className="text-slate-400">Pago Previo Confirmado:</span>
+                          <span className="font-black text-emerald-400">
+                            S/ {Number(mesaReservaBloqueadaModal.montoAdelanto || 0).toFixed(2)} ({mesaReservaBloqueadaModal.metodoPagoAdelanto || 'Yape'})
+                          </span>
+                        </div>
+                        {mesaReservaBloqueadaModal.notas && (
+                          <div className="text-[11px] text-slate-300 pt-1 border-t border-slate-800">
+                            <b>Notas:</b> {mesaReservaBloqueadaModal.notas}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Platos preseleccionados */}
+                      {mesaReservaBloqueadaModal.platosPreseleccionados && mesaReservaBloqueadaModal.platosPreseleccionados.length > 0 && (
+                        <div className="bg-purple-950/40 border border-purple-500/40 rounded-2xl p-3">
+                          <span className="text-[11px] font-black text-purple-300 block mb-1.5">
+                            🍲 Platos Preseleccionados por el Cliente:
+                          </span>
+                          <ul className="space-y-1">
+                            {mesaReservaBloqueadaModal.platosPreseleccionados.map((plato, idx) => (
+                              <li key={idx} className="flex items-center gap-2 text-slate-200 text-xs">
+                                <span className="text-amber-400 font-bold">•</span>
+                                <span>{plato}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {/* Cambiar Estado Rápido */}
+                      <div className="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-3">
+                        <span className="text-[11px] font-black text-slate-300 block mb-2">
+                          Cambiar Estado de la Reserva:
+                        </span>
+                        <div className="grid grid-cols-3 gap-2">
+                          {(['Confirmada', 'Por confirmar', 'Cancelada'] as const).map((est) => (
+                            <button
+                              key={est}
+                              type="button"
+                              onClick={() => {
+                                const act = { ...mesaReservaBloqueadaModal, estado: est };
+                                storage.saveReserva(act);
+                                setMesaReservaBloqueadaModal(act);
+                              }}
+                              className={`py-1.5 px-2 rounded-xl text-[10px] font-black uppercase transition-all cursor-pointer border ${
+                                mesaReservaBloqueadaModal.estado === est
+                                  ? est === 'Confirmada'
+                                    ? 'bg-emerald-600 border-emerald-400 text-white shadow'
+                                    : est === 'Por confirmar'
+                                    ? 'bg-amber-600 border-amber-400 text-white shadow'
+                                    : 'bg-red-700 border-red-500 text-white shadow'
+                                  : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                              }`}
+                            >
+                              {est}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Botones de acción */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
+                        <a
+                          href={`https://wa.me/${mesaReservaBloqueadaModal.telefono.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                            `¡Hola ${mesaReservaBloqueadaModal.cliente}! Te saludamos de *${config.nombre}* 🍽️\n` +
+                            `Tu mesa *${mesaReservaBloqueadaModal.mesaAsignada}* se encuentra reservada y lista para hoy a las *${mesaReservaBloqueadaModal.horaReserva}*.\n` +
+                            `¡Los esperamos!`
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow"
+                        >
+                          <i className="fa-brands fa-whatsapp text-sm"></i>
+                          <span>WhatsApp Cliente</span>
+                        </a>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            // Desbloquear mesa cambiando pagoConfirmado a false
+                            const act = { ...mesaReservaBloqueadaModal, pagoConfirmado: false };
+                            storage.saveReserva(act);
+                            setMesaReservaBloqueadaModal(null);
+                            alert(`✔ Se liberó el bloqueo de ${act.mesaAsignada}.`);
+                          }}
+                          className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold text-xs flex items-center justify-center gap-1.5 border border-amber-500/40 cursor-pointer"
+                        >
+                          <i className="fa-solid fa-lock-open"></i>
+                          <span>Desbloquear Mesa</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* MODAL DETALLE / GESTIÓN DE MESA */}
               {mesaDetalleModal && (
@@ -2534,20 +2840,44 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
           {/* F. 5. GENERACIÓN DE RESERVAS */}
           {currentSection === 'reservas' && (
             <section id="viewReservas" style={{ display: 'block' }}>
-              <div className="view-header">
+              <div className="view-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
                 <div>
-                  <h1>📅 Generación & Control de Reservas</h1>
-                  <p>Bloqueo dinámico de mesas por turnos y comensales.</p>
+                  <h1 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span>📅</span> Generación & Control de Reservas
+                  </h1>
+                  <p>Sincronización en tiempo real con Menú Digital, QR y Salón de Mesas.</p>
                 </div>
+
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent(
+                    `¡Hola! Te compartimos el enlace oficial para reservar tu mesa en *${config.nombre}* 🍽️🍷✨\n\n` +
+                    `👉 Entra con este link directo a la sección de reservas:\n` +
+                    `${window.location.origin}${window.location.pathname}?view=reservas\n\n` +
+                    `¡Acomoda tu mesa, escoge tus platos favoritos y asegura tu lugar!`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-save"
+                  style={{ background: '#10b981', display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 14px', borderRadius: '10px', textDecoration: 'none', color: '#fff', fontWeight: 'bold', fontSize: '12px' }}
+                  title="Compartir link directo a clientes por WhatsApp"
+                >
+                  <i className="fa-brands fa-whatsapp" style={{ fontSize: '16px' }}></i>
+                  <span>Compartir Link de Reservas por WhatsApp</span>
+                </a>
               </div>
 
+              {/* Formulario de Nueva Reserva */}
               <div className="card" style={{ marginBottom: '16px' }}>
-                <strong style={{ color: 'var(--gold)' }}>
-                  <i className="fa-solid fa-plus-circle"></i> Registrar Nueva Reserva de Grupo:
+                <strong style={{ color: 'var(--gold)', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px' }}>
+                  <i className="fa-solid fa-plus-circle"></i> Registrar / Acomodar Nueva Reserva:
                 </strong>
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
+                    if (!resAdminForm.titular.trim() || !resAdminForm.telefono.trim()) {
+                      alert('Por favor complete titular y teléfono.');
+                      return;
+                    }
                     const n: Reserva = {
                       id: `RES-${Date.now().toString().slice(-6)}`,
                       cliente: resAdminForm.titular.trim(),
@@ -2556,17 +2886,29 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                       horaReserva: resAdminForm.hora,
                       personas: resAdminForm.personas,
                       mesaAsignada: resAdminForm.mesa,
+                      estado: resAdminForm.estado,
+                      platosPreseleccionados: resAdminForm.platosPreseleccionados,
+                      pagoConfirmado: resAdminForm.pagoConfirmado,
+                      montoAdelanto: resAdminForm.pagoConfirmado ? Number(resAdminForm.montoAdelanto) : 0,
+                      metodoPagoAdelanto: resAdminForm.pagoConfirmado ? resAdminForm.metodoPagoAdelanto : undefined,
                       notas: resAdminForm.notas.trim() || 'Sin notas especiales',
                       fechaCreacion: new Date().toLocaleDateString('es-PE'),
-                      estado: 'Confirmada',
                     };
                     storage.saveReserva(n);
-                    alert('✔ Reserva generada y mesa bloqueada.');
+                    alert(`✔ Reserva guardada en estado ${n.estado}. ${n.pagoConfirmado ? '🔒 Mesa bloqueada por pago previo.' : 'Mesa libre hasta confirmar pago.'}`);
+                    setResAdminForm({
+                      ...resAdminForm,
+                      titular: '',
+                      telefono: '',
+                      notas: '',
+                      platosPreseleccionados: [],
+                      pagoConfirmado: false,
+                    });
                   }}
-                  style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px', marginTop: '8px' }}
+                  style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginTop: '10px' }}
                 >
                   <div>
-                    <label>Titular:</label>
+                    <label>Titular de la Reserva:</label>
                     <input
                       type="text"
                       required
@@ -2580,13 +2922,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                     <input
                       type="tel"
                       required
-                      placeholder="984..."
+                      placeholder="+51 984..."
                       value={resAdminForm.telefono}
                       onChange={(e) => setResAdminForm({ ...resAdminForm, telefono: e.target.value })}
                     />
                   </div>
                   <div>
-                    <label>Fecha:</label>
+                    <label>Fecha de la Reserva:</label>
                     <input
                       type="date"
                       required
@@ -2604,59 +2946,363 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                     />
                   </div>
                   <div>
-                    <label>Personas:</label>
+                    <label>Comensales (Personas):</label>
                     <input
                       type="number"
                       min={1}
+                      max={40}
                       value={resAdminForm.personas}
                       onChange={(e) => setResAdminForm({ ...resAdminForm, personas: parseInt(e.target.value) || 1 })}
                     />
                   </div>
+
+                  {/* Acomodar la mesa para el día de su reserva */}
                   <div>
-                    <label>Mesa a Bloquear:</label>
+                    <label>Acomodar Mesa Asignada:</label>
                     <select
                       value={resAdminForm.mesa}
                       onChange={(e) => setResAdminForm({ ...resAdminForm, mesa: e.target.value })}
                     >
                       {mesas.map((m) => (
                         <option key={m.id} value={m.nombre}>
-                          {m.nombre}
+                          {m.nombre} ({m.capacidad || 4} pax) - {m.zona || 'Salón'}
                         </option>
                       ))}
                     </select>
                   </div>
+
+                  {/* Estado de la Reserva */}
+                  <div>
+                    <label>Estado de la Reserva:</label>
+                    <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
+                      {(['Confirmada', 'Por confirmar', 'Cancelada'] as const).map((est) => (
+                        <button
+                          key={est}
+                          type="button"
+                          onClick={() => setResAdminForm({ ...resAdminForm, estado: est })}
+                          style={{
+                            flex: 1,
+                            padding: '6px 4px',
+                            borderRadius: '6px',
+                            fontSize: '11px',
+                            fontWeight: 'bold',
+                            border: '1px solid',
+                            cursor: 'pointer',
+                            borderColor: resAdminForm.estado === est ? 'var(--gold)' : '#334155',
+                            background: resAdminForm.estado === est
+                              ? est === 'Confirmada' ? '#065f46' : est === 'Por confirmar' ? '#92400e' : '#991b1b'
+                              : 'var(--input-bg)',
+                            color: '#fff',
+                          }}
+                        >
+                          {est === 'Confirmada' && '✓ '}
+                          {est === 'Por confirmar' && '⏳ '}
+                          {est === 'Cancelada' && '✕ '}
+                          {est}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Escoger tipos de platos a pedir */}
+                  <div style={{ gridColumn: '1 / -1', background: 'rgba(15, 23, 42, 0.6)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <strong style={{ fontSize: '12px', color: 'var(--gold)' }}>
+                        <i className="fa-solid fa-utensils"></i> Escoger qué tipos de platos van a pedir ({resAdminForm.platosPreseleccionados.length} seleccionados):
+                      </strong>
+                      <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Opcional para cocina y mozo</span>
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', maxHeight: '110px', overflowY: 'auto' }}>
+                      {productos.map((prod) => {
+                        const nombrePlato = prod.nombre || prod.i18n?.es?.name || prod.id;
+                        const precioPlato = prod.precioPEN || prod.precio || 0;
+                        const isChecked = resAdminForm.platosPreseleccionados.includes(nombrePlato);
+                        return (
+                          <button
+                            key={prod.id}
+                            type="button"
+                            onClick={() => {
+                              const nuevo = isChecked
+                                ? resAdminForm.platosPreseleccionados.filter((p) => p !== nombrePlato)
+                                : [...resAdminForm.platosPreseleccionados, nombrePlato];
+                              setResAdminForm({ ...resAdminForm, platosPreseleccionados: nuevo });
+                            }}
+                            style={{
+                              padding: '5px 10px',
+                              borderRadius: '8px',
+                              fontSize: '11px',
+                              fontWeight: 'bold',
+                              cursor: 'pointer',
+                              border: isChecked ? '1.5px solid var(--gold)' : '1px solid #334155',
+                              background: isChecked ? 'rgba(245, 158, 11, 0.25)' : 'rgba(15, 23, 42, 0.8)',
+                              color: isChecked ? '#fbbf24' : '#cbd5e1',
+                            }}
+                          >
+                            {isChecked ? '✓ ' : '+ '}
+                            {nombrePlato} (S/ {precioPlato.toFixed(2)})
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Pago previo confirmación */}
+                  <div style={{ gridColumn: '1 / -1', background: 'rgba(88, 28, 135, 0.25)', padding: '12px', borderRadius: '10px', border: '1.5px solid rgba(168, 85, 247, 0.5)' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', margin: 0, fontWeight: 'bold', color: '#e9d5ff' }}>
+                      <input
+                        type="checkbox"
+                        checked={resAdminForm.pagoConfirmado}
+                        onChange={(e) => setResAdminForm({ ...resAdminForm, pagoConfirmado: e.target.checked })}
+                        style={{ width: '16px', height: '16px', accentColor: '#a855f7', cursor: 'pointer' }}
+                      />
+                      <span>🔒 Confirmar Pago Previo de Adelanto (Bloquea la mesa en el salón el día de la reserva)</span>
+                    </label>
+
+                    {resAdminForm.pagoConfirmado && (
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px', marginTop: '10px' }}>
+                        <div>
+                          <label style={{ fontSize: '11px', color: '#d8b4fe' }}>Monto de Adelanto (S/):</label>
+                          <input
+                            type="number"
+                            min={0}
+                            value={resAdminForm.montoAdelanto}
+                            onChange={(e) => setResAdminForm({ ...resAdminForm, montoAdelanto: Number(e.target.value) })}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ fontSize: '11px', color: '#d8b4fe' }}>Método de Pago:</label>
+                          <select
+                            value={resAdminForm.metodoPagoAdelanto}
+                            onChange={(e) => setResAdminForm({ ...resAdminForm, metodoPagoAdelanto: e.target.value })}
+                          >
+                            <option value="Yape">Yape</option>
+                            <option value="Plin">Plin</option>
+                            <option value="Transferencia BCP">Transferencia BCP</option>
+                            <option value="Tarjeta">Tarjeta Débito/Crédito</option>
+                            <option value="Efectivo">Efectivo en Caja</option>
+                          </select>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   <div style={{ gridColumn: '1 / -1' }}>
                     <label>Notas del Evento:</label>
                     <input
                       type="text"
-                      placeholder="Requerimientos especiales..."
+                      placeholder="Cumpleaños, flores, vista al valle, alergias..."
                       value={resAdminForm.notas}
                       onChange={(e) => setResAdminForm({ ...resAdminForm, notas: e.target.value })}
                     />
                   </div>
-                  <button type="submit" className="btn btn-save" style={{ gridColumn: '1 / -1' }}>
-                    <i className="fa-solid fa-calendar-plus"></i> Guardar y Bloquear Mesa
+                  <button type="submit" className="btn btn-save" style={{ gridColumn: '1 / -1', padding: '10px', fontWeight: 'bold' }}>
+                    <i className="fa-solid fa-calendar-plus"></i> Guardar y Sincronizar Reserva
                   </button>
                 </form>
               </div>
 
-              <div id="contenedorReservasAdminList" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '14px' }}>
-                {reservas.map((r) => (
-                  <div key={r.id} style={{ background: 'var(--card-bg)', border: '1.5px solid var(--card-border)', borderRadius: '12px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <strong style={{ color: 'var(--text-main)', fontSize: '14px' }}>{r.cliente}</strong>
-                      <span style={{ background: 'var(--primary)', color: '#fff', fontSize: '10px', padding: '3px 7px', borderRadius: '4px', fontWeight: 'bold' }}>
-                        {r.mesaAsignada}
-                      </span>
+              {/* Listado de Reservas con Sincronización Completa */}
+              <div style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <strong style={{ color: 'var(--text-main)', fontSize: '14px' }}>
+                  📋 Reservas Registradas ({reservas.length}):
+                </strong>
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                  Las mesas con pago confirmado se bloquean automáticamente en Salón.
+                </span>
+              </div>
+
+              <div id="contenedorReservasAdminList" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '14px' }}>
+                {reservas.map((r) => {
+                  const esHoy = getEsHoy(r.fechaReserva);
+                  return (
+                    <div
+                      key={r.id}
+                      style={{
+                        background: 'var(--card-bg)',
+                        border: r.pagoConfirmado ? '2px solid #a855f7' : esHoy ? '2px solid #f59e0b' : '1.5px solid var(--card-border)',
+                        borderRadius: '14px',
+                        padding: '14px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px',
+                        boxShadow: r.pagoConfirmado ? '0 0 14px rgba(168, 85, 247, 0.25)' : 'none',
+                      }}
+                    >
+                      {/* Cabecera de la Reserva */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                        <div>
+                          <strong style={{ color: 'var(--text-main)', fontSize: '15px' }}>{r.cliente}</strong>
+                          {esHoy && (
+                            <span style={{ marginLeft: '6px', background: '#dc2626', color: '#fff', fontSize: '9px', fontWeight: 900, padding: '2px 6px', borderRadius: '4px' }}>
+                              HOY
+                            </span>
+                          )}
+                        </div>
+                        <span
+                          style={{
+                            fontSize: '10px',
+                            padding: '3px 8px',
+                            borderRadius: '6px',
+                            fontWeight: 900,
+                            textTransform: 'uppercase',
+                            background: r.estado === 'Confirmada' ? '#065f46' : r.estado === 'Por confirmar' ? '#92400e' : '#991b1b',
+                            color: '#fff',
+                          }}
+                        >
+                          {r.estado}
+                        </span>
+                      </div>
+
+                      {/* Estado de Bloqueo por Pago Previo */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: r.pagoConfirmado ? 'rgba(88, 28, 135, 0.3)' : 'rgba(15, 23, 42, 0.6)', padding: '6px 10px', borderRadius: '8px', border: r.pagoConfirmado ? '1px solid #c084fc' : '1px solid #334155' }}>
+                        <span style={{ fontSize: '11px', fontWeight: 'bold', color: r.pagoConfirmado ? '#e9d5ff' : '#94a3b8' }}>
+                          {r.pagoConfirmado ? (
+                            <>🔒 Pago Previo Confirmado (S/ {Number(r.montoAdelanto || 0).toFixed(2)}) • <b>Mesa Bloqueada</b></>
+                          ) : (
+                            <>⚠️ Sin pago previo • Mesa libre</>
+                          )}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const act = {
+                              ...r,
+                              pagoConfirmado: !r.pagoConfirmado,
+                              montoAdelanto: !r.pagoConfirmado ? (r.montoAdelanto || 50) : 0,
+                              metodoPagoAdelanto: !r.pagoConfirmado ? (r.metodoPagoAdelanto || 'Yape') : undefined,
+                            };
+                            storage.saveReserva(act);
+                          }}
+                          style={{ fontSize: '10px', fontWeight: 'bold', padding: '3px 7px', borderRadius: '5px', background: r.pagoConfirmado ? '#7e22ce' : '#334155', color: '#fff', border: 'none', cursor: 'pointer' }}
+                        >
+                          {r.pagoConfirmado ? 'Desbloquear' : 'Confirmar Pago'}
+                        </button>
+                      </div>
+
+                      <div style={{ fontSize: '12px', color: '#fbbf24', fontWeight: 'bold' }}>
+                        📅 {r.fechaReserva} • ⏰ {r.horaReserva} • 👥 {r.personas} Personas
+                      </div>
+
+                      {/* Acomodar la mesa para el día de su reserva */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--input-bg)', padding: '6px 10px', borderRadius: '8px' }}>
+                        <label style={{ margin: 0, fontSize: '11px', color: 'var(--gold)', fontWeight: 'bold' }}>
+                          🪑 Acomodar Mesa:
+                        </label>
+                        <select
+                          value={r.mesaAsignada}
+                          onChange={(e) => {
+                            const act = { ...r, mesaAsignada: e.target.value };
+                            storage.saveReserva(act);
+                          }}
+                          style={{ flex: 1, padding: '4px 8px', fontSize: '11px', borderRadius: '6px', background: 'rgba(15, 23, 42, 0.9)', color: '#fff', border: '1px solid #475569' }}
+                        >
+                          {mesas.map((m) => (
+                            <option key={m.id} value={m.nombre}>
+                              {m.nombre} ({m.capacidad || 4} pax)
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Platos Preseleccionados */}
+                      {r.platosPreseleccionados && r.platosPreseleccionados.length > 0 && (
+                        <div style={{ background: 'rgba(15, 23, 42, 0.7)', padding: '6px 10px', borderRadius: '8px', border: '1px solid #334155' }}>
+                          <span style={{ fontSize: '10px', color: '#38bdf8', fontWeight: 'bold', display: 'block', marginBottom: '2px' }}>
+                            🍲 Platos Preseleccionados ({r.platosPreseleccionados.length}):
+                          </span>
+                          <span style={{ fontSize: '11px', color: '#e2e8f0' }}>
+                            {r.platosPreseleccionados.join(', ')}
+                          </span>
+                        </div>
+                      )}
+
+                      {r.notas && (
+                        <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                          📝 Notas: {r.notas}
+                        </div>
+                      )}
+
+                      {/* Cambiar Estado 1-Click: Confirmada, Por confirmar, Cancelada */}
+                      <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
+                        {(['Confirmada', 'Por confirmar', 'Cancelada'] as const).map((est) => (
+                          <button
+                            key={est}
+                            type="button"
+                            onClick={() => {
+                              const act = { ...r, estado: est };
+                              storage.saveReserva(act);
+                            }}
+                            style={{
+                              flex: 1,
+                              padding: '5px 4px',
+                              borderRadius: '6px',
+                              fontSize: '10px',
+                              fontWeight: 'bold',
+                              textTransform: 'uppercase',
+                              cursor: 'pointer',
+                              border: r.estado === est ? '1.5px solid var(--gold)' : '1px solid #334155',
+                              background: r.estado === est
+                                ? est === 'Confirmada' ? '#065f46' : est === 'Por confirmar' ? '#92400e' : '#991b1b'
+                                : 'var(--input-bg)',
+                              color: '#fff',
+                            }}
+                          >
+                            {est === 'Confirmada' && '✓ '}
+                            {est === 'Por confirmar' && '⏳ '}
+                            {est === 'Cancelada' && '✕ '}
+                            {est}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Botones de acción WhatsApp & Eliminar */}
+                      <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                        <a
+                          href={`https://wa.me/${r.telefono.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                            `¡Hola ${r.cliente}! Te saludamos de *${config.nombre}* 🍽️\n` +
+                            `Tu reserva para el *${r.fechaReserva}* a las *${r.horaReserva}* en la *${r.mesaAsignada}* se encuentra en estado: *${r.estado}*.\n` +
+                            (r.pagoConfirmado ? `🔒 Adelanto confirmado: S/ ${Number(r.montoAdelanto || 0).toFixed(2)}\n` : '') +
+                            (r.platosPreseleccionados && r.platosPreseleccionados.length > 0 ? `🍲 Platos: ${r.platosPreseleccionados.join(', ')}\n` : '') +
+                            `¡Te esperamos con la mejor gastronomía cusqueña!`
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            flex: 1,
+                            padding: '6px 10px',
+                            borderRadius: '8px',
+                            background: '#10b981',
+                            color: '#fff',
+                            textDecoration: 'none',
+                            fontSize: '11px',
+                            fontWeight: 'bold',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '6px',
+                          }}
+                        >
+                          <i className="fa-brands fa-whatsapp"></i>
+                          <span>WhatsApp</span>
+                        </a>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (confirm(`¿Eliminar la reserva de ${r.cliente}?`)) {
+                              storage.deleteReserva(r.id);
+                            }
+                          }}
+                          className="btn btn-del"
+                          style={{ padding: '6px 10px', fontSize: '11px' }}
+                          title="Eliminar Reserva"
+                        >
+                          <i className="fa-solid fa-trash"></i>
+                        </button>
+                      </div>
                     </div>
-                    <div style={{ fontSize: '12px', color: '#fbbf24' }}>
-                      📅 {r.fechaReserva} • ⏰ {r.horaReserva} • 👥 {r.personas} Personas
-                    </div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                      📞 {r.telefono} | Notas: {r.notas}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </section>
           )}
