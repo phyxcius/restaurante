@@ -65,8 +65,12 @@ export const FacturaTicket: React.FC<FacturaTicketProps> = ({ config, onBack }) 
       {/* Printable Receipt Container (Thermal 80mm format) */}
       <div className="w-full max-w-[340px] bg-white text-slate-900 rounded-2xl p-5 shadow-2xl border-t-8 border-amber-500 font-mono text-xs flex flex-col items-center print:shadow-none print:border-none print:max-w-none print:p-0">
         {/* Logo and business name */}
-        <div className="w-14 h-14 rounded-full bg-slate-100 border-2 border-amber-500 flex items-center justify-center text-2xl mb-1 shadow">
-          {config.logo || '🍽️'}
+        <div className="w-14 h-14 rounded-full bg-slate-100 border-2 border-amber-500 overflow-hidden flex items-center justify-center text-2xl mb-1 shadow">
+          {config.logo && (config.logo.startsWith('data:') || config.logo.startsWith('http') || config.logo.startsWith('/')) ? (
+            <img src={config.logo} alt="Logo" className="w-full h-full object-cover" />
+          ) : (
+            <span>{config.logo || '🍽️'}</span>
+          )}
         </div>
 
         <h2 className="text-base font-black tracking-wider uppercase text-center font-sans">

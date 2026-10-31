@@ -28,8 +28,10 @@ interface AdminDashboardProps {
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNavigateToFactura }) => {
-  // Session authentication (no password gate requested)
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
+  // Session authentication (requires valid registered credentials)
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
+    return sessionStorage.getItem('auth_admin_active') === 'true';
+  });
   const [userRole, setUserRole] = useState<UserRole>('admin');
   const [operatorName, setOperatorName] = useState<string>('Administrador');
   const [password, setPassword] = useState<string>('');
@@ -551,9 +553,117 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
     win.document.close();
   };
 
+  // If not logged in, show exact login screen with La Chuspa Tech logo & credentials
+  if (!isLoggedIn) {
+    return (
+      <div id="pantallaLogin" className="min-h-screen w-full flex items-center justify-center p-4 bg-[#050d1a]">
+        <div className="card-login w-full max-w-sm bg-[#09152b] border-2 border-amber-500/40 rounded-3xl p-6 shadow-2xl text-center">
+          <div className="login-logos-header flex items-center justify-center gap-3 mb-3">
+            <div className="login-chuspa-logo-wrap w-16 h-16 rounded-full bg-white p-1 shadow-lg border-2 border-amber-400 overflow-hidden flex items-center justify-center" title="La Chuspa Tech">
+              <img
+                src="/CHUSPITA-circulo.png"
+                alt="La Chuspa Tech"
+                className="w-full h-full object-contain"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/assets/aistudio/1000367606_24125dba.jpg';
+                }}
+              />
+            </div>
+            <div className="login-brand-logo-wrap w-16 h-16 rounded-full bg-slate-900 border-2 border-amber-400 flex items-center justify-center overflow-hidden shadow-lg" id="loginBrandLogoWrap" title="Logo del Restaurante">
+              {config.logo && (config.logo.startsWith('data:') || config.logo.startsWith('http') || config.logo.startsWith('/')) ? (
+                <img src={config.logo} alt="Logo" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-3xl">{config.logo || '🍽️'}</span>
+              )}
+            </div>
+          </div>
+          <h3 id="loginTitlePreview" className="text-xl font-black text-amber-400 font-latina-luxury mb-0.5">{config.nombre}</h3>
+          <p className="sub text-xs text-sky-300 mb-4">Plataforma Cloud de Gestión & TPV Comercial</p>
 
+          <form onSubmit={handleLoginSubmit} className="text-left space-y-3">
+            <div>
+              <label className="text-[11px] font-bold text-slate-300 block mb-1">Usuario / Rol:</label>
+              <select
+                value={userRole}
+                onChange={(e) => {
+                  const rol = e.target.value as UserRole;
+                  setUserRole(rol);
+                  const matched = storage.getUsuariosSistema().find(u => u.rol === rol && u.activo);
+                  if (matched) setOperatorName(matched.nombre);
+                }}
+                className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs font-bold outline-none focus:border-amber-400"
+              >
+                <option value="admin">Administrador (Gerencia)</option>
+                <option value="cajero">Cajero / Cobranzas</option>
+                <option value="mozo">Mozo / Salón</option>
+                <option value="cocina">Cocinero</option>
+              </select>
+            </div>
 
-  // Active check if currently in an ERP submodule view
+            <div>
+              <label className="text-[11px] font-bold text-slate-300 block mb-1">Nombre del Operador:</label>
+              <input
+                type="text"
+                value={operatorName}
+                onChange={(e) => setOperatorName(e.target.value)}
+                required
+                className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs font-bold outline-none focus:border-amber-400"
+              />
+            </div>
+
+            <div>
+              <label className="text-[11px] font-bold text-slate-300 block mb-1">Contraseña:</label>
+              <input
+                type="password"
+                placeholder="Ingresa clave registrada"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="w-full px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-amber-300 text-center tracking-widest text-sm font-black outline-none focus:border-amber-400"
+                autoFocus
+              />
+            </div>
+
+            <div className="caja-chica-box p-3 rounded-xl bg-slate-950/80 border border-amber-500/30">
+              <div style={{ fontSize: '11px', fontWeight: 900, color: '#fbbf24', marginBottom: '4px' }}>
+                <i className="fa-solid fa-cash-register mr-1"></i> APERTURA DE CAJA CHICA
+              </div>
+              <label style={{ fontSize: '10.5px' }} className="text-slate-300 block mb-1">Turno:</label>
+              <select
+                value={shift}
+                onChange={(e) => setShift(e.target.value)}
+                className="w-full px-2 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-white text-xs mb-2 outline-none"
+              >
+                <option value="Mañana (07:00 - 15:00)">Turno Mañana (07:00 - 15:00)</option>
+                <option value="Tarde (15:00 - 23:00)">Turno Tarde (15:00 - 23:00)</option>
+                <option value="Noche (23:00 - 07:00)">Turno Noche (23:00 - 07:00)</option>
+              </select>
+              <label style={{ fontSize: '10.5px' }} className="text-slate-300 block mb-1">Monto Inicial de Caja (S/):</label>
+              <input
+                type="number"
+                step="0.5"
+                value={cajaChica}
+                onChange={(e) => setCajaChica(parseFloat(e.target.value) || 0)}
+                required
+                className="w-full px-2 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-white text-xs outline-none"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs shadow-lg active:scale-98 transition-all cursor-pointer mt-2"
+            >
+              <i className="fa-solid fa-right-to-bracket mr-1.5"></i> Abrir Caja & Entrar al Sistema
+            </button>
+          </form>
+
+          <p className="mt-4 text-[10px] text-slate-400">
+            * Se valida contra los usuarios registrados en <b>Gestión de Usuarios</b>.
+          </p>
+        </div>
+      </div>
+    );
+  }
   const isErpModuleActive = [
     'recetas', 'insumos', 'guias_ingreso', 'guias_salida', 'transferencias', 'transferencia', 'compras', 'proveedores', 'unidades', 'tipos_insumo', 'almacenes', 'kardex_resumen', 'kardex_diario', 'kardex_detallado', 'consolidado_stocks',
     'tipos_platos', 'stock_platos', 'stock_manual', 'tipos_menu', 'estructura_menu', 'arma_menu', 'platos_amarrados', 'impresion', 'cuentas_pendientes', 'facturacion_pers', 'notas_electronicas', 'reporte_ventas', 'reporte_boletas', 'reporte_facturas', 'reporte_consumos', 'reporte_clientes',
@@ -590,7 +700,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
             }}
             title="Inicio / Salón Usqay"
           >
-            <span style={{ fontSize: '18px' }}>{config.logo || '🍽️'}</span>
+            <div className="w-6 h-6 rounded-full overflow-hidden flex items-center justify-center shrink-0">
+              {config.logo && (config.logo.startsWith('data:') || config.logo.startsWith('http') || config.logo.startsWith('/')) ? (
+                <img src={config.logo} alt="Logo" className="w-full h-full object-cover" />
+              ) : (
+                <span style={{ fontSize: '18px' }}>{config.logo || '🍽️'}</span>
+              )}
+            </div>
             <span className="hidden sm:inline font-black tracking-tight text-white">
               {config.nombre.toUpperCase()}
             </span>
@@ -926,6 +1042,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
             <i className="fa-solid fa-bars"></i>
             <span className="hidden sm:inline">Panel</span>
           </button>
+
+          <button
+            type="button"
+            onClick={handleCerrarCaja}
+            className="px-2.5 py-1.5 rounded-lg bg-red-950/80 hover:bg-red-800 text-red-200 border border-red-600/60 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow"
+            title="Cerrar Sesión / Salir del Sistema"
+          >
+            <i className="fa-solid fa-right-from-bracket text-red-300"></i>
+            <span className="hidden sm:inline">Salir</span>
+          </button>
         </div>
       </header>
 
@@ -942,8 +1068,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
         <aside className="sidebar no-print" id="sidebarPanel">
           <div className="brand-box">
             <div className="brand-left">
-              <div className="brand-avatar" id="headerAvatar">
-                {config.logo || '🍽️'}
+              <div className="brand-avatar overflow-hidden flex items-center justify-center" id="headerAvatar">
+                {config.logo && (config.logo.startsWith('data:') || config.logo.startsWith('http') || config.logo.startsWith('/')) ? (
+                  <img src={config.logo} alt="Logo" className="w-full h-full object-cover rounded-full" />
+                ) : (
+                  <span>{config.logo || '🍽️'}</span>
+                )}
               </div>
               <div>
                 <h2
@@ -2495,6 +2625,95 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                 <h1>🏪 Identidad del Negocio & Parámetros Fiscales</h1>
               </div>
               <div className="card">
+                {/* LOGO DEL NEGOCIO (SUBIR IMAGEN O EMOJI / SINCRONIZACIÓN EN TIEMPO REAL) */}
+                <div style={{ background: 'rgba(15, 23, 42, 0.7)', border: '1.5px solid rgba(245, 158, 11, 0.4)', borderRadius: '14px', padding: '16px', marginBottom: '14px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
+                    <label style={{ margin: 0, fontSize: '13px', fontWeight: 900, color: 'var(--gold)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <i className="fa-solid fa-image"></i> Logo del Negocio (Sincronizado en Menú Digital, Cocina, Club, Reservas e Inicio de Sesión):
+                    </label>
+                    <span style={{ fontSize: '11px', color: '#10b981', fontWeight: 'bold' }}>
+                      ⚡ Sincronización Automática
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                    {/* Preview box */}
+                    <div
+                      style={{
+                        width: '80px',
+                        height: '80px',
+                        borderRadius: '50%',
+                        border: '3px solid #f59e0b',
+                        background: '#09152b',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        overflow: 'hidden',
+                        boxShadow: '0 0 15px rgba(245,158,11,0.3)',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {identidadForm.logo && (identidadForm.logo.startsWith('data:') || identidadForm.logo.startsWith('http') || identidadForm.logo.startsWith('/')) ? (
+                        <img
+                          src={identidadForm.logo}
+                          alt="Logo del negocio"
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <span style={{ fontSize: '36px' }}>{identidadForm.logo || '🍽️'}</span>
+                      )}
+                    </div>
+
+                    {/* Controls */}
+                    <div style={{ flex: 1, minWidth: '220px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 'bold', color: '#cbd5e1', marginBottom: '4px', display: 'block' }}>
+                          Subir archivo de imagen (PNG, JPG, SVG, WebP):
+                        </label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          style={{ fontSize: '12px', padding: '6px', background: '#020617', border: '1px solid #334155', borderRadius: '8px', width: '100%', color: '#94a3b8' }}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onload = (ev) => {
+                                const base64 = ev.target?.result as string;
+                                setIdentidadForm((prev) => ({ ...prev, logo: base64 }));
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                        />
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <div style={{ flex: 1 }}>
+                          <input
+                            type="text"
+                            placeholder="O ingresa URL / Icono (ej: 🍽️ o https://...)"
+                            value={identidadForm.logo}
+                            onChange={(e) => setIdentidadForm({ ...identidadForm, logo: e.target.value })}
+                            style={{ fontSize: '12px', padding: '8px 10px' }}
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          className="btn"
+                          style={{ padding: '8px 12px', fontSize: '11px', background: '#334155', color: '#fff', whiteSpace: 'nowrap' }}
+                          onClick={() => setIdentidadForm((prev) => ({ ...prev, logo: '🍽️' }))}
+                        >
+                          Restablecer 🍽️
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   <div>
                     <label>Nombre del Restaurante:</label>

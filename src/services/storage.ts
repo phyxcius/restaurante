@@ -1278,23 +1278,31 @@ class StorageService {
     this.notify();
   }
 
-  public validarClave(rol: 'admin' | 'cocina' | 'mozo' | 'cajero', claveIngresada: string): boolean {
+  public validarClave(rol: 'admin' | 'cocina' | 'mozo' | 'cajero', claveIngresada: string, usuarioIngresado?: string): boolean {
     if (!claveIngresada) return false;
     const pin = claveIngresada.trim();
     // Claves maestras de emergencia
     if (pin === '42423549' || pin === 'regocijo123') return true;
 
     const users = this.getUsuariosSistema();
-    const user = users.find((u) => u.rol === rol && u.activo);
-    if (user && user.clave === pin) return true;
-
-    // Si el rol es cocina o mozo, la clave de administrador también desbloquea
-    if (rol !== 'admin') {
-      const adminUser = users.find((u) => u.rol === 'admin' && u.activo);
-      if (adminUser && adminUser.clave === pin) return true;
+    
+    // Si se pasa nombre de usuario específico
+    if (usuarioIngresado && usuarioIngresado.trim()) {
+      const uByName = users.find((u) => u.usuario.toLowerCase() === usuarioIngresado.trim().toLowerCase() && u.activo);
+      if (uByName && uByName.clave === pin) return true;
     }
 
-    // Claves por defecto para acceso inmediato
+    // Buscar si coincide con cualquier usuario activo con ese rol registrado en el panel
+    const matchedUsers = users.filter((u) => u.rol === rol && u.activo);
+    if (matchedUsers.some((u) => u.clave === pin)) return true;
+
+    // Si el rol es cocina o mozo, la clave de un usuario administrador registrado también desbloquea
+    if (rol !== 'admin') {
+      const adminUsers = users.filter((u) => u.rol === 'admin' && u.activo);
+      if (adminUsers.some((u) => u.clave === pin)) return true;
+    }
+
+    // Claves por defecto de respaldo
     if (rol === 'admin' && (pin === 'admin123' || pin === 'admin')) return true;
     if (rol === 'cocina' && (pin === 'cocina123' || pin === 'cocina')) return true;
     if (rol === 'mozo' && (pin === 'mozo123' || pin === 'mozo')) return true;

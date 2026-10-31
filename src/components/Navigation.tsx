@@ -54,8 +54,12 @@ export const Navigation: React.FC<NavigationProps> = ({
       <div className="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 flex items-center justify-between gap-2">
         {/* Brand / Logo */}
         <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => onNavigate('menu')}>
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-sky-500 border border-amber-400 flex items-center justify-center text-lg shadow-[0_0_12px_rgba(245,158,11,0.35)] shrink-0">
-            {config.logo || '🍽️'}
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-sky-500 border border-amber-400 overflow-hidden flex items-center justify-center text-lg shadow-[0_0_12px_rgba(245,158,11,0.35)] shrink-0">
+            {config.logo && (config.logo.startsWith('data:') || config.logo.startsWith('http') || config.logo.startsWith('/')) ? (
+              <img src={config.logo} alt="Logo" className="w-full h-full object-cover" />
+            ) : (
+              <span>{config.logo || '🍽️'}</span>
+            )}
           </div>
           <div className="hidden xs:block sm:block">
             <h1 className="font-extrabold text-sm sm:text-base tracking-wide text-slate-100 uppercase leading-none font-latina-luxury">

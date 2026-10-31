@@ -15,12 +15,34 @@ import { Comanda } from '../../types';
 import { storage } from '../../services/storage';
 
 export const CocinaKDS: React.FC = () => {
-  const [isLoggedIn] = useState<boolean>(true);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
+    return sessionStorage.getItem('auth_cocina_active') === 'true';
+  });
+  const [pinInput, setPinInput] = useState<string>('');
+  const [loginError, setLoginError] = useState<string>('');
+
   const [comandas, setComandas] = useState<Comanda[]>(storage.getComandas());
   const [statusFilter, setStatusFilter] = useState<'todas' | 'iniciado' | 'cocina' | 'servido'>('todas');
   const [tableFilter, setTableFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
+
+  const handleLoginSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (storage.validarClave('cocina', pinInput)) {
+      sessionStorage.setItem('auth_cocina_active', 'true');
+      setIsLoggedIn(true);
+      setLoginError('');
+      setPinInput('');
+    } else {
+      setLoginError('⛔ Clave de cocina incorrecta. Revisa en Gestión de Usuarios.');
+    }
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('auth_cocina_active');
+    setIsLoggedIn(false);
+  };
 
   // Clock tick every 10 seconds for real-time timers
   useEffect(() => {
@@ -212,6 +234,79 @@ export const CocinaKDS: React.FC = () => {
     win.document.close();
   };
 
+  if (!isLoggedIn) {
+    const config = storage.getConfig();
+    return (
+      <div className="w-full min-h-[80vh] flex items-center justify-center p-4">
+        <div className="w-full max-w-sm bg-[#09152b] border-2 border-amber-500/40 rounded-3xl p-6 shadow-2xl text-center flex flex-col items-center">
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <div className="w-16 h-16 rounded-full bg-white p-1 shadow-lg border-2 border-amber-400 overflow-hidden flex items-center justify-center" title="La Chuspa Tech">
+              <img
+                src="/CHUSPITA-circulo.png"
+                alt="La Chuspa Tech"
+                className="w-full h-full object-contain"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/assets/aistudio/1000367606_24125dba.jpg';
+                }}
+              />
+            </div>
+            <div className="w-16 h-16 rounded-full bg-slate-900 border-2 border-amber-400 flex items-center justify-center overflow-hidden shadow-lg" title="Logo del Restaurante">
+              {config.logo && (config.logo.startsWith('data:') || config.logo.startsWith('http') || config.logo.startsWith('/')) ? (
+                <img src={config.logo} alt="Logo" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-3xl">{config.logo || '👨‍🍳'}</span>
+              )}
+            </div>
+          </div>
+
+          <h2 className="text-xl font-black text-amber-400 font-latina-luxury mb-1">
+            Estación Cocina KDS
+          </h2>
+          <p className="text-xs text-slate-300 mb-4">
+            Ingreso con contraseña de Cocinero registrada en el Panel de Control.
+          </p>
+
+          <form onSubmit={handleLoginSubmit} className="w-full flex flex-col gap-3">
+            <div className="text-left">
+              <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wide block mb-1">
+                Contraseña de Cocina:
+              </label>
+              <input
+                type="password"
+                value={pinInput}
+                onChange={(e) => {
+                  setPinInput(e.target.value);
+                  setLoginError('');
+                }}
+                placeholder="Ingresa clave registrada"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-amber-300 text-sm font-black text-center tracking-widest outline-none focus:border-amber-400 transition-colors"
+                autoFocus
+              />
+            </div>
+
+            {loginError && (
+              <p className="text-xs text-red-400 bg-red-950/50 p-2 rounded-lg border border-red-500/40 font-semibold">
+                {loginError}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              className="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs shadow-lg active:scale-98 transition-all cursor-pointer mt-1"
+            >
+              <i className="fa-solid fa-unlock-keyhole mr-1.5"></i>
+              Ingresar a Cocina KDS
+            </button>
+          </form>
+
+          <p className="mt-4 text-[10px] text-slate-400">
+            * Se valida contra la clave configurada en <b>Gestión de Usuarios</b>.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 py-4 flex flex-col gap-4 text-slate-100">
       {/* Header bar */}
@@ -245,6 +340,15 @@ export const CocinaKDS: React.FC = () => {
           >
             <RotateCw className="w-3.5 h-3.5" />
             <span>Actualizar</span>
+          </button>
+
+          <button
+            onClick={handleLogout}
+            className="px-3 py-2 rounded-xl bg-red-950/80 hover:bg-red-800 text-red-200 border border-red-600/60 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow"
+            title="Cerrar Sesión / Salir de Cocina"
+          >
+            <i className="fa-solid fa-right-from-bracket text-red-300 text-xs"></i>
+            <span>Salir</span>
           </button>
         </div>
       </div>

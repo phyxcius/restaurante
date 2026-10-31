@@ -82,8 +82,12 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
   const [pinUnlock, setPinUnlock] = useState<string>('');
   const [errorPinUnlock, setErrorPinUnlock] = useState<string>('');
 
-  // Lock / Access gate state (no password gate requested - direct access)
-  const [isMenuUnlocked, setIsMenuUnlocked] = useState<boolean>(true);
+  // Lock / Access gate state (prompts for PIN registered in Usuarios)
+  const [isMenuUnlocked, setIsMenuUnlocked] = useState<boolean>(() => {
+    return sessionStorage.getItem('auth_menu_active') === 'true';
+  });
+  const [menuPinInput, setMenuPinInput] = useState<string>('');
+  const [menuAccessError, setMenuAccessError] = useState<string>('');
 
   // Touch gesture refs for vertical swiping
   const touchStartY = useRef<number>(0);
@@ -481,8 +485,12 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
         {/* Top Header */}
         <div className="flex flex-col items-center text-center pt-6">
           <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-amber-500 to-amber-300 p-1 shadow-[0_0_30px_rgba(245,158,11,0.5)] mb-4 flex items-center justify-center">
-            <div className="w-full h-full rounded-full bg-[#071224] flex items-center justify-center text-3xl">
-              {config.logo || '🏺'}
+            <div className="w-full h-full rounded-full bg-[#071224] overflow-hidden flex items-center justify-center text-3xl">
+              {config.logo && (config.logo.startsWith('data:') || config.logo.startsWith('http') || config.logo.startsWith('/')) ? (
+                <img src={config.logo} alt="Logo" className="w-full h-full object-cover" />
+              ) : (
+                <span>{config.logo || '🏺'}</span>
+              )}
             </div>
           </div>
           <span className="text-[11px] font-black uppercase tracking-widest text-amber-400 bg-amber-950/60 border border-amber-500/40 px-3 py-1 rounded-full mb-2">
@@ -676,7 +684,112 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
     );
   }
 
+  // ACCESS GATE: MUST ENTER PASSWORD BEFORE OPENING MENÚ DIGITAL
+  if (!isMenuUnlocked) {
+    return (
+      <div className="min-h-screen w-full bg-gradient-to-b from-[#0a192f] via-[#050d1a] to-[#020617] text-slate-100 flex flex-col items-center justify-center p-4">
+        <div className="w-full max-w-sm bg-[#09152b] border-2 border-amber-500/50 rounded-3xl p-6 shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col items-center text-center">
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <div className="w-16 h-16 rounded-full bg-white p-1 shadow-lg border-2 border-amber-400 overflow-hidden flex items-center justify-center" title="La Chuspa Tech">
+              <img
+                src="/CHUSPITA-circulo.png"
+                alt="La Chuspa Tech"
+                className="w-full h-full object-contain"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/assets/aistudio/1000367606_24125dba.jpg';
+                }}
+              />
+            </div>
+            <div className="w-16 h-16 rounded-full bg-[#071224] border-2 border-amber-400 flex items-center justify-center overflow-hidden text-2xl shadow-lg">
+              {config.logo && (config.logo.startsWith('data:') || config.logo.startsWith('http') || config.logo.startsWith('/')) ? (
+                <img src={config.logo} alt="Logo" className="w-full h-full object-cover" />
+              ) : (
+                <span>{config.logo || '🍽️'}</span>
+              )}
+            </div>
+          </div>
 
+          <span className="text-[11px] font-black uppercase tracking-widest text-amber-400 bg-amber-950/60 border border-amber-500/40 px-3 py-1 rounded-full mb-1">
+            {config.nombre}
+          </span>
+          <h1 className="text-xl font-black text-white font-latina-luxury mt-1">
+            {t.lockScreenTitle}
+          </h1>
+          <p className="text-xs text-slate-300 mt-1 mb-4">
+            {t.lockScreenSubtitle}
+          </p>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const pin = menuPinInput.trim();
+              if (
+                storage.validarClave('mozo', pin) ||
+                storage.validarClave('admin', pin)
+              ) {
+                sessionStorage.setItem('auth_menu_active', 'true');
+                setIsMenuUnlocked(true);
+                setMenuAccessError('');
+                setMenuPinInput('');
+              } else {
+                setMenuAccessError(t.invalidPin);
+              }
+            }}
+            className="w-full space-y-3 text-left"
+          >
+            <div>
+              <label className="text-[11px] font-bold text-slate-300 uppercase block mb-1">
+                {t.diningTable}
+              </label>
+              <select
+                value={selectedMesa}
+                onChange={(e) => setSelectedMesa(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold text-xs outline-none focus:border-amber-400"
+              >
+                {storage.getMesas().map((m) => (
+                  <option key={m.id} value={m.nombre}>
+                    {m.nombre} {m.estado === 'ocupada' ? '(Ocupada)' : '(Disponible)'}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="text-[11px] font-bold text-slate-300 uppercase block mb-1">
+                {t.accessPassword}
+              </label>
+              <input
+                type="password"
+                placeholder="Ingresa clave registrada (Mozo/Admin)"
+                value={menuPinInput}
+                onChange={(e) => {
+                  setMenuPinInput(e.target.value);
+                  setMenuAccessError('');
+                }}
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-center tracking-widest text-white text-base font-black outline-none focus:border-amber-400 placeholder:text-slate-500 placeholder:tracking-normal placeholder:text-xs"
+                autoFocus
+              />
+            </div>
+
+            {menuAccessError && (
+              <p className="text-xs text-red-400 font-bold text-center">{menuAccessError}</p>
+            )}
+
+            <button
+              type="submit"
+              className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-sm rounded-xl shadow-lg cursor-pointer active:scale-98 transition-all"
+            >
+              <i className="fa-solid fa-lock-open mr-1.5"></i> {t.unlockAndEnter}
+            </button>
+          </form>
+
+          <p className="mt-4 text-[10px] text-slate-400">
+            * Se valida contra los usuarios registrados en <b>Gestión de Usuarios</b>.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full max-w-lg mx-auto min-h-[calc(100vh-60px)] bg-[#050d1a] text-slate-100 overflow-hidden flex flex-col select-none">
@@ -801,7 +914,18 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
 
 
 
-          {/* Language selector */}
+          {/* Lock station button */}
+          <button
+            type="button"
+            onClick={() => {
+              sessionStorage.removeItem('auth_menu_active');
+              setIsMenuUnlocked(false);
+            }}
+            className="p-1.5 bg-slate-900/90 border border-slate-700 hover:border-amber-400 rounded-xl text-slate-400 hover:text-amber-400 text-xs flex items-center gap-1 transition-colors"
+            title={t.lockMenu}
+          >
+            <i className="fa-solid fa-lock text-[11px]"></i>
+          </button>
           <div className="flex items-center gap-1 bg-slate-900/90 border border-slate-700 rounded-xl px-2 py-1 text-xs">
             <Globe className="w-3 h-3 text-sky-400" />
             <select
@@ -951,8 +1075,12 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
               <div className="absolute right-3 bottom-24 z-20 flex flex-col items-center gap-3.5">
                 {/* 1. Restaurant Avatar with Follow "+" badge */}
                 <div className="relative mb-1">
-                  <div className="w-11 h-11 rounded-full p-0.5 bg-gradient-to-tr from-amber-400 to-amber-200 border border-white shadow-xl flex items-center justify-center text-lg bg-[#071224]">
-                    {config.logo || '🏺'}
+                  <div className="w-11 h-11 rounded-full p-0.5 bg-gradient-to-tr from-amber-400 to-amber-200 border border-white shadow-xl flex items-center justify-center text-lg bg-[#071224] overflow-hidden">
+                    {config.logo && (config.logo.startsWith('data:') || config.logo.startsWith('http') || config.logo.startsWith('/')) ? (
+                      <img src={config.logo} alt="Logo" className="w-full h-full object-cover rounded-full" />
+                    ) : (
+                      <span>{config.logo || '🏺'}</span>
+                    )}
                   </div>
                   <button
                     type="button"
@@ -1035,7 +1163,11 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                     }`}
                   >
                     <div className="w-full h-full rounded-full overflow-hidden bg-cover bg-center border border-amber-400/60 flex items-center justify-center text-[10px] bg-amber-950">
-                      {config.logo || '🏺'}
+                      {config.logo && (config.logo.startsWith('data:') || config.logo.startsWith('http') || config.logo.startsWith('/')) ? (
+                        <img src={config.logo} alt="Logo" className="w-full h-full object-cover" />
+                      ) : (
+                        <span>{config.logo || '🏺'}</span>
+                      )}
                     </div>
                   </div>
                   {isPlaying && (
