@@ -60,8 +60,43 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<'reels' | 'grid'>('reels');
 
-  // Order placement state
-  const [selectedMesa, setSelectedMesa] = useState<string>('Mesa 01');
+  // Order placement state & Table auto-detection via QR / Token / URL
+  const [selectedMesa, setSelectedMesa] = useState<string>(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const urlToken = params.get('token');
+      const urlMesa = params.get('mesa') || params.get('m');
+      const mesas = storage.getMesas();
+
+      if (urlToken) {
+        const found = mesas.find((m) => m.token === urlToken);
+        if (found) {
+          sessionStorage.setItem('cusq_selected_mesa', found.nombre);
+          return found.nombre;
+        }
+      }
+
+      if (urlMesa) {
+        const cleanMesa = urlMesa.trim();
+        const found = mesas.find(
+          (m) =>
+            m.nombre.toLowerCase() === cleanMesa.toLowerCase() ||
+            m.nombre.toLowerCase() === `mesa ${cleanMesa.padStart(2, '0')}`.toLowerCase() ||
+            m.nombre.toLowerCase().includes(cleanMesa.toLowerCase())
+        );
+        if (found) {
+          sessionStorage.setItem('cusq_selected_mesa', found.nombre);
+          return found.nombre;
+        }
+        sessionStorage.setItem('cusq_selected_mesa', cleanMesa);
+        return cleanMesa;
+      }
+
+      const saved = sessionStorage.getItem('cusq_selected_mesa') || localStorage.getItem('cusq_selected_mesa');
+      if (saved) return saved;
+    } catch {}
+    return 'Mesa 01';
+  });
   const [clienteNombre, setClienteNombre] = useState<string>('');
   const [clienteDni, setClienteDni] = useState<string>('');
   const [orderNotas, setOrderNotas] = useState<string>('');
@@ -96,8 +131,15 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
   });
   const [reservaExito, setReservaExito] = useState<boolean>(false);
 
-  // Lock / Access gate state (prompts for PIN registered in Usuarios)
+  // Lock / Access gate state (auto-activación inmediata si se escaneó QR con token o mesa)
   const [isMenuUnlocked, setIsMenuUnlocked] = useState<boolean>(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('token') || params.get('mesa') || params.get('qr') === 'true') {
+        sessionStorage.setItem('auth_menu_active', 'true');
+        return true;
+      }
+    } catch {}
     return sessionStorage.getItem('auth_menu_active') === 'true';
   });
   const [menuPinInput, setMenuPinInput] = useState<string>('');
@@ -670,6 +712,72 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
               <span>{t.ratingSubmittedThanks}</span>
             </div>
           )}
+        </div>
+
+        {/* Redes Sociales del Negocio en la Ventana de Agradecimiento */}
+        <div className="mt-5 bg-gradient-to-b from-[#09152b] to-[#060e1e] border-2 border-amber-500/40 rounded-2xl p-4 text-center shadow-xl">
+          <div className="flex items-center justify-center gap-2 mb-1.5">
+            <span className="text-sm">✨</span>
+            <h4 className="text-xs font-black uppercase text-amber-300 tracking-wider font-latina-luxury">
+              Síguenos en Nuestras Redes Sociales
+            </h4>
+            <span className="text-sm">✨</span>
+          </div>
+          <p className="text-[11px] text-slate-300 mb-3.5">
+            ¡Descubre nuevas delicias cusqueñas, promociones exclusivas y eventos especiales!
+          </p>
+
+          <div className="flex items-center justify-center gap-3">
+            {config.facebook && (
+              <a
+                href={config.facebook.startsWith('http') ? config.facebook : `https://${config.facebook}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-11 h-11 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center text-lg shadow-lg shadow-blue-600/40 transition-transform active:scale-95 cursor-pointer border border-blue-400/50"
+                title="Facebook"
+              >
+                <i className="fa-brands fa-facebook-f"></i>
+              </a>
+            )}
+            {config.instagram && (
+              <a
+                href={config.instagram.startsWith('http') ? config.instagram : `https://${config.instagram}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 hover:opacity-95 text-white flex items-center justify-center text-lg shadow-lg shadow-rose-600/40 transition-transform active:scale-95 cursor-pointer border border-rose-400/50"
+                title="Instagram"
+              >
+                <i className="fa-brands fa-instagram"></i>
+              </a>
+            )}
+            {config.tiktok && (
+              <a
+                href={config.tiktok.startsWith('http') ? config.tiktok : `https://${config.tiktok}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-11 h-11 rounded-2xl bg-black hover:bg-slate-900 border-2 border-slate-700 hover:border-amber-400 text-white flex items-center justify-center text-lg shadow-lg shadow-black/60 transition-transform active:scale-95 cursor-pointer"
+                title="TikTok"
+              >
+                <i className="fa-brands fa-tiktok"></i>
+              </a>
+            )}
+            {config.whatsapp && (
+              <a
+                href={`https://wa.me/${config.whatsapp.replace(/[^0-9]/g, '')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-600 to-emerald-500 hover:from-emerald-500 text-white flex items-center justify-center text-lg shadow-lg shadow-emerald-600/40 transition-transform active:scale-95 cursor-pointer border border-emerald-400/50"
+                title="WhatsApp Oficial"
+              >
+                <i className="fa-brands fa-whatsapp text-xl"></i>
+              </a>
+            )}
+          </div>
+
+          <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-center gap-1.5 text-[10px] text-slate-400">
+            <span>📍</span>
+            <span className="font-semibold">{config.nombre} • {config.direccion || 'Cusco, Perú'}</span>
+          </div>
         </div>
 
         {/* Action Buttons: Salir del Menú & Desbloquear Mozo */}
@@ -1699,39 +1807,20 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
         </div>
       )}
 
-      {/* Floating Bottom Bar: Selector de Mesa + Botón Ver Pedido (Ergonómico & Fácil para el cliente) */}
-      <div className="fixed bottom-3 left-3 right-3 sm:left-auto sm:right-6 z-40 flex items-center justify-between sm:justify-end gap-2 max-w-lg mx-auto pointer-events-auto">
-        {/* Selector de Mesa reubicado en la parte inferior */}
-        <div className="flex items-center gap-1.5 px-3 py-2.5 rounded-full bg-[#071224]/95 border-2 border-amber-400/80 shadow-[0_4px_25px_rgba(0,0,0,0.85)] backdrop-blur-md">
-          <span className="text-[11px] uppercase font-black text-amber-300 flex items-center gap-1 shrink-0">
-            <span>🪑</span> {t.mesa}:
-          </span>
-          <select
-            value={selectedMesa}
-            onChange={(e) => setSelectedMesa(e.target.value)}
-            className="bg-transparent text-white font-black outline-none cursor-pointer text-xs pr-1"
-          >
-            {storage.getMesas().map((m) => (
-              <option key={m.id} value={m.nombre} className="bg-slate-900 text-white font-bold">
-                {m.nombre} {m.estado === 'ocupada' ? '(Ocupada)' : ''}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Botón Ver Pedido */}
+      {/* Floating Bottom Bar: Botón Ver Pedido (Sin botón de mesa para proteger mesas de manipulación indebida) */}
+      <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 z-40 flex items-center justify-center sm:justify-end max-w-lg mx-auto pointer-events-auto">
         <button
           onClick={() => setIsCartOpen(true)}
-          className="relative flex-1 sm:flex-initial px-4 py-2.5 rounded-full bg-gradient-to-r from-blue-600 via-sky-500 to-blue-600 border-2 border-amber-400 shadow-[0_6px_25px_rgba(0,86,210,0.6)] flex items-center justify-center gap-2 text-white font-black text-xs sm:text-sm active:scale-95 transition-transform cursor-pointer"
+          className="w-full sm:w-auto px-6 py-3 rounded-full bg-gradient-to-r from-blue-600 via-sky-500 to-blue-600 border-2 border-amber-400 shadow-[0_6px_30px_rgba(0,86,210,0.7)] flex items-center justify-center gap-3 text-white font-black text-sm active:scale-95 transition-transform cursor-pointer backdrop-blur-sm"
         >
-          <ShoppingBag className="w-4 h-4 text-amber-300 shrink-0" />
+          <ShoppingBag className="w-5 h-5 text-amber-300 shrink-0" />
           <span className="whitespace-nowrap">{t.viewOrder}</span>
           {totalItemsCount > 0 && (
-            <span className="px-1.5 py-0.5 rounded-full bg-red-600 text-white text-[10px] font-black animate-pulse">
+            <span className="px-2 py-0.5 rounded-full bg-red-600 text-white text-xs font-black animate-pulse">
               {totalItemsCount}
             </span>
           )}
-          <span className="text-amber-300 font-extrabold text-xs sm:text-sm ml-0.5 whitespace-nowrap">
+          <span className="text-amber-300 font-extrabold text-sm ml-1 whitespace-nowrap">
             S/ {cartTotalPEN.toFixed(2)}
           </span>
         </button>
