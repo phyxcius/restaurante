@@ -1067,24 +1067,10 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
           <div className="flex gap-1.5">
             <button
               onClick={handleLlamarMozo}
-              className="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-lg text-[11px] flex items-center gap-1 shadow cursor-pointer active:scale-95 transition-all"
+              className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-xs flex items-center gap-1.5 shadow-md cursor-pointer active:scale-95 transition-all"
             >
-              <HelpCircle className="w-3 h-3" /> {t.callWaiter}
+              <HelpCircle className="w-3.5 h-3.5" /> <span>{t.callWaiter}</span>
             </button>
-            {/* Solo se habilita pagar cuenta si la cocina ya despachó o ya se sirvió el plato al cliente */}
-            {(activeOrder.despachadoCocina || activeOrder.estado === 'servido') && (
-              <button
-                onClick={handlePedirCuenta}
-                className={`px-2.5 py-1.5 text-white font-black rounded-lg text-[11px] flex items-center gap-1 shadow-md cursor-pointer transition-all ${
-                  activeOrder.pideCuenta
-                    ? 'bg-emerald-700 text-emerald-100 border border-emerald-400'
-                    : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 border border-purple-300 animate-pulse'
-                }`}
-              >
-                <Receipt className="w-3 h-3 text-amber-300" />
-                <span>{activeOrder.pideCuenta ? '⏳ Cuenta Solicitada' : '💳 Pagar Cuenta'}</span>
-              </button>
-            )}
           </div>
         </div>
       )}
