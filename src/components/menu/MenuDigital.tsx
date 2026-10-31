@@ -89,6 +89,9 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
   const [menuPinInput, setMenuPinInput] = useState<string>('');
   const [menuAccessError, setMenuAccessError] = useState<string>('');
 
+  const [slideDirection, setSlideDirection] = useState<'up' | 'down' | null>(null);
+  const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
+
   // Touch gesture refs for vertical swiping
   const touchStartY = useRef<number>(0);
   const touchStartX = useRef<number>(0);
@@ -192,21 +195,33 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
   const currentDish: Producto | undefined = filteredDishes[currentSlideIndex] || filteredDishes[0];
 
   const handleNextSlide = () => {
-    if (filteredDishes.length === 0) return;
+    if (filteredDishes.length === 0 || isTransitioning) return;
     if (showGestureTutorial) {
       setShowGestureTutorial(false);
       sessionStorage.setItem('cusq_tiktok_tutorial_seen', 'true');
     }
-    setCurrentSlideIndex((prev) => (prev + 1) % filteredDishes.length);
+    setSlideDirection('up');
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentSlideIndex((prev) => (prev + 1) % filteredDishes.length);
+      setIsTransitioning(false);
+      setSlideDirection(null);
+    }, 280);
   };
 
   const handlePrevSlide = () => {
-    if (filteredDishes.length === 0) return;
+    if (filteredDishes.length === 0 || isTransitioning) return;
     if (showGestureTutorial) {
       setShowGestureTutorial(false);
       sessionStorage.setItem('cusq_tiktok_tutorial_seen', 'true');
     }
-    setCurrentSlideIndex((prev) => (prev - 1 + filteredDishes.length) % filteredDishes.length);
+    setSlideDirection('down');
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentSlideIndex((prev) => (prev - 1 + filteredDishes.length) % filteredDishes.length);
+      setIsTransitioning(false);
+      setSlideDirection(null);
+    }, 280);
   };
 
   const togglePlay = () => {
@@ -1086,19 +1101,29 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                 <span>{t.tiktokSwipeHint}</span>
               </div>
 
-              {/* Video Player */}
-              <video
-                ref={videoRef}
-                key={currentDish.id}
-                src={currentDish.videoUrl}
-                poster={currentDish.posterUrl}
-                autoPlay
-                playsInline
-                loop
-                muted={isMuted}
-                className="absolute inset-0 w-full h-full object-cover"
-                onClick={togglePlay}
-              />
+              {/* Video Player with Fluid TikTok Vertical Slide Effect */}
+              <div
+                className={`absolute inset-0 w-full h-full transition-transform duration-300 ease-out ${
+                  isTransitioning && slideDirection === 'up'
+                    ? '-translate-y-full opacity-70 scale-95'
+                    : isTransitioning && slideDirection === 'down'
+                    ? 'translate-y-full opacity-70 scale-95'
+                    : 'translate-y-0 opacity-100 scale-100'
+                }`}
+              >
+                <video
+                  ref={videoRef}
+                  key={currentDish.id}
+                  src={currentDish.videoUrl}
+                  poster={currentDish.posterUrl}
+                  autoPlay
+                  playsInline
+                  loop
+                  muted={isMuted}
+                  className="w-full h-full object-cover"
+                  onClick={togglePlay}
+                />
+              </div>
 
               {/* Gradient Overlay for high readability */}
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-slate-950/40 pointer-events-none" />
@@ -1233,8 +1258,16 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                 {currentSlideIndex + 1} / {filteredDishes.length}
               </div>
 
-              {/* Bottom Dish Information (TikTok metadata overlay) */}
-              <div className="relative z-20 px-4 pb-20 pt-4 w-[78%]">
+              {/* Bottom Dish Information (TikTok metadata overlay with vertical slide animation) */}
+              <div
+                className={`relative z-20 px-4 pb-20 pt-4 w-[78%] transition-all duration-300 ${
+                  isTransitioning && slideDirection === 'up'
+                    ? '-translate-y-6 opacity-40'
+                    : isTransitioning && slideDirection === 'down'
+                    ? 'translate-y-6 opacity-40'
+                    : 'translate-y-0 opacity-100'
+                }`}
+              >
                 <div className="flex items-center gap-1.5 mb-1">
                   <span className="text-xs font-black text-white flex items-center gap-1 drop-shadow">
                     @{config.nombre.toLowerCase().replace(/\s+/g, '')}
@@ -1294,17 +1327,6 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                       title="TikTok"
                     >
                       <i className="fa-brands fa-tiktok"></i>
-                    </a>
-                  )}
-                  {config.whatsapp && (
-                    <a
-                      href={`https://wa.me/${config.whatsapp.replace(/\D/g, '')}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-7 h-7 rounded-full bg-emerald-600/90 text-white flex items-center justify-center text-xs shadow transition-transform active:scale-90"
-                      title="WhatsApp"
-                    >
-                      <i className="fa-brands fa-whatsapp"></i>
                     </a>
                   )}
                 </div>
