@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Comanda } from '../../types';
 import { storage } from '../../services/storage';
+import { CHUSPA_TECH_LOGO } from '../../constants/chuspaLogo';
 
 export const CocinaKDS: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
@@ -243,12 +244,9 @@ export const CocinaKDS: React.FC = () => {
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-amber-400/50 backdrop-blur">
               <div className="w-10 h-10 rounded-full bg-white p-0.5 shadow-md border border-amber-400 overflow-hidden flex items-center justify-center" title="La Chuspa Tech">
                 <img
-                  src="/CHUSPITA-circulo.png"
+                  src={CHUSPA_TECH_LOGO}
                   alt="La Chuspa Tech"
                   className="w-full h-full object-contain"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/assets/aistudio/1000367606_24125dba.jpg';
-                  }}
                 />
               </div>
               <div className="text-left">
@@ -329,12 +327,9 @@ export const CocinaKDS: React.FC = () => {
               </h1>
               <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/10 border border-amber-400/40 text-[10px]">
                 <img
-                  src="/CHUSPITA-circulo.png"
+                  src={CHUSPA_TECH_LOGO}
                   alt="La Chuspa Tech"
                   className="w-4 h-4 object-contain rounded-full bg-white"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/assets/aistudio/1000367606_24125dba.jpg';
-                  }}
                 />
                 <span className="font-bold text-amber-300">La Chuspa Tech</span>
               </div>

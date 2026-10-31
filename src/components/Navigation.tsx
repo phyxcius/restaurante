@@ -1,6 +1,7 @@
 import React from 'react';
 import { Utensils, ChefHat, LayoutDashboard, Star, CalendarCheck, Receipt, Sun, Moon, Bell } from 'lucide-react';
 import { ConfigRestaurante } from '../types';
+import { CHUSPA_TECH_LOGO } from '../constants/chuspaLogo';
 
 export type AppView = 'menu' | 'kds' | 'admin' | 'club' | 'reservas' | 'factura';
 
@@ -72,12 +73,9 @@ export const Navigation: React.FC<NavigationProps> = ({
               <span className="text-slate-500 text-[9px]">•</span>
               <div className="flex items-center gap-1">
                 <img
-                  src="/CHUSPITA-circulo.png"
+                  src={CHUSPA_TECH_LOGO}
                   alt="La Chuspa Tech"
                   className="w-3.5 h-3.5 object-contain rounded-full bg-white border border-amber-400/50"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/assets/aistudio/1000367606_24125dba.jpg';
-                  }}
                 />
                 <span className="text-[9.5px] font-extrabold text-amber-300">La Chuspa Tech</span>
               </div>

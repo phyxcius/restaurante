@@ -21,6 +21,7 @@ import { consultarDNI, consultarRUC, emitirComprobanteElectronico } from '../../
 import { ErpSubmodules } from './ErpSubmodules';
 import { ClubSocios } from '../club/ClubSocios';
 import { FacturaTicket } from '../factura/FacturaTicket';
+import { CHUSPA_TECH_LOGO } from '../../constants/chuspaLogo';
 
 interface AdminDashboardProps {
   config: ConfigRestaurante;
@@ -37,6 +38,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
   const [password, setPassword] = useState<string>('');
   const [shift, setShift] = useState<string>('Turno Mañana (07:00 - 15:00)');
   const [cajaChica, setCajaChica] = useState<number>(100.0);
+
+  // Appearance: Light / Dark Mode Toggle
+  const [isLightMode, setIsLightMode] = useState<boolean>(() => {
+    return localStorage.getItem('cusq_admin_theme') === 'light';
+  });
+
+  useEffect(() => {
+    if (isLightMode) {
+      document.body.classList.add('light-theme');
+      localStorage.setItem('cusq_admin_theme', 'light');
+    } else {
+      document.body.classList.remove('light-theme');
+      localStorage.setItem('cusq_admin_theme', 'dark');
+    }
+  }, [isLightMode]);
 
   // Active navigation section
   const [currentSection, setCurrentSection] = useState<string>('comandas');
@@ -563,12 +579,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-amber-400/50 backdrop-blur">
                 <div className="w-10 h-10 rounded-full bg-white p-0.5 shadow-md border border-amber-400 overflow-hidden flex items-center justify-center" title="La Chuspa Tech">
                   <img
-                    src="/CHUSPITA-circulo.png"
+                    src={CHUSPA_TECH_LOGO}
                     alt="La Chuspa Tech"
                     className="w-full h-full object-contain"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/assets/aistudio/1000367606_24125dba.jpg';
-                    }}
                   />
                 </div>
                 <div className="text-left">
@@ -725,12 +738,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
           <div className="hidden md:flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-900/90 border border-amber-500/40 text-[10px]" title="Tecnología por La Chuspa Tech">
             <div className="w-5 h-5 rounded-full bg-white p-0.5 overflow-hidden flex items-center justify-center border border-amber-400 shrink-0">
               <img
-                src="/CHUSPITA-circulo.png"
+                src={CHUSPA_TECH_LOGO}
                 alt="La Chuspa Tech"
                 className="w-full h-full object-contain"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/assets/aistudio/1000367606_24125dba.jpg';
-                }}
               />
             </div>
             <span className="font-extrabold text-amber-300 uppercase tracking-wide">La Chuspa Tech</span>
@@ -1039,11 +1049,31 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
         {/* Right side controls */}
         <div className="flex items-center gap-2">
 
-          <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900/80 border border-slate-700/60 text-xs">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900/80 border border-slate-700/60 text-xs">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             <b className="text-slate-200">{operatorName}</b>
-            <span className="text-slate-400">({userRole.toUpperCase()})</span>
+            <span className="text-slate-400 hidden sm:inline">({userRole.toUpperCase()})</span>
           </div>
+
+          {/* Botón de Cambiar Aspecto Claro / Oscuro al lado de Administrador */}
+          <button
+            type="button"
+            onClick={() => setIsLightMode((prev) => !prev)}
+            className="px-2.5 py-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 text-amber-300 border border-amber-400/50 flex items-center gap-1.5 text-xs font-black transition-all cursor-pointer shadow active:scale-95"
+            title={isLightMode ? 'Cambiar a Tema Oscuro' : 'Cambiar a Tema Claro'}
+          >
+            {isLightMode ? (
+              <>
+                <i className="fa-solid fa-moon text-sky-400 text-xs"></i>
+                <span className="hidden sm:inline">Oscuro</span>
+              </>
+            ) : (
+              <>
+                <i className="fa-solid fa-sun text-amber-400 text-xs"></i>
+                <span className="hidden sm:inline">Claro</span>
+              </>
+            )}
+          </button>
 
           <button
             type="button"

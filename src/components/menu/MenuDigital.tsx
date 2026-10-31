@@ -31,6 +31,7 @@ import { Producto, CartItem, Language, Comanda, ConfigRestaurante } from '../../
 import { storage } from '../../services/storage';
 import { consultarDNI } from '../../services/sunatApi';
 import { MENU_TRANSLATIONS } from './menuTranslations';
+import { CHUSPA_TECH_LOGO } from '../../constants/chuspaLogo';
 
 interface MenuDigitalProps {
   config: ConfigRestaurante;
@@ -81,6 +82,19 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
   const [showUnlockModal, setShowUnlockModal] = useState<boolean>(false);
   const [pinUnlock, setPinUnlock] = useState<string>('');
   const [errorPinUnlock, setErrorPinUnlock] = useState<string>('');
+
+  // Modals requested for Thank You Notification: Club Sellos & Reservas
+  const [showClubSellosModal, setShowClubSellosModal] = useState<boolean>(false);
+  const [showReservaModal, setShowReservaModal] = useState<boolean>(false);
+  const [reservaForm, setReservaForm] = useState({
+    nombre: '',
+    telefono: '',
+    personas: 2,
+    fecha: new Date().toISOString().slice(0, 10),
+    hora: '19:30',
+    notas: 'Reserva solicitada desde Menú Digital'
+  });
+  const [reservaExito, setReservaExito] = useState<boolean>(false);
 
   // Lock / Access gate state (prompts for PIN registered in Usuarios)
   const [isMenuUnlocked, setIsMenuUnlocked] = useState<boolean>(() => {
@@ -499,7 +513,26 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
       <div className="relative w-full max-w-lg mx-auto min-h-[calc(100vh-60px)] bg-gradient-to-b from-[#0a192f] via-[#050d1a] to-[#020617] text-slate-100 flex flex-col justify-between p-5 overflow-y-auto">
         {/* Top Header */}
         <div className="flex flex-col items-center text-center pt-6">
-          <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-amber-500 to-amber-300 p-1 shadow-[0_0_30px_rgba(245,158,11,0.5)] mb-4 flex items-center justify-center">
+          {/* Insignia oficial La Chuspa Tech Logo con Texto */}
+          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-amber-400/50 backdrop-blur-md mb-4 shadow-lg">
+            <div className="w-8 h-8 rounded-full bg-white p-0.5 overflow-hidden flex items-center justify-center border border-amber-400 shrink-0">
+              <img
+                src={CHUSPA_TECH_LOGO}
+                alt="La Chuspa Tech"
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <div className="text-left">
+              <span className="text-xs font-black uppercase text-amber-300 block leading-tight tracking-wider">
+                La Chuspa Tech
+              </span>
+              <span className="text-[9px] text-slate-300 block leading-none font-bold">
+                Plataforma Gastronómica Cloud
+              </span>
+            </div>
+          </div>
+
+          <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-amber-500 to-amber-300 p-1 shadow-[0_0_30px_rgba(245,158,11,0.5)] mb-3 flex items-center justify-center">
             <div className="w-full h-full rounded-full bg-[#071224] overflow-hidden flex items-center justify-center text-3xl">
               {config.logo && (config.logo.startsWith('data:') || config.logo.startsWith('http') || config.logo.startsWith('/')) ? (
                 <img src={config.logo} alt="Logo" className="w-full h-full object-cover" />
@@ -517,6 +550,26 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
           <p className="text-xs text-slate-300 max-w-xs mt-2 leading-relaxed">
             {t.thankYouMessage}
           </p>
+
+          {/* Botones solicitados: Ver mis sellos del Club & Reservar mesa */}
+          <div className="grid grid-cols-2 gap-2.5 w-full max-w-xs mt-4">
+            <button
+              type="button"
+              onClick={() => setShowClubSellosModal(true)}
+              className="px-3 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-amber-500/30 cursor-pointer active:scale-95 transition-all"
+            >
+              <span>⭐</span>
+              <span>Ver mis Sellos del Club</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowReservaModal(true)}
+              className="px-3 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-500 text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-blue-600/30 cursor-pointer active:scale-95 transition-all"
+            >
+              <span>📅</span>
+              <span>Reservar Mesa</span>
+            </button>
+          </div>
         </div>
 
         {/* Voucher / Paid Details Card */}
@@ -714,6 +767,241 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
             </div>
           </div>
         )}
+
+        {/* Modal: Ver mis Sellos del Club */}
+        {showClubSellosModal && (
+          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
+            <div className="bg-[#09152b] border-2 border-amber-400 rounded-3xl p-5 w-full max-w-sm shadow-2xl text-center flex flex-col">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-700">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">⭐</span>
+                  <h3 className="text-sm font-black text-amber-400 uppercase font-latina-luxury">
+                    Club de Socios & Sellos
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowClubSellosModal(false)}
+                  className="w-7 h-7 rounded-full bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="my-4 p-4 bg-slate-900/90 border border-amber-500/30 rounded-2xl">
+                <span className="text-xs font-bold text-slate-300 block mb-1">
+                  Titular: <b className="text-white">{ventaCompletada?.cliente || clienteNombre || 'Comensal Distinguido'}</b>
+                </span>
+                <span className="text-[11px] text-amber-400 font-bold block mb-3">
+                  Tarjeta Virtual: {clienteDni ? `DNI ${clienteDni}` : 'Socio Activo'}
+                </span>
+
+                {/* Sellos Gráficos */}
+                <div className="grid grid-cols-5 gap-2 my-2 justify-items-center">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((sello) => (
+                    <div
+                      key={sello}
+                      className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-black border-2 transition-all shadow-md ${
+                        sello <= 4
+                          ? 'bg-gradient-to-tr from-amber-400 to-amber-200 border-amber-500 text-slate-950 scale-105'
+                          : 'bg-slate-950 border-slate-700 text-slate-500'
+                      }`}
+                      title={sello <= 4 ? 'Sello Ganado' : 'Por Desbloquear'}
+                    >
+                      {sello <= 4 ? '🏺' : sello}
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[10px] text-sky-300 mt-2">
+                  ¡Tienes <b>4 sellos acumulados</b>! Completa 10 sellos y reclama un plato tradicional de cortesía.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowClubSellosModal(false)}
+                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black text-xs cursor-pointer active:scale-95 shadow"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Modal: Reservar Mesa con opción de Compartir por WhatsApp */}
+        {showReservaModal && (
+          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
+            <div className="bg-[#09152b] border-2 border-amber-400 rounded-3xl p-5 w-full max-w-sm shadow-2xl text-slate-100 flex flex-col max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-700">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">📅</span>
+                  <div>
+                    <h3 className="text-sm font-black text-amber-400 uppercase font-latina-luxury leading-tight">
+                      Reservar Mesa
+                    </h3>
+                    <span className="text-[10px] text-sky-300">{config.nombre}</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowReservaModal(false);
+                    setReservaExito(false);
+                  }}
+                  className="w-7 h-7 rounded-full bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {!reservaExito ? (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (!reservaForm.nombre.trim() || !reservaForm.telefono.trim()) {
+                      alert('Por favor ingrese nombre y teléfono para la reserva.');
+                      return;
+                    }
+                    storage.saveReserva({
+                      id: 'resv-' + Date.now(),
+                      cliente: reservaForm.nombre,
+                      telefono: reservaForm.telefono,
+                      fechaReserva: reservaForm.fecha,
+                      horaReserva: reservaForm.hora,
+                      personas: Number(reservaForm.personas),
+                      mesaAsignada: selectedMesa,
+                      estado: 'Confirmada',
+                      notas: reservaForm.notas,
+                      fechaCreacion: new Date().toISOString(),
+                    });
+                    setReservaExito(true);
+                  }}
+                  className="my-3 space-y-2.5 text-xs"
+                >
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-400 block mb-1">Nombre Completo:</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Tu nombre"
+                      value={reservaForm.nombre}
+                      onChange={(e) => setReservaForm({ ...reservaForm, nombre: e.target.value })}
+                      className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none focus:border-amber-400"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 block mb-1">Teléfono:</label>
+                      <input
+                        type="tel"
+                        required
+                        placeholder="+51 987654321"
+                        value={reservaForm.telefono}
+                        onChange={(e) => setReservaForm({ ...reservaForm, telefono: e.target.value })}
+                        className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none focus:border-amber-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 block mb-1">Personas:</label>
+                      <input
+                        type="number"
+                        min={1}
+                        max={30}
+                        value={reservaForm.personas}
+                        onChange={(e) => setReservaForm({ ...reservaForm, personas: Number(e.target.value) })}
+                        className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none focus:border-amber-400 font-bold text-center"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 block mb-1">Fecha:</label>
+                      <input
+                        type="date"
+                        required
+                        value={reservaForm.fecha}
+                        onChange={(e) => setReservaForm({ ...reservaForm, fecha: e.target.value })}
+                        className="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-white outline-none focus:border-amber-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 block mb-1">Hora:</label>
+                      <input
+                        type="time"
+                        required
+                        value={reservaForm.hora}
+                        onChange={(e) => setReservaForm({ ...reservaForm, hora: e.target.value })}
+                        className="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-white outline-none focus:border-amber-400"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-400 block mb-1">Notas especiales:</label>
+                    <input
+                      type="text"
+                      placeholder="Ocasión especial, vista panorámica, etc."
+                      value={reservaForm.notas}
+                      onChange={(e) => setReservaForm({ ...reservaForm, notas: e.target.value })}
+                      className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-white outline-none focus:border-amber-400 text-xs"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-500 text-white font-black text-xs uppercase tracking-wider cursor-pointer shadow-lg active:scale-95 transition-all mt-2"
+                  >
+                    Confirmar Reserva
+                  </button>
+                </form>
+              ) : (
+                <div className="my-4 text-center space-y-3">
+                  <div className="w-12 h-12 rounded-full bg-emerald-500/20 border-2 border-emerald-400 text-emerald-400 text-2xl flex items-center justify-center mx-auto animate-bounce">
+                    ✓
+                  </div>
+                  <h4 className="text-sm font-black text-emerald-400 font-latina-luxury">
+                    ¡Reserva Registrada con Éxito!
+                  </h4>
+                  <p className="text-xs text-slate-300">
+                    Mesa para <b>{reservaForm.personas} personas</b> el <b>{reservaForm.fecha}</b> a las <b>{reservaForm.hora}</b> a nombre de <b>{reservaForm.nombre}</b>.
+                  </p>
+
+                  {/* Compartir por WhatsApp la ventana / datos de reservas */}
+                  <a
+                    href={`https://wa.me/?text=${encodeURIComponent(
+                      `¡Hola! Acabo de hacer una reserva en *${config.nombre}* 🍽️✨\n` +
+                      `📅 Fecha: ${reservaForm.fecha}\n` +
+                      `⏰ Hora: ${reservaForm.hora}\n` +
+                      `👥 Personas: ${reservaForm.personas}\n` +
+                      `👤 Titular: ${reservaForm.nombre}\n` +
+                      `📍 Restaurante: ${config.nombre} - ${config.direccion || 'Cusco'}\n` +
+                      `¡Te espero allí!`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/50 cursor-pointer active:scale-95 transition-all"
+                  >
+                    <i className="fa-brands fa-whatsapp text-lg"></i>
+                    <span>Compartir Reserva por WhatsApp</span>
+                  </a>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowReservaModal(false);
+                      setReservaExito(false);
+                    }}
+                    className="w-full py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white text-xs font-bold"
+                  >
+                    Cerrar
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -727,12 +1015,9 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-amber-400/50 backdrop-blur">
               <div className="w-10 h-10 rounded-full bg-white p-0.5 shadow-md border border-amber-400 overflow-hidden flex items-center justify-center" title="La Chuspa Tech">
                 <img
-                  src="/CHUSPITA-circulo.png"
+                  src={CHUSPA_TECH_LOGO}
                   alt="La Chuspa Tech"
                   className="w-full h-full object-contain"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/assets/aistudio/1000367606_24125dba.jpg';
-                  }}
                 />
               </div>
               <div className="text-left">
@@ -840,12 +1125,9 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
           <div className="w-full max-w-sm bg-gradient-to-b from-[#0f2142] via-[#09152b] to-[#071224] border-2 border-amber-400 rounded-3xl p-6 shadow-[0_0_50px_rgba(245,158,11,0.5)] text-center flex flex-col items-center gap-3 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-amber-400/40 text-[10px]">
               <img
-                src="/CHUSPITA-circulo.png"
+                src={CHUSPA_TECH_LOGO}
                 alt="La Chuspa Tech"
                 className="w-4 h-4 object-contain rounded-full bg-white"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/assets/aistudio/1000367606_24125dba.jpg';
-                }}
               />
               <span className="font-extrabold text-amber-300">La Chuspa Tech</span>
             </div>
@@ -916,9 +1198,9 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
       {/* Top Filter Bar (Reels header) */}
       <div className="sticky top-0 z-30 w-full px-3 py-2 bg-gradient-to-b from-[#071224]/95 via-[#071224]/85 to-transparent flex flex-col gap-2">
         <div className="flex items-center justify-between gap-2">
-          {/* Brand group: Restaurant Logo + Table select pill + La Chuspa Tech Brand */}
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Restaurant Logo */}
+          {/* Brand group: Logo Negocio + La Chuspa Tech (logo + texto) + Botón de Mesa */}
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+            {/* 1. Restaurant Logo */}
             <div className="w-8 h-8 rounded-full bg-[#071224] border border-amber-400 overflow-hidden flex items-center justify-center shrink-0 shadow">
               {config.logo && (config.logo.startsWith('data:') || config.logo.startsWith('http') || config.logo.startsWith('/')) ? (
                 <img src={config.logo} alt="Logo" className="w-full h-full object-cover" />
@@ -927,8 +1209,22 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
               )}
             </div>
 
-            {/* Table Select */}
-            <div className="flex items-center gap-1.5 bg-slate-900/90 border border-amber-400/40 rounded-xl px-2.5 py-1 text-xs">
+            {/* 2. La Chuspa Tech (Logo y Texto) a lado del logo del negocio */}
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-xl bg-slate-900/90 border border-amber-400/50 shadow-sm shrink-0">
+              <div className="w-5 h-5 rounded-full bg-white p-0.5 overflow-hidden flex items-center justify-center border border-amber-400 shrink-0">
+                <img
+                  src={CHUSPA_TECH_LOGO}
+                  alt="La Chuspa Tech"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <span className="text-[10px] font-black uppercase text-amber-300 tracking-wider">
+                La Chuspa Tech
+              </span>
+            </div>
+
+            {/* 3. Botón de Mesa al lado de La Chuspa Tech */}
+            <div className="flex items-center gap-1 bg-slate-900/90 border border-amber-400/40 rounded-xl px-2 py-1 text-xs shrink-0">
               <span className="text-[10px] uppercase font-bold text-sky-400">{t.mesa}:</span>
               <select
                 value={selectedMesa}
@@ -942,88 +1238,39 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                 ))}
               </select>
             </div>
+          </div>
 
-            {/* La Chuspa Tech Official Badge */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-900/90 border border-amber-400/50 shadow-sm">
-              <div className="w-5 h-5 rounded-full bg-white p-0.5 overflow-hidden flex items-center justify-center border border-amber-400 shrink-0">
-                <img
-                  src="/CHUSPITA-circulo.png"
-                  alt="La Chuspa Tech"
-                  className="w-full h-full object-contain"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/assets/aistudio/1792365845772_ae4721e2.jpg';
-                  }}
-                />
-              </div>
-              <span className="text-[10px] font-black uppercase text-amber-300 tracking-wider">
-                La Chuspa Tech
-              </span>
+          {/* Right side: Gesture tutorial & Language (Candado con clave eliminado por solicitud) */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Dedo Gestual Help Button */}
+            <button
+              type="button"
+              onClick={() => setShowGestureTutorial(true)}
+              className="p-1.5 bg-slate-900/90 border border-amber-400/50 hover:border-amber-400 rounded-xl text-amber-300 text-xs flex items-center gap-1 transition-colors animate-pulse cursor-pointer"
+              title={t.gestureHelp}
+            >
+              <span className="text-xs">👆</span>
+            </button>
+
+            {/* Language Selector */}
+            <div className="flex items-center gap-1 bg-slate-900/90 border border-slate-700 rounded-xl px-2 py-1 text-xs">
+              <Globe className="w-3 h-3 text-sky-400" />
+              <select
+                value={lang}
+                onChange={(e) => setLang(e.target.value as Language)}
+                className="bg-transparent text-white font-bold outline-none cursor-pointer uppercase text-xs"
+              >
+                <option value="es" className="bg-slate-900 text-white">ES</option>
+                <option value="en" className="bg-slate-900 text-white">EN</option>
+                <option value="fr" className="bg-slate-900 text-white">FR</option>
+                <option value="pt" className="bg-slate-900 text-white">PT</option>
+              </select>
             </div>
-          </div>
-
-          {/* View toggle (Reels / Grid) */}
-          <div className="flex items-center bg-slate-900/90 border border-sky-400/30 rounded-xl p-0.5">
-            <button
-              onClick={() => setViewMode('reels')}
-              className={`p-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all ${
-                viewMode === 'reels' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
-              }`}
-              title={t.reelsMode}
-            >
-              <Film className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`p-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all ${
-                viewMode === 'grid' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
-              }`}
-              title={t.gridMode}
-            >
-              <LayoutGrid className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          {/* Dedo Gestual Help Button */}
-          <button
-            type="button"
-            onClick={() => setShowGestureTutorial(true)}
-            className="p-1.5 bg-slate-900/90 border border-amber-400/50 hover:border-amber-400 rounded-xl text-amber-300 text-xs flex items-center gap-1 transition-colors animate-pulse"
-            title={t.gestureHelp}
-          >
-            <span className="text-xs">👆</span>
-          </button>
-
-
-
-          {/* Lock station button */}
-          <button
-            type="button"
-            onClick={() => {
-              sessionStorage.removeItem('auth_menu_active');
-              setIsMenuUnlocked(false);
-            }}
-            className="p-1.5 bg-slate-900/90 border border-slate-700 hover:border-amber-400 rounded-xl text-slate-400 hover:text-amber-400 text-xs flex items-center gap-1 transition-colors"
-            title={t.lockMenu}
-          >
-            <i className="fa-solid fa-lock text-[11px]"></i>
-          </button>
-          <div className="flex items-center gap-1 bg-slate-900/90 border border-slate-700 rounded-xl px-2 py-1 text-xs">
-            <Globe className="w-3 h-3 text-sky-400" />
-            <select
-              value={lang}
-              onChange={(e) => setLang(e.target.value as Language)}
-              className="bg-transparent text-white font-bold outline-none cursor-pointer uppercase text-xs"
-            >
-              <option value="es" className="bg-slate-900 text-white">ES</option>
-              <option value="en" className="bg-slate-900 text-white">EN</option>
-              <option value="fr" className="bg-slate-900 text-white">FR</option>
-              <option value="pt" className="bg-slate-900 text-white">PT</option>
-            </select>
           </div>
         </div>
 
         {/* Category Pills (100% translated) */}
-        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1">
+        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-0.5">
           {categories.map((cat) => (
             <button
               key={cat.id}
@@ -1040,6 +1287,38 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
               {cat.label}
             </button>
           ))}
+        </div>
+
+        {/* Botones de Modo Video Reels y Modo Catálogo Cuadrícula DEBAJO donde dice Todo el Menú */}
+        <div className="flex items-center gap-2 pt-0.5">
+          <div className="inline-flex items-center bg-slate-900/90 border border-sky-400/40 rounded-xl p-0.5 shadow-md">
+            <button
+              type="button"
+              onClick={() => setViewMode('reels')}
+              className={`px-3 py-1 rounded-lg text-xs font-black flex items-center gap-1.5 transition-all cursor-pointer ${
+                viewMode === 'reels'
+                  ? 'bg-gradient-to-r from-blue-600 to-sky-500 text-white shadow-[0_0_10px_rgba(14,165,233,0.5)]'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+              title={t.reelsMode}
+            >
+              <Film className="w-3.5 h-3.5" />
+              <span>Modo Video Reels</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('grid')}
+              className={`px-3 py-1 rounded-lg text-xs font-black flex items-center gap-1.5 transition-all cursor-pointer ${
+                viewMode === 'grid'
+                  ? 'bg-gradient-to-r from-blue-600 to-sky-500 text-white shadow-[0_0_10px_rgba(14,165,233,0.5)]'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+              title={t.gridMode}
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+              <span>Modo Catálogo Cuadrícula</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -1500,12 +1779,9 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                 <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 border border-amber-400/50 shadow-sm">
                   <div className="w-6 h-6 rounded-full bg-white p-0.5 overflow-hidden flex items-center justify-center border border-amber-400">
                     <img
-                      src="/CHUSPITA-circulo.png"
+                      src={CHUSPA_TECH_LOGO}
                       alt="La Chuspa Tech"
                       className="w-full h-full object-contain"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = '/assets/aistudio/1792365845772_ae4721e2.jpg';
-                      }}
                     />
                   </div>
                   <span className="text-[10px] font-black uppercase text-amber-300 tracking-wider">
