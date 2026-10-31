@@ -1467,205 +1467,254 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
         </div>
       )}
 
-      {/* CART & ORDERING MODAL DRAWER (100% translated) */}
+      {/* CART & ORDERING MODAL DRAWER (100% translated & optimized) */}
       {isCartOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div className="w-full max-w-lg max-h-[90vh] bg-slate-900 border-t-4 sm:border-2 border-blue-600 sm:border-amber-400 rounded-t-3xl sm:rounded-2xl p-4 sm:p-5 flex flex-col shadow-2xl text-slate-100 overflow-y-auto">
-            {/* Header */}
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-lg max-h-[92vh] bg-[#09152b] border-t-4 sm:border-2 border-amber-500 rounded-t-3xl sm:rounded-3xl p-4 sm:p-6 flex flex-col shadow-2xl text-slate-100 overflow-hidden">
+            {/* Header with La Chuspa Tech & Restaurant branding */}
             <div className="flex items-center justify-between pb-3 border-b border-slate-700/80">
-              <div>
-                <h3 className="text-base sm:text-lg font-black uppercase text-amber-400 font-latina-luxury flex items-center gap-2">
-                  <ShoppingBag className="w-5 h-5 text-amber-400" /> {t.yourOrder}
-                </h3>
-                <span className="text-xs text-sky-300 font-bold">{t.mesa}: {selectedMesa}</span>
+              <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 border border-amber-400/50 shadow-sm">
+                  <div className="w-6 h-6 rounded-full bg-white p-0.5 overflow-hidden flex items-center justify-center border border-amber-400">
+                    <img
+                      src="/CHUSPITA-circulo.png"
+                      alt="La Chuspa Tech"
+                      className="w-full h-full object-contain"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/assets/aistudio/1792365845772_ae4721e2.jpg';
+                      }}
+                    />
+                  </div>
+                  <span className="text-[10px] font-black uppercase text-amber-300 tracking-wider">
+                    La Chuspa Tech
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-black uppercase text-white font-latina-luxury flex items-center gap-1.5 leading-none">
+                    <ShoppingBag className="w-4 h-4 text-amber-400" /> {t.yourOrder}
+                  </h3>
+                  <span className="text-[11px] text-sky-300 font-bold">{t.mesa}: {selectedMesa}</span>
+                </div>
               </div>
               <button
+                type="button"
                 onClick={() => setIsCartOpen(false)}
-                className="w-8 h-8 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center hover:text-white cursor-pointer"
+                className="w-8 h-8 rounded-full bg-slate-800/90 text-slate-300 hover:text-white flex items-center justify-center hover:bg-slate-700 cursor-pointer transition-colors shadow"
               >
                 ✕
               </button>
             </div>
 
-            {/* Cart Items List */}
-            <div className="my-3 flex flex-col gap-2.5 max-h-48 overflow-y-auto pr-1">
-              {cart.length === 0 ? (
-                <div className="py-8 text-center text-slate-400 text-xs">
-                  <p>{t.cartEmpty}</p>
+            {/* Scrollable Body */}
+            <div className="flex-1 overflow-y-auto pr-1 my-3 space-y-3.5 scrollbar-thin">
+              {/* Cart Items List */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 px-1">
+                  <span>Platos en Canasta ({cart.reduce((acc, i) => acc + i.cantidad, 0)})</span>
+                  {cart.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setCart([])}
+                      className="text-red-400 hover:text-red-300 text-[10px] underline cursor-pointer"
+                    >
+                      Vaciar Canasta
+                    </button>
+                  )}
                 </div>
-              ) : (
-                cart.map((item) => (
-                  <div
-                    key={item.producto.id}
-                    className="p-2.5 bg-slate-800/80 border border-slate-700 rounded-xl flex flex-col gap-1.5"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <h4 className="text-xs font-black text-white font-latina-luxury">
-                          {item.producto.i18n?.[lang]?.name || item.producto.i18n?.es?.name || (item.producto as any).nombre || 'Plato'}
-                        </h4>
-                        <span className="text-[11px] text-amber-400 font-bold">
-                          S/ {(item.producto.precioPEN || (item.producto as any).precio || 35).toFixed(2)} c/u
-                        </span>
-                      </div>
 
-                      {/* Quantity controls */}
-                      <div className="flex items-center gap-2 bg-slate-900 px-2 py-1 rounded-lg border border-slate-700">
-                        <button
-                          onClick={() => updateCartQty(item.producto.id, -1)}
-                          className="w-5 h-5 flex items-center justify-center text-slate-300 hover:text-red-400 font-black cursor-pointer"
-                        >
-                          <Minus className="w-3 h-3" />
-                        </button>
-                        <span className="text-xs font-black text-white min-w-4 text-center">
-                          {item.cantidad}
-                        </span>
-                        <button
-                          onClick={() => updateCartQty(item.producto.id, 1)}
-                          className="w-5 h-5 flex items-center justify-center text-slate-300 hover:text-emerald-400 font-black cursor-pointer"
-                        >
-                          <Plus className="w-3 h-3" />
-                        </button>
-                      </div>
-
-                      <span className="text-xs font-black text-amber-300 ml-3 min-w-14 text-right">
-                        S/ {(item.producto.precioPEN * item.cantidad).toFixed(2)}
-                      </span>
-                    </div>
-
-                    {/* Dish notes */}
-                    <input
-                      type="text"
-                      placeholder={t.specialNotes}
-                      value={item.notas || ''}
-                      onChange={(e) => updateItemNote(item.producto.id, e.target.value)}
-                      className="w-full text-[11px] bg-slate-900/90 border border-slate-700/80 rounded px-2 py-1 text-slate-200 outline-none"
-                    />
+                {cart.length === 0 ? (
+                  <div className="py-8 text-center text-slate-400 bg-slate-950/60 rounded-2xl border border-dashed border-slate-800">
+                    <span className="text-3xl block mb-1">🛒</span>
+                    <p className="text-xs font-semibold">{t.cartEmpty}</p>
+                    <p className="text-[10px] text-slate-500 mt-0.5">Agrega tus platos favoritos desde la carta.</p>
                   </div>
-                ))
-              )}
-            </div>
+                ) : (
+                  cart.map((item) => (
+                    <div
+                      key={item.producto.id}
+                      className="p-3 bg-slate-950/80 border border-slate-800 hover:border-amber-500/40 rounded-2xl flex flex-col gap-2 shadow-sm transition-all"
+                    >
+                      <div className="flex items-center gap-3">
+                        {/* Dish Mini Poster */}
+                        <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-900 border border-slate-700 shrink-0">
+                          <img
+                            src={item.producto.posterUrl}
+                            alt=""
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
 
-            {/* Customer Details & Socio Lookup */}
-            <div className="pt-2 border-t border-slate-700/80 flex flex-col gap-2">
-              <label className="text-[10px] font-black uppercase text-sky-400 tracking-wider">
-                {t.yourNameOptional}
-              </label>
+                        {/* Dish Info */}
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-xs font-black text-white font-latina-luxury truncate">
+                            {item.producto.i18n?.[lang]?.name || item.producto.i18n?.es?.name || (item.producto as any).nombre || 'Plato'}
+                          </h4>
+                          <span className="text-[11px] text-amber-400 font-bold block">
+                            S/ {(item.producto.precioPEN || (item.producto as any).precio || 35).toFixed(2)} c/u
+                          </span>
+                        </div>
 
-              <div className="flex gap-2">
+                        {/* Quantity Controls */}
+                        <div className="flex items-center gap-1.5 bg-slate-900 px-2 py-1 rounded-xl border border-slate-700/80 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => updateCartQty(item.producto.id, -1)}
+                            className="w-5 h-5 flex items-center justify-center text-slate-400 hover:text-red-400 font-black cursor-pointer active:scale-90"
+                          >
+                            <Minus className="w-3 h-3" />
+                          </button>
+                          <span className="text-xs font-black text-amber-300 min-w-4 text-center">
+                            {item.cantidad}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => updateCartQty(item.producto.id, 1)}
+                            className="w-5 h-5 flex items-center justify-center text-slate-400 hover:text-emerald-400 font-black cursor-pointer active:scale-90"
+                          >
+                            <Plus className="w-3 h-3" />
+                          </button>
+                        </div>
+
+                        {/* Subtotal */}
+                        <span className="text-xs font-black text-amber-300 min-w-14 text-right shrink-0">
+                          S/ {(item.producto.precioPEN * item.cantidad).toFixed(2)}
+                        </span>
+                      </div>
+
+                      {/* Dish notes */}
+                      <input
+                        type="text"
+                        placeholder={t.specialNotes}
+                        value={item.notas || ''}
+                        onChange={(e) => updateItemNote(item.producto.id, e.target.value)}
+                        className="w-full text-[11px] bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-slate-200 outline-none focus:border-amber-400"
+                      />
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Customer Details & Socio Lookup */}
+              <div className="pt-2 border-t border-slate-800 flex flex-col gap-2">
+                <label className="text-[10px] font-black uppercase text-sky-400 tracking-wider">
+                  {t.yourNameOptional}
+                </label>
+
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    maxLength={8}
+                    placeholder="DNI (8 dígitos) para puntos"
+                    value={clienteDni}
+                    onChange={(e) => setClienteDni(e.target.value)}
+                    className="w-1/2 bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white outline-none focus:border-amber-400"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleBuscarSocio}
+                    disabled={isSearchingDni}
+                    className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5 disabled:opacity-50 shrink-0 cursor-pointer shadow"
+                  >
+                    <Search className="w-3 h-3" />
+                    {isSearchingDni ? '...' : 'Validar DNI'}
+                  </button>
+                </div>
+
+                {socioEncontrado && (
+                  <p className="text-[11px] font-extrabold text-emerald-400 flex items-center gap-1 bg-emerald-950/60 p-2 rounded-xl border border-emerald-500/40">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> {socioEncontrado}
+                  </p>
+                )}
+
                 <input
                   type="text"
-                  maxLength={8}
-                  placeholder="DNI (8 dígitos) para puntos"
-                  value={clienteDni}
-                  onChange={(e) => setClienteDni(e.target.value)}
-                  className="w-1/2 bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none"
+                  placeholder={t.yourNameOptional}
+                  value={clienteNombre}
+                  onChange={(e) => setClienteNombre(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400"
                 />
-                <button
-                  type="button"
-                  onClick={handleBuscarSocio}
-                  disabled={isSearchingDni}
-                  className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5 disabled:opacity-50 shrink-0 cursor-pointer"
-                >
-                  <Search className="w-3 h-3" />
-                  {isSearchingDni ? '...' : 'DNI'}
-                </button>
               </div>
 
-              {socioEncontrado && (
-                <p className="text-[11px] font-extrabold text-emerald-400 flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> {socioEncontrado}
-                </p>
-              )}
-
-              <input
-                type="text"
-                placeholder={t.yourNameOptional}
-                value={clienteNombre}
-                onChange={(e) => setClienteNombre(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none"
-              />
-            </div>
-
-            {/* Payment Method Selector */}
-            <div className="mt-3">
-              <label className="text-[10px] font-black uppercase text-sky-400 tracking-wider block mb-1.5">
-                {t.paymentMethod}
-              </label>
-              <div className="grid grid-cols-3 gap-1.5">
-                {[
-                  { id: 'Efectivo', label: t.cash },
-                  { id: 'Tarjeta POS', label: t.posCard },
-                  { id: 'Yape / Plin', label: t.digitalWallet },
-                ].map((met) => (
-                  <button
-                    key={met.id}
-                    type="button"
-                    onClick={() => setMetodoPago(met.id)}
-                    className={`py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                      metodoPago === met.id
-                        ? 'bg-blue-600 text-white border border-amber-400 shadow'
-                        : 'bg-slate-800 text-slate-300 border border-slate-700 hover:text-white'
-                    }`}
-                  >
-                    {met.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Cash Calculator if Efectivo */}
-            {metodoPago === 'Efectivo' && (
-              <div className="mt-2.5 p-2.5 bg-slate-800/60 border border-amber-400/30 rounded-xl">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-300 font-bold">{t.cashGivenQuestion}</span>
-                  <input
-                    type="number"
-                    placeholder="S/ 0.00"
-                    value={efectivoEntregado}
-                    onChange={(e) => setEfectivoEntregado(e.target.value)}
-                    className="w-24 bg-slate-900 border border-slate-600 rounded px-2 py-0.5 text-right font-black text-amber-300 text-xs outline-none"
-                  />
-                </div>
-                {/* Quick cash buttons */}
-                <div className="flex items-center gap-1.5 mt-2">
-                  {[20, 50, 100, 200].map((monto) => (
+              {/* Payment Method Selector */}
+              <div>
+                <label className="text-[10px] font-black uppercase text-sky-400 tracking-wider block mb-1.5">
+                  {t.paymentMethod}
+                </label>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {[
+                    { id: 'Efectivo', label: t.cash },
+                    { id: 'Tarjeta POS', label: t.posCard },
+                    { id: 'Yape / Plin', label: t.digitalWallet },
+                  ].map((met) => (
                     <button
-                      key={monto}
+                      key={met.id}
                       type="button"
-                      onClick={() => setEfectivoEntregado(monto.toString())}
-                      className="px-2 py-0.5 bg-slate-900 hover:bg-slate-700 border border-slate-600 rounded text-[11px] font-bold text-sky-300 cursor-pointer"
+                      onClick={() => setMetodoPago(met.id)}
+                      className={`py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        metodoPago === met.id
+                          ? 'bg-blue-600 text-white border border-amber-400 shadow'
+                          : 'bg-slate-950 text-slate-300 border border-slate-800 hover:text-white'
+                      }`}
                     >
-                      S/ {monto}
+                      {met.label}
                     </button>
                   ))}
                 </div>
-                {cashNum > 0 && (
-                  <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-slate-700 text-xs font-black">
-                    <span className="text-slate-300">{t.estimatedChange}</span>
-                    <span className={`text-sm ${vuelto >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                      S/ {vuelto.toFixed(2)}
-                    </span>
-                  </div>
-                )}
               </div>
-            )}
+
+              {/* Cash Calculator if Efectivo */}
+              {metodoPago === 'Efectivo' && (
+                <div className="p-3 bg-slate-950/80 border border-amber-400/40 rounded-2xl">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-slate-300 font-bold">{t.cashGivenQuestion}</span>
+                    <input
+                      type="number"
+                      placeholder="S/ 0.00"
+                      value={efectivoEntregado}
+                      onChange={(e) => setEfectivoEntregado(e.target.value)}
+                      className="w-24 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-right font-black text-amber-300 text-xs outline-none"
+                    />
+                  </div>
+                  {/* Quick cash buttons */}
+                  <div className="flex items-center gap-1.5 mt-2">
+                    {[20, 50, 100, 200].map((monto) => (
+                      <button
+                        key={monto}
+                        type="button"
+                        onClick={() => setEfectivoEntregado(monto.toString())}
+                        className="flex-1 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-lg text-[11px] font-bold text-sky-300 cursor-pointer"
+                      >
+                        S/ {monto}
+                      </button>
+                    ))}
+                  </div>
+                  {cashNum > 0 && (
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-800 text-xs font-black">
+                      <span className="text-slate-300">{t.estimatedChange}</span>
+                      <span className={`text-sm ${vuelto >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                        S/ {vuelto.toFixed(2)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* Totals Summary */}
-            <div className="mt-4 pt-3 border-t border-slate-700 flex items-baseline justify-between">
-              <span className="text-sm font-extrabold uppercase text-slate-300">{t.totalToPay}</span>
+            <div className="pt-3 border-t border-slate-800 flex items-baseline justify-between">
+              <span className="text-xs font-extrabold uppercase text-slate-400">{t.totalToPay}</span>
               <div className="text-right">
                 <span className="text-2xl font-black text-amber-400 font-latina-luxury">
                   S/ {cartTotalPEN.toFixed(2)}
                 </span>
-                <span className="block text-xs font-bold text-sky-300">
+                <span className="block text-[11px] font-bold text-sky-300">
                   ~ ${cartTotalUSD.toFixed(2)} USD
                 </span>
               </div>
             </div>
 
             {/* Actions */}
-            <div className="mt-4 flex flex-col gap-2">
+            <div className="mt-3 flex flex-col gap-2">
               <button
                 type="button"
                 onClick={handleEnviarPedido}
@@ -1676,19 +1725,26 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                 <span>{t.sendOrderToKitchen}</span>
               </button>
 
-              <div className="grid grid-cols-2 gap-2 mt-1">
-                <button
-                  type="button"
-                  onClick={handlePedirCuenta}
-                  className="py-2.5 rounded-xl bg-purple-700 hover:bg-purple-600 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 shadow cursor-pointer"
-                >
-                  <Receipt className="w-3.5 h-3.5" />
-                  <span>{t.requestBill}</span>
-                </button>
+              <div className="grid grid-cols-2 gap-2">
+                {/* Solamente mostrar Pedir Cuenta si ya existe un pedido activo enviado a cocina */}
+                {activeOrder ? (
+                  <button
+                    type="button"
+                    onClick={handlePedirCuenta}
+                    className="py-2.5 rounded-xl bg-purple-700 hover:bg-purple-600 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 shadow cursor-pointer transition-all active:scale-95"
+                  >
+                    <Receipt className="w-3.5 h-3.5" />
+                    <span>{t.requestBill}</span>
+                  </button>
+                ) : (
+                  <div className="py-2 px-2.5 rounded-xl bg-slate-950/60 border border-slate-800 text-[10px] text-slate-400 flex items-center justify-center text-center">
+                    <span>Envía un pedido para pedir cuenta</span>
+                  </div>
+                )}
                 <button
                   type="button"
                   onClick={handleLlamarMozo}
-                  className="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-all active:scale-95"
                 >
                   <HelpCircle className="w-3.5 h-3.5 text-amber-400" />
                   <span>{t.callWaiter}</span>
