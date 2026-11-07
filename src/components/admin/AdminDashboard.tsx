@@ -146,9 +146,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
   const [qrTelefono, setQrTelefono] = useState<string>('+51969773064');
   const [qrImgDataUrl, setQrImgDataUrl] = useState<string>('');
 
-  // Socios
+  // Socios & Club de Fidelidad
   const [inputBuscarDni, setInputBuscarDni] = useState<string>('');
   const [socioConsultado, setSocioConsultado] = useState<Socio | null>(null);
+  const [socioFiltroTabla, setSocioFiltroTabla] = useState<string>('');
+  const [nuevoSocioModalOpen, setNuevoSocioModalOpen] = useState<boolean>(false);
+  const [nuevoSocioDni, setNuevoSocioDni] = useState<string>('');
+  const [nuevoSocioNombre, setNuevoSocioNombre] = useState<string>('');
+  const [nuevoSocioTel, setNuevoSocioTel] = useState<string>('');
+  const [nuevoSocioSellos, setNuevoSocioSellos] = useState<number>(1);
 
   // Reservas Form
   const [resAdminForm, setResAdminForm] = useState<{
@@ -256,6 +262,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
     timestamp: number;
   } | null>(() => storage.getSolicitudPagoActiva());
 
+  // Alerta de Nueva Reserva Recibida en Tiempo Real (Modal con resplandor giratorio y sonido de campana)
+  const [alertaNuevaReservaModal, setAlertaNuevaReservaModal] = useState<{
+    reserva: Reserva;
+    timestamp: number;
+  } | null>(() => storage.getAlertaNuevaReserva());
+  const prevReservasCountRef = useRef<number>(storage.getReservas().length);
+
   const handleAceptarYCobrarSolicitud = (solicitud: { comandaId: string; mesa: string; metodo?: string }) => {
     storage.clearSolicitudPago();
     setSolicitudPagoModal(null);
@@ -311,6 +324,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
           reproducirCampana();
         }
       }
+
+      // Check for incoming new reservation alert
+      const nuevaResAlert = storage.getAlertaNuevaReserva();
+      if (nuevaResAlert) {
+        setAlertaNuevaReservaModal(nuevaResAlert);
+        reproducirCampana();
+      } else {
+        const allRes = storage.getReservas();
+        if (allRes.length > prevReservasCountRef.current) {
+          const newest = allRes[0];
+          if (newest) {
+            setAlertaNuevaReservaModal({ reserva: newest, timestamp: Date.now() });
+            reproducirCampana();
+          }
+        }
+      }
+      prevReservasCountRef.current = storage.getReservas().length;
     };
 
     handleUpdate();
@@ -1028,15 +1058,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
             )}
           </div>
 
-          {/* 8. CLUB SOCIOS (DENTRO DEL PANEL ADMIN) */}
+          {/* 8. CLUB DE FIDELIDAD (DENTRO DEL PANEL ADMIN) */}
           <button
             type="button"
             className={`usqay-menu-trigger ${currentSection === 'socios' ? 'active' : ''}`}
             onClick={() => handleNavClick('socios')}
-            title="Club de Socios y Fidelización de Clientes"
+            title="Club de Fidelidad y Sellos (10 sellos = Regalito)"
           >
             <i className="fa-solid fa-star text-xs text-amber-400"></i>
-            <span>CLUB SOCIOS</span>
+            <span>CLUB FIDELIDAD</span>
+            {socios.filter((s) => (s.sellos || 0) >= 10).length > 0 && (
+              <span style={{ background: '#10b981', color: '#fff', fontSize: '10px', padding: '1px 6px', borderRadius: '10px', fontWeight: 900, marginLeft: '4px' }}>
+                {socios.filter((s) => (s.sellos || 0) >= 10).length} 🎁
+              </span>
+            )}
           </button>
 
           {/* 9. RESERVAS (DENTRO DEL PANEL ADMIN) */}
@@ -1044,10 +1079,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
             type="button"
             className={`usqay-menu-trigger ${currentSection === 'reservas' ? 'active' : ''}`}
             onClick={() => handleNavClick('reservas')}
-            title="Módulo de Reservas y Bloqueo de Mesas"
+            title="Módulo de Reservas y Sincronización en Tiempo Real"
           >
             <i className="fa-solid fa-calendar-check text-xs text-sky-400"></i>
             <span>RESERVAS</span>
+            {reservas.filter((r) => r.estado !== 'Cancelada').length > 0 && (
+              <span style={{ background: '#2563eb', color: '#fff', fontSize: '10px', padding: '1px 6px', borderRadius: '10px', fontWeight: 900, marginLeft: '4px' }}>
+                {reservas.filter((r) => r.estado !== 'Cancelada').length}
+              </span>
+            )}
           </button>
 
           {/* 10. TICKET / BOLETA (DENTRO DEL PANEL ADMIN) */}
@@ -1468,7 +1508,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
 
             {/* MÓDULOS DIRECTOS */}
             <button className={`nav-item ${currentSection === 'socios' ? 'active' : ''}`} onClick={() => handleNavClick('socios')}>
-              <i className="fa-solid fa-star text-amber-400"></i> Club & Socios Frecuentes
+              <i className="fa-solid fa-star text-amber-400"></i> Club de Fidelidad & Sellos
             </button>
 
             <button className={`nav-item ${currentSection === 'reservas' ? 'active' : ''}`} onClick={() => handleNavClick('reservas')}>
@@ -2456,42 +2496,120 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
             </section>
           )}
 
-          {/* C. 2. CLUB & SOCIOS FRECUENTES (INTEGRADO EN PANEL ADMIN) */}
+          {/* C. 2. CLUB DE FIDELIDAD & SELLOS DE CLIENTES (INTEGRADO EN PANEL ADMIN) */}
           {currentSection === 'socios' && (
             <section id="viewSocios" style={{ display: 'block' }}>
-              <div className="view-header">
+              <div className="view-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
                 <div>
-                  <h1>⭐ Club de Recompensas: Socios & Tarjetas Digitales</h1>
-                  <p>Módulo de fidelización con sellos virtuales de consumo, premios, consulta por DNI y código QR.</p>
+                  <h1 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ color: '#fbbf24' }}>⭐</span> Módulo Club de Fidelidad & Sellos de Clientes
+                  </h1>
+                  <p>Programa de fidelización gastronómica: 1 sello por consumo. Al acumular 10 sellos, el cliente obtiene un regalito de cortesía.</p>
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-save"
+                  style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#000', fontWeight: 900 }}
+                  onClick={() => {
+                    setNuevoSocioDni('');
+                    setNuevoSocioNombre('');
+                    setNuevoSocioTel('');
+                    setNuevoSocioSellos(1);
+                    setNuevoSocioModalOpen(true);
+                  }}
+                >
+                  <i className="fa-solid fa-user-plus"></i> + Registrar Nuevo Socio
+                </button>
+              </div>
+
+              {/* KPI Cards del Club de Fidelidad */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px', marginBottom: '20px' }}>
+                <div className="kpi-card" style={{ background: '#09152b', border: '1.5px solid #3b82f6' }}>
+                  <span style={{ fontSize: '11px', color: '#93c5fd', textTransform: 'uppercase', fontWeight: 800 }}>Total Socios Registrados</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+                    <b style={{ fontSize: '26px', color: '#fff' }}>{socios.length}</b>
+                    <span style={{ fontSize: '22px' }}>👥</span>
+                  </div>
+                </div>
+
+                <div className="kpi-card" style={{ background: '#09152b', border: '1.5px solid #f59e0b' }}>
+                  <span style={{ fontSize: '11px', color: '#fde68a', textTransform: 'uppercase', fontWeight: 800 }}>Sellos en Circulación</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+                    <b style={{ fontSize: '26px', color: '#fbbf24' }}>
+                      {socios.reduce((acc, s) => acc + (s.sellos || 0), 0)}
+                    </b>
+                    <span style={{ fontSize: '22px' }}>🏺</span>
+                  </div>
+                </div>
+
+                <div className="kpi-card" style={{ background: '#09152b', border: '1.5px solid #10b981' }}>
+                  <span style={{ fontSize: '11px', color: '#a7f3d0', textTransform: 'uppercase', fontWeight: 800 }}>Premios Ganados (≥10 Sellos)</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+                    <b style={{ fontSize: '26px', color: '#34d399' }}>
+                      {socios.filter((s) => (s.sellos || 0) >= 10).length}
+                    </b>
+                    <span style={{ fontSize: '22px' }}>🎁</span>
+                  </div>
+                </div>
+
+                <div className="kpi-card" style={{ background: '#09152b', border: '1.5px solid #8b5cf6' }}>
+                  <span style={{ fontSize: '11px', color: '#ddd6fe', textTransform: 'uppercase', fontWeight: 800 }}>Visitas Totales Acumuladas</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+                    <b style={{ fontSize: '26px', color: '#c084fc' }}>
+                      {socios.reduce((acc, s) => acc + (s.totalVisitas || 0), 0)}
+                    </b>
+                    <span style={{ fontSize: '22px' }}>📍</span>
+                  </div>
                 </div>
               </div>
 
-              {/* Módulo interactivo ClubSocios integrado */}
-              <div style={{ marginBottom: '24px' }}>
-                <ClubSocios config={config} />
-              </div>
+              {/* Búsqueda Rápida de Socio por DNI y Ficha Interactiva */}
+              <div className="card" style={{ borderColor: 'var(--chuspa-gold-border)', marginBottom: '22px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                  <strong style={{ color: '#fbbf24', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <i className="fa-solid fa-id-card"></i> Búsqueda de Ficha de Socio por DNI:
+                  </strong>
+                  {socioConsultado && (
+                    <button
+                      type="button"
+                      style={{ background: 'transparent', border: 'none', color: '#94a3b8', fontSize: '12px', cursor: 'pointer' }}
+                      onClick={() => setSocioConsultado(null)}
+                    >
+                      ✕ Cerrar Ficha
+                    </button>
+                  )}
+                </div>
 
-              <div className="card" style={{ borderColor: 'var(--chuspa-gold-border)' }}>
-                <strong style={{ color: '#fbbf24', fontSize: '14px' }}>
-                  <i className="fa-solid fa-id-card"></i> Búsqueda Rápida de Ficha por DNI:
-                </strong>
-                <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
+                <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
                   <input
                     type="tel"
                     id="inputBuscarDniSocio"
-                    placeholder="Ingresa DNI del cliente..."
-                    style={{ fontSize: '15px', fontWeight: 900 }}
+                    placeholder="Ingresa DNI del cliente (ej. 45892147)..."
+                    style={{ fontSize: '14px', fontWeight: 800, flex: 1 }}
                     maxLength={10}
                     value={inputBuscarDni}
                     onChange={(e) => setInputBuscarDni(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const s = storage.getSocioByDni(inputBuscarDni.trim());
+                        if (s) setSocioConsultado(s);
+                        else alert(`No se encontró socio registrado con el DNI ${inputBuscarDni}. Puedes registrarlo con el botón "+ Registrar Nuevo Socio".`);
+                      }
+                    }}
                   />
                   <button
                     type="button"
                     className="btn btn-save"
                     onClick={() => {
-                      const s = storage.getSocioByDni(inputBuscarDni.trim());
+                      const clean = inputBuscarDni.trim();
+                      if (!clean) {
+                        alert('Ingresa un DNI para consultar.');
+                        return;
+                      }
+                      const s = storage.getSocioByDni(clean);
                       if (s) setSocioConsultado(s);
-                      else alert('Socio no encontrado.');
+                      else alert(`No se encontró socio registrado con el DNI ${clean}. Puedes registrarlo con el botón "+ Registrar Nuevo Socio".`);
                     }}
                   >
                     <i className="fa-solid fa-magnifying-glass"></i> Consultar
@@ -2502,119 +2620,468 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                   <div
                     id="resultadoSocioBox"
                     style={{
-                      background: '#09152b',
-                      border: '1.5px solid var(--chuspa-gold)',
-                      borderRadius: '14px',
-                      padding: '16px',
+                      background: 'linear-gradient(145deg, #09152b, #060e1d)',
+                      border: '2px solid var(--chuspa-gold)',
+                      borderRadius: '16px',
+                      padding: '18px',
                       display: 'flex',
                       flexDirection: 'column',
-                      gap: '10px',
-                      marginTop: '14px',
+                      gap: '12px',
+                      marginTop: '16px',
                     }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
                       <div>
-                        <h3 style={{ color: '#fff', fontSize: '17px', fontWeight: 900 }}>
+                        <span style={{ fontSize: '10px', textTransform: 'uppercase', color: '#38bdf8', fontWeight: 900, letterSpacing: '0.05em' }}>
+                          Ficha del Socio
+                        </span>
+                        <h3 style={{ color: '#fff', fontSize: '19px', fontWeight: 900, margin: '2px 0' }}>
                           {socioConsultado.nombre}
                         </h3>
-                        <span style={{ fontSize: '12px', color: '#94a3b8' }}>
-                          DNI: <b style={{ color: '#fbbf24' }}>{socioConsultado.dni}</b>
-                        </span>
+                        <div style={{ display: 'flex', gap: '12px', fontSize: '12px', color: '#94a3b8' }}>
+                          <span>DNI: <b style={{ color: '#fbbf24' }}>{socioConsultado.dni}</b></span>
+                          {socioConsultado.telefono && (
+                            <span>Teléfono: <b style={{ color: '#38bdf8' }}>{socioConsultado.telefono}</b></span>
+                          )}
+                          <span>Total Visitas: <b style={{ color: '#fff' }}>{socioConsultado.totalVisitas}</b></span>
+                        </div>
                       </div>
-                      {socioConsultado.sellos >= 10 && (
-                        <span
+
+                      {socioConsultado.sellos >= 10 ? (
+                        <div
                           style={{
-                            background: '#10b981',
+                            background: 'linear-gradient(135deg, #10b981, #059669)',
                             color: '#fff',
-                            fontSize: '11px',
+                            fontSize: '12px',
                             fontWeight: 900,
-                            padding: '4px 10px',
-                            borderRadius: '12px',
+                            padding: '6px 14px',
+                            borderRadius: '20px',
+                            boxShadow: '0 0 15px rgba(16,185,129,0.5)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
                           }}
                         >
-                          🎁 ¡TIENE PREMIO LISTO!
-                        </span>
+                          <span>🎁</span> ¡TIENE REGALITO GANADO!
+                        </div>
+                      ) : (
+                        <div
+                          style={{
+                            background: 'rgba(245,158,11,0.15)',
+                            color: '#fbbf24',
+                            border: '1px solid #f59e0b',
+                            fontSize: '11px',
+                            fontWeight: 800,
+                            padding: '4px 12px',
+                            borderRadius: '16px',
+                          }}
+                        >
+                          Faltan {10 - (socioConsultado.sellos % 10)} sellos para su regalito
+                        </div>
                       )}
                     </div>
 
-                    <div
-                      style={{
-                        background: '#061021',
-                        border: '1px dashed var(--chuspa-gold)',
-                        borderRadius: '10px',
-                        padding: '12px',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <div>
-                        <span style={{ fontSize: '12px', color: '#cbd5e1', display: 'block' }}>Puntaje Actual:</span>
-                        <b style={{ fontSize: '24px', color: '#fbbf24' }}>{socioConsultado.sellos % 10}</b>{' '}
-                        <span style={{ fontSize: '12px', color: '#94a3b8' }}>de 10 sellos</span>
+                    {/* Grilla visual interactiva de los 10 Sellos */}
+                    <div style={{ background: '#040b17', padding: '14px', borderRadius: '12px', border: '1px solid rgba(245,158,11,0.3)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                        <span style={{ fontSize: '12px', fontWeight: 800, color: '#fbbf24', textTransform: 'uppercase' }}>
+                          Tarjeta de 10 Sellos del Cliente
+                        </span>
+                        <span style={{ fontSize: '12px', fontWeight: 900, color: '#fff' }}>
+                          <span style={{ color: '#fbbf24', fontSize: '15px' }}>{socioConsultado.sellos % 10}</span> de 10 Sellos
+                        </span>
                       </div>
-                      <div>
-                        <span style={{ fontSize: '11px', color: '#94a3b8', display: 'block' }}>Total Visitas:</span>
-                        <b style={{ fontSize: '14px', color: '#fff' }}>{socioConsultado.totalVisitas}</b>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(10, 1fr)', gap: '6px' }}>
+                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((slot) => {
+                          const countInCycle = socioConsultado.sellos % 10;
+                          const isStamped = socioConsultado.sellos >= 10 ? true : slot <= countInCycle;
+                          const isPremioSlot = slot === 10;
+
+                          return (
+                            <div
+                              key={slot}
+                              style={{
+                                aspectRatio: '1',
+                                borderRadius: '10px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '10px',
+                                fontWeight: 900,
+                                border: isStamped
+                                  ? isPremioSlot
+                                    ? '2px solid #fef08a'
+                                    : '1.5px solid #f59e0b'
+                                  : isPremioSlot
+                                  ? '1.5px dashed #f59e0b'
+                                  : '1px solid #334155',
+                                background: isStamped
+                                  ? isPremioSlot
+                                    ? 'linear-gradient(135deg, #f59e0b, #eab308)'
+                                    : 'linear-gradient(135deg, #d97706, #b45309)'
+                                  : isPremioSlot
+                                  ? 'rgba(245,158,11,0.1)'
+                                  : '#0f172a',
+                                color: isStamped ? '#000' : isPremioSlot ? '#fbbf24' : '#64748b',
+                                transition: 'all 0.2s',
+                              }}
+                              title={isPremioSlot ? 'Regalito de la Casa al completar 10 sellos' : `Sello ${slot}`}
+                            >
+                              <span style={{ fontSize: '14px', lineHeight: 1 }}>
+                                {isStamped ? (isPremioSlot ? '🎁' : '🏺') : isPremioSlot ? '🎁' : slot}
+                              </span>
+                              <span style={{ fontSize: '7px', fontWeight: 900, textTransform: 'uppercase', marginTop: '2px' }}>
+                                {isPremioSlot ? 'Regalo' : `S${slot}`}
+                              </span>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                    {/* Botones de acción para el socio consultado */}
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '4px' }}>
                       <button
                         type="button"
                         className="btn btn-save"
-                        style={{ flex: 1 }}
+                        style={{ flex: 1, minWidth: '160px', background: 'linear-gradient(135deg, #3b82f6, #2563eb)' }}
                         onClick={() => {
                           const updated = storage.addSelloSocio(socioConsultado.dni);
-                          if (updated) setSocioConsultado({ ...updated });
-                          alert('✔ Sello sumado correctamente.');
+                          if (updated) {
+                            setSocioConsultado({ ...updated });
+                            setSocios(storage.getSocios());
+                          }
+                          alert(`✔ Sello agregado correctamente a ${socioConsultado.nombre}.`);
                         }}
                       >
                         <i className="fa-solid fa-plus"></i> +1 Sello de Consumo
                       </button>
+
+                      {socioConsultado.sellos >= 10 && (
+                        <button
+                          type="button"
+                          className="btn btn-save"
+                          style={{
+                            flex: 1,
+                            minWidth: '200px',
+                            background: 'linear-gradient(135deg, #10b981, #059669)',
+                            boxShadow: '0 0 15px rgba(16,185,129,0.4)',
+                          }}
+                          onClick={() => {
+                            if (window.confirm(`¿Confirmas canjear el regalito para ${socioConsultado.nombre}? Esto reiniciará su ciclo de 10 sellos a 0.`)) {
+                              const res = storage.canjearRegaloSocio(socioConsultado.dni);
+                              if (res.success && res.socio) {
+                                setSocioConsultado({ ...res.socio });
+                                setSocios(storage.getSocios());
+                                alert(res.message);
+                              } else {
+                                alert(res.message);
+                              }
+                            }
+                          }}
+                        >
+                          <i className="fa-solid fa-gift"></i> 🎁 Canjear Regalito (Reiniciar 10 Sellos)
+                        </button>
+                      )}
+
+                      {socioConsultado.telefono && (
+                        <a
+                          href={`https://wa.me/${socioConsultado.telefono.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                            `¡Hola ${socioConsultado.nombre}! Te saludamos de *${config.nombre}* 🍽️.\n` +
+                              `Tu tarjeta virtual de fidelidad cuenta con *${socioConsultado.sellos % 10} / 10 sellos* acumulados.\n` +
+                              (socioConsultado.sellos >= 10
+                                ? `🎁 ¡Ya completaste los 10 sellos y tienes tu REGALITO DE CORTESÍA listo para reclamar en tu próxima visita!\n`
+                                : `¡Te faltan solo ${10 - (socioConsultado.sellos % 10)} consumos para tu próximo regalito!\n`) +
+                              `¡Gracias por ser parte de nuestra familia tradicional!`
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn"
+                          style={{ background: '#25d366', color: '#000', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '6px' }}
+                        >
+                          <i className="fa-brands fa-whatsapp text-sm"></i> WhatsApp Socio
+                        </a>
+                      )}
                     </div>
                   </div>
                 )}
               </div>
 
+              {/* Tabla de Todos los Socios del Club con Buscador en Vivo */}
               <div className="card">
-                <strong style={{ color: 'var(--gold)', fontSize: '14px', display: 'block', marginBottom: '8px' }}>
-                  Historial de Socios Registrados ({socios.length}):
-                </strong>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', marginBottom: '12px' }}>
+                  <strong style={{ color: 'var(--gold)', fontSize: '15px' }}>
+                    <i className="fa-solid fa-users"></i> Padrón de Socios del Club de Fidelidad ({socios.length}):
+                  </strong>
+
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <input
+                      type="text"
+                      placeholder="Filtrar por nombre o DNI..."
+                      style={{ fontSize: '12px', padding: '6px 10px', borderRadius: '8px', minWidth: '220px' }}
+                      value={socioFiltroTabla}
+                      onChange={(e) => setSocioFiltroTabla(e.target.value)}
+                    />
+                    {socioFiltroTabla && (
+                      <button
+                        type="button"
+                        style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
+                        onClick={() => setSocioFiltroTabla('')}
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                </div>
+
                 <table className="custom-table">
                   <thead>
                     <tr>
                       <th>DNI</th>
                       <th>Nombre del Cliente</th>
+                      <th>Teléfono WhatsApp</th>
                       <th>Sellos Actuales</th>
+                      <th>Estado Regalito</th>
                       <th>Total Visitas</th>
-                      <th>Acción Rápida</th>
+                      <th>Acciones Rápidas</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {socios.map((s) => (
-                      <tr key={s.dni}>
-                        <td><b style={{ color: '#fbbf24' }}>{s.dni}</b></td>
-                        <td>{s.nombre}</td>
-                        <td><b>{s.sellos % 10} / 10</b> {s.sellos >= 10 ? '🎁 ¡Premio!' : ''}</td>
-                        <td>{s.totalVisitas}</td>
-                        <td>
-                          <button
-                            className="btn btn-save"
-                            style={{ padding: '4px 8px', fontSize: '11px' }}
-                            onClick={() => {
-                              setInputBuscarDni(s.dni);
-                              setSocioConsultado(s);
-                            }}
-                          >
-                            Ver Ficha
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                    {socios
+                      .filter((s) => {
+                        if (!socioFiltroTabla.trim()) return true;
+                        const term = socioFiltroTabla.toLowerCase();
+                        return s.nombre.toLowerCase().includes(term) || s.dni.includes(term);
+                      })
+                      .map((s) => {
+                        const countInCycle = (s.sellos || 0) % 10;
+                        const tienePremio = (s.sellos || 0) >= 10;
+
+                        return (
+                          <tr key={s.dni} style={{ background: tienePremio ? 'rgba(16,185,129,0.06)' : undefined }}>
+                            <td>
+                              <b style={{ color: '#fbbf24', fontFamily: 'monospace', fontSize: '13px' }}>{s.dni}</b>
+                            </td>
+                            <td>
+                              <b>{s.nombre}</b>
+                            </td>
+                            <td>
+                              <span style={{ fontSize: '12px', color: '#93c5fd' }}>{s.telefono || 'Sin teléfono'}</span>
+                            </td>
+                            <td>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <b style={{ fontSize: '13px', color: tienePremio ? '#10b981' : '#fbbf24' }}>
+                                  {countInCycle} / 10
+                                </b>
+                                <div style={{ width: '60px', height: '6px', background: '#334155', borderRadius: '3px', overflow: 'hidden' }}>
+                                  <div
+                                    style={{
+                                      width: `${tienePremio ? 100 : (countInCycle / 10) * 100}%`,
+                                      height: '100%',
+                                      background: tienePremio ? '#10b981' : '#fbbf24',
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            </td>
+                            <td>
+                              {tienePremio ? (
+                                <span
+                                  style={{
+                                    background: 'rgba(16,185,129,0.2)',
+                                    color: '#34d399',
+                                    border: '1px solid #10b981',
+                                    padding: '2px 8px',
+                                    borderRadius: '10px',
+                                    fontSize: '11px',
+                                    fontWeight: 900,
+                                  }}
+                                >
+                                  🎁 ¡REGALITO LISTO!
+                                </span>
+                              ) : (
+                                <span style={{ fontSize: '11px', color: '#94a3b8' }}>
+                                  Faltan {10 - countInCycle} sellos
+                                </span>
+                              )}
+                            </td>
+                            <td>
+                              <b style={{ color: '#fff' }}>{s.totalVisitas || 1}</b>
+                            </td>
+                            <td>
+                              <div style={{ display: 'flex', gap: '4px' }}>
+                                <button
+                                  type="button"
+                                  className="btn btn-save"
+                                  style={{ padding: '4px 8px', fontSize: '11px', background: '#2563eb' }}
+                                  title="Sumar 1 sello por consumo"
+                                  onClick={() => {
+                                    const updated = storage.addSelloSocio(s.dni);
+                                    if (updated) {
+                                      setSocios(storage.getSocios());
+                                      if (socioConsultado?.dni === s.dni) setSocioConsultado({ ...updated });
+                                    }
+                                  }}
+                                >
+                                  +1 Sello
+                                </button>
+
+                                {tienePremio && (
+                                  <button
+                                    type="button"
+                                    className="btn btn-save"
+                                    style={{ padding: '4px 8px', fontSize: '11px', background: '#10b981' }}
+                                    title="Canjear Regalito de 10 Sellos"
+                                    onClick={() => {
+                                      if (window.confirm(`¿Canjear regalito de 10 sellos para ${s.nombre}?`)) {
+                                        const res = storage.canjearRegaloSocio(s.dni);
+                                        if (res.success) {
+                                          setSocios(storage.getSocios());
+                                          if (socioConsultado?.dni === s.dni && res.socio) {
+                                            setSocioConsultado({ ...res.socio });
+                                          }
+                                          alert(res.message);
+                                        }
+                                      }
+                                    }}
+                                  >
+                                    🎁 Canjear
+                                  </button>
+                                )}
+
+                                <button
+                                  type="button"
+                                  className="btn btn-save"
+                                  style={{ padding: '4px 8px', fontSize: '11px', background: '#09152b', border: '1px solid #f59e0b' }}
+                                  title="Ver ficha completa"
+                                  onClick={() => {
+                                    setInputBuscarDni(s.dni);
+                                    setSocioConsultado(s);
+                                    window.scrollTo({ top: 300, behavior: 'smooth' });
+                                  }}
+                                >
+                                  Ver Ficha
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
                   </tbody>
                 </table>
               </div>
+
+              {/* MODAL PARA REGISTRAR NUEVO SOCIO */}
+              {nuevoSocioModalOpen && (
+                <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+                  <div className="bg-[#09152b] border-2 border-amber-400 rounded-3xl p-6 w-full max-w-md shadow-2xl text-slate-100 flex flex-col gap-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-700">
+                      <h3 className="text-sm font-black text-amber-400 uppercase font-latina-luxury flex items-center gap-2">
+                        <i className="fa-solid fa-user-plus"></i> Registrar Nuevo Socio en el Club
+                      </h3>
+                      <button
+                        type="button"
+                        onClick={() => setNuevoSocioModalOpen(false)}
+                        className="w-7 h-7 rounded-full bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center"
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        if (!nuevoSocioDni.trim() || !nuevoSocioNombre.trim()) {
+                          alert('Por favor ingrese DNI y Nombre del cliente.');
+                          return;
+                        }
+                        const socioCreado = storage.addSelloSocio(
+                          nuevoSocioDni.trim(),
+                          nuevoSocioNombre.trim(),
+                          nuevoSocioTel.trim()
+                        );
+                        if (nuevoSocioSellos > 1) {
+                          for (let i = 1; i < nuevoSocioSellos; i++) {
+                            storage.addSelloSocio(nuevoSocioDni.trim());
+                          }
+                        }
+                        const finalSocio = storage.getSocioByDni(nuevoSocioDni.trim());
+                        setSocios(storage.getSocios());
+                        if (finalSocio) setSocioConsultado(finalSocio);
+                        setNuevoSocioModalOpen(false);
+                        alert(`✔ Socio ${nuevoSocioNombre} registrado exitosamente con ${nuevoSocioSellos} sellos iniciales.`);
+                      }}
+                      className="space-y-3 text-xs"
+                    >
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-400 block mb-1">DNI del Cliente (8 dígitos):</label>
+                        <input
+                          type="tel"
+                          required
+                          maxLength={10}
+                          placeholder="Ej. 45892147"
+                          value={nuevoSocioDni}
+                          onChange={(e) => setNuevoSocioDni(e.target.value)}
+                          className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none focus:border-amber-400"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-400 block mb-1">Nombre Completo:</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Ej. Carlos Mendoza"
+                          value={nuevoSocioNombre}
+                          onChange={(e) => setNuevoSocioNombre(e.target.value)}
+                          className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none focus:border-amber-400"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-400 block mb-1">WhatsApp / Teléfono:</label>
+                        <input
+                          type="tel"
+                          placeholder="+51 987654321"
+                          value={nuevoSocioTel}
+                          onChange={(e) => setNuevoSocioTel(e.target.value)}
+                          className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none focus:border-amber-400"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-400 block mb-1">Sellos Iniciales a Otorgar:</label>
+                        <input
+                          type="number"
+                          min={1}
+                          max={10}
+                          value={nuevoSocioSellos}
+                          onChange={(e) => setNuevoSocioSellos(Number(e.target.value))}
+                          className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none focus:border-amber-400"
+                        />
+                      </div>
+
+                      <div className="pt-2 flex gap-2">
+                        <button
+                          type="submit"
+                          className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black text-xs shadow active:scale-95 transition-all"
+                        >
+                          Guardar y Registrar Socio
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setNuevoSocioModalOpen(false)}
+                          className="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-400 hover:text-white font-bold text-xs"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              )}
             </section>
           )}
 
@@ -4308,6 +4775,123 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                   className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
                 >
                   Posponer / Cerrar Aviso
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* NOTIFICACIÓN CENTRADA RESPLANDECIENTE DANDO VUELTAS ALREDEDOR DE LAS LÍNEAS - NUEVA RESERVA RECIBIDA */}
+      {alertaNuevaReservaModal && (
+        <div className="fixed inset-0 z-[99999] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="relative p-[4px] rounded-3xl overflow-hidden shadow-[0_0_80px_rgba(59,130,246,0.85)] max-w-md w-full animate-in zoom-in-95 duration-200">
+            {/* Resplandor giratorio dando vueltas alrededor de las líneas del cuadro */}
+            <div className="absolute inset-[-150%] bg-[conic-gradient(from_0deg,#3b82f6_0deg,#f59e0b_90deg,#10b981_180deg,#8b5cf6_270deg,#3b82f6_360deg)] animate-[spin_3s_linear_infinite]" />
+
+            {/* Contenido interior de la alerta */}
+            <div className="relative bg-[#071224] rounded-[22px] p-6 sm:p-7 flex flex-col items-center text-center">
+              <div className="w-16 h-16 rounded-full bg-blue-500/20 border-2 border-sky-400 flex items-center justify-center text-3xl shadow-[0_0_30px_rgba(59,130,246,0.5)] mb-3 animate-bounce">
+                📅
+              </div>
+
+              <span className="px-3.5 py-1 rounded-full bg-blue-600/90 text-white font-black text-[11px] uppercase tracking-wider mb-2 border border-sky-400 animate-pulse">
+                🔔 ¡Nueva Reserva Recibida en Tiempo Real!
+              </span>
+
+              <h2 className="text-2xl font-black text-amber-400 font-latina-luxury tracking-wide">
+                {alertaNuevaReservaModal.reserva.cliente}
+              </h2>
+              <p className="text-xs text-slate-300 mt-1">
+                Ha generado una nueva reserva en el sistema
+              </p>
+
+              <div className="my-4 w-full bg-slate-900/90 border border-sky-400/40 rounded-2xl p-4 text-left space-y-2 text-xs">
+                <div className="flex justify-between items-center pb-2 border-b border-slate-800">
+                  <span className="text-slate-400 uppercase font-bold">Código Reserva:</span>
+                  <span className="font-mono text-amber-300 font-extrabold">{alertaNuevaReservaModal.reserva.id}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-400 font-bold">Fecha & Hora:</span>
+                  <span className="font-extrabold text-white bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
+                    {alertaNuevaReservaModal.reserva.fechaReserva} • {alertaNuevaReservaModal.reserva.horaReserva}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-400 font-bold">Mesa Asignada:</span>
+                  <span className="font-extrabold text-sky-300 bg-sky-950/60 px-2 py-0.5 rounded border border-sky-500/40">
+                    {alertaNuevaReservaModal.reserva.mesaAsignada} ({alertaNuevaReservaModal.reserva.personas} personas)
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-400 font-bold">WhatsApp / Teléfono:</span>
+                  <span className="font-bold text-slate-200">{alertaNuevaReservaModal.reserva.telefono}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-400 font-bold">Estado:</span>
+                  <span className={`px-2 py-0.5 rounded-full font-black text-[10px] uppercase ${alertaNuevaReservaModal.reserva.pagoConfirmado ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/50' : 'bg-amber-950 text-amber-300 border border-amber-500/50'}`}>
+                    {alertaNuevaReservaModal.reserva.estado} {alertaNuevaReservaModal.reserva.pagoConfirmado ? `(Adelanto S/ ${alertaNuevaReservaModal.reserva.montoAdelanto?.toFixed(2)} ${alertaNuevaReservaModal.reserva.metodoPagoAdelanto || ''})` : '(Por Confirmar)'}
+                  </span>
+                </div>
+                {alertaNuevaReservaModal.reserva.itemsPedidos && alertaNuevaReservaModal.reserva.itemsPedidos.length > 0 && (
+                  <div className="pt-2 border-t border-slate-800">
+                    <span className="text-[10px] uppercase font-bold text-amber-400 block mb-1">
+                      Platos Seleccionados ({alertaNuevaReservaModal.reserva.itemsPedidos.length}):
+                    </span>
+                    <div className="space-y-1 max-h-24 overflow-y-auto">
+                      {alertaNuevaReservaModal.reserva.itemsPedidos.map((it, idx) => (
+                        <div key={idx} className="flex justify-between text-[11px] text-slate-300">
+                          <span>{it.cantidad}x {it.nombre}</span>
+                          <span className="font-mono text-amber-300 font-bold">S/ {(it.cantidad * it.precio).toFixed(2)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {alertaNuevaReservaModal.reserva.notas && (
+                  <div className="pt-1 text-[11px] text-slate-400 italic">
+                    "{alertaNuevaReservaModal.reserva.notas}"
+                  </div>
+                )}
+              </div>
+
+              <div className="w-full flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    storage.clearAlertaNuevaReserva();
+                    setAlertaNuevaReservaModal(null);
+                    setCurrentSection('reservas');
+                  }}
+                  className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 via-sky-500 to-blue-600 hover:from-blue-500 hover:to-sky-400 text-white font-black text-xs uppercase tracking-wider shadow-[0_0_25px_rgba(59,130,246,0.5)] border-2 border-sky-300 active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <i className="fa-solid fa-calendar-check text-sm"></i>
+                  <span>Ver en Módulo de Reservas</span>
+                </button>
+
+                {alertaNuevaReservaModal.reserva.telefono && (
+                  <a
+                    href={`https://wa.me/${alertaNuevaReservaModal.reserva.telefono.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                      `¡Hola ${alertaNuevaReservaModal.reserva.cliente}! Te saludamos de *${config.nombre}* 🍽️. Confirmamos la recepción de tu reserva para el ${alertaNuevaReservaModal.reserva.fechaReserva} a las ${alertaNuevaReservaModal.reserva.horaReserva} en ${alertaNuevaReservaModal.reserva.mesaAsignada}. ¡Te esperamos con mucho gusto!`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow active:scale-98 transition-all"
+                  >
+                    <i className="fa-brands fa-whatsapp text-sm"></i>
+                    <span>Contactar Cliente por WhatsApp</span>
+                  </a>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    storage.clearAlertaNuevaReserva();
+                    setAlertaNuevaReservaModal(null);
+                  }}
+                  className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                >
+                  Entendido / Cerrar Aviso
                 </button>
               </div>
             </div>

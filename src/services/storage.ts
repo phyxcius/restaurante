@@ -708,6 +708,14 @@ class StorageService {
         '_' +
         (localStorage.getItem(STORAGE_KEYS.VENTAS) || '').length +
         '_' +
+        (localStorage.getItem(STORAGE_KEYS.RESERVAS) || '').length +
+        '_' +
+        (localStorage.getItem(STORAGE_KEYS.SOCIOS) || '').length +
+        '_' +
+        (localStorage.getItem('cusq_alerta_nueva_reserva') || '') +
+        '_' +
+        (localStorage.getItem('cusq_solicitud_pago_activa') || '') +
+        '_' +
         (localStorage.getItem('cusq_realtime_ping') || '')
       );
     } catch {
@@ -1167,15 +1175,47 @@ class StorageService {
     this.notify();
   }
 
-  public addSelloSocio(dni: string): Socio | null {
-    const socio = this.getSocioByDni(dni);
+  public addSelloSocio(dni: string, nombre?: string, telefono?: string): Socio {
+    const list = this.getSocios();
+    const cleanDni = (dni || '').trim();
+    let socio = list.find((s) => s.dni.trim() === cleanDni);
     if (socio) {
       socio.sellos = (socio.sellos || 0) + 1;
       socio.totalVisitas = (socio.totalVisitas || 0) + 1;
-      this.saveSocio(socio);
-      return socio;
+      if (nombre && !socio.nombre) socio.nombre = nombre;
+      if (telefono && !socio.telefono) socio.telefono = telefono;
+    } else {
+      socio = {
+        dni: cleanDni,
+        nombre: nombre || `Socio DNI ${cleanDni}`,
+        telefono: telefono || '+51 984 000 000',
+        sellos: 1,
+        totalVisitas: 1,
+        fechaRegistro: new Date().toISOString().slice(0, 10),
+      };
+      list.unshift(socio);
     }
-    return null;
+    localStorage.setItem(STORAGE_KEYS.SOCIOS, JSON.stringify(list));
+    this.notify('SOCIO_ACTUALIZADO', socio);
+    return socio;
+  }
+
+  public canjearRegaloSocio(dni: string): { success: boolean; socio?: Socio; message: string } {
+    const list = this.getSocios();
+    const cleanDni = (dni || '').trim();
+    const socio = list.find((s) => s.dni.trim() === cleanDni);
+    if (!socio) {
+      return { success: false, message: 'Socio no encontrado' };
+    }
+    if ((socio.sellos || 0) < 10) {
+      return { success: false, message: `El socio tiene ${socio.sellos || 0} sellos. Necesita 10 sellos para canjear su regalito.` };
+    }
+    socio.sellos = Math.max(0, (socio.sellos || 0) - 10);
+    (socio as any).canjesRealizados = ((socio as any).canjesRealizados || 0) + 1;
+    (socio as any).ultimoCanje = new Date().toISOString().slice(0, 10);
+    localStorage.setItem(STORAGE_KEYS.SOCIOS, JSON.stringify(list));
+    this.notify('PREMIO_CANJEADO', socio);
+    return { success: true, socio, message: '¡Regalito canjeado con éxito! Se reinició el ciclo de 10 sellos.' };
   }
 
   // --- RESERVAS ---
@@ -1184,13 +1224,43 @@ class StorageService {
     return raw ? JSON.parse(raw) : DEFAULT_RESERVAS;
   }
 
-  public saveReserva(reserva: Reserva) {
+  public saveReserva(reserva: Reserva, esNueva: boolean = false) {
     const list = this.getReservas();
     const idx = list.findIndex((r) => r.id === reserva.id);
-    if (idx >= 0) list[idx] = reserva;
-    else list.unshift(reserva);
+    const isBrandNew = idx < 0 || esNueva;
+    if (idx >= 0) {
+      list[idx] = reserva;
+    } else {
+      list.unshift(reserva);
+    }
     localStorage.setItem(STORAGE_KEYS.RESERVAS, JSON.stringify(list));
-    this.notify();
+
+    if (isBrandNew) {
+      const alerta = {
+        reserva,
+        timestamp: Date.now(),
+      };
+      localStorage.setItem('cusq_alerta_nueva_reserva', JSON.stringify(alerta));
+      this.notify('NUEVA_RESERVA', alerta);
+    } else {
+      this.notify('RESERVA_ACTUALIZADA', reserva);
+    }
+  }
+
+  public getAlertaNuevaReserva(): { reserva: Reserva; timestamp: number } | null {
+    try {
+      const raw = localStorage.getItem('cusq_alerta_nueva_reserva');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  public clearAlertaNuevaReserva() {
+    try {
+      localStorage.removeItem('cusq_alerta_nueva_reserva');
+    } catch {}
+    this.notify('ALERTA_RESERVA_LIMPIADA');
   }
 
   public deleteReserva(id: string) {

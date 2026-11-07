@@ -74,7 +74,7 @@ export const ReservasPublica: React.FC<ReservasPublicaProps> = ({ config, onBack
       metodoPagoAdelanto: pagoConfirmado ? metodoPagoAdelanto : undefined,
     };
 
-    storage.saveReserva(nuevaReserva);
+    storage.saveReserva(nuevaReserva, true);
     setLastReservaId(id);
     setIsSuccess(true);
 

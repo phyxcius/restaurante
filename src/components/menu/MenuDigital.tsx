@@ -27,7 +27,7 @@ import {
   MessageCircle,
   Check,
 } from 'lucide-react';
-import { Producto, CartItem, Language, Comanda, ConfigRestaurante, ReservaItemPedido } from '../../types';
+import { Producto, CartItem, Language, Comanda, ConfigRestaurante, ReservaItemPedido, Socio } from '../../types';
 import { storage } from '../../services/storage';
 import { consultarDNI } from '../../services/sunatApi';
 import { MENU_TRANSLATIONS } from './menuTranslations';
@@ -121,6 +121,12 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
 
   // Modals requested for Thank You Notification: Club Sellos & Reservas
   const [showClubSellosModal, setShowClubSellosModal] = useState<boolean>(false);
+  const [clubDniInput, setClubDniInput] = useState<string>('');
+  const [clubSocioConsultado, setClubSocioConsultado] = useState<Socio | null>(null);
+  const [clubBusquedaRealizada, setClubBusquedaRealizada] = useState<boolean>(false);
+  const [clubRegNombre, setClubRegNombre] = useState<string>('');
+  const [clubRegTelefono, setClubRegTelefono] = useState<string>('');
+  const [selloAgregadoEnSesion, setSelloAgregadoEnSesion] = useState<boolean>(false);
   const [showReservaModal, setShowReservaModal] = useState<boolean>(false);
   const [isCatalogPickerOpen, setIsCatalogPickerOpen] = useState<boolean>(false);
   const [reservaForm, setReservaForm] = useState({
@@ -607,7 +613,19 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
           <div className="grid grid-cols-2 gap-2.5 w-full max-w-xs mt-4">
             <button
               type="button"
-              onClick={() => setShowClubSellosModal(true)}
+              onClick={() => {
+                const initDni = (ventaCompletada?.dni || clienteDni || '').trim();
+                setClubDniInput(initDni);
+                if (initDni) {
+                  const s = storage.getSocioByDni(initDni);
+                  setClubSocioConsultado(s || null);
+                  setClubBusquedaRealizada(true);
+                } else {
+                  setClubSocioConsultado(null);
+                  setClubBusquedaRealizada(false);
+                }
+                setShowClubSellosModal(true);
+              }}
               className="px-3 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-amber-500/30 cursor-pointer active:scale-95 transition-all"
             >
               <span>⭐</span>
@@ -938,16 +956,24 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
           </div>
         )}
 
-        {/* Modal: Ver mis Sellos del Club */}
+        {/* Modal: Ver mis Sellos del Club de Fidelidad con Consulta DNI y Regalito a los 10 sellos */}
         {showClubSellosModal && (
-          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
-            <div className="bg-[#09152b] border-2 border-amber-400 rounded-3xl p-5 w-full max-w-sm shadow-2xl text-center flex flex-col">
+          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-in fade-in">
+            <div className="bg-[#09152b] border-2 border-amber-400 rounded-3xl p-5 w-full max-w-md shadow-2xl text-center flex flex-col max-h-[92vh] overflow-y-auto custom-scroll">
+              {/* Header con Branding La Chuspa Tech */}
               <div className="flex items-center justify-between pb-3 border-b border-slate-700">
                 <div className="flex items-center gap-2">
-                  <span className="text-xl">⭐</span>
-                  <h3 className="text-sm font-black text-amber-400 uppercase font-latina-luxury">
-                    Club de Socios & Sellos
-                  </h3>
+                  <div className="w-8 h-8 rounded-full bg-white p-0.5 border border-amber-400 flex items-center justify-center shrink-0">
+                    <img src={CHUSPA_TECH_LOGO} alt="Chuspa" className="w-full h-full object-contain" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="text-sm font-black text-amber-400 uppercase font-latina-luxury leading-tight flex items-center gap-1">
+                      <span>⭐</span> Club de Fidelidad & Sellos
+                    </h3>
+                    <span className="text-[10px] text-sky-300 font-bold block">
+                      1 Sello por consumo • A los 10 sellos ¡Regalito de la Casa!
+                    </span>
+                  </div>
                 </div>
                 <button
                   type="button"
@@ -958,39 +984,262 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                 </button>
               </div>
 
-              <div className="my-4 p-4 bg-slate-900/90 border border-amber-500/30 rounded-2xl">
-                <span className="text-xs font-bold text-slate-300 block mb-1">
-                  Titular: <b className="text-white">{ventaCompletada?.cliente || clienteNombre || 'Comensal Distinguido'}</b>
-                </span>
-                <span className="text-[11px] text-amber-400 font-bold block mb-3">
-                  Tarjeta Virtual: {clienteDni ? `DNI ${clienteDni}` : 'Socio Activo'}
-                </span>
+              {/* Barra de Consulta por DNI */}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const clean = clubDniInput.trim();
+                  if (clean) {
+                    const s = storage.getSocioByDni(clean);
+                    setClubSocioConsultado(s || null);
+                    setClubBusquedaRealizada(true);
+                  }
+                }}
+                className="my-3 flex gap-2 p-1.5 bg-slate-900 border border-amber-500/50 rounded-2xl"
+              >
+                <input
+                  type="tel"
+                  maxLength={10}
+                  placeholder="Ingresa tu DNI para ver tus sellos..."
+                  value={clubDniInput}
+                  onChange={(e) => setClubDniInput(e.target.value)}
+                  className="flex-1 bg-transparent px-3 py-1 text-xs text-white outline-none font-bold placeholder:text-slate-500"
+                />
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-black text-xs flex items-center gap-1 shadow cursor-pointer active:scale-95"
+                >
+                  <Search className="w-3.5 h-3.5" />
+                  <span>Consultar</span>
+                </button>
+              </form>
 
-                {/* Sellos Gráficos */}
-                <div className="grid grid-cols-5 gap-2 my-2 justify-items-center">
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((sello) => (
-                    <div
-                      key={sello}
-                      className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-black border-2 transition-all shadow-md ${
-                        sello <= 4
-                          ? 'bg-gradient-to-tr from-amber-400 to-amber-200 border-amber-500 text-slate-950 scale-105'
-                          : 'bg-slate-950 border-slate-700 text-slate-500'
-                      }`}
-                      title={sello <= 4 ? 'Sello Ganado' : 'Por Desbloquear'}
-                    >
-                      {sello <= 4 ? '🏺' : sello}
+              {/* Caso 1: Socio encontrado con sellos */}
+              {clubSocioConsultado && (
+                <div className="my-2 p-4 bg-slate-900/90 border-2 border-amber-500/40 rounded-2xl text-left space-y-3">
+                  <div className="flex justify-between items-start border-b border-slate-800 pb-2">
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-sky-400 block tracking-wider">
+                        Socio Registrado
+                      </span>
+                      <h4 className="text-sm font-black text-white font-latina-luxury">
+                        {clubSocioConsultado.nombre}
+                      </h4>
+                      <span className="text-[11px] font-mono text-amber-300 font-bold">
+                        DNI: {clubSocioConsultado.dni}
+                      </span>
                     </div>
-                  ))}
+                    <div className="text-right">
+                      <span className="text-[10px] text-slate-400 block font-bold">Total Visitas</span>
+                      <span className="text-xs font-black text-white bg-slate-800 px-2 py-0.5 rounded-full border border-slate-700">
+                        {clubSocioConsultado.totalVisitas || 1} visitas
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Banner de Premio Listo si tiene 10 o más sellos */}
+                  {clubSocioConsultado.sellos >= 10 ? (
+                    <div className="p-3 bg-gradient-to-r from-amber-500/20 via-emerald-500/20 to-amber-500/20 border-2 border-amber-400 rounded-xl text-center space-y-1 animate-pulse">
+                      <div className="text-2xl">🎁🎉</div>
+                      <span className="text-xs font-black text-amber-300 block uppercase">
+                        ¡FELICITACIONES! TIENES TU REGALITO GANADO
+                      </span>
+                      <p className="text-[11px] text-slate-200">
+                        Has acumulado <b>10 sellos de fidelidad</b>. Puedes canjear tu plato de fondo tradicional o postre de cortesía presentando tu DNI al mozo o en caja.
+                      </p>
+                      <div className="inline-block bg-slate-950/90 border border-amber-400 px-3 py-1 rounded-lg mt-1 font-mono text-xs font-black text-amber-400">
+                        VOUCHER: REGALO-{clubSocioConsultado.dni}-CUSQ
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-1">
+                      <span className="text-xs font-bold text-slate-300">
+                        Progreso actual:{' '}
+                        <b className="text-amber-400 text-sm font-black">
+                          {clubSocioConsultado.sellos % 10}
+                        </b>{' '}
+                        de 10 sellos
+                      </span>
+                      <span className="text-[10px] text-sky-300 block mt-0.5">
+                        ¡Te faltan solo {10 - (clubSocioConsultado.sellos % 10)} sellos para tu regalito de cortesía!
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Grilla gráfica de 10 Sellos */}
+                  <div>
+                    <span className="text-[10px] uppercase font-black text-amber-400 block mb-2 text-center">
+                      Tarjeta Virtual de Sellos
+                    </span>
+                    <div className="grid grid-cols-5 gap-2 justify-items-center">
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((slot) => {
+                        const countInCycle = clubSocioConsultado.sellos % 10;
+                        const isStamped =
+                          clubSocioConsultado.sellos >= 10 ? true : slot <= countInCycle;
+                        const isPremioSlot = slot === 10;
+
+                        return (
+                          <div
+                            key={slot}
+                            className={`w-11 h-11 rounded-2xl flex flex-col items-center justify-center text-center border-2 transition-all shadow-md ${
+                              isStamped
+                                ? isPremioSlot
+                                  ? 'bg-gradient-to-tr from-amber-400 via-yellow-300 to-amber-500 border-amber-200 text-slate-950 scale-105 shadow-[0_0_15px_rgba(245,158,11,0.6)] font-black'
+                                  : 'bg-gradient-to-tr from-amber-500 to-amber-300 border-amber-400 text-slate-950 scale-105 font-black'
+                                : isPremioSlot
+                                ? 'bg-amber-950/40 border-dashed border-amber-400/80 text-amber-300'
+                                : 'bg-slate-950 border-slate-700 text-slate-600'
+                            }`}
+                            title={isPremioSlot ? 'Regalito al completar 10 sellos' : `Sello ${slot}`}
+                          >
+                            <span className="text-sm leading-none">
+                              {isStamped ? (isPremioSlot ? '🎁' : '🏺') : isPremioSlot ? '🎁' : slot}
+                            </span>
+                            <span className="text-[8px] font-black uppercase mt-0.5 leading-none">
+                              {isPremioSlot ? 'Regalito' : `Sello ${slot}`}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Acciones para el socio */}
+                  <div className="pt-2 flex flex-col gap-2">
+                    {!selloAgregadoEnSesion ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updated = storage.addSelloSocio(
+                            clubSocioConsultado.dni,
+                            clubSocioConsultado.nombre,
+                            clubSocioConsultado.telefono
+                          );
+                          setClubSocioConsultado({ ...updated });
+                          setSelloAgregadoEnSesion(true);
+                          try {
+                            confetti({ particleCount: 70, spread: 60 });
+                          } catch {}
+                          showToast('🎉 ¡Sello de consumo registrado exitosamente!');
+                        }}
+                        className="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition-all cursor-pointer"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Sumar Sello de esta Visita (+1)</span>
+                      </button>
+                    ) : (
+                      <div className="py-2 text-center text-xs font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-500/40 rounded-xl flex items-center justify-center gap-1.5">
+                        <Check className="w-4 h-4" />
+                        <span>Sello de esta visita ya registrado</span>
+                      </div>
+                    )}
+
+                    <a
+                      href={`https://wa.me/?text=${encodeURIComponent(
+                        `¡Hola! Soy socio del Club de Fidelidad en *${config.nombre}* 🍽️✨.\n` +
+                          `Tengo *${clubSocioConsultado.sellos % 10} / 10 sellos* acumulados en mi tarjeta virtual (DNI: ${clubSocioConsultado.dni}).\n` +
+                          (clubSocioConsultado.sellos >= 10
+                            ? `🎁 ¡Ya tengo 10 sellos y gané mi plato o postre gratis de cortesía!\n`
+                            : `¡A los 10 sellos te dan un regalito de cortesía!\n`) +
+                          `Mira el menú y pide tu reserva aquí: ${window.location.origin}${window.location.pathname}`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 font-bold text-xs flex items-center justify-center gap-1.5 border border-slate-700 active:scale-95 transition-all"
+                    >
+                      <Share2 className="w-3.5 h-3.5" />
+                      <span>Compartir mis Sellos por WhatsApp</span>
+                    </a>
+                  </div>
                 </div>
-                <p className="text-[10px] text-sky-300 mt-2">
-                  ¡Tienes <b>4 sellos acumulados</b>! Completa 10 sellos y reclama un plato tradicional de cortesía.
-                </p>
-              </div>
+              )}
+
+              {/* Caso 2: DNI consultado pero NO encontrado -> Formulario de Registro Rápido */}
+              {!clubSocioConsultado && clubBusquedaRealizada && (
+                <div className="my-2 p-4 bg-slate-900/90 border border-amber-500/40 rounded-2xl text-left space-y-3">
+                  <div className="text-center">
+                    <span className="text-2xl block mb-1">🏺</span>
+                    <h4 className="text-xs font-black text-amber-300 uppercase">
+                      DNI {clubDniInput} no registrado en el Club
+                    </h4>
+                    <p className="text-[11px] text-slate-300 mt-1">
+                      ¡Regístrate ahora gratis para acumular sellos en cada visita y ganar tu regalito a los 10 sellos!
+                    </p>
+                  </div>
+
+                  <div className="space-y-2 text-xs">
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 block mb-1">
+                        Nombre Completo:
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Ej. Carlos Mendoza"
+                        value={clubRegNombre || ventaCompletada?.cliente || clienteNombre || ''}
+                        onChange={(e) => setClubRegNombre(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none focus:border-amber-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 block mb-1">
+                        WhatsApp de Contacto:
+                      </label>
+                      <input
+                        type="tel"
+                        placeholder="+51 987654321"
+                        value={clubRegTelefono}
+                        onChange={(e) => setClubRegTelefono(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none focus:border-amber-400"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const nombreFinal =
+                          clubRegNombre.trim() ||
+                          ventaCompletada?.cliente ||
+                          clienteNombre ||
+                          `Socio DNI ${clubDniInput}`;
+                        const socioCreado = storage.addSelloSocio(
+                          clubDniInput.trim(),
+                          nombreFinal,
+                          clubRegTelefono.trim()
+                        );
+                        setClubSocioConsultado(socioCreado);
+                        setSelloAgregadoEnSesion(true);
+                        try {
+                          confetti({ particleCount: 80, spread: 70 });
+                        } catch {}
+                        showToast('🎉 ¡Bienvenido al Club! Te dimos tu primer sello.');
+                      }}
+                      className="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow active:scale-95 transition-all cursor-pointer"
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      <span>Unirme al Club y Obtener mi Primer Sello</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Si todavía no buscó ningún DNI */}
+              {!clubBusquedaRealizada && (
+                <div className="my-3 p-4 bg-slate-900/60 border border-slate-800 rounded-2xl text-center space-y-2">
+                  <div className="w-12 h-12 mx-auto rounded-full bg-amber-500/20 border border-amber-400 flex items-center justify-center text-xl">
+                    ⭐
+                  </div>
+                  <h4 className="text-xs font-black text-white uppercase font-latina-luxury">
+                    ¿Cómo funciona el Club de Fidelidad?
+                  </h4>
+                  <p className="text-[11px] text-slate-300 leading-relaxed">
+                    Por cada visita y consumo en <b>{config.nombre}</b> recibes <b>1 sello virtual</b>. Al completar <b>10 sellos</b> recibes un <b>regalito de cortesía</b> (plato de fondo o postre tradicional). Ingresa tu DNI arriba para consultar tu tarjeta.
+                  </p>
+                </div>
+              )}
 
               <button
                 type="button"
                 onClick={() => setShowClubSellosModal(false)}
-                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black text-xs cursor-pointer active:scale-95 shadow"
+                className="mt-2 w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold text-xs cursor-pointer active:scale-95 transition-all"
               >
                 Cerrar
               </button>
@@ -1074,7 +1323,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                       metodoPagoAdelanto: reservaForm.pagoConfirmado ? reservaForm.metodoPagoAdelanto : undefined,
                       notas: reservaForm.notas,
                       fechaCreacion: new Date().toISOString(),
-                    });
+                    }, true);
                     setReservaExito(true);
                   }}
                   className="my-3 space-y-3 text-xs"
