@@ -14,6 +14,7 @@ import {
   ConfigRestaurante,
   MesaStatus,
 } from '../types';
+import { CHUSPA_TECH_LOGO } from '../constants/chuspaLogo';
 
 const STORAGE_KEYS = {
   CONFIG: 'cusq_config',
@@ -53,19 +54,19 @@ export const DEFAULT_USUARIOS_SISTEMA: UsuarioSistema[] = [
 ];
 
 export const DEFAULT_CONFIG: ConfigRestaurante = {
-  nombre: 'La Cusqueñita',
-  eslogan: 'Tradición Andina • Cusco Gourmet',
-  logo: '🍽️',
-  whatsapp: '51969773064',
-  yapePhone: '+51 987 654 321',
-  titular: 'INKA BISTRO CUSCO E.I.R.L.',
+  nombre: 'La Chuspa Tech',
+  eslogan: 'Plataforma Gastronómica Cloud • Soluciones Digitales',
+  logo: CHUSPA_TECH_LOGO,
+  whatsapp: '969773064',
+  yapePhone: '+51 969 773 064',
+  titular: 'LA CHUSPA TECH S.A.C.',
   ruc: '20601234567',
-  direccion: 'Calle Pumapaccha 290, San Blas, Cusco',
+  direccion: 'Av. El Sol 450, Cusco',
   exchangeRateUSD: 3.75,
-  facebook: 'https://facebook.com/lacusquenita',
-  instagram: 'https://instagram.com/lacusquenita',
-  tiktok: 'https://tiktok.com/@lacusquenita',
-  googleBusinessUrl: 'https://search.google.com/local/writereview?placeid=ChIJlacusquenita-cusco-peru',
+  facebook: 'https://facebook.com/lachuspatech',
+  instagram: 'https://instagram.com/lachuspatech',
+  tiktok: 'https://tiktok.com/@lachuspatech',
+  googleBusinessUrl: 'https://search.google.com/local/writereview?placeid=ChIJlachuspatech-cusco',
 };
 
 export const DEFAULT_PRODUCTOS: Producto[] = [
@@ -734,8 +735,36 @@ class StorageService {
   }
 
   private initDefaults() {
-    if (!localStorage.getItem(STORAGE_KEYS.CONFIG)) {
+    const currentConfigRaw = localStorage.getItem(STORAGE_KEYS.CONFIG);
+    if (!currentConfigRaw) {
       localStorage.setItem(STORAGE_KEYS.CONFIG, JSON.stringify(DEFAULT_CONFIG));
+    } else {
+      try {
+        const parsed = JSON.parse(currentConfigRaw);
+        if (
+          parsed.nombre === 'La Cusqueñita' ||
+          parsed.logo === '🍽️' ||
+          !parsed.logo ||
+          parsed.whatsapp === '51969773064' ||
+          parsed.whatsapp === '51984123456'
+        ) {
+          const updated: ConfigRestaurante = {
+            ...DEFAULT_CONFIG,
+            ...parsed,
+            nombre: parsed.nombre === 'La Cusqueñita' ? 'La Chuspa Tech' : (parsed.nombre || 'La Chuspa Tech'),
+            logo: (parsed.logo === '🍽️' || !parsed.logo || parsed.nombre === 'La Cusqueñita') ? CHUSPA_TECH_LOGO : parsed.logo,
+            whatsapp: '969773064',
+            yapePhone: '+51 969 773 064',
+            titular: (parsed.titular === 'INKA BISTRO CUSCO E.I.R.L.' || !parsed.titular) ? 'LA CHUSPA TECH S.A.C.' : parsed.titular,
+            eslogan: (parsed.eslogan === 'Tradición Andina • Cusco Gourmet' || !parsed.eslogan) ? 'Plataforma Gastronómica Cloud • Soluciones Digitales' : parsed.eslogan,
+            facebook: (parsed.facebook?.includes('lacusquenita') || !parsed.facebook) ? 'https://facebook.com/lachuspatech' : parsed.facebook,
+            instagram: (parsed.instagram?.includes('lacusquenita') || !parsed.instagram) ? 'https://instagram.com/lachuspatech' : parsed.instagram,
+            tiktok: (parsed.tiktok?.includes('lacusquenita') || !parsed.tiktok) ? 'https://tiktok.com/@lachuspatech' : parsed.tiktok,
+            googleBusinessUrl: (parsed.googleBusinessUrl?.includes('lacusquenita') || !parsed.googleBusinessUrl) ? 'https://search.google.com/local/writereview?placeid=ChIJlachuspatech-cusco' : parsed.googleBusinessUrl,
+          };
+          localStorage.setItem(STORAGE_KEYS.CONFIG, JSON.stringify(updated));
+        }
+      } catch {}
     }
     if (!localStorage.getItem(STORAGE_KEYS.PRODUCTOS)) {
       localStorage.setItem(STORAGE_KEYS.PRODUCTOS, JSON.stringify(DEFAULT_PRODUCTOS));
@@ -823,6 +852,12 @@ class StorageService {
   public saveConfig(config: ConfigRestaurante) {
     localStorage.setItem(STORAGE_KEYS.CONFIG, JSON.stringify(config));
     this.notify();
+  }
+
+  public resetConfigToDefaults(): ConfigRestaurante {
+    localStorage.setItem(STORAGE_KEYS.CONFIG, JSON.stringify(DEFAULT_CONFIG));
+    this.notify();
+    return DEFAULT_CONFIG;
   }
 
   // --- PRODUCTOS ---

@@ -1887,7 +1887,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                   (Number(mesaReservaBloqueadaModal.montoAdelanto || 0) * 2);
                 const adelanto = Number(mesaReservaBloqueadaModal.montoAdelanto || 0);
                 const saldo50 = Math.max(0, totalPedidos - adelanto);
-                const googleUrl = config.googleBusinessUrl || 'https://search.google.com/local/writereview?placeid=ChIJlacusquenita-cusco-peru';
+                const googleUrl = config.googleBusinessUrl || 'https://search.google.com/local/writereview?placeid=ChIJlachuspatech-cusco';
                 const dishesText = (mesaReservaBloqueadaModal.itemsPedidos && mesaReservaBloqueadaModal.itemsPedidos.length > 0)
                   ? mesaReservaBloqueadaModal.itemsPedidos.map(i => `${i.cantidad}x ${i.nombre}`).join(', ')
                   : (mesaReservaBloqueadaModal.platosPreseleccionados || []).join(', ');
@@ -3971,7 +3971,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                             `Ha sido un honor brindarte nuestra experiencia culinaria cusqueña.\n` +
                             `Tu opinión es de gran valor para nuestro equipo y nos ayuda a seguir mejorando cada día.\n\n` +
                             `⭐ *¿Nos dejarías tu reseña y calificación en Google Business?* Puedes hacerlo rápidamente pulsando aquí:\n` +
-                            `${config.googleBusinessUrl || 'https://search.google.com/local/writereview?placeid=ChIJlacusquenita-cusco-peru'}\n\n` +
+                            `${config.googleBusinessUrl || 'https://search.google.com/local/writereview?placeid=ChIJlachuspatech-cusco'}\n\n` +
                             `¡Gracias por tu preferencia y esperamos recibirte pronto de nuevo!`
                           )}`}
                           target="_blank"
@@ -4228,16 +4228,37 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                   </div>
                 </div>
 
-                <button
-                  className="btn btn-save"
-                  style={{ marginTop: '16px', width: '100%' }}
-                  onClick={() => {
-                    storage.saveConfig(identidadForm);
-                    alert('✔ Identidad del restaurante, redes y enlace de Google Business guardados con éxito.');
-                  }}
-                >
-                  <i className="fa-solid fa-floppy-disk"></i> Guardar Identidad, Logo & Redes
-                </button>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '16px' }}>
+                  <button
+                    className="btn btn-save"
+                    onClick={() => {
+                      storage.saveConfig(identidadForm);
+                      alert('✔ Identidad del restaurante, redes y enlace de Google Business guardados con éxito.');
+                    }}
+                  >
+                    <i className="fa-solid fa-floppy-disk"></i> Guardar Identidad & Redes
+                  </button>
+                  <button
+                    type="button"
+                    className="btn"
+                    style={{
+                      background: 'rgba(245, 158, 11, 0.15)',
+                      border: '1px solid rgba(245, 158, 11, 0.5)',
+                      color: '#fbbf24',
+                      fontWeight: 800,
+                      fontSize: '12px',
+                    }}
+                    onClick={() => {
+                      if (window.confirm('¿Deseas restablecer la identidad oficial de La Chuspa Tech (WhatsApp: 969773064 y logo oficial)?')) {
+                        const def = storage.resetConfigToDefaults();
+                        setIdentidadForm(def);
+                        alert('✔ Configuración restablecida a La Chuspa Tech (WhatsApp: 969773064).');
+                      }
+                    }}
+                  >
+                    <i className="fa-solid fa-rotate-left"></i> Restablecer a La Chuspa Tech
+                  </button>
+                </div>
               </div>
             </section>
           )}

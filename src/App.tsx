@@ -56,7 +56,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
         <div className="min-h-screen bg-[#050d1a] text-slate-100 flex flex-col items-center justify-center p-6 text-center">
           <div className="max-w-md w-full bg-[#09152b] border border-amber-500/40 rounded-2xl p-6 shadow-2xl">
             <span className="text-4xl mb-3 block">🍽️</span>
-            <h1 className="text-xl font-black text-amber-400 mb-2">La Cusqueñita Restaurante</h1>
+            <h1 className="text-xl font-black text-amber-400 mb-2">La Chuspa Tech</h1>
             <p className="text-xs text-slate-300 mb-4">
               Se detectó un problema al inicializar la vista. Puedes reiniciar los datos locales de prueba para continuar.
             </p>

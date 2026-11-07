@@ -749,7 +749,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                   setResenaEnviada(true);
 
                   // Abrir en segundo plano la reseña de Google Business del negocio
-                  const googleUrl = config.googleBusinessUrl || 'https://search.google.com/local/writereview?placeid=ChIJlacusquenita-cusco-peru';
+                  const googleUrl = config.googleBusinessUrl || 'https://search.google.com/local/writereview?placeid=ChIJlachuspatech-cusco';
                   try {
                     window.open(googleUrl, '_blank');
                   } catch {}
@@ -784,7 +784,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
             ¡Tu calificación en Google nos ayuda a seguir compartiendo la auténtica tradición cusqueña con nuevos visitantes!
           </p>
           <a
-            href={config.googleBusinessUrl || 'https://search.google.com/local/writereview?placeid=ChIJlacusquenita-cusco-peru'}
+            href={config.googleBusinessUrl || 'https://search.google.com/local/writereview?placeid=ChIJlachuspatech-cusco'}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg cursor-pointer active:scale-95 transition-all"

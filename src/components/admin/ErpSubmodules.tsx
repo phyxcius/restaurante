@@ -1798,7 +1798,7 @@ export const ErpSubmodules: React.FC<ErpSubmodulesProps> = ({ moduleId, onSelect
         Módulo Operativo Activo: {moduleId.toUpperCase().replace(/_/g, ' ')}
       </h3>
       <p className="text-xs text-slate-400 max-w-md">
-        Submódulo enlazado y sincronizado correctamente con el núcleo contable y la base de datos de La Cusqueñita.
+        Submódulo enlazado y sincronizado correctamente con el núcleo contable y la base de datos de La Chuspa Tech.
       </p>
       <button
         onClick={() => alert(`✔ Operación registrada correctamente para ${moduleId}.`)}
