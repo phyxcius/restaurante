@@ -29,7 +29,7 @@ import {
 } from 'lucide-react';
 import { Producto, CartItem, Language, Comanda, ConfigRestaurante, ReservaItemPedido, Socio } from '../../types';
 import { storage } from '../../services/storage';
-import { consultarDNI } from '../../services/sunatApi';
+import { consultarDNI, consultarRUC } from '../../services/sunatApi';
 import { MENU_TRANSLATIONS } from './menuTranslations';
 import { CHUSPA_TECH_LOGO } from '../../constants/chuspaLogo';
 import { DishCatalogPickerModal } from '../reservas/DishCatalogPickerModal';
@@ -105,6 +105,19 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
   const [efectivoEntregado, setEfectivoEntregado] = useState<string>('');
   const [isSearchingDni, setIsSearchingDni] = useState<boolean>(false);
   const [socioEncontrado, setSocioEncontrado] = useState<string | null>(null);
+  const [tipoComprobanteCliente, setTipoComprobanteCliente] = useState<'Boleta' | 'Factura' | 'Nota de Venta'>(() => {
+    if (config.habilitarComprobantesFiscales === false) return 'Nota de Venta';
+    if (config.habilitarDniCliente !== false) return 'Boleta';
+    if (config.habilitarRucCliente !== false) return 'Factura';
+    return 'Nota de Venta';
+  });
+  const [clienteRuc, setClienteRuc] = useState<string>('');
+  const [clienteRazonSocial, setClienteRazonSocial] = useState<string>('');
+  const [clienteDireccionFiscal, setClienteDireccionFiscal] = useState<string>('');
+  const [isSearchingRuc, setIsSearchingRuc] = useState<boolean>(false);
+  const [dniValidadoError, setDniValidadoError] = useState<string | null>(null);
+  const [rucValidadoError, setRucValidadoError] = useState<string | null>(null);
+  const [docValidadoOk, setDocValidadoOk] = useState<boolean>(false);
 
   // Active tracking & lifecycle
   const [activeOrder, setActiveOrder] = useState<Comanda | null>(null);
@@ -451,28 +464,65 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
   const cashNum = parseFloat(efectivoEntregado) || 0;
   const vuelto = cashNum >= cartTotalPEN ? cashNum - cartTotalPEN : 0;
 
-  // Search socio by DNI
+  // Search socio / validate DNI via real RENIEC API
   const handleBuscarSocio = async () => {
-    if (!clienteDni || clienteDni.trim().length !== 8) {
-      alert('Ingresa un DNI de 8 dígitos para consultar.');
+    const cleanDni = clienteDni.trim();
+    if (!/^\d{8}$/.test(cleanDni)) {
+      setDniValidadoError('Ingresa un DNI válido de exactamente 8 dígitos para consultar en RENIEC.');
+      setSocioEncontrado(null);
+      setDocValidadoOk(false);
       return;
     }
     setIsSearchingDni(true);
+    setDniValidadoError(null);
+    setSocioEncontrado(null);
+    setDocValidadoOk(false);
     try {
-      const res = await consultarDNI(clienteDni);
+      const res = await consultarDNI(cleanDni);
       if (res.success && res.nombres_completos) {
         setClienteNombre(res.nombres_completos);
-        const socio = storage.getSocioByDni(clienteDni);
+        setDocValidadoOk(true);
+        const socio = storage.getSocioByDni(cleanDni);
         if (socio) {
-          setSocioEncontrado(`¡Socio Encontrado! ${socio.sellos} sellos acumulados.`);
+          setSocioEncontrado(`RENIEC validado • Socio del Club (${socio.sellos} sellos)`);
         } else {
-          setSocioEncontrado('Cliente verificado en RENIEC.');
+          setSocioEncontrado('Identidad validada en tiempo real vía RENIEC.');
         }
+      } else {
+        setDniValidadoError(res.message || 'No se pudo validar el DNI en RENIEC. Verifica el número o la configuración de API.');
       }
     } catch {
-      // Ignored
+      setDniValidadoError('Error de conexión al consultar RENIEC.');
     } finally {
       setIsSearchingDni(false);
+    }
+  };
+
+  // Validate RUC via real SUNAT API
+  const handleBuscarRuc = async () => {
+    const cleanRuc = clienteRuc.trim();
+    if (!/^\d{11}$/.test(cleanRuc)) {
+      setRucValidadoError('Ingresa un RUC válido de exactamente 11 dígitos para consultar en SUNAT.');
+      setDocValidadoOk(false);
+      return;
+    }
+    setIsSearchingRuc(true);
+    setRucValidadoError(null);
+    setDocValidadoOk(false);
+    try {
+      const res = await consultarRUC(cleanRuc);
+      if (res.success && res.razon_social) {
+        setClienteRazonSocial(res.razon_social);
+        setClienteDireccionFiscal(res.direccion || '');
+        if (!clienteNombre.trim()) setClienteNombre(res.razon_social);
+        setDocValidadoOk(true);
+      } else {
+        setRucValidadoError(res.message || 'No se pudo validar el RUC en SUNAT.');
+      }
+    } catch {
+      setRucValidadoError('Error de conexión al consultar SUNAT.');
+    } finally {
+      setIsSearchingRuc(false);
     }
   };
 
@@ -481,6 +531,32 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
     if (cart.length === 0) {
       alert(t.cartEmpty);
       return;
+    }
+
+    const fiscalEnabled = config.habilitarComprobantesFiscales !== false;
+    const dniEnabled = config.habilitarDniCliente !== false;
+    const rucEnabled = config.habilitarRucCliente !== false;
+    const strictValidation = config.exigirValidacionReniecSunat !== false;
+
+    let tipoComprobanteFinal: 'Boleta' | 'Factura' | 'Nota de Venta' = tipoComprobanteCliente;
+    if (!fiscalEnabled || (!dniEnabled && !rucEnabled)) {
+      tipoComprobanteFinal = 'Nota de Venta';
+    } else if (tipoComprobanteFinal === 'Boleta' && !dniEnabled) {
+      tipoComprobanteFinal = rucEnabled ? 'Factura' : 'Nota de Venta';
+    } else if (tipoComprobanteFinal === 'Factura' && !rucEnabled) {
+      tipoComprobanteFinal = dniEnabled ? 'Boleta' : 'Nota de Venta';
+    }
+
+    if (fiscalEnabled && strictValidation) {
+      if (tipoComprobanteFinal === 'Factura') {
+        if (!/^\d{11}$/.test(clienteRuc.trim()) || !docValidadoOk || !clienteRazonSocial.trim()) {
+          setRucValidadoError('Para solicitar Factura debes ingresar y validar un RUC de 11 dígitos ante SUNAT.');
+          return;
+        }
+      } else if (tipoComprobanteFinal === 'Boleta' && clienteDni.trim().length > 0 && !docValidadoOk) {
+        setDniValidadoError('Pulsa "Validar DNI" ante RENIEC antes de enviar el pedido con Boleta, o elige "Nota / Sin Doc".');
+        return;
+      }
     }
 
     const orderId = `ORD-${Date.now().toString().slice(-6)}`;
@@ -492,8 +568,15 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
       id: orderId,
       numero: `CMD-${Date.now().toString().slice(-5)}`,
       mesa: selectedMesa,
-      cliente: clienteNombre.trim() || 'Cliente Salón',
-      dni: clienteDni.trim() || undefined,
+      cliente:
+        tipoComprobanteFinal === 'Factura'
+          ? clienteRazonSocial.trim() || clienteNombre.trim() || 'Cliente Empresa'
+          : clienteNombre.trim() || 'Cliente Salón',
+      dni: tipoComprobanteFinal === 'Boleta' ? clienteDni.trim() || undefined : undefined,
+      ruc: tipoComprobanteFinal === 'Factura' ? clienteRuc.trim() || undefined : undefined,
+      razonSocial: tipoComprobanteFinal === 'Factura' ? clienteRazonSocial.trim() || undefined : undefined,
+      direccionFiscal: tipoComprobanteFinal === 'Factura' ? clienteDireccionFiscal.trim() || undefined : undefined,
+      validadoReniecSunat: docValidadoOk,
       productos: itemsSummary,
       items: cart.map((i) => ({
         id: i.producto.id,
@@ -507,7 +590,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
       total: cartTotalPEN,
       estado: 'iniciado',
       pago: metodoPago,
-      tipoComprobante: 'Boleta',
+      tipoComprobante: tipoComprobanteFinal,
       fecha: new Date().toISOString().slice(0, 10),
       hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       timestamp: Date.now(),
@@ -1751,7 +1834,10 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
   }
 
   return (
-    <div className="relative w-full max-w-lg mx-auto min-h-[calc(100vh-60px)] bg-[#050d1a] text-slate-100 overflow-hidden flex flex-col select-none">
+    <div
+      className="relative w-full max-w-lg mx-auto min-h-[calc(100vh-60px)] bg-[#050d1a] text-slate-100 overflow-hidden flex flex-col select-none"
+      style={config.themeColors?.bgDark ? { backgroundColor: config.themeColors.bgDark } : undefined}
+    >
       {/* Toast alert: CENTRADO EN LA PARTE DEL MEDIO EXACTAMENTE */}
       {toastMessage && (
         <div className="fixed inset-0 z-[99999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 pointer-events-auto">
@@ -2510,46 +2596,206 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                 )}
               </div>
 
-              {/* Customer Details & Socio Lookup */}
-              <div className="pt-2 border-t border-slate-800 flex flex-col gap-2">
-                <label className="text-[10px] font-black uppercase text-sky-400 tracking-wider">
-                  {t.yourNameOptional}
-                </label>
+              {/* Customer Details & Comprobante/DNI/RUC Lookup (Configurado desde Admin/Dev) */}
+              {(() => {
+                const fiscalEnabled = config.habilitarComprobantesFiscales !== false;
+                const dniEnabled = config.habilitarDniCliente !== false;
+                const rucEnabled = config.habilitarRucCliente !== false;
+                const showDocSection = fiscalEnabled && (dniEnabled || rucEnabled);
 
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    maxLength={8}
-                    placeholder="DNI (8 dígitos) para puntos"
-                    value={clienteDni}
-                    onChange={(e) => setClienteDni(e.target.value)}
-                    className="w-1/2 bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white outline-none focus:border-amber-400"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleBuscarSocio}
-                    disabled={isSearchingDni}
-                    className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5 disabled:opacity-50 shrink-0 cursor-pointer shadow"
-                  >
-                    <Search className="w-3 h-3" />
-                    {isSearchingDni ? '...' : 'Validar DNI'}
-                  </button>
-                </div>
+                if (!showDocSection) {
+                  return (
+                    <div className="pt-2 border-t border-slate-800 flex flex-col gap-2">
+                      <label className="text-[10px] font-black uppercase text-sky-400 tracking-wider">
+                        {t.yourNameOptional}
+                      </label>
+                      <input
+                        type="text"
+                        placeholder={t.yourNameOptional}
+                        value={clienteNombre}
+                        onChange={(e) => setClienteNombre(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400"
+                      />
+                    </div>
+                  );
+                }
 
-                {socioEncontrado && (
-                  <p className="text-[11px] font-extrabold text-emerald-400 flex items-center gap-1 bg-emerald-950/60 p-2 rounded-xl border border-emerald-500/40">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> {socioEncontrado}
-                  </p>
-                )}
+                const activeDocType: 'Boleta' | 'Factura' | 'Nota de Venta' =
+                  tipoComprobanteCliente === 'Factura' && rucEnabled
+                    ? 'Factura'
+                    : tipoComprobanteCliente === 'Boleta' && dniEnabled
+                    ? 'Boleta'
+                    : tipoComprobanteCliente === 'Nota de Venta'
+                    ? 'Nota de Venta'
+                    : dniEnabled
+                    ? 'Boleta'
+                    : 'Factura';
 
-                <input
-                  type="text"
-                  placeholder={t.yourNameOptional}
-                  value={clienteNombre}
-                  onChange={(e) => setClienteNombre(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400"
-                />
-              </div>
+                return (
+                  <div className="pt-2 border-t border-slate-800 flex flex-col gap-2">
+                    <label className="text-[10px] font-black uppercase text-sky-400 tracking-wider">
+                      Comprobante & Datos del Cliente
+                    </label>
+
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {dniEnabled && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setTipoComprobanteCliente('Boleta');
+                            setDocValidadoOk(false);
+                            setDniValidadoError(null);
+                            setRucValidadoError(null);
+                          }}
+                          className={`py-1.5 px-2 rounded-xl text-[11px] font-bold transition-all cursor-pointer ${
+                            activeDocType === 'Boleta'
+                              ? 'bg-amber-500 text-slate-950 border border-amber-300 shadow'
+                              : 'bg-slate-950 text-slate-300 border border-slate-800 hover:text-white'
+                          }`}
+                        >
+                          🧾 Boleta (DNI)
+                        </button>
+                      )}
+                      {rucEnabled && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setTipoComprobanteCliente('Factura');
+                            setDocValidadoOk(false);
+                            setDniValidadoError(null);
+                            setRucValidadoError(null);
+                          }}
+                          className={`py-1.5 px-2 rounded-xl text-[11px] font-bold transition-all cursor-pointer ${
+                            activeDocType === 'Factura'
+                              ? 'bg-amber-500 text-slate-950 border border-amber-300 shadow'
+                              : 'bg-slate-950 text-slate-300 border border-slate-800 hover:text-white'
+                          }`}
+                        >
+                          🏢 Factura (RUC)
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setTipoComprobanteCliente('Nota de Venta');
+                          setDocValidadoOk(false);
+                          setDniValidadoError(null);
+                          setRucValidadoError(null);
+                        }}
+                        className={`py-1.5 px-2 rounded-xl text-[11px] font-bold transition-all cursor-pointer ${
+                          activeDocType === 'Nota de Venta'
+                            ? 'bg-sky-600 text-white border border-sky-400 shadow'
+                            : 'bg-slate-950 text-slate-300 border border-slate-800 hover:text-white'
+                        }`}
+                      >
+                        📄 Nota / Sin Doc
+                      </button>
+                    </div>
+
+                    {activeDocType === 'Boleta' && dniEnabled && (
+                      <>
+                        <div className="flex gap-2">
+                          <input
+                            type="tel"
+                            maxLength={8}
+                            placeholder="DNI (8 dígitos) para RENIEC / Club"
+                            value={clienteDni}
+                            onChange={(e) => {
+                              setClienteDni(e.target.value.replace(/\D/g, ''));
+                              setDocValidadoOk(false);
+                              setSocioEncontrado(null);
+                              setDniValidadoError(null);
+                            }}
+                            className="w-1/2 bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white outline-none focus:border-amber-400"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleBuscarSocio}
+                            disabled={isSearchingDni}
+                            className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5 disabled:opacity-50 shrink-0 cursor-pointer shadow"
+                          >
+                            <Search className="w-3 h-3" />
+                            {isSearchingDni ? 'Consultando...' : 'Validar RENIEC'}
+                          </button>
+                        </div>
+
+                        {socioEncontrado && (
+                          <p className="text-[11px] font-extrabold text-emerald-400 flex items-center gap-1 bg-emerald-950/60 p-2 rounded-xl border border-emerald-500/40">
+                            <CheckCircle2 className="w-3.5 h-3.5 shrink-0" /> {socioEncontrado}
+                          </p>
+                        )}
+                        {dniValidadoError && (
+                          <p className="text-[11px] font-bold text-red-400 bg-red-950/50 p-2 rounded-xl border border-red-500/40">
+                            ⚠️ {dniValidadoError}
+                          </p>
+                        )}
+
+                        <input
+                          type="text"
+                          placeholder={config.exigirValidacionReniecSunat !== false ? 'Se completará automáticamente desde RENIEC' : t.yourNameOptional}
+                          value={clienteNombre}
+                          readOnly={config.exigirValidacionReniecSunat !== false && clienteDni.trim().length > 0}
+                          onChange={(e) => setClienteNombre(e.target.value)}
+                          className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400"
+                        />
+                      </>
+                    )}
+
+                    {activeDocType === 'Factura' && rucEnabled && (
+                      <>
+                        <div className="flex gap-2">
+                          <input
+                            type="tel"
+                            maxLength={11}
+                            placeholder="RUC (11 dígitos) para Factura SUNAT"
+                            value={clienteRuc}
+                            onChange={(e) => {
+                              setClienteRuc(e.target.value.replace(/\D/g, ''));
+                              setDocValidadoOk(false);
+                              setRucValidadoError(null);
+                            }}
+                            className="w-1/2 bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white outline-none focus:border-amber-400"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleBuscarRuc}
+                            disabled={isSearchingRuc}
+                            className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5 disabled:opacity-50 shrink-0 cursor-pointer shadow"
+                          >
+                            <Search className="w-3 h-3" />
+                            {isSearchingRuc ? 'Consultando...' : 'Validar SUNAT'}
+                          </button>
+                        </div>
+
+                        {docValidadoOk && clienteRazonSocial && (
+                          <div className="text-[11px] font-extrabold text-emerald-400 bg-emerald-950/60 p-2 rounded-xl border border-emerald-500/40 space-y-0.5">
+                            <p className="flex items-center gap-1">
+                              <CheckCircle2 className="w-3.5 h-3.5 shrink-0" /> RUC Validado ante SUNAT
+                            </p>
+                            <p className="text-white">{clienteRazonSocial}</p>
+                            {clienteDireccionFiscal && <p className="text-[10px] text-slate-300 font-normal">{clienteDireccionFiscal}</p>}
+                          </div>
+                        )}
+                        {rucValidadoError && (
+                          <p className="text-[11px] font-bold text-red-400 bg-red-950/50 p-2 rounded-xl border border-red-500/40">
+                            ⚠️ {rucValidadoError}
+                          </p>
+                        )}
+                      </>
+                    )}
+
+                    {activeDocType === 'Nota de Venta' && (
+                      <input
+                        type="text"
+                        placeholder={t.yourNameOptional}
+                        value={clienteNombre}
+                        onChange={(e) => setClienteNombre(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400"
+                      />
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* Payment Method Selector */}
               <div>

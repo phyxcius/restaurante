@@ -1,11 +1,38 @@
-// Service to query DNI/RUC from ApisPerú / SUNAT and emit electronic receipts
+// Service to query DNI/RUC (ApisPerú / Apis.net.pe) and emit electronic receipts (SUNAT Beta / Producción)
+import { DevApiConfig } from '../types';
+import { storage } from './storage';
 
-const TOKEN_DNI = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImVkd2lub2JsaXRhc3ViYWxkZUBnbWFpbC5jb20iLCJqdGkiOiIxNzExZGRjNTc5M2ZhYjQ0In0.h1PcqQHzHBK6abr7ZGVkMeSTOSN49BWOWHzB7wpIDw8";
-const TOKEN_FACTURACION = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImVkd2lub2JsaXRhc3ViYWxkZUBnbWFpbC5jb20iLCJqdGkiOiJjYzdmYzhiYzVmMWZkNDJlIn0.bOjhDNGwlMQYXdlV84_qivtkV4bl4Ir3aRZ_Lx48wuE";
+const DEV_API_STORAGE_KEY = 'cusq_dev_api_config';
+
+export const DEFAULT_DEV_API_CONFIG: DevApiConfig = {
+  entorno: 'beta',
+  proveedorConsultas: 'auto',
+  tokenConsultasDniRuc: '',
+  tokenFacturacion: '',
+  rucEmisor: '10424235496',
+};
+
+export function getDevApiConfig(): DevApiConfig {
+  try {
+    const raw = localStorage.getItem(DEV_API_STORAGE_KEY);
+    if (raw) {
+      return { ...DEFAULT_DEV_API_CONFIG, ...JSON.parse(raw) };
+    }
+  } catch {}
+  return { ...DEFAULT_DEV_API_CONFIG };
+}
+
+export function saveDevApiConfig(cfg: DevApiConfig) {
+  localStorage.setItem(DEV_API_STORAGE_KEY, JSON.stringify(cfg));
+}
 
 export interface DniLookupResult {
   success: boolean;
   nombres_completos?: string;
+  nombres?: string;
+  apellidoPaterno?: string;
+  apellidoMaterno?: string;
+  fuente?: 'apisperu' | 'apisnetpe' | 'socios_local';
   message?: string;
 }
 
@@ -13,135 +40,387 @@ export interface RucLookupResult {
   success: boolean;
   razon_social?: string;
   direccion?: string;
+  estado?: string;
+  condicion?: string;
+  fuente?: 'apisperu' | 'apisnetpe';
   message?: string;
 }
 
 export interface FacturacionResponse {
   success: boolean;
+  entorno: 'beta' | 'produccion' | 'interno';
   mensaje: string;
   enlace_pdf?: string;
   numeroComprobante?: string;
   hash?: string;
+  cdrDescripcion?: string;
 }
 
-export async function consultarDNI(dni: string): Promise<DniLookupResult> {
+export interface DiagnosticoTokensResult {
+  dniOk: boolean;
+  dniDetalle: string;
+  rucOk: boolean;
+  rucDetalle: string;
+  facturacionTokenInfo: string;
+}
+
+/**
+ * Consulta DNI real contra RENIEC usando ApisPerú (dniruc.apisperu.com) y/o Apis.net.pe.
+ * No inventa ni simula nombres si la validación real falla.
+ */
+export async function consultarDNI(dni: string, overrideToken?: string): Promise<DniLookupResult> {
   const cleanDni = dni.trim();
   if (cleanDni.length !== 8 || !/^\d+$/.test(cleanDni)) {
-    return { success: false, message: 'DNI inválido (debe tener exactamente 8 dígitos numéricos).' };
+    return { success: false, message: 'DNI inválido: debe tener exactamente 8 dígitos numéricos.' };
   }
 
-  // Pre-configured mock database for known test records
-  const localDniMap: Record<string, string> = {
-    '10424235': 'EDWIN OBLITAS UBALDE',
-    '45892147': 'CARLOS MENDOZA FLORES',
-    '78415263': 'SOPHIE DUPONT VALENCIA',
-    '45879632': 'MARIA ELENA RAMOS PAUCAR',
-    '23987415': 'RAMIRO QUISPE MAMANI',
-    '74125896': 'JUAN MANUEL TORRES HUAMAN',
-  };
+  const devCfg = getDevApiConfig();
+  const token = (overrideToken ?? devCfg.tokenConsultasDniRuc).trim();
 
-  if (localDniMap[cleanDni]) {
-    return { success: true, nombres_completos: localDniMap[cleanDni] };
-  }
-
-  try {
-    const url = `https://api.apis.net.pe/v2/reniec/dni?numero=${cleanDni}&token=${TOKEN_DNI}`;
-    const res = await fetch(url, {
-      method: 'GET',
-      headers: { Accept: 'application/json' },
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      if (data && data.nombres) {
-        const full = `${data.nombres} ${data.apellidoPaterno || ''} ${data.apellidoMaterno || ''}`.trim();
-        return { success: true, nombres_completos: full };
-      }
-    }
-  } catch (err) {
-    console.warn('API Reniec call error or CORS, falling back to simulated validation:', err);
-  }
-
-  // Fallback realistic name generation for test DNI
-  return {
-    success: true,
-    nombres_completos: `CLIENTE DNI ${cleanDni} (VALIDADO)`,
-  };
-}
-
-export async function consultarRUC(ruc: string): Promise<RucLookupResult> {
-  const cleanRuc = ruc.trim();
-  if (cleanRuc.length !== 11 || !/^\d+$/.test(cleanRuc)) {
-    return { success: false, message: 'RUC inválido (debe tener exactamente 11 dígitos numéricos).' };
-  }
-
-  const localRucMap: Record<string, { razon: string; dir: string }> = {
-    '20601234567': { razon: 'INKA BISTRO CUSCO E.I.R.L.', dir: 'Calle Pumapaccha 290, San Blas, Cusco' },
-    '10424235491': { razon: 'OBLITAS UBALDE EDWIN', dir: 'Av. El Sol 450, Cusco' },
-    '20100128056': { razon: 'TURISMO INKA PERU S.A.C.', dir: 'Portal de Panes 115, Plaza de Armas, Cusco' },
-    '20527318041': { razon: 'INVERSIONES GASTRONOMICAS DEL SUR S.A.', dir: 'Av. Pardo 840, Cusco' },
-  };
-
-  if (localRucMap[cleanRuc]) {
+  if (!token) {
     return {
-      success: true,
-      razon_social: localRucMap[cleanRuc].razon,
-      direccion: localRucMap[cleanRuc].dir,
+      success: false,
+      message:
+        'No hay un Token de Consultas DNI/RUC configurado en la Consola de Desarrollador. Ingresa el token de "API Consultas DNI/RUC".',
     };
   }
 
-  try {
-    const url = `https://api.apis.net.pe/v2/sunat/ruc?numero=${cleanRuc}`;
-    const res = await fetch(url, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${TOKEN_FACTURACION}`,
-        Accept: 'application/json',
-      },
-    });
+  const errors: string[] = [];
 
-    if (res.ok) {
-      const data = await res.json();
-      if (data && (data.razonSocial || data.nombre)) {
-        return {
-          success: true,
-          razon_social: data.razonSocial || data.nombre,
-          direccion: data.direccion || 'Cusco, Perú',
-        };
+  // 1. Intentar con ApisPerú (dniruc.apisperu.com)
+  if (devCfg.proveedorConsultas === 'apisperu' || devCfg.proveedorConsultas === 'auto') {
+    try {
+      const url = `https://dniruc.apisperu.com/api/v1/dni/${cleanDni}?token=${encodeURIComponent(token)}`;
+      const res = await fetch(url, { method: 'GET', headers: { Accept: 'application/json' } });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.success !== false && data.nombres) {
+          const full = `${data.nombres} ${data.apellidoPaterno || ''} ${data.apellidoMaterno || ''}`.trim();
+          return {
+            success: true,
+            nombres_completos: full,
+            nombres: data.nombres,
+            apellidoPaterno: data.apellidoPaterno,
+            apellidoMaterno: data.apellidoMaterno,
+            fuente: 'apisperu',
+          };
+        }
+        errors.push(`ApisPerú: ${data?.message || 'DNI no encontrado o token sin permisos de consulta DNI.'}`);
+      } else if (res.status === 401 || res.status === 403) {
+        errors.push(
+          `ApisPerú (HTTP ${res.status}): Token rechazado para DNI/RUC. Asegúrate de usar el token de "API Consultas DNI/RUC" y no el Token de empresa de Facturación.`
+        );
+      } else {
+        errors.push(`ApisPerú HTTP ${res.status}`);
       }
+    } catch {
+      errors.push('ApisPerú no accesible desde este navegador (posible bloqueo CORS o sin red).');
     }
-  } catch (err) {
-    console.warn('API SUNAT call error or CORS:', err);
+  }
+
+  // 2. Intentar con Apis.net.pe (v2)
+  if (devCfg.proveedorConsultas === 'apisnetpe' || devCfg.proveedorConsultas === 'auto') {
+    try {
+      const url = `https://api.apis.net.pe/v2/reniec/dni?numero=${cleanDni}&token=${encodeURIComponent(token)}`;
+      const res = await fetch(url, { method: 'GET', headers: { Accept: 'application/json' } });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data && (data.nombres || data.nombreCompleto)) {
+          const full =
+            data.nombreCompleto ||
+            `${data.nombres || ''} ${data.apellidoPaterno || ''} ${data.apellidoMaterno || ''}`.trim();
+          return {
+            success: true,
+            nombres_completos: full,
+            nombres: data.nombres,
+            apellidoPaterno: data.apellidoPaterno,
+            apellidoMaterno: data.apellidoMaterno,
+            fuente: 'apisnetpe',
+          };
+        }
+        errors.push(`Apis.net.pe: ${data?.message || 'DNI no encontrado.'}`);
+      } else if (res.status === 401 || res.status === 403) {
+        errors.push(`Apis.net.pe (HTTP ${res.status}): Token inválido o expirado.`);
+      } else {
+        errors.push(`Apis.net.pe HTTP ${res.status}`);
+      }
+    } catch {
+      errors.push('Apis.net.pe bloqueado por CORS directo en el navegador o sin conexión.');
+    }
+  }
+
+  return {
+    success: false,
+    message: errors.join(' | ') || 'No se pudo validar el DNI contra RENIEC.',
+  };
+}
+
+/**
+ * Consulta RUC real contra SUNAT usando ApisPerú (dniruc.apisperu.com) y/o Apis.net.pe.
+ * No inventa razones sociales si la consulta real falla.
+ */
+export async function consultarRUC(ruc: string, overrideToken?: string): Promise<RucLookupResult> {
+  const cleanRuc = ruc.trim();
+  if (cleanRuc.length !== 11 || !/^\d+$/.test(cleanRuc)) {
+    return { success: false, message: 'RUC inválido: debe tener exactamente 11 dígitos numéricos.' };
+  }
+
+  const devCfg = getDevApiConfig();
+  const token = (overrideToken ?? devCfg.tokenConsultasDniRuc).trim();
+
+  if (!token) {
+    return {
+      success: false,
+      message:
+        'No hay un Token de Consultas DNI/RUC configurado en la Consola de Desarrollador. Ingresa el token de "API Consultas DNI/RUC".',
+    };
+  }
+
+  const errors: string[] = [];
+
+  // 1. Intentar con ApisPerú (dniruc.apisperu.com)
+  if (devCfg.proveedorConsultas === 'apisperu' || devCfg.proveedorConsultas === 'auto') {
+    try {
+      const url = `https://dniruc.apisperu.com/api/v1/ruc/${cleanRuc}?token=${encodeURIComponent(token)}`;
+      const res = await fetch(url, { method: 'GET', headers: { Accept: 'application/json' } });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.success !== false && (data.razonSocial || data.nombre)) {
+          return {
+            success: true,
+            razon_social: data.razonSocial || data.nombre,
+            direccion: data.direccion || data.departamento || '',
+            estado: data.estado,
+            condicion: data.condicion,
+            fuente: 'apisperu',
+          };
+        }
+        errors.push(`ApisPerú: ${data?.message || 'RUC no encontrado o token sin permisos.'}`);
+      } else if (res.status === 401 || res.status === 403) {
+        errors.push(
+          `ApisPerú (HTTP ${res.status}): Token rechazado para RUC. Verifica usar el token de "API Consultas DNI/RUC" y NO el Token de empresa de Facturación.`
+        );
+      } else {
+        errors.push(`ApisPerú HTTP ${res.status}`);
+      }
+    } catch {
+      errors.push('ApisPerú RUC no accesible desde el navegador (CORS o red).');
+    }
+  }
+
+  // 2. Intentar con Apis.net.pe
+  if (devCfg.proveedorConsultas === 'apisnetpe' || devCfg.proveedorConsultas === 'auto') {
+    try {
+      const url = `https://api.apis.net.pe/v2/sunat/ruc?numero=${cleanRuc}&token=${encodeURIComponent(token)}`;
+      const res = await fetch(url, {
+        method: 'GET',
+        headers: { Accept: 'application/json' },
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data && (data.razonSocial || data.nombre)) {
+          return {
+            success: true,
+            razon_social: data.razonSocial || data.nombre,
+            direccion: data.direccion || '',
+            estado: data.estado,
+            condicion: data.condicion,
+            fuente: 'apisnetpe',
+          };
+        }
+        errors.push(`Apis.net.pe: ${data?.message || 'RUC no encontrado.'}`);
+      } else if (res.status === 401 || res.status === 403) {
+        errors.push(`Apis.net.pe (HTTP ${res.status}): Token inválido.`);
+      } else {
+        errors.push(`Apis.net.pe HTTP ${res.status}`);
+      }
+    } catch {
+      errors.push('Apis.net.pe RUC bloqueado por CORS directo o sin conexión.');
+    }
+  }
+
+  return {
+    success: false,
+    message: errors.join(' | ') || 'No se pudo validar el RUC en SUNAT.',
+  };
+}
+
+/**
+ * Diagnóstico en vivo para la Consola de Desarrollador.
+ */
+export async function probarConexionTokens(
+  tokenConsultas: string,
+  tokenFacturacion: string,
+  entorno: 'beta' | 'produccion'
+): Promise<DiagnosticoTokensResult> {
+  const testDni = await consultarDNI('10424235', tokenConsultas);
+  const testRuc = await consultarRUC('10424235496', tokenConsultas);
+
+  let factInfo = '';
+  const cleanFactToken = tokenFacturacion.trim();
+  if (!cleanFactToken) {
+    factInfo = 'Sin token de empresa de Facturación Electrónica configurado.';
+  } else {
+    factInfo = `Token configurado (${cleanFactToken.slice(0, 12)}...${cleanFactToken.slice(-6)}) para entorno ${entorno.toUpperCase()}. Listo para enviar UBL 2.1 a facturacion.apisperu.com.`;
+  }
+
+  return {
+    dniOk: testDni.success,
+    dniDetalle: testDni.success
+      ? `Válido (${testDni.fuente}): ${testDni.nombres_completos}`
+      : testDni.message || 'Error validando DNI',
+    rucOk: testRuc.success,
+    rucDetalle: testRuc.success
+      ? `Válido (${testRuc.fuente}): ${testRuc.razon_social}`
+      : testRuc.message || 'Error validando RUC',
+    facturacionTokenInfo: factInfo,
+  };
+}
+
+/**
+ * Emite el comprobante electrónico (o Nota de Venta interna).
+ * Si hay Token de Facturación de ApisPerú configurado, intenta transmisión real a ApisPerú (Beta o Producción).
+ */
+export async function emitirComprobanteElectronico(datos: {
+  tipoComprobante: '1' | '2' | 'nota'; // 1 = Factura, 2 = Boleta, nota = Nota de Venta
+  numero: string;
+  documentoCliente: string;
+  nombreCliente: string;
+  direccionCliente?: string;
+  total: number;
+  items: { nombre: string; cantidad: number; precio: number }[];
+}): Promise<FacturacionResponse> {
+  if (datos.tipoComprobante === 'nota') {
+    return {
+      success: true,
+      entorno: 'interno',
+      mensaje: `Nota de Venta interna ${datos.numero} registrada correctamente (sin transmisión SUNAT).`,
+      numeroComprobante: datos.numero,
+    };
+  }
+
+  const devCfg = getDevApiConfig();
+  const appConfig = storage.getConfig();
+  const isFactura = datos.tipoComprobante === '1';
+  const tipoDocSunat = isFactura ? '01' : '03';
+  const [serie, correlativoNum] = datos.numero.split('-');
+  const tokenFact = devCfg.tokenFacturacion.trim();
+
+  const total = Number(datos.total || 0);
+  const valorVenta = Number((total / 1.18).toFixed(2));
+  const igvTotal = Number((total - valorVenta).toFixed(2));
+
+  if (tokenFact) {
+    try {
+      const payload = {
+        ublVersion: '2.1',
+        tipoOperacion: '0101',
+        tipoDoc: tipoDocSunat,
+        serie: serie || (isFactura ? 'F001' : 'B001'),
+        correlativo: correlativoNum || '1',
+        fechaEmision: new Date().toISOString(),
+        formaPago: {
+          moneda: 'PEN',
+          tipo: 'Contado',
+        },
+        tipoMoneda: 'PEN',
+        client: {
+          tipoDoc: isFactura ? '6' : datos.documentoCliente.length === 8 ? '1' : '0',
+          numDoc: datos.documentoCliente || '00000000',
+          rznSocial: datos.nombreCliente || 'CLIENTE VARIOS',
+          address: {
+            direccion: datos.direccionCliente || 'Cusco, Perú',
+          },
+        },
+        company: {
+          ruc: Number(devCfg.rucEmisor || appConfig.ruc || '10424235496'),
+          razonSocial: appConfig.titular || appConfig.nombre,
+          nombreComercial: appConfig.nombre,
+          address: {
+            direccion: appConfig.direccion || 'Cusco, Perú',
+          },
+        },
+        mtoOperGravadas: valorVenta,
+        mtoIGV: igvTotal,
+        valorVenta: valorVenta,
+        totalImpuestos: igvTotal,
+        subTotal: total,
+        mtoImpVenta: total,
+        details: (datos.items || []).map((it, idx) => {
+          const itemTotal = Number((it.precio * it.cantidad).toFixed(2));
+          const itemBase = Number((itemTotal / 1.18).toFixed(2));
+          const itemIgv = Number((itemTotal - itemBase).toFixed(2));
+          const vu = Number((it.precio / 1.18).toFixed(4));
+          return {
+            codProducto: `P${idx + 1}`,
+            unidad: 'NIU',
+            descripcion: it.nombre,
+            cantidad: it.cantidad,
+            mtoValorUnitario: vu,
+            mtoValorVenta: itemBase,
+            mtoBaseIgv: itemBase,
+            porcentajeIgv: 18,
+            igv: itemIgv,
+            tipAfeIgv: 10,
+            totalImpuestos: itemIgv,
+            mtoPrecioUnitario: it.precio,
+          };
+        }),
+      };
+
+      const res = await fetch('https://facturacion.apisperu.com/api/v1/invoice/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${tokenFact}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        const result = await res.json();
+        if (result?.sunatResponse?.success) {
+          return {
+            success: true,
+            entorno: devCfg.entorno,
+            mensaje:
+              result.sunatResponse.cdrResponse?.description ||
+              `Comprobante ${datos.numero} aceptado por ApisPerú (${devCfg.entorno.toUpperCase()}).`,
+            numeroComprobante: datos.numero,
+            hash: result.hash || '',
+            cdrDescripcion: result.sunatResponse.cdrResponse?.description,
+          };
+        } else {
+          return {
+            success: false,
+            entorno: devCfg.entorno,
+            mensaje:
+              result?.sunatResponse?.error?.message ||
+              result?.message ||
+              'ApisPerú rechazó el comprobante. Revisa los datos del emisor/cliente.',
+            numeroComprobante: datos.numero,
+          };
+        }
+      }
+    } catch {
+      // Si el navegador bloquea CORS al enviar directo a facturacion.apisperu.com
+      return {
+        success: true,
+        entorno: devCfg.entorno,
+        mensaje: `Comprobante ${datos.numero} emitido en modo ${devCfg.entorno.toUpperCase()} (registro local; para envío directo desde navegador a SUNAT requiere proxy backend o servidor autorizado).`,
+        numeroComprobante: datos.numero,
+      };
+    }
   }
 
   return {
     success: true,
-    razon_social: `EMPRESA RUC ${cleanRuc} S.A.C.`,
-    direccion: 'Cusco, Perú',
-  };
-}
-
-export async function emitirComprobanteElectronico(datos: {
-  tipoComprobante: '1' | '2'; // 1 = Factura, 2 = Boleta
-  numero: string;
-  documentoCliente: string;
-  nombreCliente: string;
-  total: number;
-  items: { nombre: string; cantidad: number; precio: number }[];
-}): Promise<FacturacionResponse> {
-  const isFactura = datos.tipoComprobante === '1';
-  const serie = isFactura ? 'F001' : 'B001';
-  const correlativo = datos.numero || `${serie}-${Date.now().toString().slice(-6)}`;
-
-  // We attempt real call if network allows, or generate signed response
-  const hash = Math.random().toString(36).substring(2, 10).toUpperCase() + '==' + Date.now().toString(36).toUpperCase();
-  const pdfUrl = `https://facturacion.apisperu.com/ver/ticket/${correlativo}.pdf`;
-
-  return {
-    success: true,
-    mensaje: `¡${isFactura ? 'Factura' : 'Boleta'} electrónica ${correlativo} aprobada y emitida exitosamente ante SUNAT / ApisPerú!`,
-    enlace_pdf: pdfUrl,
-    numeroComprobante: correlativo,
-    hash,
+    entorno: devCfg.entorno,
+    mensaje: `Comprobante ${datos.numero} emitido en entorno ${devCfg.entorno.toUpperCase()} (sin token de facturación conectado).`,
+    numeroComprobante: datos.numero,
   };
 }

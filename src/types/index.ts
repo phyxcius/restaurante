@@ -52,6 +52,10 @@ export interface Comanda {
   mesa: string;
   cliente: string;
   dni?: string;
+  ruc?: string;
+  razonSocial?: string;
+  direccionFiscal?: string;
+  validadoReniecSunat?: boolean;
   productos: string;
   items: OrderItem[];
   totalPEN: number;
@@ -91,6 +95,9 @@ export interface Venta {
   razonSocialCliente?: string;
   cajero: string;
   enlacePdf?: string;
+  entornoSunat?: 'beta' | 'produccion' | 'interno';
+  validadoReniecSunat?: boolean;
+  hashSunat?: string;
 }
 
 export interface Insumo {
@@ -222,6 +229,23 @@ export interface Resena {
   fecha: string;
 }
 
+export interface ThemeColorsConfig {
+  presetName?: string;
+  primary: string;
+  accent: string;
+  gold: string;
+  bgDark: string;
+  cardBg: string;
+}
+
+export interface DevApiConfig {
+  entorno: 'beta' | 'produccion';
+  proveedorConsultas: 'auto' | 'apisperu' | 'apisnetpe';
+  tokenConsultasDniRuc: string;
+  tokenFacturacion: string;
+  rucEmisor?: string;
+}
+
 export interface ConfigRestaurante {
   nombre: string;
   eslogan: string;
@@ -236,6 +260,11 @@ export interface ConfigRestaurante {
   instagram?: string;
   tiktok?: string;
   googleBusinessUrl?: string;
+  habilitarDniCliente?: boolean;
+  habilitarRucCliente?: boolean;
+  habilitarComprobantesFiscales?: boolean;
+  exigirValidacionReniecSunat?: boolean;
+  themeColors?: ThemeColorsConfig;
 }
 
 export interface MesaStatus {

@@ -16,9 +16,19 @@ import {
   MesaStatus,
   UserRole,
   ReservaItemPedido,
+  ThemeColorsConfig,
+  DevApiConfig,
 } from '../../types';
 import { storage, UsuarioSistema } from '../../services/storage';
-import { consultarDNI, consultarRUC, emitirComprobanteElectronico } from '../../services/sunatApi';
+import {
+  consultarDNI,
+  consultarRUC,
+  emitirComprobanteElectronico,
+  getDevApiConfig,
+  saveDevApiConfig,
+  probarConexionTokens,
+  DiagnosticoTokensResult,
+} from '../../services/sunatApi';
 import { ErpSubmodules } from './ErpSubmodules';
 import { ClubSocios } from '../club/ClubSocios';
 import { FacturaTicket } from '../factura/FacturaTicket';
@@ -93,10 +103,37 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
 
   // Vault security locks (Master Password: 42423549)
   const PASSWORD_MAESTRA = '42423549';
-  const [vaultTokenOpen, setVaultTokenOpen] = useState<boolean>(false);
-  const [vaultResetComandasOpen, setVaultResetComandasOpen] = useState<boolean>(false);
-  const [vaultResetReportesOpen, setVaultResetReportesOpen] = useState<boolean>(false);
   const [ghToken, setGhToken] = useState<string>(() => localStorage.getItem('inkabistro_vault_secret_token') || '');
+  const [showGhToken, setShowGhToken] = useState<boolean>(false);
+  const [devConsoleUnlocked, setDevConsoleUnlocked] = useState<boolean>(false);
+  const [devPinInput, setDevPinInput] = useState<string>('');
+  const [devPinError, setDevPinError] = useState<string>('');
+  const [entregaForm, setEntregaForm] = useState<{
+    nombreNegocio: string;
+    whatsapp: string;
+    montoCajaInicial: number;
+    conservarCartaBase: boolean;
+    resetearUsuarios: boolean;
+    habilitarDniCliente: boolean;
+    habilitarRucCliente: boolean;
+    habilitarComprobantesFiscales: boolean;
+  }>({
+    nombreNegocio: 'La Chuspa Tech',
+    whatsapp: '969773064',
+    montoCajaInicial: 0,
+    conservarCartaBase: true,
+    resetearUsuarios: false,
+    habilitarDniCliente: true,
+    habilitarRucCliente: true,
+    habilitarComprobantesFiscales: true,
+  });
+
+  // Developer API SUNAT / RENIEC (ApisPerú Beta / Producción)
+  const [devApiForm, setDevApiForm] = useState<DevApiConfig>(() => getDevApiConfig());
+  const [showDniToken, setShowDniToken] = useState<boolean>(false);
+  const [showFactToken, setShowFactToken] = useState<boolean>(false);
+  const [diagnosticoTokens, setDiagnosticoTokens] = useState<DiagnosticoTokensResult | null>(null);
+  const [isTestingTokens, setIsTestingTokens] = useState<boolean>(false);
 
   // Centered Alert Modal
   const [alertOverlay, setAlertOverlay] = useState<{
@@ -136,10 +173,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
 
   // Cobro Modal
   const [comandaCobrando, setComandaCobrando] = useState<Comanda | null>(null);
-  const [cobroTipo, setCobroTipo] = useState<'Boleta' | 'Factura'>('Boleta');
+  const [cobroTipo, setCobroTipo] = useState<'Boleta' | 'Factura' | 'Nota de Venta'>('Boleta');
   const [cobroMetodo, setCobroMetodo] = useState<string>('Efectivo');
   const [cobroRuc, setCobroRuc] = useState<string>('');
   const [cobroRazon, setCobroRazon] = useState<string>('');
+  const [docCobroValidado, setDocCobroValidado] = useState<boolean>(false);
+  const [cobroErrorMsg, setCobroErrorMsg] = useState<string>('');
+  const [isConsultandoCobro, setIsConsultandoCobro] = useState<boolean>(false);
 
   // QR Mesas
   const [qrMesaSeleccionada, setQrMesaSeleccionada] = useState<string>('Mesa 01');
@@ -280,9 +320,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
     }
 
     if (target) {
-      setComandaCobrando(target);
-      setCobroRuc(target.dni || '');
-      setCobroRazon(target.cliente || '');
+      handleOpenCobro(target);
       if (solicitud.metodo) setCobroMetodo(solicitud.metodo);
       setCurrentSection('comandas');
     } else {
@@ -401,18 +439,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
     if (window.innerWidth <= 860) setIsMobileMenuOpen(false);
   };
 
-  // Vault verification helper
-  const verificarVault = (tipo: 'token' | 'resetComandas' | 'resetReportes') => {
-    const inputPass = prompt('🔐 Ingresa la clave maestra del Vault:');
-    if (inputPass === PASSWORD_MAESTRA || inputPass === 'regocijo123') {
-      if (tipo === 'token') setVaultTokenOpen(!vaultTokenOpen);
-      if (tipo === 'resetComandas') setVaultResetComandasOpen(!vaultResetComandasOpen);
-      if (tipo === 'resetReportes') setVaultResetReportesOpen(!vaultResetReportesOpen);
-    } else if (inputPass !== null) {
-      alert('⛔ Contraseña incorrecta.');
-    }
-  };
-
   // Filtered comandas list for KDS
   const comandasFiltradas = comandas.filter((c) => {
     // Fecha filtro
@@ -448,24 +474,75 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
   // Cobro handling
   const handleOpenCobro = (cmd: Comanda) => {
     setComandaCobrando(cmd);
-    setCobroRuc(cmd.dni || '');
-    setCobroRazon(cmd.cliente || '');
+    const fiscalEnabled = identidadForm.habilitarComprobantesFiscales !== false;
+    let tipoInicial: 'Boleta' | 'Factura' | 'Nota de Venta' = 'Boleta';
+
+    if (!fiscalEnabled || cmd.tipoComprobante === 'Nota de Venta') {
+      tipoInicial = 'Nota de Venta';
+    } else if (cmd.tipoComprobante === 'Factura') {
+      tipoInicial = 'Factura';
+    } else {
+      tipoInicial = 'Boleta';
+    }
+
+    setCobroTipo(tipoInicial);
+    if (tipoInicial === 'Factura') {
+      setCobroRuc(cmd.ruc || '');
+      setCobroRazon(cmd.razonSocial || cmd.cliente || '');
+    } else if (tipoInicial === 'Boleta') {
+      setCobroRuc(cmd.dni || '');
+      setCobroRazon(cmd.validadoReniecSunat ? cmd.cliente || '' : '');
+    } else {
+      setCobroRuc('');
+      setCobroRazon(cmd.cliente || 'Cliente General');
+    }
+    setDocCobroValidado(!!cmd.validadoReniecSunat);
+    setCobroErrorMsg('');
   };
 
   const handleConfirmarCobro = async () => {
     if (!comandaCobrando) return;
+
+    const exigirValidacion = identidadForm.exigirValidacionReniecSunat !== false;
+    const docLimpio = cobroRuc.trim();
+    const nombreLimpio = cobroRazon.trim();
+
+    // Validación estricta para emisión fiscal vinculada a RENIEC / SUNAT
+    if (cobroTipo !== 'Nota de Venta' && exigirValidacion) {
+      if (cobroTipo === 'Factura') {
+        if (!/^\d{11}$/.test(docLimpio)) {
+          setCobroErrorMsg('Para emitir Factura debes ingresar un RUC válido de 11 dígitos.');
+          return;
+        }
+        if (!docCobroValidado || !nombreLimpio) {
+          setCobroErrorMsg('Pulsa "Consultar" para validar el RUC ante SUNAT antes de emitir la Factura.');
+          return;
+        }
+      } else if (cobroTipo === 'Boleta') {
+        if (!/^\d{8}$/.test(docLimpio)) {
+          setCobroErrorMsg('Para emitir Boleta debes ingresar y validar un DNI de 8 dígitos en RENIEC, o cambia el comprobante a "Nota de Venta".');
+          return;
+        }
+        if (!docCobroValidado || !nombreLimpio) {
+          setCobroErrorMsg('Pulsa "Consultar" para validar el DNI en RENIEC antes de emitir la Boleta. No se permite imprimir Boleta con nombres arbitrarios sin validar.');
+          return;
+        }
+      }
+    }
+
     try {
       const numero = storage.getNextCorrelativo(cobroTipo);
       const total = comandaCobrando.totalPEN || comandaCobrando.total || 0;
-      const base = Number((total / 1.18).toFixed(2));
-      const igv = Number((total - base).toFixed(2));
+      const base = cobroTipo === 'Nota de Venta' ? total : Number((total / 1.18).toFixed(2));
+      const igv = cobroTipo === 'Nota de Venta' ? 0 : Number((total - base).toFixed(2));
 
-      // Emit electronic invoice
+      // Emit electronic invoice or internal ticket
       const resFactura = await emitirComprobanteElectronico({
-        tipoComprobante: cobroTipo === 'Factura' ? '1' : '2',
+        tipoComprobante: cobroTipo === 'Nota de Venta' ? 'nota' : cobroTipo === 'Factura' ? '1' : '2',
         numero,
-        documentoCliente: cobroRuc.trim() || '00000000',
-        nombreCliente: cobroRazon.trim() || comandaCobrando.cliente,
+        documentoCliente: cobroTipo === 'Nota de Venta' ? '' : docLimpio,
+        nombreCliente: nombreLimpio || comandaCobrando.cliente || 'CLIENTE GENERAL',
+        direccionCliente: comandaCobrando.direccionFiscal,
         total,
         items: comandaCobrando.items || [],
       });
@@ -476,7 +553,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
         serie: numero.split('-')[0],
         fecha: `${new Date().toLocaleDateString('es-PE')} ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
         mesa: comandaCobrando.mesa,
-        cliente: cobroRazon.trim() || comandaCobrando.cliente,
+        cliente: nombreLimpio || comandaCobrando.cliente,
         productos: comandaCobrando.productos,
         items: comandaCobrando.items,
         baseImponible: base,
@@ -484,10 +561,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
         totalPEN: total,
         pago: cobroMetodo,
         tipoComprobante: cobroTipo,
-        rucCliente: cobroRuc.trim(),
-        razonSocialCliente: cobroRazon.trim(),
+        rucCliente: cobroTipo === 'Nota de Venta' ? '' : docLimpio,
+        razonSocialCliente: nombreLimpio || comandaCobrando.cliente,
         cajero: `${operatorName} (${shift})`,
         enlacePdf: resFactura.enlace_pdf,
+        entornoSunat: resFactura.entorno,
+        validadoReniecSunat: cobroTipo === 'Nota de Venta' ? false : docCobroValidado,
+        hashSunat: resFactura.hash,
       };
 
       storage.saveVenta(venta);
@@ -499,12 +579,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
         localStorage.setItem(mesaKey, JSON.stringify(venta));
       } catch {}
 
-      if (cobroRuc.trim().length >= 8) {
-        storage.addSelloSocio(cobroRuc.trim());
+      if (docLimpio.length === 8) {
+        storage.addSelloSocio(docLimpio, nombreLimpio || undefined);
       }
 
       setComandaCobrando(null);
-      alert(`✔ Venta cobrada con éxito: ${cobroTipo} N° ${numero}`);
+      alert(`✔ Cobro registrado con éxito: ${cobroTipo} N° ${numero}\n${resFactura.mensaje || ''}`);
       setCurrentSection('factura');
       if (onNavigateToFactura) onNavigateToFactura();
     } catch {
@@ -1028,6 +1108,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                 <button className="usqay-dropdown-item" onClick={() => handleNavClick('metodos_pago')}>Métodos de Pago</button>
                 <button className="usqay-dropdown-item" onClick={() => handleNavClick('usuarios')}>Usuarios y Roles</button>
                 <button className="usqay-dropdown-item" onClick={() => handleNavClick('mesas')}>Mesas y Códigos QR</button>
+                <div className="usqay-dropdown-divider"></div>
+                <button
+                  className="usqay-dropdown-item"
+                  style={{ color: '#c084fc', fontWeight: 'bold' }}
+                  onClick={() => handleNavClick('dev_console')}
+                >
+                  <i className="fa-solid fa-code text-purple-400 mr-1.5"></i> Consola Dev & Reset General
+                </button>
               </div>
             )}
           </div>
@@ -1291,106 +1379,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
             </button>
           </div>
 
-          {/* ACORDEONES DEL VAULT */}
-          <div className="rol-admin-only" style={{ display: userRole === 'admin' ? 'flex' : 'none', flexDirection: 'column', gap: '2px' }}>
-            {/* Vault Token */}
-            <div className="vault-box">
-              <button className="vault-trigger" type="button" onClick={() => verificarVault('token')}>
-                <span><i className="fa-solid fa-key"></i> Token GitHub</span>
-                <span id="badgeVaultToken">{vaultTokenOpen ? '🔓 Desbloqueado' : '🔒 Bloqueado'}</span>
-              </button>
-              {vaultTokenOpen && (
-                <div className="vault-content" style={{ display: 'block' }}>
-                  <label style={{ marginTop: 0 }}>Personal Token (ghp_...):</label>
-                  <input
-                    type="password"
-                    id="ghTokenInput"
-                    placeholder="Pega tu token"
-                    value={ghToken}
-                    onChange={(e) => setGhToken(e.target.value)}
-                  />
-                  <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
-                    <button
-                      className="btn btn-save"
-                      style={{ fontSize: '11px', padding: '6px 10px' }}
-                      onClick={() => {
-                        localStorage.setItem('inkabistro_vault_secret_token', ghToken);
-                        alert('✔ Token guardado.');
-                      }}
-                    >
-                      Guardar
-                    </button>
-                    <button
-                      className="btn btn-del"
-                      style={{ fontSize: '11px', padding: '6px 10px' }}
-                      onClick={() => {
-                        setGhToken('');
-                        localStorage.removeItem('inkabistro_vault_secret_token');
-                        alert('✔ Token eliminado.');
-                      }}
-                    >
-                      Borrar
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Vault Reset Comandas */}
-            <div className="vault-box danger-vault">
-              <button className="vault-trigger" type="button" onClick={() => verificarVault('resetComandas')}>
-                <span><i className="fa-solid fa-broom"></i> Reset Comandas & Mesas</span>
-                <span id="badgeVaultResetComandas">{vaultResetComandasOpen ? '🔓 Desbloqueado' : '🔒 Bloqueado'}</span>
-              </button>
-              {vaultResetComandasOpen && (
-                <div className="vault-content" style={{ display: 'block' }}>
-                  <p style={{ fontSize: '11px', color: '#fca5a5', lineHeight: 1.3, marginBottom: '8px' }}>
-                    Borra todas las órdenes activas y reservas para reiniciar mesas a libre.
-                  </p>
-                  <button
-                    className="btn btn-del"
-                    style={{ width: '100%', fontSize: '11.5px', padding: '7px' }}
-                    onClick={() => {
-                      if (confirm('🚨 ¿Deseas purgar todas las comandas de hoy para reiniciar las mesas a LIBRE?')) {
-                        storage.purgeComandasHoy();
-                        alert('✔ Comandas purgadas. Tablero KDS y mesas en limpio.');
-                      }
-                    }}
-                  >
-                    <i className="fa-solid fa-trash"></i> Purgar Comandas de Hoy
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Vault Reset Reportes */}
-            <div className="vault-box danger-vault">
-              <button className="vault-trigger" type="button" onClick={() => verificarVault('resetReportes')}>
-                <span><i className="fa-solid fa-file-invoice-dollar"></i> Reset Historial Ventas</span>
-                <span id="badgeVaultResetReportes">{vaultResetReportesOpen ? '🔓 Desbloqueado' : '🔒 Bloqueado'}</span>
-              </button>
-              {vaultResetReportesOpen && (
-                <div className="vault-content" style={{ display: 'block' }}>
-                  <p style={{ fontSize: '11px', color: '#fca5a5', lineHeight: 1.3, marginBottom: '8px' }}>
-                    Borra el historial contable acumulado de ventas cobradas en SUNAT.
-                  </p>
-                  <button
-                    className="btn btn-del"
-                    style={{ width: '100%', fontSize: '11.5px', padding: '7px' }}
-                    onClick={() => {
-                      if (confirm('🚨 ¿Deseas eliminar definitivamente todo el historial contable de ventas?')) {
-                        storage.purgeVentas();
-                        alert('✔ Historial contable de ventas reseteado.');
-                      }
-                    }}
-                  >
-                    <i className="fa-solid fa-trash-can"></i> Vaciar Ventas Contables
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-
           {/* NAV MENU */}
           <nav className="nav-menu">
             <button
@@ -1542,6 +1530,29 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
             <button className={`nav-item ${currentSection === 'reporte_contable' ? 'active' : ''}`} onClick={() => handleNavClick('reporte_contable')}>
               <i className="fa-solid fa-chart-line"></i> Reporte Contable & SUNAT
             </button>
+
+            {userRole === 'admin' && (
+              <button
+                className={`nav-item ${currentSection === 'dev_console' ? 'active' : ''}`}
+                style={{
+                  marginTop: '10px',
+                  borderTop: '1px dashed rgba(192, 132, 252, 0.3)',
+                  paddingTop: '10px',
+                  color: '#d8b4fe',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}
+                onClick={() => handleNavClick('dev_console')}
+                title="Consola de Desarrollador: Tokens y Puesta en Cero para Entrega / Alquiler"
+              >
+                <i className="fa-solid fa-code text-purple-400"></i>
+                <span>Consola Dev & Reset</span>
+                <span style={{ marginLeft: 'auto', fontSize: '9px', background: 'rgba(192, 132, 252, 0.2)', color: '#e9d5ff', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>
+                  DEV
+                </span>
+              </button>
+            )}
           </nav>
 
           <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -4225,6 +4236,46 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                         * Este enlace se enviará automáticamente en los mensajes de WhatsApp de agradecimiento al cliente y se abrirá en segundo plano en la pantalla de agradecimiento del Menú Digital para captar reseñas positivas.
                       </span>
                     </div>
+
+                    <div style={{ gridColumn: '1 / -1', background: 'rgba(14, 165, 233, 0.08)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(56, 189, 248, 0.35)' }}>
+                      <strong style={{ color: '#38bdf8', fontSize: '12.5px', display: 'block', marginBottom: '8px' }}>
+                        <i className="fa-solid fa-file-invoice"></i> Documentos de Clientes (DNI / RUC) en Menú Digital & Caja:
+                      </strong>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '8px', fontSize: '11.5px' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: '#f8fafc', margin: 0 }}>
+                          <input
+                            type="checkbox"
+                            checked={identidadForm.habilitarComprobantesFiscales !== false}
+                            onChange={(e) => setIdentidadForm({ ...identidadForm, habilitarComprobantesFiscales: e.target.checked })}
+                          />
+                          <span>Habilitar Boleta / Factura (desactívalo para solo Nota/Ticket)</span>
+                        </label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: '#f8fafc', margin: 0 }}>
+                          <input
+                            type="checkbox"
+                            checked={identidadForm.habilitarDniCliente !== false}
+                            onChange={(e) => setIdentidadForm({ ...identidadForm, habilitarDniCliente: e.target.checked })}
+                          />
+                          <span>Mostrar campo DNI en Menú Digital</span>
+                        </label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: '#f8fafc', margin: 0 }}>
+                          <input
+                            type="checkbox"
+                            checked={identidadForm.habilitarRucCliente !== false}
+                            onChange={(e) => setIdentidadForm({ ...identidadForm, habilitarRucCliente: e.target.checked })}
+                          />
+                          <span>Mostrar campo RUC en Menú Digital</span>
+                        </label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: '#f8fafc', margin: 0 }}>
+                          <input
+                            type="checkbox"
+                            checked={identidadForm.exigirValidacionReniecSunat !== false}
+                            onChange={(e) => setIdentidadForm({ ...identidadForm, exigirValidacionReniecSunat: e.target.checked })}
+                          />
+                          <span>Exigir validación real RENIEC/SUNAT antes de imprimir</span>
+                        </label>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -4490,6 +4541,778 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
               </div>
             </section>
           )}
+
+          {/* L. CONSOLA DE DESARROLLADOR & RESETEO GENERAL PARA ENTREGA / ALQUILER */}
+          {currentSection === 'dev_console' && (
+            <section id="viewDevConsole" style={{ display: 'block' }}>
+              <div className="view-header">
+                <div>
+                  <h1 style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#c084fc' }}>
+                    <i className="fa-solid fa-code"></i> Consola de Desarrollador & Entrega de Restaurante
+                  </h1>
+                  <p>
+                    Administración técnica avanzada: Gestión de tokens, reseteos de mantenimiento y puesta a cero para entrega o alquiler a nuevos clientes.
+                  </p>
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  {devConsoleUnlocked && (
+                    <button
+                      type="button"
+                      className="btn"
+                      style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.4)', color: '#fca5a5' }}
+                      onClick={() => setDevConsoleUnlocked(false)}
+                    >
+                      <i className="fa-solid fa-lock"></i> Bloquear Consola
+                    </button>
+                  )}
+                  <button className="btn btn-save" onClick={() => handleNavClick('comandas')}>
+                    <i className="fa-solid fa-arrow-left"></i> Volver a Salón
+                  </button>
+                </div>
+              </div>
+
+              {!devConsoleUnlocked ? (
+                /* BLOQUEO DE SEGURIDAD PARA ACCESO DEVELOPER */
+                <div className="card" style={{ maxWidth: '480px', margin: '40px auto', textAlign: 'center', padding: '32px 24px' }}>
+                  <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(192, 132, 252, 0.15)', border: '2px solid rgba(192, 132, 252, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: '28px', color: '#d8b4fe' }}>
+                    <i className="fa-solid fa-shield-halved"></i>
+                  </div>
+                  <h2 style={{ fontSize: '20px', fontWeight: 900, color: '#f8fafc', marginBottom: '8px' }}>
+                    Acceso Restringido a Desarrollador
+                  </h2>
+                  <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '20px', lineHeight: 1.4 }}>
+                    Este módulo contiene herramientas críticas de reseteo general y tokens de sistema. Ingresa tu clave maestra de desarrollador para desbloquear.
+                  </p>
+
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const pin = devPinInput.trim();
+                      if (pin === PASSWORD_MAESTRA || pin === 'admin123' || pin === 'regocijo123') {
+                        setDevConsoleUnlocked(true);
+                        setDevPinError('');
+                        setDevPinInput('');
+                      } else {
+                        setDevPinError('⛔ Clave maestra incorrecta. Inténtalo nuevamente.');
+                      }
+                    }}
+                    style={{ display: 'flex', flexDirection: 'column', gap: '12px', textAlign: 'left' }}
+                  >
+                    <div>
+                      <label style={{ fontSize: '11px', color: '#cbd5e1', fontWeight: 'bold' }}>Clave Maestra Developer:</label>
+                      <input
+                        type="password"
+                        placeholder="Ingresa tu clave maestra o PIN"
+                        value={devPinInput}
+                        onChange={(e) => {
+                          setDevPinInput(e.target.value);
+                          setDevPinError('');
+                        }}
+                        autoFocus
+                        style={{ marginTop: '4px', width: '100%', fontSize: '14px', letterSpacing: '2px' }}
+                      />
+                    </div>
+
+                    {devPinError && (
+                      <div style={{ fontSize: '11px', color: '#ef4444', fontWeight: 'bold', background: 'rgba(239, 68, 68, 0.1)', padding: '8px', borderRadius: '8px', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+                        {devPinError}
+                      </div>
+                    )}
+
+                    <button
+                      type="submit"
+                      className="btn"
+                      style={{
+                        background: 'linear-gradient(135deg, #9333ea, #7e22ce)',
+                        color: '#fff',
+                        fontWeight: 900,
+                        padding: '10px',
+                        borderRadius: '10px',
+                        marginTop: '6px',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '13px'
+                      }}
+                    >
+                      <i className="fa-solid fa-unlock"></i> Desbloquear Consola Developer
+                    </button>
+                  </form>
+                </div>
+              ) : (
+                /* PANELES DE LA CONSOLA DESBLOQUEADA */
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+                  {/* 1. MÓDULO PRINCIPAL: RESETEO GENERAL PARA ENTREGA / ALQUILER EN CERO */}
+                  <div
+                    className="card"
+                    style={{
+                      border: '2px solid rgba(239, 68, 68, 0.5)',
+                      background: 'radial-gradient(circle at top left, rgba(239, 68, 68, 0.08), transparent 70%), var(--card-bg)',
+                      boxShadow: '0 0 30px rgba(239, 68, 68, 0.1)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '12px', marginBottom: '16px' }}>
+                      <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(239, 68, 68, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', color: '#f87171' }}>
+                        <i className="fa-solid fa-rocket"></i>
+                      </div>
+                      <div>
+                        <h2 style={{ fontSize: '17px', fontWeight: 900, color: '#fca5a5' }}>
+                          Puesta en Cero de Plataforma para Entrega / Alquiler a Cliente
+                        </h2>
+                        <p style={{ fontSize: '11px', color: '#cbd5e1' }}>
+                          Deja el sistema completamente limpio en cero valores para iniciar operaciones comerciales desde cero con un nuevo restaurante.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px', marginBottom: '16px' }}>
+                      <div style={{ background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                        <span style={{ fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 900, display: 'block', marginBottom: '6px' }}>
+                          🧹 Elementos que se pondrán en Cero:
+                        </span>
+                        <ul style={{ fontSize: '11.5px', color: '#f1f5f9', display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: '16px' }}>
+                          <li><b>0 Comandas activas</b> (salón, KDS y mozo limpios).</li>
+                          <li><b>Todas las Mesas en estado "Libre"</b> (sin ocupaciones).</li>
+                          <li><b>0 Ventas contables</b> acumuladas en historial.</li>
+                          <li><b>Caja limpia</b> (0 movimientos de dinero y 0 cierres).</li>
+                          <li><b>0 Reservas</b> y alertas pendientes eliminadas.</li>
+                          <li><b>0 Socios de prueba</b> en el Club de Fidelidad.</li>
+                          <li><b>0 Reseñas</b> acumuladas de clientes.</li>
+                          <li><b>Correlativos SUNAT reiniciados</b> a 0 (primera venta: B001-000001).</li>
+                        </ul>
+                      </div>
+
+                      <div style={{ background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        <span style={{ fontSize: '11px', color: '#38bdf8', textTransform: 'uppercase', fontWeight: 900, display: 'block' }}>
+                          ⚙️ Parámetros para el Nuevo Restaurante:
+                        </span>
+
+                        <div>
+                          <label style={{ fontSize: '11px', color: '#cbd5e1' }}>Nombre del Negocio a Entregar:</label>
+                          <input
+                            type="text"
+                            value={entregaForm.nombreNegocio}
+                            onChange={(e) => setEntregaForm({ ...entregaForm, nombreNegocio: e.target.value })}
+                            placeholder="Ej: La Chuspa Tech o Nombre del Cliente"
+                            style={{ width: '100%', marginTop: '3px' }}
+                          />
+                        </div>
+
+                        <div>
+                          <label style={{ fontSize: '11px', color: '#cbd5e1' }}>WhatsApp Oficial del Cliente:</label>
+                          <input
+                            type="text"
+                            value={entregaForm.whatsapp}
+                            onChange={(e) => setEntregaForm({ ...entregaForm, whatsapp: e.target.value })}
+                            placeholder="Ej: 969773064"
+                            style={{ width: '100%', marginTop: '3px' }}
+                          />
+                        </div>
+
+                        <div>
+                          <label style={{ fontSize: '11px', color: '#cbd5e1' }}>Caja Inicial con la que arranca (S/):</label>
+                          <input
+                            type="number"
+                            min="0"
+                            step="10"
+                            value={entregaForm.montoCajaInicial}
+                            onChange={(e) => setEntregaForm({ ...entregaForm, montoCajaInicial: Number(e.target.value) || 0 })}
+                            style={{ width: '100%', marginTop: '3px' }}
+                          />
+                        </div>
+
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11.5px', color: '#f8fafc', cursor: 'pointer', marginTop: '4px' }}>
+                          <input
+                            type="checkbox"
+                            checked={entregaForm.conservarCartaBase}
+                            onChange={(e) => setEntregaForm({ ...entregaForm, conservarCartaBase: e.target.checked })}
+                          />
+                          <span>Conservar catálogo base de platos gastronómicos (Recomendado)</span>
+                        </label>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginTop: '4px', padding: '8px', background: 'rgba(15,23,42,0.7)', borderRadius: '8px' }}>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#cbd5e1', cursor: 'pointer', margin: 0 }}>
+                            <input
+                              type="checkbox"
+                              checked={entregaForm.habilitarComprobantesFiscales}
+                              onChange={(e) => setEntregaForm({ ...entregaForm, habilitarComprobantesFiscales: e.target.checked })}
+                            />
+                            <span>Usar Boleta/Factura</span>
+                          </label>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#cbd5e1', cursor: 'pointer', margin: 0 }}>
+                            <input
+                              type="checkbox"
+                              checked={entregaForm.habilitarDniCliente}
+                              onChange={(e) => setEntregaForm({ ...entregaForm, habilitarDniCliente: e.target.checked })}
+                            />
+                            <span>Pedir DNI en Carta</span>
+                          </label>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#cbd5e1', cursor: 'pointer', margin: 0 }}>
+                            <input
+                              type="checkbox"
+                              checked={entregaForm.habilitarRucCliente}
+                              onChange={(e) => setEntregaForm({ ...entregaForm, habilitarRucCliente: e.target.checked })}
+                            />
+                            <span>Pedir RUC en Carta</span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="btn"
+                      style={{
+                        width: '100%',
+                        padding: '14px',
+                        background: 'linear-gradient(135deg, #ef4444, #b91c1c)',
+                        color: '#fff',
+                        fontWeight: 900,
+                        fontSize: '14px',
+                        letterSpacing: '0.5px',
+                        borderRadius: '12px',
+                        border: '1px solid #f87171',
+                        boxShadow: '0 4px 15px rgba(239, 68, 68, 0.4)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '10px'
+                      }}
+                      onClick={() => {
+                        const confirm1 = window.confirm(
+                          '🚨 ATENCIÓN DESARROLLADOR:\n\n' +
+                          '¿Estás seguro de que deseas ejecutar la PUESTA EN CERO TOTAL?\n' +
+                          'Esto borrará todas las comandas, historial de ventas, movimientos de caja, reservas y sellos para dejar el sistema como nuevo para el nuevo cliente.'
+                        );
+                        if (!confirm1) return;
+
+                        const confirm2 = window.confirm(
+                          `¿Confirmas poner en cero para entregar a "${entregaForm.nombreNegocio}" (WhatsApp: ${entregaForm.whatsapp}) con caja inicial de S/ ${entregaForm.montoCajaInicial.toFixed(2)}?`
+                        );
+                        if (!confirm2) return;
+
+                        storage.resetGeneralParaEntrega({
+                          conservarCartaBase: entregaForm.conservarCartaBase,
+                          nombreNegocio: entregaForm.nombreNegocio,
+                          whatsapp: entregaForm.whatsapp,
+                          montoCajaInicial: entregaForm.montoCajaInicial,
+                          resetearUsuarios: entregaForm.resetearUsuarios,
+                          habilitarDniCliente: entregaForm.habilitarDniCliente,
+                          habilitarRucCliente: entregaForm.habilitarRucCliente,
+                          habilitarComprobantesFiscales: entregaForm.habilitarComprobantesFiscales,
+                        });
+
+                        // Sincronizar estados locales inmediatamente
+                        setComandas([]);
+                        setMesas(storage.getMesas());
+                        setVentas([]);
+                        setReservas([]);
+                        setSocios([]);
+                        setResenas([]);
+                        setCajaChica(Number(entregaForm.montoCajaInicial) || 0);
+                        const newCfg = storage.getConfig();
+                        setIdentidadForm(newCfg);
+
+                        alert(
+                          '✔ ¡SISTEMA EN CERO VALORES EXITOSO!\n\n' +
+                          'La plataforma ha sido reseteada y configurada limpiamente para el cliente.\n' +
+                          'Comandas: 0 | Mesas: Todas Libres | Ventas: S/ 0.00 | Caja: S/ ' + Number(entregaForm.montoCajaInicial).toFixed(2)
+                        );
+                        handleNavClick('comandas');
+                      }}
+                    >
+                      <i className="fa-solid fa-triangle-exclamation"></i>
+                      <span>🚀 Ejecutar Puesta en Cero & Preparar para Entrega de Restaurante</span>
+                    </button>
+                  </div>
+
+                  {/* 2. MÓDULO: RESETEOS PARCIALES DE MANTENIMIENTO */}
+                  <div className="card">
+                    <h3 style={{ fontSize: '15px', fontWeight: 900, color: '#fbbf24', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <i className="fa-solid fa-screwdriver-wrench text-amber-400"></i> Reseteos Parciales de Mantenimiento
+                    </h3>
+                    <p style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '14px' }}>
+                      Acciones rápidas para purgar módulos individuales sin afectar el resto de la base de datos:
+                    </p>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
+                      <div style={{ background: 'rgba(0,0,0,0.25)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                        <strong style={{ fontSize: '12px', color: '#f8fafc', display: 'block', marginBottom: '4px' }}>
+                          <i className="fa-solid fa-broom text-amber-400"></i> Comandas & Mesas
+                        </strong>
+                        <p style={{ fontSize: '10.5px', color: '#94a3b8', marginBottom: '8px' }}>
+                          Elimina órdenes del día y libera todas las mesas a 'Libre'. No borra ventas contables.
+                        </p>
+                        <button
+                          type="button"
+                          className="btn btn-del"
+                          style={{ width: '100%', fontSize: '11px', padding: '6px' }}
+                          onClick={() => {
+                            if (window.confirm('¿Deseas purgar todas las comandas de hoy para dejar el salón limpio?')) {
+                              storage.purgeComandasHoy();
+                              setComandas([]);
+                              setMesas(storage.getMesas());
+                              alert('✔ Comandas purgadas y mesas liberadas.');
+                            }
+                          }}
+                        >
+                          Purgar Comandas de Hoy
+                        </button>
+                      </div>
+
+                      <div style={{ background: 'rgba(0,0,0,0.25)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                        <strong style={{ fontSize: '12px', color: '#f8fafc', display: 'block', marginBottom: '4px' }}>
+                          <i className="fa-solid fa-file-invoice-dollar text-emerald-400"></i> Historial Contable
+                        </strong>
+                        <p style={{ fontSize: '10.5px', color: '#94a3b8', marginBottom: '8px' }}>
+                          Vacía el registro acumulado de comprobantes y ventas cobradas.
+                        </p>
+                        <button
+                          type="button"
+                          className="btn btn-del"
+                          style={{ width: '100%', fontSize: '11px', padding: '6px' }}
+                          onClick={() => {
+                            if (window.confirm('¿Deseas eliminar todo el historial contable acumulado de ventas?')) {
+                              storage.purgeVentas();
+                              setVentas([]);
+                              alert('✔ Historial contable de ventas vaciado.');
+                            }
+                          }}
+                        >
+                          Vaciar Ventas Contables
+                        </button>
+                      </div>
+
+                      <div style={{ background: 'rgba(0,0,0,0.25)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                        <strong style={{ fontSize: '12px', color: '#f8fafc', display: 'block', marginBottom: '4px' }}>
+                          <i className="fa-solid fa-calendar-xmark text-sky-400"></i> Reservas
+                        </strong>
+                        <p style={{ fontSize: '10.5px', color: '#94a3b8', marginBottom: '8px' }}>
+                          Limpia el registro de reservas programadas y alertas de nuevas citas.
+                        </p>
+                        <button
+                          type="button"
+                          className="btn"
+                          style={{ width: '100%', fontSize: '11px', padding: '6px', background: 'rgba(14, 165, 233, 0.2)', color: '#7dd3fc', border: '1px solid rgba(14, 165, 233, 0.4)' }}
+                          onClick={() => {
+                            if (window.confirm('¿Deseas purgar todas las reservas registradas?')) {
+                              storage.purgeReservas();
+                              setReservas([]);
+                              alert('✔ Historial de reservas purgado.');
+                            }
+                          }}
+                        >
+                          Vaciar Reservas
+                        </button>
+                      </div>
+
+                      <div style={{ background: 'rgba(0,0,0,0.25)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                        <strong style={{ fontSize: '12px', color: '#f8fafc', display: 'block', marginBottom: '4px' }}>
+                          <i className="fa-solid fa-gift text-pink-400"></i> Club de Fidelidad
+                        </strong>
+                        <p style={{ fontSize: '10.5px', color: '#94a3b8', marginBottom: '8px' }}>
+                          Vacía los clientes registrados con sellos para iniciar nueva campaña.
+                        </p>
+                        <button
+                          type="button"
+                          className="btn"
+                          style={{ width: '100%', fontSize: '11px', padding: '6px', background: 'rgba(244, 114, 182, 0.2)', color: '#f472b6', border: '1px solid rgba(244, 114, 182, 0.4)' }}
+                          onClick={() => {
+                            if (window.confirm('¿Deseas vaciar la lista de socios del Club de Fidelidad?')) {
+                              storage.purgeSocios();
+                              setSocios([]);
+                              alert('✔ Socios de fidelidad vaciados.');
+                            }
+                          }}
+                        >
+                          Vaciar Socios del Club
+                        </button>
+                      </div>
+
+                      <div style={{ background: 'rgba(0,0,0,0.25)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                        <strong style={{ fontSize: '12px', color: '#f8fafc', display: 'block', marginBottom: '4px' }}>
+                          <i className="fa-solid fa-hashtag text-purple-400"></i> Correlativos SUNAT
+                        </strong>
+                        <p style={{ fontSize: '10.5px', color: '#94a3b8', marginBottom: '8px' }}>
+                          Reinicia los números correlativos de Boletas y Facturas a 000001.
+                        </p>
+                        <button
+                          type="button"
+                          className="btn"
+                          style={{ width: '100%', fontSize: '11px', padding: '6px', background: 'rgba(192, 132, 252, 0.2)', color: '#d8b4fe', border: '1px solid rgba(192, 132, 252, 0.4)' }}
+                          onClick={() => {
+                            if (window.confirm('¿Deseas reiniciar los correlativos a B001-000001 y F001-000001?')) {
+                              storage.resetCorrelativos();
+                              alert('✔ Correlativos reiniciados a 000001.');
+                            }
+                          }}
+                        >
+                          Reiniciar Correlativos a 1
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 3. MÓDULO: API SUNAT / RENIEC (APISPERÚ BETA / PRODUCCIÓN) & PRUEBA EN VIVO */}
+                  <div className="card" style={{ border: '1.5px solid rgba(56, 189, 248, 0.45)' }}>
+                    <h3 style={{ fontSize: '15px', fontWeight: 900, color: '#38bdf8', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <i className="fa-solid fa-plug-circle-check text-sky-400"></i> API SUNAT / RENIEC (ApisPerú Beta & Producción)
+                    </h3>
+                    <div style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.35)', borderRadius: '10px', padding: '10px 12px', marginBottom: '12px', fontSize: '11px', color: '#fde68a', lineHeight: 1.5 }}>
+                      <b>⚠️ Importante sobre Tokens de ApisPerú:</b><br />
+                      • <b>Token API Consultas (DNI / RUC):</b> Se obtiene en el menú izquierdo de ApisPerú → <i>"API Consultas DNI/RUC"</i> (endpoint <code>dniruc.apisperu.com</code>).<br />
+                      • <b>Token de Empresa (Facturación Beta / Prod):</b> Se obtiene en <i>"API Facturación Electrónica"</i> (endpoint <code>facturacion.apisperu.com</code>) y sirve únicamente para enviar Boletas/Facturas a SUNAT, <b>no valida DNI/RUC</b> si lo pegas en Consultas.
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '10px', marginBottom: '12px' }}>
+                      <div>
+                        <label style={{ fontSize: '11px', color: '#cbd5e1' }}>Entorno SUNAT (ApisPerú):</label>
+                        <select
+                          value={devApiForm.entorno}
+                          onChange={(e) => setDevApiForm({ ...devApiForm, entorno: e.target.value as 'beta' | 'produccion' })}
+                          style={{ width: '100%', marginTop: '3px' }}
+                        >
+                          <option value="beta">🧪 Entorno BETA (Pruebas SUNAT)</option>
+                          <option value="produccion">🚀 Entorno PRODUCCIÓN (Real SUNAT)</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '11px', color: '#cbd5e1' }}>Proveedor Consultas DNI / RUC:</label>
+                        <select
+                          value={devApiForm.proveedorConsultas}
+                          onChange={(e) => setDevApiForm({ ...devApiForm, proveedorConsultas: e.target.value as 'auto' | 'apisperu' | 'apisnetpe' })}
+                          style={{ width: '100%', marginTop: '3px' }}
+                        >
+                          <option value="apisperu">ApisPerú (dniruc.apisperu.com)</option>
+                          <option value="apisnetpe">Apis.net.pe (api.apis.net.pe)</option>
+                          <option value="auto">Automático (ApisPerú + respaldo Apis.net.pe)</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '11px', color: '#cbd5e1' }}>RUC Emisor (Empresa Facturación):</label>
+                        <input
+                          type="text"
+                          maxLength={11}
+                          placeholder="Ej: 10424235496"
+                          value={devApiForm.rucEmisor}
+                          onChange={(e) => setDevApiForm({ ...devApiForm, rucEmisor: e.target.value.replace(/\D/g, '') })}
+                          style={{ width: '100%', marginTop: '3px' }}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '12px' }}>
+                      <div>
+                        <label style={{ fontSize: '11px', color: '#cbd5e1' }}>Token API Consultas DNI / RUC (para validar RENIEC y SUNAT):</label>
+                        <div style={{ display: 'flex', gap: '8px', marginTop: '3px' }}>
+                          <input
+                            type={showDniToken ? 'text' : 'password'}
+                            placeholder="Pega aquí el token de API Consultas DNI/RUC (eyJ0eXAi...)"
+                            value={devApiForm.tokenConsultasDniRuc}
+                            onChange={(e) => setDevApiForm({ ...devApiForm, tokenConsultasDniRuc: e.target.value })}
+                            style={{ flex: 1 }}
+                          />
+                          <button
+                            type="button"
+                            className="btn"
+                            style={{ background: 'rgba(255,255,255,0.08)', color: '#cbd5e1', padding: '0 12px' }}
+                            onClick={() => setShowDniToken(!showDniToken)}
+                          >
+                            <i className={`fa-solid ${showDniToken ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '11px', color: '#cbd5e1' }}>Token de Empresa Facturación Electrónica (Beta / Producción):</label>
+                        <div style={{ display: 'flex', gap: '8px', marginTop: '3px' }}>
+                          <input
+                            type={showFactToken ? 'text' : 'password'}
+                            placeholder="Pega aquí el Token de Empresa de Facturación Electrónica (eyJ0eXAi...)"
+                            value={devApiForm.tokenFacturacion}
+                            onChange={(e) => setDevApiForm({ ...devApiForm, tokenFacturacion: e.target.value })}
+                            style={{ flex: 1 }}
+                          />
+                          <button
+                            type="button"
+                            className="btn"
+                            style={{ background: 'rgba(255,255,255,0.08)', color: '#cbd5e1', padding: '0 12px' }}
+                            onClick={() => setShowFactToken(!showFactToken)}
+                          >
+                            <i className={`fa-solid ${showFactToken ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                      <button
+                        type="button"
+                        className="btn btn-save"
+                        style={{ fontSize: '11.5px', padding: '8px 14px' }}
+                        onClick={() => {
+                          saveDevApiConfig(devApiForm);
+                          setDevApiForm({ ...devApiForm });
+                          alert('✔ Tokens y entorno SUNAT/RENIEC guardados correctamente.');
+                        }}
+                      >
+                        <i className="fa-solid fa-floppy-disk"></i> Guardar Configuración API SUNAT/RENIEC
+                      </button>
+
+                      <button
+                        type="button"
+                        className="btn"
+                        disabled={isTestingTokens}
+                        style={{
+                          fontSize: '11.5px',
+                          padding: '8px 14px',
+                          background: 'linear-gradient(135deg, #0284c7, #0369a1)',
+                          color: '#fff',
+                          border: 'none',
+                        }}
+                        onClick={async () => {
+                          saveDevApiConfig(devApiForm);
+                          setIsTestingTokens(true);
+                          try {
+                            const diag = await probarConexionTokens(
+                              devApiForm.tokenConsultasDniRuc,
+                              devApiForm.tokenFacturacion,
+                              devApiForm.entorno
+                            );
+                            setDiagnosticoTokens(diag);
+                          } finally {
+                            setIsTestingTokens(false);
+                          }
+                        }}
+                      >
+                        <i className="fa-solid fa-stethoscope"></i>{' '}
+                        {isTestingTokens ? 'Verificando conexión real...' : '🔌 Probar Validación Token en Vivo'}
+                      </button>
+                    </div>
+
+                    {diagnosticoTokens && (
+                      <div style={{ marginTop: '12px', padding: '12px', borderRadius: '10px', background: '#020617', border: '1px solid #334155', fontSize: '11.5px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <div style={{ color: diagnosticoTokens.dniOk ? '#34d399' : '#f87171', fontWeight: 700 }}>
+                          {diagnosticoTokens.dniOk ? '✔' : '✖'} Consulta DNI (RENIEC): {diagnosticoTokens.dniDetalle}
+                        </div>
+                        <div style={{ color: diagnosticoTokens.rucOk ? '#34d399' : '#f87171', fontWeight: 700 }}>
+                          {diagnosticoTokens.rucOk ? '✔' : '✖'} Consulta RUC (SUNAT): {diagnosticoTokens.rucDetalle}
+                        </div>
+                        <div style={{ color: '#fbbf24' }}>
+                          • Token Facturación ({devApiForm.entorno.toUpperCase()}): {diagnosticoTokens.facturacionTokenInfo}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 4. CONTROLES DE DNI / RUC EN MENÚ CLIENTE & PERSONALIZADOR DE COLORES AL ALQUILAR */}
+                  <div className="card" style={{ border: '1.5px solid rgba(16, 185, 129, 0.4)' }}>
+                    <h3 style={{ fontSize: '15px', fontWeight: 900, color: '#34d399', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <i className="fa-solid fa-palette text-emerald-400"></i> Reglas Fiscales del Cliente (`index`) & Paleta de Colores por Negocio
+                    </h3>
+                    <p style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '12px' }}>
+                      Activa o desactiva la solicitud de DNI / RUC / Comprobantes en la carta del cliente según el giro del negocio alquilado, y adapta los colores al instante:
+                    </p>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '8px', marginBottom: '14px', background: 'rgba(0,0,0,0.25)', padding: '12px', borderRadius: '10px' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11.5px', color: '#f8fafc', cursor: 'pointer', margin: 0 }}>
+                        <input
+                          type="checkbox"
+                          checked={identidadForm.habilitarComprobantesFiscales !== false}
+                          onChange={(e) => {
+                            const updated = { ...identidadForm, habilitarComprobantesFiscales: e.target.checked };
+                            setIdentidadForm(updated);
+                            storage.saveConfig(updated);
+                          }}
+                        />
+                        <span>Emitir Boleta / Factura</span>
+                      </label>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11.5px', color: '#f8fafc', cursor: 'pointer', margin: 0 }}>
+                        <input
+                          type="checkbox"
+                          checked={identidadForm.habilitarDniCliente !== false}
+                          onChange={(e) => {
+                            const updated = { ...identidadForm, habilitarDniCliente: e.target.checked };
+                            setIdentidadForm(updated);
+                            storage.saveConfig(updated);
+                          }}
+                        />
+                        <span>Mostrar DNI en `index` cliente</span>
+                      </label>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11.5px', color: '#f8fafc', cursor: 'pointer', margin: 0 }}>
+                        <input
+                          type="checkbox"
+                          checked={identidadForm.habilitarRucCliente !== false}
+                          onChange={(e) => {
+                            const updated = { ...identidadForm, habilitarRucCliente: e.target.checked };
+                            setIdentidadForm(updated);
+                            storage.saveConfig(updated);
+                          }}
+                        />
+                        <span>Mostrar RUC en `index` cliente</span>
+                      </label>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11.5px', color: '#f8fafc', cursor: 'pointer', margin: 0 }}>
+                        <input
+                          type="checkbox"
+                          checked={identidadForm.exigirValidacionReniecSunat !== false}
+                          onChange={(e) => {
+                            const updated = { ...identidadForm, exigirValidacionReniecSunat: e.target.checked };
+                            setIdentidadForm(updated);
+                            storage.saveConfig(updated);
+                          }}
+                        />
+                        <span>Exigir validación RENIEC/SUNAT</span>
+                      </label>
+                    </div>
+
+                    <strong style={{ fontSize: '12px', color: '#fbbf24', display: 'block', marginBottom: '8px' }}>
+                      🎨 Paletas Predefinidas o Colores Personalizados:
+                    </strong>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '12px' }}>
+                      {(
+                        [
+                          { label: 'Chuspa Tech (Azul & Oro)', colors: { primary: '#0056D2', accent: '#E11D48', gold: '#F59E0B', bgDark: '#050D1A', cardBg: '#09152B' } },
+                          { label: 'Parrillas & Brasas (Rojo & Carbón)', colors: { primary: '#DC2626', accent: '#F97316', gold: '#FBBF24', bgDark: '#120807', cardBg: '#1E1110' } },
+                          { label: 'Cevichería Costa (Turquesa & Lima)', colors: { primary: '#0284C7', accent: '#10B981', gold: '#38BDF8', bgDark: '#041621', cardBg: '#082436' } },
+                          { label: 'Café & Bistro (Esmeralda & Crema)', colors: { primary: '#059669', accent: '#D97706', gold: '#FDE68A', bgDark: '#061A13', cardBg: '#0A291F' } },
+                          { label: 'Morado Comercial & Oro', colors: { primary: '#7C3AED', accent: '#EC4899', gold: '#FBBF24', bgDark: '#120826', cardBg: '#1E0F3D' } },
+                        ] as { label: string; colors: ThemeColorsConfig }[]
+                      ).map((preset) => (
+                        <button
+                          key={preset.label}
+                          type="button"
+                          className="btn"
+                          style={{
+                            fontSize: '11px',
+                            padding: '6px 10px',
+                            background: preset.colors.primary,
+                            color: '#fff',
+                            border: `1px solid ${preset.colors.gold}`,
+                          }}
+                          onClick={() => {
+                            const updated = { ...identidadForm, themeColors: preset.colors };
+                            setIdentidadForm(updated);
+                            storage.saveConfig(updated);
+                          }}
+                        >
+                          {preset.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '8px', marginBottom: '10px' }}>
+                      {(
+                        [
+                          { key: 'primary', label: 'Color Principal' },
+                          { key: 'accent', label: 'Acento / Botones' },
+                          { key: 'gold', label: 'Dorado / Marca' },
+                          { key: 'bgDark', label: 'Fondo Principal' },
+                          { key: 'cardBg', label: 'Fondo Tarjetas' },
+                        ] as { key: keyof ThemeColorsConfig; label: string }[]
+                      ).map((item) => {
+                        const val = identidadForm.themeColors?.[item.key] || '#0056D2';
+                        return (
+                          <div key={item.key} style={{ background: 'rgba(0,0,0,0.25)', padding: '6px 8px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
+                            <span style={{ fontSize: '10.5px', color: '#cbd5e1' }}>{item.label}</span>
+                            <input
+                              type="color"
+                              value={val}
+                              onChange={(e) => {
+                                const nextColors: ThemeColorsConfig = {
+                                  primary: identidadForm.themeColors?.primary || '#0056D2',
+                                  accent: identidadForm.themeColors?.accent || '#E11D48',
+                                  gold: identidadForm.themeColors?.gold || '#F59E0B',
+                                  bgDark: identidadForm.themeColors?.bgDark || '#050D1A',
+                                  cardBg: identidadForm.themeColors?.cardBg || '#09152B',
+                                  [item.key]: e.target.value,
+                                };
+                                setIdentidadForm({ ...identidadForm, themeColors: nextColors });
+                              }}
+                              style={{ width: '32px', height: '24px', padding: 0, border: 'none', background: 'transparent', cursor: 'pointer' }}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <button
+                      type="button"
+                      className="btn btn-save"
+                      style={{ fontSize: '11.5px', padding: '8px 14px' }}
+                      onClick={() => {
+                        storage.saveConfig(identidadForm);
+                        alert('✔ Colores del sistema aplicados en tiempo real.');
+                      }}
+                    >
+                      <i className="fa-solid fa-wand-magic-sparkles"></i> Aplicar Colores al Sistema
+                    </button>
+                  </div>
+
+                  {/* 5. MÓDULO: GESTIÓN DE TOKENS Y CREDENCIALES DE DESPLIEGUE */}
+                  <div className="card">
+                    <h3 style={{ fontSize: '15px', fontWeight: 900, color: '#38bdf8', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <i className="fa-solid fa-key text-sky-400"></i> Token de Despliegue (GitHub)
+                    </h3>
+                    <p style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '14px' }}>
+                      Configura el token de GitHub para automatización de despliegues y PWA Builder sin que sea visible para meseros o cajeros:
+                    </p>
+
+                    <div style={{ maxWidth: '580px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <label style={{ fontSize: '11px', color: '#cbd5e1' }}>
+                        GitHub Personal Access Token (ghp_...):
+                      </label>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <input
+                          type={showGhToken ? 'text' : 'password'}
+                          placeholder="Pega aquí tu token ghp_..."
+                          value={ghToken}
+                          onChange={(e) => setGhToken(e.target.value)}
+                          style={{ flex: 1 }}
+                        />
+                        <button
+                          type="button"
+                          className="btn"
+                          style={{ background: 'rgba(255,255,255,0.08)', color: '#cbd5e1', padding: '0 12px' }}
+                          onClick={() => setShowGhToken(!showGhToken)}
+                          title={showGhToken ? 'Ocultar' : 'Mostrar'}
+                        >
+                          <i className={`fa-solid ${showGhToken ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                        </button>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                          type="button"
+                          className="btn btn-save"
+                          style={{ fontSize: '11.5px', padding: '7px 14px' }}
+                          onClick={() => {
+                            localStorage.setItem('inkabistro_vault_secret_token', ghToken);
+                            alert('✔ Token de GitHub guardado de forma segura en la consola de desarrollador.');
+                          }}
+                        >
+                          <i className="fa-solid fa-floppy-disk"></i> Guardar Token
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-del"
+                          style={{ fontSize: '11.5px', padding: '7px 14px' }}
+                          onClick={() => {
+                            setGhToken('');
+                            localStorage.removeItem('inkabistro_vault_secret_token');
+                            alert('✔ Token de GitHub eliminado.');
+                          }}
+                        >
+                          <i className="fa-solid fa-trash"></i> Eliminar Token
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              )}
+            </section>
+          )}
         </main>
       </div>
 
@@ -4522,9 +5345,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
               <div>
                 <label>Tipo Comprobante:</label>
-                <select value={cobroTipo} onChange={(e) => setCobroTipo(e.target.value as any)}>
-                  <option value="Boleta">🧾 Boleta de Venta</option>
-                  <option value="Factura">🏢 Factura Electrónica</option>
+                <select
+                  value={cobroTipo}
+                  onChange={(e) => {
+                    const nextTipo = e.target.value as 'Boleta' | 'Factura' | 'Nota de Venta';
+                    setCobroTipo(nextTipo);
+                    setDocCobroValidado(false);
+                    setCobroErrorMsg('');
+                    if (nextTipo === 'Nota de Venta') {
+                      setCobroRazon(comandaCobrando.cliente || 'Cliente General');
+                    } else if (identidadForm.exigirValidacionReniecSunat !== false) {
+                      setCobroRazon('');
+                    }
+                  }}
+                >
+                  {identidadForm.habilitarComprobantesFiscales !== false && (
+                    <>
+                      <option value="Boleta">🧾 Boleta de Venta (DNI RENIEC)</option>
+                      <option value="Factura">🏢 Factura Electrónica (RUC SUNAT)</option>
+                    </>
+                  )}
+                  <option value="Nota de Venta">📄 Nota de Venta / Ticket Interno</option>
                 </select>
               </div>
               <div>
@@ -4538,41 +5379,91 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
               </div>
             </div>
 
-            <div style={{ background: '#061122', padding: '8px', borderRadius: '8px', border: '1px dashed #334155' }}>
-              <label style={{ marginTop: 0 }}>{cobroTipo === 'Factura' ? 'RUC del Cliente:' : 'DNI del Cliente:'}</label>
-              <div style={{ display: 'flex', gap: '6px' }}>
+            {cobroTipo !== 'Nota de Venta' ? (
+              <div style={{ background: '#061122', padding: '10px', borderRadius: '8px', border: '1px dashed #334155', marginTop: '8px' }}>
+                <label style={{ marginTop: 0 }}>
+                  {cobroTipo === 'Factura' ? 'RUC del Cliente (11 dígitos):' : 'DNI del Cliente (8 dígitos):'}
+                </label>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  <input
+                    type="text"
+                    maxLength={cobroTipo === 'Factura' ? 11 : 8}
+                    placeholder={cobroTipo === 'Factura' ? '20...' : '45...'}
+                    value={cobroRuc}
+                    onChange={(e) => {
+                      setCobroRuc(e.target.value.replace(/\D/g, ''));
+                      setDocCobroValidado(false);
+                      setCobroErrorMsg('');
+                    }}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-save"
+                    disabled={isConsultandoCobro}
+                    style={{ fontSize: '11px', padding: '6px 10px', whiteSpace: 'nowrap' }}
+                    onClick={async () => {
+                      const doc = cobroRuc.trim();
+                      setCobroErrorMsg('');
+                      setDocCobroValidado(false);
+                      setIsConsultandoCobro(true);
+                      try {
+                        if (cobroTipo === 'Factura') {
+                          const res = await consultarRUC(doc);
+                          if (res.success && res.razon_social) {
+                            setCobroRazon(res.razon_social);
+                            setDocCobroValidado(true);
+                          } else {
+                            setCobroErrorMsg(res.message || 'No se pudo validar el RUC en SUNAT.');
+                          }
+                        } else {
+                          const res = await consultarDNI(doc);
+                          if (res.success && res.nombres_completos) {
+                            setCobroRazon(res.nombres_completos);
+                            setDocCobroValidado(true);
+                          } else {
+                            setCobroErrorMsg(res.message || 'No se pudo validar el DNI en RENIEC.');
+                          }
+                        }
+                      } finally {
+                        setIsConsultandoCobro(false);
+                      }
+                    }}
+                  >
+                    {isConsultandoCobro ? 'Consultando...' : cobroTipo === 'Factura' ? 'Consultar SUNAT' : 'Consultar RENIEC'}
+                  </button>
+                </div>
+
+                {docCobroValidado && (
+                  <div style={{ fontSize: '11px', color: '#34d399', fontWeight: 700, marginTop: '6px' }}>
+                    ✔ Titular validado ante {cobroTipo === 'Factura' ? 'SUNAT' : 'RENIEC'}
+                  </div>
+                )}
+                {cobroErrorMsg && (
+                  <div style={{ fontSize: '11px', color: '#f87171', fontWeight: 700, marginTop: '6px', background: 'rgba(239,68,68,0.1)', padding: '6px 8px', borderRadius: '6px', border: '1px solid rgba(239,68,68,0.3)' }}>
+                    ⚠️ {cobroErrorMsg}
+                  </div>
+                )}
+
+                <label style={{ marginTop: '8px', display: 'block' }}>Razón Social / Nombre Titular:</label>
                 <input
                   type="text"
-                  placeholder={cobroTipo === 'Factura' ? '20...' : '45...'}
-                  value={cobroRuc}
-                  onChange={(e) => setCobroRuc(e.target.value)}
+                  readOnly={identidadForm.exigirValidacionReniecSunat !== false}
+                  placeholder={identidadForm.exigirValidacionReniecSunat !== false ? 'Se completa tras validar en RENIEC/SUNAT' : 'Nombre o Empresa S.A.C.'}
+                  value={cobroRazon}
+                  onChange={(e) => setCobroRazon(e.target.value)}
                 />
-                <button
-                  type="button"
-                  className="btn btn-save"
-                  style={{ fontSize: '11px', padding: '6px 10px' }}
-                  onClick={async () => {
-                    const doc = cobroRuc.trim();
-                    if (cobroTipo === 'Factura') {
-                      const res = await consultarRUC(doc);
-                      if (res.success && res.razon_social) setCobroRazon(res.razon_social);
-                    } else {
-                      const res = await consultarDNI(doc);
-                      if (res.success && res.nombres_completos) setCobroRazon(res.nombres_completos);
-                    }
-                  }}
-                >
-                  Consultar
-                </button>
               </div>
-              <label>Razón Social / Cliente:</label>
-              <input
-                type="text"
-                placeholder="Nombre o Empresa S.A.C."
-                value={cobroRazon}
-                onChange={(e) => setCobroRazon(e.target.value)}
-              />
-            </div>
+            ) : (
+              <div style={{ background: '#061122', padding: '10px', borderRadius: '8px', border: '1px dashed #334155', marginTop: '8px' }}>
+                <label style={{ marginTop: 0 }}>Cliente / Referencia (Ticket Interno):</label>
+                <input
+                  type="text"
+                  placeholder="Nombre o referencia del cliente"
+                  value={cobroRazon}
+                  onChange={(e) => setCobroRazon(e.target.value)}
+                />
+              </div>
+            )}
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '10px' }}>
               <button type="button" className="btn btn-del" onClick={() => setComandaCobrando(null)}>
@@ -4584,7 +5475,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                 style={{ background: 'linear-gradient(135deg, #10b981, #059669)', width: '100%', border: 'none' }}
                 onClick={handleConfirmarCobro}
               >
-                <i className="fa-solid fa-print"></i> Cobrar e Imprimir Comprobante Fiscal
+                <i className="fa-solid fa-print"></i>{' '}
+                {cobroTipo === 'Nota de Venta' ? 'Cobrar e Imprimir Nota de Venta' : `Cobrar e Imprimir ${cobroTipo}`}
               </button>
             </div>
           </div>

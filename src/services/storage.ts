@@ -67,6 +67,18 @@ export const DEFAULT_CONFIG: ConfigRestaurante = {
   instagram: 'https://instagram.com/lachuspatech',
   tiktok: 'https://tiktok.com/@lachuspatech',
   googleBusinessUrl: 'https://search.google.com/local/writereview?placeid=ChIJlachuspatech-cusco',
+  habilitarDniCliente: true,
+  habilitarRucCliente: true,
+  habilitarComprobantesFiscales: true,
+  exigirValidacionReniecSunat: true,
+  themeColors: {
+    presetName: 'La Chuspa Tech (Azul & Dorado)',
+    primary: '#0056d2',
+    accent: '#0284c7',
+    gold: '#f59e0b',
+    bgDark: '#050d1a',
+    cardBg: '#0b1a33',
+  },
 };
 
 export const DEFAULT_PRODUCTOS: Producto[] = [
@@ -1008,13 +1020,22 @@ class StorageService {
   }
 
   // --- VENTAS & CORRELATIVOS ---
-  public getNextCorrelativo(tipo: 'Boleta' | 'Factura' | 'Nota de Crédito' | 'Nota de Débito'): string {
+  public getNextCorrelativo(tipo: 'Boleta' | 'Factura' | 'Nota de Crédito' | 'Nota de Débito' | 'Nota de Venta'): string {
     const raw = localStorage.getItem(STORAGE_KEYS.SERIES);
     const series = raw ? JSON.parse(raw) : {};
-    const key = tipo.toLowerCase().replace(/[^a-z]/g, '') || 'boleta';
+    const key = tipo === 'Nota de Venta' ? 'nota_venta' : tipo.toLowerCase().replace(/[^a-z]/g, '') || 'boleta';
     const s = series[key] || {
-      serie: tipo === 'Factura' ? 'F001' : tipo.includes('Crédito') ? 'FC01' : tipo.includes('Débito') ? 'FD01' : 'B001',
-      correlativo: 1,
+      serie:
+        tipo === 'Factura'
+          ? 'F001'
+          : tipo === 'Nota de Venta'
+          ? 'NV01'
+          : tipo.includes('Crédito')
+          ? 'FC01'
+          : tipo.includes('Débito')
+          ? 'FD01'
+          : 'B001',
+      correlativo: 0,
     };
     s.correlativo = (Number(s.correlativo) || 0) + 1;
     series[key] = s;
@@ -1347,6 +1368,144 @@ class StorageService {
 
   public purgeVentas() {
     localStorage.setItem(STORAGE_KEYS.VENTAS, JSON.stringify([]));
+    this.notify();
+  }
+
+  public purgeReservas() {
+    localStorage.setItem(STORAGE_KEYS.RESERVAS, JSON.stringify([]));
+    localStorage.removeItem('cusq_alerta_nueva_reserva');
+    this.notify();
+  }
+
+  public purgeSocios() {
+    localStorage.setItem(STORAGE_KEYS.SOCIOS, JSON.stringify([]));
+    this.notify();
+  }
+
+  public purgeResenas() {
+    localStorage.setItem(STORAGE_KEYS.RESENAS, JSON.stringify([]));
+    this.notify();
+  }
+
+  public resetCorrelativos() {
+    localStorage.setItem(
+      STORAGE_KEYS.SERIES,
+      JSON.stringify({
+        boleta: { serie: 'B001', correlativo: 0 },
+        factura: { serie: 'F001', correlativo: 0 },
+        nota_venta: { serie: 'NV01', correlativo: 0 },
+        nota_credito: { serie: 'FC01', correlativo: 0 },
+        nota_debito: { serie: 'FD01', correlativo: 0 },
+      })
+    );
+    this.notify();
+  }
+
+  /**
+   * Reseteo General de Fábrica / Puesta a Cero para Entrega y Alquiler del Sistema de Restaurante.
+   * Deja la plataforma en cero valores lista para que el nuevo cliente comience a operar.
+   */
+  public resetGeneralParaEntrega(opciones?: {
+    conservarCartaBase?: boolean;
+    nombreNegocio?: string;
+    whatsapp?: string;
+    montoCajaInicial?: number;
+    resetearUsuarios?: boolean;
+    habilitarDniCliente?: boolean;
+    habilitarRucCliente?: boolean;
+    habilitarComprobantesFiscales?: boolean;
+    exigirValidacionReniecSunat?: boolean;
+  }) {
+    const opts = {
+      conservarCartaBase: true,
+      nombreNegocio: 'La Chuspa Tech',
+      whatsapp: '969773064',
+      montoCajaInicial: 0,
+      resetearUsuarios: false,
+      ...opciones,
+    };
+
+    // 1. Purgar todas las comandas
+    localStorage.setItem(STORAGE_KEYS.COMANDAS, JSON.stringify([]));
+
+    // 2. Liberar todas las mesas a 'libre' sin comanda ni bloqueo
+    const mesas = this.getMesas().map((m) => ({
+      ...m,
+      estado: 'libre' as const,
+      comandaActivaId: undefined,
+    }));
+    localStorage.setItem(STORAGE_KEYS.MESAS, JSON.stringify(mesas));
+
+    // 3. Purgar todo el historial contable de ventas
+    localStorage.setItem(STORAGE_KEYS.VENTAS, JSON.stringify([]));
+
+    // 4. Purgar caja (movimientos, cierres y fijar caja inicial)
+    localStorage.setItem(STORAGE_KEYS.CAJA_MOVS, JSON.stringify([]));
+    localStorage.setItem(STORAGE_KEYS.CIERRES, JSON.stringify([]));
+    localStorage.setItem(
+      STORAGE_KEYS.CAJA_INICIAL,
+      JSON.stringify({
+        monto: Number(opts.montoCajaInicial) || 0,
+        turno: 'Mañana (07:00 - 15:00)',
+        operador: 'Administrador',
+        fecha: new Date().toISOString().slice(0, 10),
+      })
+    );
+
+    // 5. Purgar movimientos de almacén y compras previas
+    localStorage.setItem(STORAGE_KEYS.MOVS, JSON.stringify([]));
+    localStorage.setItem(STORAGE_KEYS.COMPRAS, JSON.stringify([]));
+
+    // 6. Purgar todas las reservas previas
+    localStorage.setItem(STORAGE_KEYS.RESERVAS, JSON.stringify([]));
+    localStorage.removeItem('cusq_alerta_nueva_reserva');
+    localStorage.removeItem('cusq_solicitud_pago_activa');
+
+    // 7. Purgar socios del Club de Fidelidad y opiniones
+    localStorage.setItem(STORAGE_KEYS.SOCIOS, JSON.stringify([]));
+    localStorage.setItem(STORAGE_KEYS.RESENAS, JSON.stringify([]));
+
+    // 8. Reiniciar series y correlativos a 0 (la primera venta será 000001)
+    localStorage.setItem(
+      STORAGE_KEYS.SERIES,
+      JSON.stringify({
+        boleta: { serie: 'B001', correlativo: 0 },
+        factura: { serie: 'F001', correlativo: 0 },
+        nota_venta: { serie: 'NV01', correlativo: 0 },
+        nota_credito: { serie: 'FC01', correlativo: 0 },
+        nota_debito: { serie: 'FD01', correlativo: 0 },
+      })
+    );
+
+    // 9. Productos / Carta gastronómica
+    if (!opts.conservarCartaBase) {
+      localStorage.setItem(STORAGE_KEYS.PRODUCTOS, JSON.stringify([]));
+      localStorage.setItem(STORAGE_KEYS.INSUMOS, JSON.stringify([]));
+      localStorage.setItem(STORAGE_KEYS.RECETAS, JSON.stringify([]));
+    } else {
+      if (!localStorage.getItem(STORAGE_KEYS.PRODUCTOS)) {
+        localStorage.setItem(STORAGE_KEYS.PRODUCTOS, JSON.stringify(DEFAULT_PRODUCTOS));
+      }
+    }
+
+    // 10. Actualizar configuración comercial del restaurante
+    const baseConfig = this.getConfig();
+    const nuevaConfig: ConfigRestaurante = {
+      ...baseConfig,
+      nombre: opts.nombreNegocio?.trim() || baseConfig.nombre || 'La Chuspa Tech',
+      whatsapp: opts.whatsapp?.trim() || baseConfig.whatsapp || '969773064',
+      habilitarDniCliente: opts.habilitarDniCliente ?? baseConfig.habilitarDniCliente ?? true,
+      habilitarRucCliente: opts.habilitarRucCliente ?? baseConfig.habilitarRucCliente ?? true,
+      habilitarComprobantesFiscales: opts.habilitarComprobantesFiscales ?? baseConfig.habilitarComprobantesFiscales ?? true,
+      exigirValidacionReniecSunat: opts.exigirValidacionReniecSunat ?? baseConfig.exigirValidacionReniecSunat ?? true,
+    };
+    localStorage.setItem(STORAGE_KEYS.CONFIG, JSON.stringify(nuevaConfig));
+
+    // 11. Usuarios del sistema
+    if (opts.resetearUsuarios) {
+      localStorage.setItem(STORAGE_KEYS.USUARIOS, JSON.stringify(DEFAULT_USUARIOS_SISTEMA));
+    }
+
     this.notify();
   }
 

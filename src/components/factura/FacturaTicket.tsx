@@ -48,17 +48,22 @@ export const FacturaTicket: React.FC<FacturaTicketProps> = ({ config, onBack }) 
 
     setVenta(v);
 
-    // Generate SUNAT QR string
-    const sunatQrString = `${config.ruc}|${v.tipoComprobante === 'Factura' ? '01' : '03'}|${v.serie}|${v.numero.split('-')[1] || '00000001'}|${v.igv}|${v.totalPEN}|${v.fecha.slice(0, 10)}|${v.rucCliente ? (v.rucCliente.length === 11 ? '6' : '1') : '-'}|${v.rucCliente || '00000000'}|`;
+    if (v.tipoComprobante !== 'Nota de Venta') {
+      // Generate SUNAT QR string
+      const sunatQrString = `${config.ruc}|${v.tipoComprobante === 'Factura' ? '01' : '03'}|${v.serie}|${v.numero.split('-')[1] || '00000001'}|${v.igv}|${v.totalPEN}|${v.fecha.slice(0, 10)}|${v.rucCliente ? (v.rucCliente.length === 11 ? '6' : '1') : '-'}|${v.rucCliente || '00000000'}|`;
 
-    QRCode.toDataURL(sunatQrString, { width: 140, margin: 1 })
-      .then((url) => setQrDataUrl(url))
-      .catch(() => {});
+      QRCode.toDataURL(sunatQrString, { width: 140, margin: 1 })
+        .then((url) => setQrDataUrl(url))
+        .catch(() => {});
+    } else {
+      setQrDataUrl('');
+    }
   }, [config]);
 
   if (!venta) return null;
 
   const isFactura = venta.tipoComprobante === 'Factura';
+  const isNota = venta.tipoComprobante === 'Nota de Venta';
 
   return (
     <div className="w-full min-h-[calc(100vh-60px)] flex flex-col items-center justify-center p-4 bg-slate-950">
@@ -86,7 +91,7 @@ export const FacturaTicket: React.FC<FacturaTicketProps> = ({ config, onBack }) 
         {/* Voucher type banner */}
         <div className="my-2.5 w-full py-1.5 px-2 bg-slate-100 border border-slate-300 rounded text-center">
           <span className="block font-black text-[11px] tracking-wide text-blue-900 uppercase">
-            *** {isFactura ? 'FACTURA ELECTRÓNICA' : 'BOLETA DE VENTA ELECTRÓNICA'} ***
+            *** {isNota ? 'NOTA DE VENTA / TICKET INTERNO' : isFactura ? 'FACTURA ELECTRÓNICA' : 'BOLETA DE VENTA ELECTRÓNICA'} ***
           </span>
           <span className="text-[11px] font-mono font-bold text-slate-700">
             {venta.numero}
@@ -104,9 +109,11 @@ export const FacturaTicket: React.FC<FacturaTicketProps> = ({ config, onBack }) 
           <p>
             <b>Cliente:</b> {venta.razonSocialCliente || venta.cliente || 'CLIENTE GENERAL'}
           </p>
-          <p>
-            <b>{isFactura ? 'RUC' : 'DNI'}:</b> {venta.rucCliente || '00000000'}
-          </p>
+          {!isNota && (
+            <p>
+              <b>{isFactura ? 'RUC' : 'DNI'}:</b> {venta.rucCliente || 'SIN DOCUMENTO'}
+            </p>
+          )}
           <p>
             <b>Medio de Pago:</b> {venta.pago}
           </p>
@@ -164,13 +171,27 @@ export const FacturaTicket: React.FC<FacturaTicketProps> = ({ config, onBack }) 
 
         {/* SUNAT QR and Legal Footer */}
         <div className="my-3 flex flex-col items-center text-center">
-          {qrDataUrl && <img src={qrDataUrl} alt="SUNAT QR" className="w-24 h-24 mb-1" />}
+          {!isNota && qrDataUrl && <img src={qrDataUrl} alt="SUNAT QR" className="w-24 h-24 mb-1" />}
           <span className="text-[9px] text-slate-500 max-w-[240px] leading-tight">
-            Representación impresa de la Boleta/Factura Electrónica autorizada por SUNAT.
+            {isNota
+              ? 'Documento interno de control comercial (sin envío fiscal a SUNAT).'
+              : 'Representación impresa del Comprobante de Pago Electrónico.'}
           </span>
           <span className="text-[9px] font-bold text-emerald-700 flex items-center gap-1 mt-1">
-            <CheckCircle className="w-3 h-3" /> Estado: Comprobante Aceptado
+            <CheckCircle className="w-3 h-3" />{' '}
+            {isNota
+              ? 'Ticket Interno Registrado'
+              : venta.entornoSunat === 'beta'
+              ? 'Entorno BETA (Pruebas ApisPerú)'
+              : venta.entornoSunat === 'produccion'
+              ? 'Aceptado SUNAT (Producción)'
+              : 'Registrado en Caja'}
           </span>
+          {venta.validadoReniecSunat && (
+            <span className="text-[8px] font-bold text-blue-700 mt-0.5">
+              ✔ Titular validado vía RENIEC / SUNAT
+            </span>
+          )}
         </div>
 
         <p className="text-[10px] text-slate-500 italic mt-1">

@@ -102,6 +102,22 @@ export const App: React.FC = () => {
     return unsub;
   }, []);
 
+  // Aplicar paleta de colores personalizada dinámicamente a toda la plataforma
+  useEffect(() => {
+    const tc = config.themeColors;
+    const root = document.documentElement.style;
+    if (tc) {
+      root.setProperty('--primary', tc.primary || '#0056d2');
+      root.setProperty('--primary-hover', tc.primary || '#0043a8');
+      root.setProperty('--accent', tc.accent || '#0284c7');
+      root.setProperty('--chuspa-gold', tc.gold || '#f59e0b');
+      root.setProperty('--bg-warm', tc.bgDark || '#050d1a');
+      root.setProperty('--card-bg', tc.cardBg || '#0b1a33');
+      root.setProperty('--header-bg', tc.cardBg || '#071224');
+      root.setProperty('--sidebar-bg', tc.cardBg || '#081427');
+    }
+  }, [config.themeColors]);
+
   // Sync state if user clicks back/forward or navigates
   useEffect(() => {
     const handlePopState = () => {
@@ -125,7 +141,10 @@ export const App: React.FC = () => {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-[#050d1a] text-slate-100 selection:bg-amber-500 selection:text-slate-950 font-sans relative">
+      <div
+        className="min-h-screen text-slate-100 selection:bg-amber-500 selection:text-slate-950 font-sans relative transition-colors duration-300"
+        style={{ backgroundColor: config.themeColors?.bgDark || '#050d1a' }}
+      >
 
 
         {/* 1. ESTACIÓN INDEPENDIENTE: MENÚ DIGITAL PARA EL MOZO / COMENSAL (index.html) */}

@@ -21,6 +21,7 @@ import {
   Eye,
 } from 'lucide-react';
 import { storage } from '../../../services/storage';
+import { consultarDNI, consultarRUC, emitirComprobanteElectronico } from '../../../services/sunatApi';
 import { Producto, Venta, Comanda } from '../../../types';
 
 interface VentasSubmodulesProps {
@@ -35,12 +36,15 @@ export const VentasSubmodules: React.FC<VentasSubmodulesProps> = ({
   onRefresh,
 }) => {
   const [, setTick] = useState(0);
-  const [tipo, setTipo] = useState<'Factura' | 'Boleta'>('Factura');
+  const [tipo, setTipo] = useState<'Factura' | 'Boleta' | 'Nota de Venta'>('Factura');
   const [docNumero, setDocNumero] = useState('');
   const [razon, setRazon] = useState('');
   const [direccion, setDireccion] = useState('');
   const [concepto, setConcepto] = useState('Consumo Restaurante La Chuspa Tech');
   const [montoTotal, setMontoTotal] = useState<number>(150);
+  const [docValidado, setDocValidado] = useState(false);
+  const [consultandoDoc, setConsultandoDoc] = useState(false);
+  const [errorDoc, setErrorDoc] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState('');
   const [categoriaFiltro, setCategoriaFiltro] = useState('todas');
 
@@ -741,38 +745,103 @@ export const VentasSubmodules: React.FC<VentasSubmodulesProps> = ({
   if (moduleId === 'facturacion_pers') {
     const base = +(montoTotal / 1.18).toFixed(2);
     const igv = +(montoTotal - base).toFixed(2);
+    const exigirValidacion = config.exigirValidacionReniecSunat !== false;
 
-    const handleEmitirPersonalizada = (e: React.FormEvent) => {
+    const handleValidarDocumento = async () => {
+      const clean = docNumero.trim();
+      setErrorDoc(null);
+      setDocValidado(false);
+      if (tipo === 'Factura') {
+        if (!/^\d{11}$/.test(clean)) {
+          setErrorDoc('El RUC debe tener exactamente 11 dígitos.');
+          return;
+        }
+        setConsultandoDoc(true);
+        try {
+          const res = await consultarRUC(clean);
+          if (res.success && res.razon_social) {
+            setRazon(res.razon_social);
+            setDireccion(res.direccion || '');
+            setDocValidado(true);
+          } else {
+            setErrorDoc(res.message || 'No se pudo validar el RUC en SUNAT.');
+          }
+        } finally {
+          setConsultandoDoc(false);
+        }
+      } else if (tipo === 'Boleta') {
+        if (!/^\d{8}$/.test(clean)) {
+          setErrorDoc('El DNI debe tener exactamente 8 dígitos.');
+          return;
+        }
+        setConsultandoDoc(true);
+        try {
+          const res = await consultarDNI(clean);
+          if (res.success && res.nombres_completos) {
+            setRazon(res.nombres_completos);
+            setDocValidado(true);
+          } else {
+            setErrorDoc(res.message || 'No se pudo validar el DNI en RENIEC.');
+          }
+        } finally {
+          setConsultandoDoc(false);
+        }
+      }
+    };
+
+    const handleEmitirPersonalizada = async (e: React.FormEvent) => {
       e.preventDefault();
-      if (!docNumero || !razon) {
-        alert('Ingresa el RUC/DNI y la Razón Social.');
+      if (tipo !== 'Nota de Venta') {
+        if (!docNumero.trim() || !razon.trim()) {
+          alert('Ingresa el RUC/DNI y valida el titular ante RENIEC/SUNAT.');
+          return;
+        }
+        if (exigirValidacion && !docValidado) {
+          setErrorDoc(`Para emitir ${tipo} debes validar primero el ${tipo === 'Factura' ? 'RUC ante SUNAT' : 'DNI ante RENIEC'}. Si no cuentas con documento válido, selecciona Nota de Venta.`);
+          return;
+        }
+      } else if (!razon.trim()) {
+        alert('Ingresa un nombre o referencia del cliente.');
         return;
       }
 
-      const serie = tipo === 'Factura' ? 'F001' : 'B001';
-      const correlativo = String(Math.floor(100000 + Math.random() * 900000));
+      const numero = storage.getNextCorrelativo(tipo);
+      const resApi = await emitirComprobanteElectronico({
+        tipoComprobante: tipo === 'Nota de Venta' ? 'nota' : tipo === 'Factura' ? '1' : '2',
+        numero,
+        documentoCliente: tipo === 'Nota de Venta' ? '' : docNumero.trim(),
+        nombreCliente: razon.trim(),
+        direccionCliente: direccion.trim() || undefined,
+        total: montoTotal,
+        items: [{ nombre: concepto, cantidad: 1, precio: montoTotal }],
+      });
+
       const nuevaVenta: Venta = {
         id: `v-pers-${Date.now()}`,
-        numero: `${serie}-${correlativo}`,
-        serie,
+        numero,
+        serie: numero.split('-')[0],
         fecha: new Date().toISOString().slice(0, 10),
         mesa: 'Caja Principal / Mostrador',
-        cliente: razon,
+        cliente: razon.trim(),
         productos: concepto,
         items: [{ nombre: concepto, cantidad: 1, precio: montoTotal }],
-        baseImponible: base,
-        igv,
+        baseImponible: tipo === 'Nota de Venta' ? montoTotal : base,
+        igv: tipo === 'Nota de Venta' ? 0 : igv,
         totalPEN: montoTotal,
         pago: 'Efectivo / Transferencia',
         tipoComprobante: tipo,
-        rucCliente: docNumero,
-        razonSocialCliente: razon,
+        rucCliente: tipo === 'Nota de Venta' ? '' : docNumero.trim(),
+        razonSocialCliente: razon.trim(),
         cajero: 'Administrador General',
+        enlacePdf: resApi.enlace_pdf,
+        entornoSunat: resApi.entorno,
+        validadoReniecSunat: docValidado,
+        hashSunat: resApi.hash,
       };
 
       storage.saveVenta(nuevaVenta);
       forceUpdate();
-      alert(`✔ ${tipo} Electrónica ${serie}-${correlativo} generada con éxito a nombre de "${razon}".`);
+      alert(`✔ ${tipo} ${numero} emitida para "${razon.trim()}".\n${resApi.mensaje || ''}`);
     };
 
     return (
@@ -782,7 +851,7 @@ export const VentasSubmodules: React.FC<VentasSubmodulesProps> = ({
             <h2 className="text-lg font-black uppercase text-amber-400 font-latina-luxury flex items-center gap-2">
               <FileCheck className="w-5 h-5 text-amber-400" /> Emisión de Facturación Personalizada
             </h2>
-            <p className="text-xs text-sky-300">Generación directa de comprobantes electrónicos a empresas o comensales externos</p>
+            <p className="text-xs text-sky-300">Generación directa de comprobantes vinculados a validación real RENIEC / SUNAT</p>
           </div>
         </div>
 
@@ -791,37 +860,75 @@ export const VentasSubmodules: React.FC<VentasSubmodulesProps> = ({
             <label className="text-[10px] uppercase font-bold text-sky-400 block mb-1">Tipo de Comprobante</label>
             <select
               value={tipo}
-              onChange={(e) => setTipo(e.target.value as any)}
+              onChange={(e) => {
+                setTipo(e.target.value as any);
+                setDocValidado(false);
+                setErrorDoc(null);
+              }}
               className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white"
             >
               <option value="Factura">🏢 Factura Electrónica (RUC)</option>
               <option value="Boleta">🧾 Boleta de Venta (DNI)</option>
+              <option value="Nota de Venta">📄 Nota de Venta (Interno)</option>
             </select>
           </div>
-          <div>
-            <label className="text-[10px] uppercase font-bold text-sky-400 block mb-1">
-              {tipo === 'Factura' ? 'RUC (11 dígitos)' : 'DNI (8 dígitos)'}
-            </label>
-            <input
-              type="text"
-              required
-              placeholder={tipo === 'Factura' ? '20601234567' : '45871234'}
-              value={docNumero}
-              onChange={(e) => setDocNumero(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white"
-            />
-          </div>
+
+          {tipo !== 'Nota de Venta' && (
+            <div>
+              <label className="text-[10px] uppercase font-bold text-sky-400 block mb-1">
+                {tipo === 'Factura' ? 'RUC (11 dígitos)' : 'DNI (8 dígitos)'}
+              </label>
+              <div className="flex gap-1.5">
+                <input
+                  type="text"
+                  required
+                  maxLength={tipo === 'Factura' ? 11 : 8}
+                  placeholder={tipo === 'Factura' ? '20601234567' : '45871234'}
+                  value={docNumero}
+                  onChange={(e) => {
+                    setDocNumero(e.target.value.replace(/\D/g, ''));
+                    setDocValidado(false);
+                    setErrorDoc(null);
+                  }}
+                  className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white"
+                />
+                <button
+                  type="button"
+                  onClick={handleValidarDocumento}
+                  disabled={consultandoDoc}
+                  className="px-2.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-[11px] flex items-center gap-1 shrink-0 disabled:opacity-50"
+                >
+                  <Search className="w-3 h-3" />
+                  {consultandoDoc ? '...' : tipo === 'Factura' ? 'SUNAT' : 'RENIEC'}
+                </button>
+              </div>
+            </div>
+          )}
+
           <div>
             <label className="text-[10px] uppercase font-bold text-sky-400 block mb-1">Razón Social o Nombre Completo</label>
             <input
               type="text"
               required
-              placeholder="Ej. AGENCIA DE VIAJES ANDINA S.A.C."
+              readOnly={tipo !== 'Nota de Venta' && exigirValidacion}
+              placeholder={tipo === 'Nota de Venta' ? 'Nombre o Referencia del Cliente' : 'Se valida con el botón RENIEC/SUNAT'}
               value={razon}
               onChange={(e) => setRazon(e.target.value)}
               className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white"
             />
           </div>
+
+          {errorDoc && (
+            <div className="sm:col-span-3 p-2.5 rounded-xl bg-red-950/60 border border-red-500/40 text-xs text-red-300 font-bold">
+              ⚠️ {errorDoc}
+            </div>
+          )}
+          {docValidado && tipo !== 'Nota de Venta' && (
+            <div className="sm:col-span-3 p-2 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-xs text-emerald-300 font-bold">
+              ✔ Titular validado correctamente ante {tipo === 'Factura' ? 'SUNAT' : 'RENIEC'}: {razon} {direccion ? `— ${direccion}` : ''}
+            </div>
+          )}
+
           <div className="sm:col-span-2">
             <label className="text-[10px] uppercase font-bold text-sky-400 block mb-1">Concepto o Descripción</label>
             <input
@@ -843,14 +950,14 @@ export const VentasSubmodules: React.FC<VentasSubmodulesProps> = ({
             />
           </div>
 
-          <div className="sm:col-span-3 p-3 bg-slate-900/60 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+          <div className="sm:col-span-3 p-3 bg-slate-900/60 rounded-xl border border-slate-800 flex flex-wrap justify-between items-center gap-2 text-xs">
             <div>
               <span className="text-slate-400">Base Imponible: </span>
-              <b className="text-white font-mono">{formatMoney(base)}</b>
+              <b className="text-white font-mono">{formatMoney(tipo === 'Nota de Venta' ? montoTotal : base)}</b>
             </div>
             <div>
               <span className="text-slate-400">IGV (18%): </span>
-              <b className="text-amber-400 font-mono">{formatMoney(igv)}</b>
+              <b className="text-amber-400 font-mono">{formatMoney(tipo === 'Nota de Venta' ? 0 : igv)}</b>
             </div>
             <div>
               <span className="text-slate-400">Total a Pagar: </span>
@@ -860,7 +967,7 @@ export const VentasSubmodules: React.FC<VentasSubmodulesProps> = ({
               type="submit"
               className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow"
             >
-              <CheckCircle className="w-4 h-4" /> Emitir {tipo} Electrónica
+              <CheckCircle className="w-4 h-4" /> Emitir {tipo}
             </button>
           </div>
         </form>
