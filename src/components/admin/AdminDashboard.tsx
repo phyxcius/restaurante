@@ -188,6 +188,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
   const [docCobroValidado, setDocCobroValidado] = useState<boolean>(false);
   const [cobroErrorMsg, setCobroErrorMsg] = useState<string>('');
   const [isConsultandoCobro, setIsConsultandoCobro] = useState<boolean>(false);
+  const [isProcesandoCobro, setIsProcesandoCobro] = useState<boolean>(false);
+  const cobroLockRef = useRef<Set<string>>(new Set());
+  const dismissedBillComandaIdsRef = useRef<Set<string>>(new Set());
+  const activeComandaCobrandoIdRef = useRef<string | null>(null);
+  const devApiTouchedRef = useRef<boolean>(false);
 
   // QR Mesas
   const [qrMesaSeleccionada, setQrMesaSeleccionada] = useState<string>('Mesa 01');
@@ -318,8 +323,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
   const prevReservasCountRef = useRef<number>(storage.getReservas().length);
 
   const handleAceptarYCobrarSolicitud = (solicitud: { comandaId: string; mesa: string; metodo?: string }) => {
-    storage.clearSolicitudPago();
+    dismissedBillComandaIdsRef.current.add(solicitud.comandaId);
     setSolicitudPagoModal(null);
+    storage.clearSolicitudPago(solicitud.comandaId);
 
     const coms = storage.getComandas();
     let target = coms.find((c) => c.id === solicitud.comandaId);
@@ -338,8 +344,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
 
   useEffect(() => {
     const handleUpdate = () => {
-      setComandas(storage.getComandas());
-      setVentas(storage.getVentas());
+      const currentComs = storage.getComandas();
+      const currentVentas = storage.getVentas();
+      setComandas(currentComs);
+      setVentas(currentVentas);
       setMesas(storage.getMesas());
       setSocios(storage.getSocios());
       setReservas(storage.getReservas());
@@ -350,16 +358,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
       setUsuariosSistema(storage.getUsuariosSistema());
       setFirebaseState(storage.getFirebaseState());
 
-      // Check for incoming bill request
+      if (!devApiTouchedRef.current) {
+        const cloudDev = storage.getDevApiConfig();
+        if (cloudDev.tokenConsultasDniRuc || cloudDev.tokenFacturacion) {
+          setDevApiForm(cloudDev);
+        }
+      }
+
+      // Check for incoming bill request (sin reabrir para comandas ya aceptadas, en cobro o ya cobradas)
       const activeReq = storage.getSolicitudPagoActiva();
-      if (activeReq) {
-        setSolicitudPagoModal(activeReq);
-        reproducirCampana();
-      } else {
-        const coms = storage.getComandas();
-        const reqFromComanda = coms.find((c) => c.pideCuenta && c.estado !== 'finalizado');
-        if (reqFromComanda) {
-          setSolicitudPagoModal({
+      const reqFromComanda = activeReq
+        ? null
+        : currentComs.find((c) => c.pideCuenta && c.estado !== 'finalizado' && c.estado !== 'anulado');
+      const candidateReq = activeReq
+        ? activeReq
+        : reqFromComanda
+        ? {
             comandaId: reqFromComanda.id,
             numero: reqFromComanda.numero || reqFromComanda.id,
             mesa: reqFromComanda.mesa,
@@ -367,9 +381,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
             totalPEN: reqFromComanda.totalPEN || reqFromComanda.total || 0,
             metodo: reqFromComanda.pago || 'Efectivo',
             timestamp: Date.now(),
-          });
+          }
+        : null;
+
+      if (candidateReq) {
+        const reqId = candidateReq.comandaId;
+        const alreadyPaid = currentVentas.some((v) => v.id === reqId);
+        const suppressed =
+          alreadyPaid ||
+          activeComandaCobrandoIdRef.current === reqId ||
+          cobroLockRef.current.has(reqId) ||
+          dismissedBillComandaIdsRef.current.has(reqId);
+
+        if (!suppressed) {
+          setSolicitudPagoModal(candidateReq);
           reproducirCampana();
+        } else {
+          setSolicitudPagoModal((prev) => (prev && prev.comandaId === reqId ? null : prev));
         }
+      } else {
+        setSolicitudPagoModal(null);
       }
 
       // Check for incoming new reservation alert
@@ -482,6 +513,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
 
   // Cobro handling
   const handleOpenCobro = (cmd: Comanda) => {
+    activeComandaCobrandoIdRef.current = cmd.id;
+    dismissedBillComandaIdsRef.current.add(cmd.id);
+    setSolicitudPagoModal(null);
     setComandaCobrando(cmd);
     const fiscalEnabled = identidadForm.habilitarComprobantesFiscales !== false;
     let tipoInicial: 'Boleta' | 'Factura' | 'Nota de Venta' = 'Boleta';
@@ -495,6 +529,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
     }
 
     setCobroTipo(tipoInicial);
+    if (cmd.pago) {
+      setCobroMetodo(cmd.pago);
+    } else {
+      setCobroMetodo('Efectivo');
+    }
     if (tipoInicial === 'Factura') {
       setCobroRuc(cmd.ruc || '');
       setCobroRazon(cmd.razonSocial || cmd.cliente || '');
@@ -510,7 +549,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
   };
 
   const handleConfirmarCobro = async () => {
-    if (!comandaCobrando) return;
+    if (!comandaCobrando || isProcesandoCobro) return;
+
+    const targetId = comandaCobrando.id;
+    if (cobroLockRef.current.has(targetId) || storage.getVentas().some((v) => v.id === targetId)) {
+      activeComandaCobrandoIdRef.current = null;
+      setComandaCobrando(null);
+      setSolicitudPagoModal(null);
+      return;
+    }
 
     const exigirValidacion = identidadForm.exigirValidacionReniecSunat !== false;
     const docLimpio = cobroRuc.trim();
@@ -539,6 +586,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
       }
     }
 
+    setIsProcesandoCobro(true);
+    cobroLockRef.current.add(targetId);
+    dismissedBillComandaIdsRef.current.add(targetId);
+
     try {
       const numero = storage.getNextCorrelativo(cobroTipo);
       const total = comandaCobrando.totalPEN || comandaCobrando.total || 0;
@@ -557,7 +608,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
       });
 
       const venta: Venta = {
-        id: comandaCobrando.id,
+        id: targetId,
         numero,
         serie: numero.split('-')[0],
         fecha: `${new Date().toLocaleDateString('es-PE')} ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
@@ -579,21 +630,28 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
         hashSunat: resFactura.hash,
       };
 
-      storage.saveVenta(venta);
-      storage.regenerateMesaToken(comandaCobrando.mesa);
-
-      // Sincronizar bloqueo y agradecimiento inmediato en Menú Digital vía Firebase RTDB
-      await storage.setMesaPagada(comandaCobrando.mesa, venta);
+      const ok = await storage.finalizarCobroVenta(venta, targetId);
+      if (!ok) {
+        cobroLockRef.current.delete(targetId);
+        setIsProcesandoCobro(false);
+        const fbErr = storage.getFirebaseState().lastError;
+        alert(fbErr || 'No se pudo registrar el cobro en Firebase. Verifica las reglas de la base de datos.');
+        return;
+      }
 
       if (docLimpio.length === 8) {
         storage.addSelloSocio(docLimpio, nombreLimpio || undefined);
       }
 
+      activeComandaCobrandoIdRef.current = null;
       setComandaCobrando(null);
-      alert(`✔ Cobro registrado con éxito: ${cobroTipo} N° ${numero}\n${resFactura.mensaje || ''}`);
+      setSolicitudPagoModal(null);
+      setIsProcesandoCobro(false);
       setCurrentSection('factura');
       if (onNavigateToFactura) onNavigateToFactura();
     } catch {
+      cobroLockRef.current.delete(targetId);
+      setIsProcesandoCobro(false);
       alert('Error al cobrar la venta.');
     }
   };
@@ -2287,7 +2345,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                             onClick={() => {
                               const com = mesaComandaActiva;
                               setMesaDetalleModal(null);
-                              setComandaCobrando(com);
+                              handleOpenCobro(com);
                             }}
                           >
                             <i className="fa-solid fa-cash-register"></i> Cobrar / SUNAT
@@ -5090,10 +5148,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                         type="button"
                         className="btn btn-save"
                         style={{ fontSize: '11.5px', padding: '8px 14px' }}
-                        onClick={() => {
-                          saveDevApiConfig(devApiForm);
+                        onClick={async () => {
+                          devApiTouchedRef.current = true;
+                          const ok = await saveDevApiConfig(devApiForm);
                           setDevApiForm({ ...devApiForm });
-                          alert('✔ Tokens y entorno SUNAT/RENIEC guardados correctamente.');
+                          if (!ok) {
+                            alert(storage.getFirebaseState().lastError || '⚠️ Guardado en este dispositivo, pero Firebase rechazó escribir /dev_api. Verifica las reglas de Firebase Realtime Database.');
+                          } else {
+                            alert('✔ Tokens y entorno SUNAT/RENIEC guardados en Firebase RTDB (sincronizados en vivo con Carta Digital index y Caja).');
+                          }
                         }}
                       >
                         <i className="fa-solid fa-floppy-disk"></i> Guardar Configuración API SUNAT/RENIEC
@@ -5111,7 +5174,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                           border: 'none',
                         }}
                         onClick={async () => {
-                          saveDevApiConfig(devApiForm);
+                          devApiTouchedRef.current = true;
+                          await saveDevApiConfig(devApiForm);
                           setIsTestingTokens(true);
                           try {
                             const diag = await probarConexionTokens(
@@ -5461,14 +5525,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
 
       {/* MODAL COBRO FLOTANTE */}
       {comandaCobrando && (
-        <div className="modal-overlay" onClick={() => setComandaCobrando(null)}>
+        <div
+          className="modal-overlay"
+          onClick={() => {
+            if (isProcesandoCobro) return;
+            activeComandaCobrandoIdRef.current = null;
+            setComandaCobrando(null);
+          }}
+        >
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3 style={{ color: '#fbbf24' }}>Cobro de {comandaCobrando.mesa}</h3>
               <button
                 type="button"
+                disabled={isProcesandoCobro}
                 style={{ background: 'none', border: 'none', color: '#ccc', fontSize: '24px', fontWeight: 'bold', cursor: 'pointer' }}
-                onClick={() => setComandaCobrando(null)}
+                onClick={() => {
+                  if (isProcesandoCobro) return;
+                  activeComandaCobrandoIdRef.current = null;
+                  setComandaCobrando(null);
+                }}
               >
                 &times;
               </button>
@@ -5517,6 +5593,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                   <option value="Efectivo">💵 Efectivo</option>
                   <option value="Yape">🟣 Yape</option>
                   <option value="Plin">🔵 Plin</option>
+                  <option value="Yape / Plin">📱 Yape / Plin</option>
                   <option value="Tarjeta POS">💳 Tarjeta POS</option>
                 </select>
               </div>
@@ -5609,17 +5686,30 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
             )}
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '10px' }}>
-              <button type="button" className="btn btn-del" onClick={() => setComandaCobrando(null)}>
+              <button
+                type="button"
+                className="btn btn-del"
+                disabled={isProcesandoCobro}
+                onClick={() => {
+                  activeComandaCobrandoIdRef.current = null;
+                  setComandaCobrando(null);
+                }}
+              >
                 Cancelar
               </button>
               <button
                 type="button"
                 className="btn btn-save"
-                style={{ background: 'linear-gradient(135deg, #10b981, #059669)', width: '100%', border: 'none' }}
+                disabled={isProcesandoCobro}
+                style={{ background: 'linear-gradient(135deg, #10b981, #059669)', width: '100%', border: 'none', opacity: isProcesandoCobro ? 0.7 : 1 }}
                 onClick={handleConfirmarCobro}
               >
                 <i className="fa-solid fa-print"></i>{' '}
-                {cobroTipo === 'Nota de Venta' ? 'Cobrar e Imprimir Nota de Venta' : `Cobrar e Imprimir ${cobroTipo}`}
+                {isProcesandoCobro
+                  ? 'Procesando cobro...'
+                  : cobroTipo === 'Nota de Venta'
+                  ? 'Cobrar e Imprimir Nota de Venta'
+                  : `Cobrar e Imprimir ${cobroTipo}`}
               </button>
             </div>
           </div>
@@ -5825,7 +5915,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                 <button
                   type="button"
                   onClick={() => {
-                    storage.clearSolicitudPago();
+                    dismissedBillComandaIdsRef.current.add(solicitudPagoModal.comandaId);
+                    storage.clearSolicitudPago(solicitudPagoModal.comandaId);
                     setSolicitudPagoModal(null);
                   }}
                   className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"

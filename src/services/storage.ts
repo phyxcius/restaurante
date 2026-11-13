@@ -13,6 +13,7 @@ import {
   Resena,
   ConfigRestaurante,
   MesaStatus,
+  DevApiConfig,
 } from '../types';
 import { CHUSPA_TECH_LOGO } from '../constants/chuspaLogo';
 import {
@@ -709,9 +710,18 @@ const DEFAULT_CAJA_INICIAL = () => ({
   fecha: new Date().toISOString().slice(0, 10),
 });
 
+const DEFAULT_DEV_API_CONFIG: DevApiConfig = {
+  entorno: 'beta',
+  proveedorConsultas: 'auto',
+  tokenConsultasDniRuc: '',
+  tokenFacturacion: '',
+  rucEmisor: '10424235496',
+};
+
 interface CloudRootState {
   _initialized?: boolean;
   config: ConfigRestaurante;
+  dev_api: DevApiConfig;
   productos: Producto[];
   comandas: Comanda[];
   ventas: Venta[];
@@ -747,6 +757,7 @@ class StorageService {
   private cloudState: CloudRootState = {
     _initialized: false,
     config: { ...DEFAULT_CONFIG },
+    dev_api: { ...DEFAULT_DEV_API_CONFIG },
     productos: [...DEFAULT_PRODUCTOS],
     comandas: [],
     ventas: [],
@@ -871,9 +882,30 @@ class StorageService {
       whatsapp: rawConfig.whatsapp || '969773064',
     };
 
+    const rawDevApi = snapshot.dev_api || {};
+    let mergedDevApi: DevApiConfig = {
+      ...DEFAULT_DEV_API_CONFIG,
+      ...rawDevApi,
+    };
+
+    // Migración única automática: si la nube aún no tiene tokens pero este navegador los tenía en localStorage, súbelos a Firebase RTDB
+    if (!mergedDevApi.tokenConsultasDniRuc && !mergedDevApi.tokenFacturacion && typeof window !== 'undefined') {
+      try {
+        const legacyRaw = localStorage.getItem('cusq_dev_api_config');
+        if (legacyRaw) {
+          const parsedLegacy = JSON.parse(legacyRaw);
+          if (parsedLegacy?.tokenConsultasDniRuc || parsedLegacy?.tokenFacturacion) {
+            mergedDevApi = { ...mergedDevApi, ...parsedLegacy };
+            void fbSet('dev_api', mergedDevApi);
+          }
+        }
+      } catch {}
+    }
+
     this.cloudState = {
       _initialized: initialized,
       config: mergedConfig,
+      dev_api: mergedDevApi,
       productos: hasOwn(snapshot, 'productos')
         ? normalizeFirebaseList<Producto>(snapshot.productos)
         : initialized
@@ -942,6 +974,7 @@ class StorageService {
     const initialRoot: CloudRootState = {
       _initialized: true,
       config: { ...DEFAULT_CONFIG },
+      dev_api: this.cloudState.dev_api || { ...DEFAULT_DEV_API_CONFIG },
       productos: [...DEFAULT_PRODUCTOS],
       comandas: [],
       ventas: [],
@@ -1011,6 +1044,38 @@ class StorageService {
     this.dispatchLocalListeners();
     void fbSet('config', DEFAULT_CONFIG);
     return DEFAULT_CONFIG;
+  }
+
+  // --- DEV API CONFIG (SUNAT / RENIEC EN FIREBASE RTDB PARA INDEX & ADMIN) ---
+  public getDevApiConfig(): DevApiConfig {
+    const current = this.cloudState.dev_api || DEFAULT_DEV_API_CONFIG;
+    if (!current.tokenConsultasDniRuc && !current.tokenFacturacion && typeof window !== 'undefined') {
+      try {
+        const legacyRaw = localStorage.getItem('cusq_dev_api_config');
+        if (legacyRaw) {
+          return { ...DEFAULT_DEV_API_CONFIG, ...JSON.parse(legacyRaw) };
+        }
+      } catch {}
+    }
+    return { ...DEFAULT_DEV_API_CONFIG, ...current };
+  }
+
+  public async saveDevApiConfig(cfg: DevApiConfig): Promise<boolean> {
+    const clean: DevApiConfig = {
+      ...DEFAULT_DEV_API_CONFIG,
+      ...cfg,
+      tokenConsultasDniRuc: (cfg.tokenConsultasDniRuc || '').trim(),
+      tokenFacturacion: (cfg.tokenFacturacion || '').trim(),
+      rucEmisor: (cfg.rucEmisor || '10424235496').trim(),
+    };
+    this.cloudState.dev_api = clean;
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('cusq_dev_api_config', JSON.stringify(clean));
+      }
+    } catch {}
+    this.dispatchLocalListeners();
+    return fbSet('dev_api', clean);
   }
 
   // --- PRODUCTOS ---
@@ -1090,10 +1155,12 @@ class StorageService {
     const comanda = list.find((c) => c.id === id);
     if (comanda) {
       comanda.estado = estado;
-      this.cloudState.comandas = list;
       if (estado === 'finalizado' || estado === 'anulado') {
+        comanda.pideCuenta = false;
+        comanda.llamaMozo = false;
         void this.setMesaEstado(comanda.mesa, 'libre');
       }
+      this.cloudState.comandas = list;
       this.dispatchLocalListeners();
       void fbSet('comandas', list);
     }
@@ -1139,8 +1206,17 @@ class StorageService {
     return this.cloudState.alertas?.solicitud_pago || null;
   }
 
-  public clearSolicitudPago() {
+  public clearSolicitudPago(comandaId?: string) {
     this.cloudState.alertas.solicitud_pago = null;
+    if (comandaId) {
+      const list = [...this.getComandas()];
+      const cmd = list.find((c) => c.id === comandaId);
+      if (cmd && cmd.pideCuenta) {
+        cmd.pideCuenta = false;
+        this.cloudState.comandas = list;
+        void fbSet('comandas', list);
+      }
+    }
     this.dispatchLocalListeners();
     void fbRemove('alertas/solicitud_pago');
   }
@@ -1213,13 +1289,71 @@ class StorageService {
 
   public saveVenta(venta: Venta) {
     const list = [...this.getVentas()];
-    list.unshift(venta);
+    // Evitar duplicados si la venta con el mismo ID de comanda ya fue registrada
+    const existingIdx = list.findIndex((v) => v.id === venta.id);
+    if (existingIdx >= 0) {
+      list[existingIdx] = venta;
+    } else {
+      list.unshift(venta);
+    }
     this.cloudState.ventas = list;
     this.cloudState.factura_actual = venta;
     this.updateComandaEstado(venta.id, 'finalizado');
     this.dispatchLocalListeners();
     void fbSet('ventas', list);
     void fbSet('factura_actual', venta);
+  }
+
+  /**
+   * Cobro atómico en Firebase RTDB:
+   * - Evita duplicar ventas para la misma comanda.
+   * - Finaliza la comanda y limpia `pideCuenta` / `alertas/solicitud_pago` antes de notificar.
+   * - Libera mesa, regenera token QR y sincroniza `mesas_pagadas` para el Menú Digital.
+   */
+  public async finalizarCobroVenta(venta: Venta, comandaId: string): Promise<boolean> {
+    const ventasList = [...this.getVentas()];
+    if (ventasList.some((v) => v.id === venta.id)) {
+      return false;
+    }
+
+    ventasList.unshift(venta);
+    this.cloudState.ventas = ventasList;
+    this.cloudState.factura_actual = venta;
+    this.cloudState.alertas.solicitud_pago = null;
+
+    const comandasList = this.getComandas().map((c) =>
+      c.id === comandaId
+        ? { ...c, estado: 'finalizado' as const, pideCuenta: false, llamaMozo: false }
+        : c
+    );
+    this.cloudState.comandas = comandasList;
+
+    const newToken = `TK-${Math.random().toString(36).substring(2, 7).toUpperCase()}-${Date.now().toString(36).toUpperCase()}`;
+    const mesasList = this.getMesas().map((item) =>
+      item.nombre.toLowerCase().trim() === venta.mesa.toLowerCase().trim()
+        ? { ...item, estado: 'libre' as const, comandaActivaId: undefined, token: newToken }
+        : item
+    );
+    this.cloudState.mesas = mesasList;
+
+    const mesaKey = this.normalizeMesaKey(venta.mesa);
+    if (!this.cloudState.mesas_pagadas) this.cloudState.mesas_pagadas = {};
+    this.cloudState.mesas_pagadas[mesaKey] = venta;
+
+    this.dispatchLocalListeners();
+
+    const results = await Promise.all([
+      fbSet('comandas', comandasList),
+      fbSet('ventas', ventasList),
+      fbSet('factura_actual', venta),
+      fbSet('mesas', mesasList),
+      fbSet(`mesas_pagadas/${mesaKey}`, venta),
+      fbRemove('alertas/solicitud_pago'),
+    ]);
+
+    this.firebaseSyncInfo = getFirebaseSyncInfo();
+    this.dispatchLocalListeners();
+    return results.every(Boolean);
   }
 
   public getUltimaFactura(): Venta | null {
@@ -1623,6 +1757,7 @@ class StorageService {
     const nextRoot: CloudRootState = {
       _initialized: true,
       config: nuevaConfig,
+      dev_api: this.getDevApiConfig(),
       productos: opts.conservarCartaBase
         ? this.cloudState.productos.length > 0
           ? this.cloudState.productos

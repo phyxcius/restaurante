@@ -14,53 +14,42 @@ export const FacturaTicket: React.FC<FacturaTicketProps> = ({ config, onBack }) 
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
 
   useEffect(() => {
-    // Load last factura from storage, or the most recent sale
-    let v = storage.getUltimaFactura();
-    if (!v) {
-      const all = storage.getVentas();
-      if (all.length > 0) v = all[0];
-    }
+    const loadVenta = () => {
+      let v = storage.getUltimaFactura();
+      if (!v) {
+        const all = storage.getVentas();
+        if (all.length > 0) v = all[0];
+      }
+      setVenta(v || null);
 
-    if (!v) {
-      // Demo fallback sale if empty
-      v = {
-        id: 'DEMO-001',
-        numero: 'B001-000042',
-        serie: 'B001',
-        fecha: `${new Date().toLocaleDateString('es-PE')} 14:30`,
-        mesa: 'Mesa 01',
-        cliente: 'Carlos Mendoza Flores',
-        productos: '1x Lomo Saltado Criollo, 1x Pisco Sour Cusqueño Clásico',
-        items: [
-          { nombre: 'Lomo Saltado Criollo', cantidad: 1, precio: 38 },
-          { nombre: 'Pisco Sour Cusqueño Clásico', cantidad: 1, precio: 25 },
-        ],
-        baseImponible: 53.39,
-        igv: 9.61,
-        totalPEN: 63.0,
-        pago: 'Tarjeta POS',
-        tipoComprobante: 'Boleta',
-        rucCliente: '45892147',
-        cajero: 'Administrador (Turno Mañana)',
-        enlacePdf: 'https://facturacion.apisperu.com/ver/ticket/B001-000042.pdf',
-      };
-    }
+      if (v && v.tipoComprobante !== 'Nota de Venta') {
+        const sunatQrString = `${config.ruc}|${v.tipoComprobante === 'Factura' ? '01' : '03'}|${v.serie}|${v.numero.split('-')[1] || '00000001'}|${v.igv}|${v.totalPEN}|${v.fecha.slice(0, 10)}|${v.rucCliente ? (v.rucCliente.length === 11 ? '6' : '1') : '-'}|${v.rucCliente || '00000000'}|`;
+        QRCode.toDataURL(sunatQrString, { width: 140, margin: 1 })
+          .then((url) => setQrDataUrl(url))
+          .catch(() => {});
+      } else {
+        setQrDataUrl('');
+      }
+    };
 
-    setVenta(v);
-
-    if (v.tipoComprobante !== 'Nota de Venta') {
-      // Generate SUNAT QR string
-      const sunatQrString = `${config.ruc}|${v.tipoComprobante === 'Factura' ? '01' : '03'}|${v.serie}|${v.numero.split('-')[1] || '00000001'}|${v.igv}|${v.totalPEN}|${v.fecha.slice(0, 10)}|${v.rucCliente ? (v.rucCliente.length === 11 ? '6' : '1') : '-'}|${v.rucCliente || '00000000'}|`;
-
-      QRCode.toDataURL(sunatQrString, { width: 140, margin: 1 })
-        .then((url) => setQrDataUrl(url))
-        .catch(() => {});
-    } else {
-      setQrDataUrl('');
-    }
+    loadVenta();
+    return storage.subscribe(loadVenta);
   }, [config]);
 
-  if (!venta) return null;
+  if (!venta) {
+    return (
+      <div className="w-full min-h-[320px] flex flex-col items-center justify-center p-6 text-center text-slate-300 gap-3">
+        <p className="text-sm font-bold text-amber-300">Aún no se ha emitido ningún comprobante en esta sesión.</p>
+        <button
+          onClick={onBack}
+          className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Volver</span>
+        </button>
+      </div>
+    );
+  }
 
   const isFactura = venta.tipoComprobante === 'Factura';
   const isNota = venta.tipoComprobante === 'Nota de Venta';

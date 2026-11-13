@@ -2,8 +2,6 @@
 import { DevApiConfig } from '../types';
 import { storage } from './storage';
 
-const DEV_API_STORAGE_KEY = 'cusq_dev_api_config';
-
 export const DEFAULT_DEV_API_CONFIG: DevApiConfig = {
   entorno: 'beta',
   proveedorConsultas: 'auto',
@@ -13,17 +11,11 @@ export const DEFAULT_DEV_API_CONFIG: DevApiConfig = {
 };
 
 export function getDevApiConfig(): DevApiConfig {
-  try {
-    const raw = localStorage.getItem(DEV_API_STORAGE_KEY);
-    if (raw) {
-      return { ...DEFAULT_DEV_API_CONFIG, ...JSON.parse(raw) };
-    }
-  } catch {}
-  return { ...DEFAULT_DEV_API_CONFIG };
+  return storage.getDevApiConfig();
 }
 
-export function saveDevApiConfig(cfg: DevApiConfig) {
-  localStorage.setItem(DEV_API_STORAGE_KEY, JSON.stringify(cfg));
+export async function saveDevApiConfig(cfg: DevApiConfig): Promise<boolean> {
+  return storage.saveDevApiConfig(cfg);
 }
 
 export interface DniLookupResult {
