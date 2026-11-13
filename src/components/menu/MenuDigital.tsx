@@ -93,7 +93,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
         return cleanMesa;
       }
 
-      const saved = sessionStorage.getItem('cusq_selected_mesa') || localStorage.getItem('cusq_selected_mesa');
+      const saved = sessionStorage.getItem('cusq_selected_mesa');
       if (saved) return saved;
     } catch {}
     return 'Mesa 01';
@@ -219,9 +219,8 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
       if (current) setLastOrderState(current.estado);
       setActiveOrder(current || null);
 
-      // Check if this specific order was officially PAID and finalized by the cashier
-      const mesaKey = 'cusq_mesa_pagada_' + selectedMesa.replace(/\s+/g, '_').toLowerCase();
-      const mesaPagadaRaw = localStorage.getItem(mesaKey);
+      // Check if this specific order was officially PAID and finalized by the cashier (Firebase RTDB)
+      const mesaPagadaFirebase = storage.getMesaPagada(selectedMesa);
       let wasPaid = false;
       let completedSale: any = null;
 
@@ -238,19 +237,14 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
         }
       }
 
-      // Check mesaPagadaRaw ONLY if it matches the current active order ID and was paid in this session
-      if (!wasPaid && mesaPagadaRaw) {
-        try {
-          const parsed = JSON.parse(mesaPagadaRaw);
-          if (parsed && (parsed.id === myOrderId || (current && parsed.id === current.id))) {
-            wasPaid = true;
-            completedSale = parsed;
-          } else {
-            // It belongs to a past cycle or different order: remove it so it never falsely blocks the client!
-            localStorage.removeItem(mesaKey);
-          }
-        } catch {
-          localStorage.removeItem(mesaKey);
+      // Check mesaPagadaFirebase ONLY if it matches the current active order ID and was paid in this session
+      if (!wasPaid && mesaPagadaFirebase) {
+        if (mesaPagadaFirebase.id === myOrderId || (current && mesaPagadaFirebase.id === current.id)) {
+          wasPaid = true;
+          completedSale = mesaPagadaFirebase;
+        } else {
+          // It belongs to a past cycle or different order: clear it in Firebase so it never falsely blocks the client
+          void storage.clearMesaPagada(selectedMesa);
         }
       }
 
@@ -527,7 +521,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
   };
 
   // Submit Order
-  const handleEnviarPedido = () => {
+  const handleEnviarPedido = async () => {
     if (cart.length === 0) {
       alert(t.cartEmpty);
       return;
@@ -597,11 +591,14 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
       notas: orderNotas.trim() || undefined,
     };
 
-    storage.saveComanda(newComanda);
+    const ok = await storage.saveComanda(newComanda);
+    if (!ok) {
+      const fbErr = storage.getFirebaseState().lastError;
+      alert(fbErr || 'No se pudo registrar el pedido en Firebase. Verifica las reglas de la base de datos.');
+      return;
+    }
     sessionStorage.setItem('cusq_my_order_id', newComanda.id);
-    try {
-      localStorage.removeItem('cusq_mesa_pagada_' + selectedMesa.replace(/\s+/g, '_').toLowerCase());
-    } catch {}
+    void storage.clearMesaPagada(selectedMesa);
     setActiveOrder(newComanda);
     setCart([]);
     setIsCartOpen(false);
@@ -950,9 +947,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
             onClick={() => {
               sessionStorage.removeItem('cusq_my_order_id');
               sessionStorage.removeItem('auth_menu_active');
-              try {
-                localStorage.removeItem('cusq_mesa_pagada_' + selectedMesa.replace(/\s+/g, '_').toLowerCase());
-              } catch {}
+              void storage.clearMesaPagada(selectedMesa);
               setBloqueadoPorPago(false);
               setVentaCompletada(null);
               setActiveOrder(null);
@@ -1017,9 +1012,7 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                   onClick={() => {
                     if (storage.validarClave('mozo', pinUnlock) || storage.validarClave('admin', pinUnlock)) {
                       sessionStorage.removeItem('cusq_my_order_id');
-                      try {
-                        localStorage.removeItem('cusq_mesa_pagada_' + selectedMesa.replace(/\s+/g, '_').toLowerCase());
-                      } catch {}
+                      void storage.clearMesaPagada(selectedMesa);
                       setBloqueadoPorPago(false);
                       setVentaCompletada(null);
                       setActiveOrder(null);
@@ -1381,13 +1374,13 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
 
               {!reservaExito ? (
                 <form
-                  onSubmit={(e) => {
+                  onSubmit={async (e) => {
                     e.preventDefault();
                     if (!reservaForm.nombre.trim() || !reservaForm.telefono.trim()) {
                       alert('Por favor ingrese nombre y teléfono para la reserva.');
                       return;
                     }
-                    storage.saveReserva({
+                    const ok = await storage.saveReserva({
                       id: 'resv-' + Date.now(),
                       cliente: reservaForm.nombre,
                       telefono: reservaForm.telefono,
@@ -1407,6 +1400,11 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                       notas: reservaForm.notas,
                       fechaCreacion: new Date().toISOString(),
                     }, true);
+                    if (!ok) {
+                      const fbErr = storage.getFirebaseState().lastError;
+                      alert(fbErr || 'No se pudo guardar la reserva en Firebase. Verifica los permisos de la base de datos.');
+                      return;
+                    }
                     setReservaExito(true);
                   }}
                   className="my-3 space-y-3 text-xs"

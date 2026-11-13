@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { CalendarCheck, Clock, Users, Utensils, MessageSquare, CheckCircle, ArrowLeft, Share2, DollarSign, BookOpen } from 'lucide-react';
-import { Reserva, ConfigRestaurante, Producto, ReservaItemPedido } from '../../types';
+import { Reserva, ConfigRestaurante, Producto, ReservaItemPedido, MesaStatus } from '../../types';
 import { storage } from '../../services/storage';
 import { CHUSPA_TECH_LOGO } from '../../constants/chuspaLogo';
 import { DishCatalogPickerModal } from './DishCatalogPickerModal';
@@ -12,8 +12,16 @@ interface ReservasPublicaProps {
 }
 
 export const ReservasPublica: React.FC<ReservasPublicaProps> = ({ config, onBackToMenu }) => {
-  const mesas = storage.getMesas();
-  const productos = storage.getProductos();
+  const [mesas, setMesas] = useState<MesaStatus[]>(() => storage.getMesas());
+  const [productos, setProductos] = useState<Producto[]>(() => storage.getProductos());
+
+  useEffect(() => {
+    const unsub = storage.subscribe(() => {
+      setMesas(storage.getMesas());
+      setProductos(storage.getProductos());
+    });
+    return unsub;
+  }, []);
 
   const [nombre, setNombre] = useState<string>('');
   const [telefono, setTelefono] = useState<string>('');
@@ -46,7 +54,7 @@ export const ReservasPublica: React.FC<ReservasPublicaProps> = ({ config, onBack
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const id = `RES-${Date.now().toString().slice(-6)}`;
     const totalEst = totalEstimado || itemsPedidos.reduce((acc, it) => acc + it.cantidad * it.precio, 0);
@@ -74,7 +82,13 @@ export const ReservasPublica: React.FC<ReservasPublicaProps> = ({ config, onBack
       metodoPagoAdelanto: pagoConfirmado ? metodoPagoAdelanto : undefined,
     };
 
-    storage.saveReserva(nuevaReserva, true);
+    const ok = await storage.saveReserva(nuevaReserva, true);
+    if (!ok) {
+      const fbErr = storage.getFirebaseState().lastError;
+      alert(fbErr || 'No se pudo registrar la reserva en Firebase. Verifica las reglas de la base de datos.');
+      return;
+    }
+
     setLastReservaId(id);
     setIsSuccess(true);
 

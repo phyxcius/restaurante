@@ -20,6 +20,7 @@ import {
   DevApiConfig,
 } from '../../types';
 import { storage, UsuarioSistema } from '../../services/storage';
+import { FirebaseSyncInfo } from '../../services/firebaseDb';
 import {
   consultarDNI,
   consultarRUC,
@@ -134,6 +135,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
   const [showFactToken, setShowFactToken] = useState<boolean>(false);
   const [diagnosticoTokens, setDiagnosticoTokens] = useState<DiagnosticoTokensResult | null>(null);
   const [isTestingTokens, setIsTestingTokens] = useState<boolean>(false);
+
+  // Firebase Realtime Database state (solo visible si hay error de reglas o en Consola Dev)
+  const [firebaseState, setFirebaseState] = useState<FirebaseSyncInfo>(() => storage.getFirebaseState());
+  const [firebaseUrlInput, setFirebaseUrlInput] = useState<string>(() => storage.getFirebaseState().url);
+  const [isTestingFirebase, setIsTestingFirebase] = useState<boolean>(false);
+  const [isSeedingFirebase, setIsSeedingFirebase] = useState<boolean>(false);
+  const [firebaseTestResult, setFirebaseTestResult] = useState<{ ok: boolean; status: string; message: string } | null>(null);
 
   // Centered Alert Modal
   const [alertOverlay, setAlertOverlay] = useState<{
@@ -340,6 +348,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
       setResenas(storage.getResenas());
       setIdentidadForm(storage.getConfig());
       setUsuariosSistema(storage.getUsuariosSistema());
+      setFirebaseState(storage.getFirebaseState());
 
       // Check for incoming bill request
       const activeReq = storage.getSolicitudPagoActiva();
@@ -573,11 +582,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
       storage.saveVenta(venta);
       storage.regenerateMesaToken(comandaCobrando.mesa);
 
-      // Sincronizar bloqueo y agradecimiento inmediato en Menú Digital
-      try {
-        const mesaKey = 'cusq_mesa_pagada_' + comandaCobrando.mesa.replace(/\s+/g, '_').toLowerCase();
-        localStorage.setItem(mesaKey, JSON.stringify(venta));
-      } catch {}
+      // Sincronizar bloqueo y agradecimiento inmediato en Menú Digital vía Firebase RTDB
+      await storage.setMesaPagada(comandaCobrando.mesa, venta);
 
       if (docLimpio.length === 8) {
         storage.addSelloSocio(docLimpio, nombreLimpio || undefined);
@@ -1249,6 +1255,28 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
           </button>
         </div>
       </header>
+
+      {/* ALERTA ACCIONABLE SOLO SI FIREBASE RTDB RECHAZA LECTURA/ESCRITURA POR REGLAS DE SEGURIDAD */}
+      {(firebaseState.status === 'permission_denied' || firebaseState.status === 'error') && (
+        <div className="bg-red-950/95 border-b-2 border-red-500 px-4 py-2.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-red-100 z-30">
+          <div className="flex items-start sm:items-center gap-2.5">
+            <i className="fa-solid fa-triangle-exclamation text-amber-400 text-base mt-0.5 sm:mt-0"></i>
+            <div>
+              <b className="text-amber-300 uppercase">Firebase Realtime Database sin permiso de escritura/lectura:</b>{' '}
+              <span>{firebaseState.lastError || `No se pudo sincronizar con ${firebaseState.url}`}</span>
+            </div>
+          </div>
+          {userRole === 'admin' && (
+            <button
+              type="button"
+              onClick={() => handleNavClick('dev_console')}
+              className="px-3 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[11px] shrink-0 cursor-pointer"
+            >
+              Revisar en Consola Dev
+            </button>
+          )}
+        </div>
+      )}
 
       {/* RECORDATORIO ACTIVO DE RESERVAS DEL DÍA */}
       {(() => {
@@ -2200,7 +2228,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                             <button
                               type="button"
                               className="btn btn-save text-xs px-3"
-                              onClick={() => {
+                              onClick={async () => {
                                 const prod = productos.find((p) => (p.i18n?.es?.name || (p as any).nombre) === mesaAgregarPlato);
                                 const precio = prod?.precioPEN || prod?.precio || 25;
                                 const itemNuevo = { nombre: mesaAgregarPlato, cantidad: mesaAgregarCant, precio };
@@ -2216,7 +2244,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                                   totalPEN: nuevoTotal,
                                   productos: prodsStr,
                                 };
-                                storage.saveComanda(comandaActualizada);
+                                const ok = await storage.saveComanda(comandaActualizada);
+                                if (!ok) {
+                                  alert(storage.getFirebaseState().lastError || 'No se pudo actualizar la comanda en Firebase.');
+                                  return;
+                                }
                                 setComandas(storage.getComandas());
                                 setMesaComandaActiva(comandaActualizada);
                                 alert(`✔ Se agregó ${mesaAgregarCant}x ${mesaAgregarPlato}`);
@@ -2338,7 +2370,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                         <button
                           type="button"
                           className="w-full btn btn-save py-2.5 font-bold text-xs flex items-center justify-center gap-2"
-                          onClick={() => {
+                          onClick={async () => {
                             const prod = productos.find((p) => (p.i18n?.es?.name || (p as any).nombre) === mesaNuevaPlato);
                             const precio = prod?.precioPEN || prod?.precio || 38;
                             const nuevaComanda: Comanda = {
@@ -2361,8 +2393,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                               mozo: mesaNuevaMozo,
                             };
 
-                            storage.saveComanda(nuevaComanda);
-                            storage.setMesaEstado(mesaDetalleModal.nombre, 'ocupada');
+                            const ok = await storage.saveComanda(nuevaComanda);
+                            if (!ok) {
+                              alert(storage.getFirebaseState().lastError || 'No se pudo abrir la mesa en Firebase. Verifica los permisos.');
+                              return;
+                            }
                             setComandas(storage.getComandas());
                             setMesas(storage.getMesas());
                             setMesaDetalleModal(null);
@@ -3416,7 +3451,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                   <i className="fa-solid fa-plus-circle"></i> Registrar / Acomodar Nueva Reserva:
                 </strong>
                 <form
-                  onSubmit={(e) => {
+                  onSubmit={async (e) => {
                     e.preventDefault();
                     if (!resAdminForm.titular.trim() || !resAdminForm.telefono.trim()) {
                       alert('Por favor complete titular y teléfono.');
@@ -3445,8 +3480,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                       notas: resAdminForm.notas.trim() || 'Sin notas especiales',
                       fechaCreacion: new Date().toLocaleDateString('es-PE'),
                     };
-                    storage.saveReserva(n);
-                    alert(`✔ Reserva guardada en estado ${n.estado}. ${n.pagoConfirmado ? '🔒 Mesa bloqueada solo para la fecha de reserva (' + n.fechaReserva + ').' : 'Mesa libre hasta confirmar pago.'}`);
+                    const ok = await storage.saveReserva(n);
+                    if (!ok) {
+                      alert(storage.getFirebaseState().lastError || 'No se pudo registrar la reserva en Firebase.');
+                      return;
+                    }
+                    alert(`✔ Reserva guardada en Firebase en estado ${n.estado}. ${n.pagoConfirmado ? '🔒 Mesa bloqueada solo para la fecha de reserva (' + n.fechaReserva + ').' : 'Mesa libre hasta confirmar pago.'}`);
                     setResAdminForm({
                       ...resAdminForm,
                       titular: '',
@@ -5306,6 +5345,110 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                           <i className="fa-solid fa-trash"></i> Eliminar Token
                         </button>
                       </div>
+                    </div>
+                  </div>
+
+                  {/* 6. MÓDULO: BASE DE DATOS EN TIEMPO REAL FIREBASE (RTDB) */}
+                  <div className="card" style={{ border: '1.5px solid rgba(245, 158, 11, 0.45)' }}>
+                    <h3 style={{ fontSize: '15px', fontWeight: 900, color: '#fbbf24', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <i className="fa-solid fa-fire text-amber-400"></i> Base de Datos Firebase Realtime Database (Sin Sincronización Local)
+                    </h3>
+                    <p style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '12px' }}>
+                      Toda la plataforma (Carta Digital `index`, Panel `admin`, Cocina KDS y Portal de `reservas`) sincroniza sus comandas, reservas, mesas, caja y catálogo directamente con Firebase RTDB:
+                    </p>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '12px' }}>
+                      <div>
+                        <label style={{ fontSize: '11px', color: '#cbd5e1' }}>URL de Firebase Realtime Database:</label>
+                        <input
+                          type="url"
+                          placeholder="https://restaurante1-695f7-default-rtdb.firebaseio.com"
+                          value={firebaseUrlInput}
+                          onChange={(e) => setFirebaseUrlInput(e.target.value)}
+                          style={{ width: '100%', marginTop: '3px' }}
+                        />
+                      </div>
+
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                        <button
+                          type="button"
+                          className="btn btn-save"
+                          style={{ fontSize: '11.5px', padding: '8px 14px' }}
+                          onClick={async () => {
+                            await storage.reconnectFirebase(firebaseUrlInput);
+                            const res = await storage.testFirebaseConnection(firebaseUrlInput);
+                            setFirebaseTestResult(res);
+                            setFirebaseState(storage.getFirebaseState());
+                            alert(res.ok ? `✔ Conectado a Firebase: ${res.message}` : `⚠️ ${res.message}`);
+                          }}
+                        >
+                          <i className="fa-solid fa-link"></i> Guardar URL & Reconectar
+                        </button>
+
+                        <button
+                          type="button"
+                          className="btn"
+                          disabled={isTestingFirebase}
+                          style={{ fontSize: '11.5px', padding: '8px 14px', background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#0f172a', fontWeight: 900, border: 'none' }}
+                          onClick={async () => {
+                            setIsTestingFirebase(true);
+                            try {
+                              const res = await storage.testFirebaseConnection(firebaseUrlInput);
+                              setFirebaseTestResult(res);
+                              setFirebaseState(storage.getFirebaseState());
+                            } finally {
+                              setIsTestingFirebase(false);
+                            }
+                          }}
+                        >
+                          <i className="fa-solid fa-stethoscope"></i>{' '}
+                          {isTestingFirebase ? 'Probando Firebase...' : '🔥 Probar Conexión y Reglas Firebase'}
+                        </button>
+
+                        <button
+                          type="button"
+                          className="btn"
+                          disabled={isSeedingFirebase}
+                          style={{ fontSize: '11.5px', padding: '8px 14px', background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff', fontWeight: 900, border: 'none' }}
+                          onClick={async () => {
+                            if (!window.confirm('¿Deseas inicializar / subir la estructura base (configuración La Chuspa Tech, carta de platos y mesas) hacia Firebase RTDB?')) return;
+                            setIsSeedingFirebase(true);
+                            try {
+                              const ok = await storage.seedFirebaseDefaults(true);
+                              setFirebaseState(storage.getFirebaseState());
+                              alert(ok
+                                ? '✔ Estructura base, carta de platos y mesas guardadas en Firebase Realtime Database.'
+                                : (storage.getFirebaseState().lastError || '✖ Firebase rechazó la escritura. Revisa las reglas ".write" en Firebase Console.'));
+                            } finally {
+                              setIsSeedingFirebase(false);
+                            }
+                          }}
+                        >
+                          <i className="fa-solid fa-cloud-arrow-up"></i>{' '}
+                          {isSeedingFirebase ? 'Subiendo...' : '📤 Inicializar Datos Base en Firebase'}
+                        </button>
+                      </div>
+
+                      {firebaseTestResult && (
+                        <div style={{
+                          padding: '10px 12px',
+                          borderRadius: '10px',
+                          background: '#020617',
+                          border: `1px solid ${firebaseTestResult.ok ? '#10b981' : '#ef4444'}`,
+                          color: firebaseTestResult.ok ? '#34d399' : '#f87171',
+                          fontSize: '11.5px',
+                          fontWeight: 700,
+                        }}>
+                          {firebaseTestResult.ok ? '✔' : '✖'} {firebaseTestResult.message}
+                        </div>
+                      )}
+
+                      {firebaseState.status === 'permission_denied' && (
+                        <div style={{ background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.45)', borderRadius: '10px', padding: '10px 12px', fontSize: '11px', color: '#fecaca', lineHeight: 1.5 }}>
+                          <b>🔒 Reglas de Firebase RTDB bloqueadas (`Permission denied`):</b><br />
+                          Entra a <b>Firebase Console → Realtime Database → Reglas</b> del proyecto <code>restaurante1-695f7</code> y habilita lectura/escritura para los nodos del restaurante antes de operar pedidos reales.
+                        </div>
+                      )}
                     </div>
                   </div>
 

@@ -15,6 +15,16 @@ import {
   MesaStatus,
 } from '../types';
 import { CHUSPA_TECH_LOGO } from '../constants/chuspaLogo';
+import {
+  fbSet,
+  fbRemove,
+  subscribeFirebaseRoot,
+  normalizeFirebaseList,
+  getFirebaseSyncInfo,
+  FirebaseSyncInfo,
+  setFirebaseDbUrl,
+  fbTestConnection,
+} from './firebaseDb';
 
 const STORAGE_KEYS = {
   CONFIG: 'cusq_config',
@@ -665,75 +675,303 @@ export const DEFAULT_RESERVAS: Reserva[] = [
   },
 ];
 
+const DEFAULT_RESENAS: Resena[] = [
+  {
+    id: 'r-1',
+    cliente: 'Carlos Mendoza',
+    mesa: 'Mesa 01',
+    calificacion: 5,
+    comentario: '¡El mejor Lomo Saltado de Cusco! La carne estaba en su punto perfecto y la atención fue muy rápida.',
+    fecha: '2024-10-25',
+  },
+  {
+    id: 'r-2',
+    cliente: 'Sophie Dupont',
+    mesa: 'Mesa 02',
+    calificacion: 5,
+    comentario: 'Amazing ceviche with Andean trout and the video menu on phone was so futuristic and fun!',
+    fecha: '2024-10-26',
+  },
+];
+
+const DEFAULT_SERIES = {
+  boleta: { serie: 'B001', correlativo: 43 },
+  factura: { serie: 'F001', correlativo: 18 },
+  nota_venta: { serie: 'NV01', correlativo: 0 },
+  nota_credito: { serie: 'FC01', correlativo: 3 },
+  nota_debito: { serie: 'FD01', correlativo: 1 },
+};
+
+const DEFAULT_CAJA_INICIAL = () => ({
+  monto: 100.0,
+  turno: 'Mañana (07:00 - 15:00)',
+  operador: 'Administrador',
+  fecha: new Date().toISOString().slice(0, 10),
+});
+
+interface CloudRootState {
+  _initialized?: boolean;
+  config: ConfigRestaurante;
+  productos: Producto[];
+  comandas: Comanda[];
+  ventas: Venta[];
+  factura_actual: Venta | null;
+  mesas: MesaStatus[];
+  insumos: Insumo[];
+  recetas: Receta[];
+  movs: MovimientoAlmacen[];
+  compras: any[];
+  personal: Personal[];
+  caja_movs: MovimientoCaja[];
+  cierres: CierreCaja[];
+  caja_inicial: { monto: number; turno: string; operador: string; fecha: string };
+  socios: Socio[];
+  reservas: Reserva[];
+  resenas: Resena[];
+  series: Record<string, { serie: string; correlativo: number }>;
+  usuarios: UsuarioSistema[];
+  alertas: {
+    solicitud_pago: any | null;
+    nueva_reserva: { reserva: Reserva; timestamp: number } | null;
+  };
+  mesas_pagadas: Record<string, Venta>;
+  erp: Record<string, any[]>;
+}
+
 class StorageService {
   private listeners: (() => void)[] = [];
-  private broadcastChannel: BroadcastChannel | null = null;
-  private lastStorageHash: string = '';
+  private unsubFirebase: (() => void) | null = null;
+  private hasSeededCloud = false;
+  private firebaseSyncInfo: FirebaseSyncInfo = getFirebaseSyncInfo();
+
+  private cloudState: CloudRootState = {
+    _initialized: false,
+    config: { ...DEFAULT_CONFIG },
+    productos: [...DEFAULT_PRODUCTOS],
+    comandas: [],
+    ventas: [],
+    factura_actual: null,
+    mesas: [...DEFAULT_MESAS],
+    insumos: [...DEFAULT_INSUMOS],
+    recetas: [...DEFAULT_RECETAS],
+    movs: [],
+    compras: [],
+    personal: [...DEFAULT_PERSONAL],
+    caja_movs: [],
+    cierres: [],
+    caja_inicial: DEFAULT_CAJA_INICIAL(),
+    socios: [...DEFAULT_SOCIOS],
+    reservas: [...DEFAULT_RESERVAS],
+    resenas: [...DEFAULT_RESENAS],
+    series: { ...DEFAULT_SERIES },
+    usuarios: [...DEFAULT_USUARIOS_SISTEMA],
+    alertas: {
+      solicitud_pago: null,
+      nueva_reserva: null,
+    },
+    mesas_pagadas: {},
+    erp: {},
+  };
 
   constructor() {
-    this.initDefaults();
-    this.initRealtimeSync();
+    this.purgeLegacyLocalBusinessKeys();
+    this.connectFirebase();
   }
 
-  private initRealtimeSync() {
+  /**
+   * Deslinda cualquier sincronización local heredada eliminando claves de negocio en localStorage.
+   * Toda la persistencia de comandas, reservas, mesas, ventas y catálogo reside en Firebase RTDB.
+   */
+  private purgeLegacyLocalBusinessKeys() {
     if (typeof window === 'undefined') return;
-
-    // 1. High-speed BroadcastChannel across all tabs & windows (0-5ms latency)
     try {
-      if ('BroadcastChannel' in window) {
-        this.broadcastChannel = new BroadcastChannel('la_cusquenita_realtime_bus');
-        this.broadcastChannel.onmessage = (event) => {
-          if (event && event.data && event.data.type === 'CUSQ_SYNC') {
-            this.dispatchLocalListeners();
-          }
-        };
+      const legacyBusinessKeys = [
+        ...Object.values(STORAGE_KEYS),
+        'cusq_alerta_nueva_reserva',
+        'cusq_solicitud_pago_activa',
+        'cusq_realtime_ping',
+        'cusq_selected_mesa',
+      ];
+      legacyBusinessKeys.forEach((k) => localStorage.removeItem(k));
+
+      // Eliminar cualquier cusq_mesa_pagada_* o cusq_erp_* residual
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i);
+        if (key && (key.startsWith('cusq_mesa_pagada_') || key.startsWith('cusq_erp_'))) {
+          localStorage.removeItem(key);
+        }
       }
-    } catch {
-      // Fallback if BroadcastChannel unavailable
-    }
-
-    // 2. Storage event listener when other windows or tabs write to localStorage
-    try {
-      window.addEventListener('storage', (e) => {
-        if (e.key && (e.key.startsWith('cusq_') || e.key === 'factura_actual')) {
-          this.dispatchLocalListeners();
-        }
-      });
-    } catch {}
-
-    // 3. Ultra-fast safeguard heartbeat (every 500ms) ensuring zero-delay auto sync
-    try {
-      this.lastStorageHash = this.computeStateHash();
-      setInterval(() => {
-        const currentHash = this.computeStateHash();
-        if (currentHash !== this.lastStorageHash) {
-          this.lastStorageHash = currentHash;
-          this.dispatchLocalListeners();
-        }
-      }, 500);
     } catch {}
   }
 
-  private computeStateHash(): string {
-    try {
-      return (
-        (localStorage.getItem(STORAGE_KEYS.COMANDAS) || '').length +
-        '_' +
-        (localStorage.getItem(STORAGE_KEYS.VENTAS) || '').length +
-        '_' +
-        (localStorage.getItem(STORAGE_KEYS.RESERVAS) || '').length +
-        '_' +
-        (localStorage.getItem(STORAGE_KEYS.SOCIOS) || '').length +
-        '_' +
-        (localStorage.getItem('cusq_alerta_nueva_reserva') || '') +
-        '_' +
-        (localStorage.getItem('cusq_solicitud_pago_activa') || '') +
-        '_' +
-        (localStorage.getItem('cusq_realtime_ping') || '')
-      );
-    } catch {
-      return '';
+  public connectFirebase() {
+    if (this.unsubFirebase) {
+      this.unsubFirebase();
+      this.unsubFirebase = null;
     }
+    this.hasSeededCloud = false;
+
+    this.unsubFirebase = subscribeFirebaseRoot(
+      (snapshot) => {
+        this.applyFirebaseSnapshot(snapshot);
+      },
+      (statusInfo) => {
+        this.firebaseSyncInfo = statusInfo;
+        this.dispatchLocalListeners();
+      }
+    );
+  }
+
+  public async reconnectFirebase(customUrl?: string) {
+    if (customUrl !== undefined) {
+      await setFirebaseDbUrl(customUrl);
+    }
+    this.connectFirebase();
+  }
+
+  public getFirebaseState(): FirebaseSyncInfo {
+    return { ...this.firebaseSyncInfo };
+  }
+
+  public async testFirebaseConnection(customUrl?: string) {
+    const res = await fbTestConnection(customUrl);
+    this.firebaseSyncInfo = {
+      url: customUrl || this.firebaseSyncInfo.url,
+      status: res.status,
+      lastError: res.ok ? null : res.message,
+      lastSyncAt: res.ok ? Date.now() : this.firebaseSyncInfo.lastSyncAt,
+    };
+    this.dispatchLocalListeners();
+    return res;
+  }
+
+  private applyFirebaseSnapshot(snapshot: Record<string, any> | null) {
+    const isEmptyCloud =
+      !snapshot ||
+      (!snapshot._initialized && !snapshot.config && !snapshot.productos && !snapshot.comandas && !snapshot.reservas);
+
+    if (isEmptyCloud) {
+      if (!this.hasSeededCloud) {
+        this.hasSeededCloud = true;
+        void this.seedFirebaseDefaults(false);
+      }
+      this.dispatchLocalListeners();
+      return;
+    }
+
+    const hasOwn = (obj: Record<string, any>, key: string) => Object.prototype.hasOwnProperty.call(obj, key);
+    const initialized = !!snapshot._initialized;
+
+    const rawConfig = snapshot.config || {};
+    const mergedConfig: ConfigRestaurante = {
+      ...DEFAULT_CONFIG,
+      ...rawConfig,
+      nombre: rawConfig.nombre === 'La Cusqueñita' ? 'La Chuspa Tech' : rawConfig.nombre || 'La Chuspa Tech',
+      logo: !rawConfig.logo || rawConfig.logo === '🍽️' || rawConfig.nombre === 'La Cusqueñita' ? CHUSPA_TECH_LOGO : rawConfig.logo,
+      whatsapp: rawConfig.whatsapp || '969773064',
+    };
+
+    this.cloudState = {
+      _initialized: initialized,
+      config: mergedConfig,
+      productos: hasOwn(snapshot, 'productos')
+        ? normalizeFirebaseList<Producto>(snapshot.productos)
+        : initialized
+        ? []
+        : [...DEFAULT_PRODUCTOS],
+      comandas: hasOwn(snapshot, 'comandas') ? normalizeFirebaseList<Comanda>(snapshot.comandas) : [],
+      ventas: hasOwn(snapshot, 'ventas') ? normalizeFirebaseList<Venta>(snapshot.ventas) : [],
+      factura_actual: snapshot.factura_actual || null,
+      mesas: hasOwn(snapshot, 'mesas')
+        ? normalizeFirebaseList<MesaStatus>(snapshot.mesas)
+        : initialized
+        ? []
+        : [...DEFAULT_MESAS],
+      insumos: hasOwn(snapshot, 'insumos')
+        ? normalizeFirebaseList<Insumo>(snapshot.insumos)
+        : initialized
+        ? []
+        : [...DEFAULT_INSUMOS],
+      recetas: hasOwn(snapshot, 'recetas')
+        ? normalizeFirebaseList<Receta>(snapshot.recetas)
+        : initialized
+        ? []
+        : [...DEFAULT_RECETAS],
+      movs: hasOwn(snapshot, 'movs') ? normalizeFirebaseList<MovimientoAlmacen>(snapshot.movs) : [],
+      compras: hasOwn(snapshot, 'compras') ? normalizeFirebaseList<any>(snapshot.compras) : [],
+      personal: hasOwn(snapshot, 'personal')
+        ? normalizeFirebaseList<Personal>(snapshot.personal)
+        : initialized
+        ? []
+        : [...DEFAULT_PERSONAL],
+      caja_movs: hasOwn(snapshot, 'caja_movs') ? normalizeFirebaseList<MovimientoCaja>(snapshot.caja_movs) : [],
+      cierres: hasOwn(snapshot, 'cierres') ? normalizeFirebaseList<CierreCaja>(snapshot.cierres) : [],
+      caja_inicial: snapshot.caja_inicial || DEFAULT_CAJA_INICIAL(),
+      socios: hasOwn(snapshot, 'socios')
+        ? normalizeFirebaseList<Socio>(snapshot.socios)
+        : initialized
+        ? []
+        : [...DEFAULT_SOCIOS],
+      reservas: hasOwn(snapshot, 'reservas')
+        ? normalizeFirebaseList<Reserva>(snapshot.reservas)
+        : initialized
+        ? []
+        : [...DEFAULT_RESERVAS],
+      resenas: hasOwn(snapshot, 'resenas')
+        ? normalizeFirebaseList<Resena>(snapshot.resenas)
+        : initialized
+        ? []
+        : [...DEFAULT_RESENAS],
+      series: snapshot.series || { ...DEFAULT_SERIES },
+      usuarios: hasOwn(snapshot, 'usuarios')
+        ? normalizeFirebaseList<UsuarioSistema>(snapshot.usuarios)
+        : [...DEFAULT_USUARIOS_SISTEMA],
+      alertas: {
+        solicitud_pago: snapshot.alertas?.solicitud_pago || null,
+        nueva_reserva: snapshot.alertas?.nueva_reserva || null,
+      },
+      mesas_pagadas: snapshot.mesas_pagadas || {},
+      erp: snapshot.erp || {},
+    };
+
+    this.dispatchLocalListeners();
+  }
+
+  public async seedFirebaseDefaults(force: boolean = false): Promise<boolean> {
+    if (!force && this.cloudState._initialized) return true;
+    const initialRoot: CloudRootState = {
+      _initialized: true,
+      config: { ...DEFAULT_CONFIG },
+      productos: [...DEFAULT_PRODUCTOS],
+      comandas: [],
+      ventas: [],
+      factura_actual: null,
+      mesas: [...DEFAULT_MESAS],
+      insumos: [...DEFAULT_INSUMOS],
+      recetas: [...DEFAULT_RECETAS],
+      movs: [],
+      compras: [],
+      personal: [...DEFAULT_PERSONAL],
+      caja_movs: [],
+      cierres: [],
+      caja_inicial: DEFAULT_CAJA_INICIAL(),
+      socios: [...DEFAULT_SOCIOS],
+      reservas: [...DEFAULT_RESERVAS],
+      resenas: [...DEFAULT_RESENAS],
+      series: { ...DEFAULT_SERIES },
+      usuarios: [...DEFAULT_USUARIOS_SISTEMA],
+      alertas: {
+        solicitud_pago: null,
+        nueva_reserva: null,
+      },
+      mesas_pagadas: {},
+      erp: {},
+    };
+    this.cloudState = initialRoot;
+    const ok = await fbSet('/', initialRoot);
+    this.firebaseSyncInfo = getFirebaseSyncInfo();
+    this.dispatchLocalListeners();
+    return ok;
   }
 
   private dispatchLocalListeners() {
@@ -746,86 +984,6 @@ class StorageService {
     });
   }
 
-  private initDefaults() {
-    const currentConfigRaw = localStorage.getItem(STORAGE_KEYS.CONFIG);
-    if (!currentConfigRaw) {
-      localStorage.setItem(STORAGE_KEYS.CONFIG, JSON.stringify(DEFAULT_CONFIG));
-    } else {
-      try {
-        const parsed = JSON.parse(currentConfigRaw);
-        if (
-          parsed.nombre === 'La Cusqueñita' ||
-          parsed.logo === '🍽️' ||
-          !parsed.logo ||
-          parsed.whatsapp === '51969773064' ||
-          parsed.whatsapp === '51984123456'
-        ) {
-          const updated: ConfigRestaurante = {
-            ...DEFAULT_CONFIG,
-            ...parsed,
-            nombre: parsed.nombre === 'La Cusqueñita' ? 'La Chuspa Tech' : (parsed.nombre || 'La Chuspa Tech'),
-            logo: (parsed.logo === '🍽️' || !parsed.logo || parsed.nombre === 'La Cusqueñita') ? CHUSPA_TECH_LOGO : parsed.logo,
-            whatsapp: '969773064',
-            yapePhone: '+51 969 773 064',
-            titular: (parsed.titular === 'INKA BISTRO CUSCO E.I.R.L.' || !parsed.titular) ? 'LA CHUSPA TECH S.A.C.' : parsed.titular,
-            eslogan: (parsed.eslogan === 'Tradición Andina • Cusco Gourmet' || !parsed.eslogan) ? 'Plataforma Gastronómica Cloud • Soluciones Digitales' : parsed.eslogan,
-            facebook: (parsed.facebook?.includes('lacusquenita') || !parsed.facebook) ? 'https://facebook.com/lachuspatech' : parsed.facebook,
-            instagram: (parsed.instagram?.includes('lacusquenita') || !parsed.instagram) ? 'https://instagram.com/lachuspatech' : parsed.instagram,
-            tiktok: (parsed.tiktok?.includes('lacusquenita') || !parsed.tiktok) ? 'https://tiktok.com/@lachuspatech' : parsed.tiktok,
-            googleBusinessUrl: (parsed.googleBusinessUrl?.includes('lacusquenita') || !parsed.googleBusinessUrl) ? 'https://search.google.com/local/writereview?placeid=ChIJlachuspatech-cusco' : parsed.googleBusinessUrl,
-          };
-          localStorage.setItem(STORAGE_KEYS.CONFIG, JSON.stringify(updated));
-        }
-      } catch {}
-    }
-    if (!localStorage.getItem(STORAGE_KEYS.PRODUCTOS)) {
-      localStorage.setItem(STORAGE_KEYS.PRODUCTOS, JSON.stringify(DEFAULT_PRODUCTOS));
-    }
-    if (!localStorage.getItem(STORAGE_KEYS.COMANDAS)) {
-      localStorage.setItem(STORAGE_KEYS.COMANDAS, JSON.stringify(DEFAULT_COMANDAS));
-    }
-    if (!localStorage.getItem(STORAGE_KEYS.MESAS)) {
-      localStorage.setItem(STORAGE_KEYS.MESAS, JSON.stringify(DEFAULT_MESAS));
-    }
-    if (!localStorage.getItem(STORAGE_KEYS.INSUMOS)) {
-      localStorage.setItem(STORAGE_KEYS.INSUMOS, JSON.stringify(DEFAULT_INSUMOS));
-    }
-    if (!localStorage.getItem(STORAGE_KEYS.RECETAS)) {
-      localStorage.setItem(STORAGE_KEYS.RECETAS, JSON.stringify(DEFAULT_RECETAS));
-    }
-    if (!localStorage.getItem(STORAGE_KEYS.PERSONAL)) {
-      localStorage.setItem(STORAGE_KEYS.PERSONAL, JSON.stringify(DEFAULT_PERSONAL));
-    }
-    if (!localStorage.getItem(STORAGE_KEYS.SOCIOS)) {
-      localStorage.setItem(STORAGE_KEYS.SOCIOS, JSON.stringify(DEFAULT_SOCIOS));
-    }
-    if (!localStorage.getItem(STORAGE_KEYS.RESERVAS)) {
-      localStorage.setItem(STORAGE_KEYS.RESERVAS, JSON.stringify(DEFAULT_RESERVAS));
-    }
-    if (!localStorage.getItem(STORAGE_KEYS.SERIES)) {
-      localStorage.setItem(
-        STORAGE_KEYS.SERIES,
-        JSON.stringify({
-          boleta: { serie: 'B001', correlativo: 43 },
-          factura: { serie: 'F001', correlativo: 18 },
-          nota_credito: { serie: 'FC01', correlativo: 3 },
-          nota_debito: { serie: 'FD01', correlativo: 1 },
-        })
-      );
-    }
-    if (!localStorage.getItem(STORAGE_KEYS.CAJA_INICIAL)) {
-      localStorage.setItem(
-        STORAGE_KEYS.CAJA_INICIAL,
-        JSON.stringify({
-          monto: 100.0,
-          turno: 'Mañana (07:00 - 15:00)',
-          operador: 'Administrador',
-          fecha: new Date().toISOString().slice(0, 10),
-        })
-      );
-    }
-  }
-
   public subscribe(listener: () => void) {
     this.listeners.push(listener);
     return () => {
@@ -833,152 +991,133 @@ class StorageService {
     };
   }
 
-  public notify(action?: string, payload?: any) {
-    // 1. Notify listeners in current window
+  public notify(_action?: string, _payload?: any) {
     this.dispatchLocalListeners();
-
-    // 2. Broadcast immediately to all other tabs and windows
-    try {
-      if (this.broadcastChannel) {
-        this.broadcastChannel.postMessage({
-          type: 'CUSQ_SYNC',
-          action: action || 'DATA_CHANGED',
-          payload: payload || null,
-          timestamp: Date.now(),
-        });
-      }
-    } catch {}
-
-    // 3. Write realtime ping to localStorage to wake up storage listeners across windows
-    try {
-      localStorage.setItem('cusq_realtime_ping', String(Date.now()));
-    } catch {}
   }
 
   // --- CONFIG ---
   public getConfig(): ConfigRestaurante {
-    const raw = localStorage.getItem(STORAGE_KEYS.CONFIG);
-    return raw ? JSON.parse(raw) : DEFAULT_CONFIG;
+    return this.cloudState.config || DEFAULT_CONFIG;
   }
 
   public saveConfig(config: ConfigRestaurante) {
-    localStorage.setItem(STORAGE_KEYS.CONFIG, JSON.stringify(config));
-    this.notify();
+    this.cloudState.config = config;
+    this.dispatchLocalListeners();
+    void fbSet('config', config);
   }
 
   public resetConfigToDefaults(): ConfigRestaurante {
-    localStorage.setItem(STORAGE_KEYS.CONFIG, JSON.stringify(DEFAULT_CONFIG));
-    this.notify();
+    this.cloudState.config = { ...DEFAULT_CONFIG };
+    this.dispatchLocalListeners();
+    void fbSet('config', DEFAULT_CONFIG);
     return DEFAULT_CONFIG;
   }
 
   // --- PRODUCTOS ---
   public getProductos(): Producto[] {
-    const raw = localStorage.getItem(STORAGE_KEYS.PRODUCTOS);
-    if (!raw) return DEFAULT_PRODUCTOS;
-    try {
-      const parsed = JSON.parse(raw);
-      if (!Array.isArray(parsed) || parsed.length === 0) return DEFAULT_PRODUCTOS;
-      return parsed.map((p: any, idx: number): Producto => {
-        const nombreDefault = p?.i18n?.es?.name || p?.nombre || p?.name || `Plato ${idx + 1}`;
-        const descDefault = p?.i18n?.es?.desc || p?.descripcion || p?.desc || '';
-        const precioVal = Number(p?.precioPEN ?? p?.precio ?? 35) || 35;
-        return {
-          id: String(p?.id || `dish-${Date.now()}-${idx}`),
-          category: String(p?.category || 'mains'),
-          precioPEN: precioVal,
-          precioUSD: Number(p?.precioUSD || +(precioVal / 3.75).toFixed(2)),
-          precio: precioVal,
-          videoUrl: String(p?.videoUrl || DEFAULT_PRODUCTOS[0].videoUrl),
-          posterUrl: String(p?.posterUrl || DEFAULT_PRODUCTOS[0].posterUrl),
-          disponible: p?.disponible !== false,
-          i18n: {
-            es: { name: nombreDefault, desc: descDefault },
-            en: { name: p?.i18n?.en?.name || nombreDefault, desc: p?.i18n?.en?.desc || descDefault },
-            fr: { name: p?.i18n?.fr?.name || nombreDefault, desc: p?.i18n?.fr?.desc || descDefault },
-            pt: { name: p?.i18n?.pt?.name || nombreDefault, desc: p?.i18n?.pt?.desc || descDefault },
-          },
-        };
-      });
-    } catch {
-      return DEFAULT_PRODUCTOS;
-    }
+    const rawList = this.cloudState.productos;
+    if (!Array.isArray(rawList) || rawList.length === 0) return DEFAULT_PRODUCTOS;
+    return rawList.map((p: any, idx: number): Producto => {
+      const nombreDefault = p?.i18n?.es?.name || p?.nombre || p?.name || `Plato ${idx + 1}`;
+      const descDefault = p?.i18n?.es?.desc || p?.descripcion || p?.desc || '';
+      const precioVal = Number(p?.precioPEN ?? p?.precio ?? 35) || 35;
+      return {
+        id: String(p?.id || `dish-${Date.now()}-${idx}`),
+        category: String(p?.category || 'mains'),
+        precioPEN: precioVal,
+        precioUSD: Number(p?.precioUSD || +(precioVal / 3.75).toFixed(2)),
+        precio: precioVal,
+        videoUrl: String(p?.videoUrl || DEFAULT_PRODUCTOS[0].videoUrl),
+        posterUrl: String(p?.posterUrl || DEFAULT_PRODUCTOS[0].posterUrl),
+        disponible: p?.disponible !== false,
+        stock: p?.stock,
+        tiempoPrep: p?.tiempoPrep,
+        i18n: {
+          es: { name: nombreDefault, desc: descDefault },
+          en: { name: p?.i18n?.en?.name || nombreDefault, desc: p?.i18n?.en?.desc || descDefault },
+          fr: { name: p?.i18n?.fr?.name || nombreDefault, desc: p?.i18n?.fr?.desc || descDefault },
+          pt: { name: p?.i18n?.pt?.name || nombreDefault, desc: p?.i18n?.pt?.desc || descDefault },
+        },
+      };
+    });
   }
 
   public saveProducto(producto: Producto) {
-    const list = this.getProductos();
+    const list = [...this.getProductos()];
     const idx = list.findIndex((p) => p.id === producto.id);
-    if (idx >= 0) {
-      list[idx] = producto;
-    } else {
-      list.push(producto);
-    }
-    localStorage.setItem(STORAGE_KEYS.PRODUCTOS, JSON.stringify(list));
-    this.notify();
+    if (idx >= 0) list[idx] = producto;
+    else list.push(producto);
+    this.cloudState.productos = list;
+    this.dispatchLocalListeners();
+    void fbSet('productos', list);
   }
 
   public deleteProducto(id: string) {
     const list = this.getProductos().filter((p) => p.id !== id);
-    localStorage.setItem(STORAGE_KEYS.PRODUCTOS, JSON.stringify(list));
-    this.notify();
+    this.cloudState.productos = list;
+    this.dispatchLocalListeners();
+    void fbSet('productos', list);
   }
 
-  // --- COMANDAS ---
+  // --- COMANDAS (100% FIREBASE RTDB) ---
   public getComandas(): Comanda[] {
-    const raw = localStorage.getItem(STORAGE_KEYS.COMANDAS);
-    return raw ? JSON.parse(raw) : [];
+    return Array.isArray(this.cloudState.comandas) ? this.cloudState.comandas : [];
   }
 
-  public saveComanda(comanda: Comanda) {
-    const list = this.getComandas();
+  public async saveComanda(comanda: Comanda): Promise<boolean> {
+    const list = [...this.getComandas()];
     const idx = list.findIndex((c) => c.id === comanda.id);
-    if (idx >= 0) {
-      list[idx] = comanda;
-    } else {
-      list.unshift(comanda);
-    }
-    localStorage.setItem(STORAGE_KEYS.COMANDAS, JSON.stringify(list));
+    if (idx >= 0) list[idx] = comanda;
+    else list.unshift(comanda);
 
-    // Update mesa status to ocupada
+    this.cloudState.comandas = list;
+    this.cloudState._initialized = true;
+    this.dispatchLocalListeners();
+
+    const okComanda = await fbSet('comandas', list);
+    void fbSet('_initialized', true);
+
     if (comanda.mesa) {
-      this.setMesaEstado(comanda.mesa, 'ocupada', comanda.id);
+      await this.setMesaEstado(comanda.mesa, 'ocupada', comanda.id);
     }
-    this.notify();
+    this.firebaseSyncInfo = getFirebaseSyncInfo();
+    this.dispatchLocalListeners();
+    return okComanda;
   }
 
   public updateComandaEstado(id: string, estado: Comanda['estado']) {
-    const list = this.getComandas();
+    const list = [...this.getComandas()];
     const comanda = list.find((c) => c.id === id);
     if (comanda) {
       comanda.estado = estado;
+      this.cloudState.comandas = list;
       if (estado === 'finalizado' || estado === 'anulado') {
-        this.setMesaEstado(comanda.mesa, 'libre');
+        void this.setMesaEstado(comanda.mesa, 'libre');
       }
-      localStorage.setItem(STORAGE_KEYS.COMANDAS, JSON.stringify(list));
-      this.notify();
+      this.dispatchLocalListeners();
+      void fbSet('comandas', list);
     }
   }
 
   public despacharCocina(id: string) {
-    const list = this.getComandas();
+    const list = [...this.getComandas()];
     const comanda = list.find((c) => c.id === id);
     if (comanda) {
       comanda.despachadoCocina = true;
       comanda.estado = 'servido';
       comanda.horaDespachoCocina = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      localStorage.setItem(STORAGE_KEYS.COMANDAS, JSON.stringify(list));
-      this.notify('COCINA_DESPACHADO', { comandaId: id, mesa: comanda.mesa });
+      this.cloudState.comandas = list;
+      this.dispatchLocalListeners();
+      void fbSet('comandas', list);
     }
   }
 
   public requestBill(id: string, metodoPago?: string) {
-    const list = this.getComandas();
+    const list = [...this.getComandas()];
     const comanda = list.find((c) => c.id === id);
     if (comanda) {
       comanda.pideCuenta = true;
       if (metodoPago) comanda.pago = metodoPago;
-      localStorage.setItem(STORAGE_KEYS.COMANDAS, JSON.stringify(list));
-
       const payload = {
         comandaId: comanda.id,
         numero: comanda.numero || comanda.id,
@@ -988,41 +1127,65 @@ class StorageService {
         metodo: comanda.pago || 'Efectivo',
         timestamp: Date.now(),
       };
-      localStorage.setItem('cusq_solicitud_pago_activa', JSON.stringify(payload));
-      this.notify('PAGO_SOLICITADO', payload);
+      this.cloudState.comandas = list;
+      this.cloudState.alertas.solicitud_pago = payload;
+      this.dispatchLocalListeners();
+      void fbSet('comandas', list);
+      void fbSet('alertas/solicitud_pago', payload);
     }
   }
 
   public getSolicitudPagoActiva(): any | null {
-    try {
-      const raw = localStorage.getItem('cusq_solicitud_pago_activa');
-      return raw ? JSON.parse(raw) : null;
-    } catch {
-      return null;
-    }
+    return this.cloudState.alertas?.solicitud_pago || null;
   }
 
   public clearSolicitudPago() {
-    try {
-      localStorage.removeItem('cusq_solicitud_pago_activa');
-    } catch {}
-    this.notify('PAGO_ATENDIDO');
+    this.cloudState.alertas.solicitud_pago = null;
+    this.dispatchLocalListeners();
+    void fbRemove('alertas/solicitud_pago');
   }
 
   public callWaiter(id: string) {
-    const list = this.getComandas();
+    const list = [...this.getComandas()];
     const comanda = list.find((c) => c.id === id);
     if (comanda) {
       comanda.llamaMozo = true;
-      localStorage.setItem(STORAGE_KEYS.COMANDAS, JSON.stringify(list));
-      this.notify('MOZO_LLAMADO', { comandaId: id, mesa: comanda.mesa });
+      this.cloudState.comandas = list;
+      this.dispatchLocalListeners();
+      void fbSet('comandas', list);
     }
+  }
+
+  // --- SINCRONIZACIÓN DE MESA PAGADA / BLOQUEADA ENTRE CAJA Y MENÚ CLIENTE (FIREBASE RTDB) ---
+  private normalizeMesaKey(mesaNombre: string): string {
+    return (mesaNombre || 'mesa_01').replace(/[^a-zA-Z0-9_-]/g, '_').toLowerCase();
+  }
+
+  public getMesaPagada(mesaNombre: string): Venta | null {
+    const key = this.normalizeMesaKey(mesaNombre);
+    return this.cloudState.mesas_pagadas?.[key] || null;
+  }
+
+  public async setMesaPagada(mesaNombre: string, venta: Venta): Promise<boolean> {
+    const key = this.normalizeMesaKey(mesaNombre);
+    if (!this.cloudState.mesas_pagadas) this.cloudState.mesas_pagadas = {};
+    this.cloudState.mesas_pagadas[key] = venta;
+    this.dispatchLocalListeners();
+    return fbSet(`mesas_pagadas/${key}`, venta);
+  }
+
+  public async clearMesaPagada(mesaNombre: string): Promise<boolean> {
+    const key = this.normalizeMesaKey(mesaNombre);
+    if (this.cloudState.mesas_pagadas) {
+      delete this.cloudState.mesas_pagadas[key];
+    }
+    this.dispatchLocalListeners();
+    return fbRemove(`mesas_pagadas/${key}`);
   }
 
   // --- VENTAS & CORRELATIVOS ---
   public getNextCorrelativo(tipo: 'Boleta' | 'Factura' | 'Nota de Crédito' | 'Nota de Débito' | 'Nota de Venta'): string {
-    const raw = localStorage.getItem(STORAGE_KEYS.SERIES);
-    const series = raw ? JSON.parse(raw) : {};
+    const series = { ...(this.cloudState.series || DEFAULT_SERIES) };
     const key = tipo === 'Nota de Venta' ? 'nota_venta' : tipo.toLowerCase().replace(/[^a-z]/g, '') || 'boleta';
     const s = series[key] || {
       serie:
@@ -1037,185 +1200,194 @@ class StorageService {
           : 'B001',
       correlativo: 0,
     };
-    s.correlativo = (Number(s.correlativo) || 0) + 1;
-    series[key] = s;
-    localStorage.setItem(STORAGE_KEYS.SERIES, JSON.stringify(series));
-    return `${s.serie}-${String(s.correlativo).padStart(8, '0')}`;
+    const nextNum = (Number(s.correlativo) || 0) + 1;
+    series[key] = { ...s, correlativo: nextNum };
+    this.cloudState.series = series;
+    void fbSet('series', series);
+    return `${s.serie}-${String(nextNum).padStart(8, '0')}`;
   }
 
   public getVentas(): Venta[] {
-    const raw = localStorage.getItem(STORAGE_KEYS.VENTAS);
-    return raw ? JSON.parse(raw) : [];
+    return Array.isArray(this.cloudState.ventas) ? this.cloudState.ventas : [];
   }
 
   public saveVenta(venta: Venta) {
-    const list = this.getVentas();
+    const list = [...this.getVentas()];
     list.unshift(venta);
-    localStorage.setItem(STORAGE_KEYS.VENTAS, JSON.stringify(list));
-    localStorage.setItem(STORAGE_KEYS.FACTURA_ACTUAL, JSON.stringify(venta));
-
-    // Also close the comanda if matching id
+    this.cloudState.ventas = list;
+    this.cloudState.factura_actual = venta;
     this.updateComandaEstado(venta.id, 'finalizado');
-    this.notify();
+    this.dispatchLocalListeners();
+    void fbSet('ventas', list);
+    void fbSet('factura_actual', venta);
   }
 
   public getUltimaFactura(): Venta | null {
-    const raw = localStorage.getItem(STORAGE_KEYS.FACTURA_ACTUAL);
-    return raw ? JSON.parse(raw) : null;
+    return this.cloudState.factura_actual || null;
   }
 
   // --- MESAS ---
   public getMesas(): MesaStatus[] {
-    const raw = localStorage.getItem(STORAGE_KEYS.MESAS);
-    return raw ? JSON.parse(raw) : DEFAULT_MESAS;
+    const list = this.cloudState.mesas;
+    return Array.isArray(list) && list.length > 0 ? list : DEFAULT_MESAS;
   }
 
-  public setMesaEstado(nombreMesa: string, estado: 'libre' | 'ocupada' | 'bloqueada', comandaId?: string) {
-    const mesas = this.getMesas();
-    const m = mesas.find((item) => item.nombre.toLowerCase().trim() === nombreMesa.toLowerCase().trim());
-    if (m) {
-      m.estado = estado;
-      if (comandaId) m.comandaActivaId = comandaId;
-      if (estado === 'libre') m.comandaActivaId = undefined;
-      localStorage.setItem(STORAGE_KEYS.MESAS, JSON.stringify(mesas));
-      this.notify();
-    }
+  public async setMesaEstado(nombreMesa: string, estado: 'libre' | 'ocupada' | 'bloqueada', comandaId?: string): Promise<boolean> {
+    const mesas = this.getMesas().map((item) => {
+      if (item.nombre.toLowerCase().trim() === nombreMesa.toLowerCase().trim()) {
+        return {
+          ...item,
+          estado,
+          comandaActivaId: estado === 'libre' ? undefined : comandaId || item.comandaActivaId,
+        };
+      }
+      return item;
+    });
+    this.cloudState.mesas = mesas;
+    this.dispatchLocalListeners();
+    return fbSet('mesas', mesas);
   }
 
   public regenerateMesaToken(nombreMesa: string): string {
-    const mesas = this.getMesas();
-    const m = mesas.find((item) => item.nombre.toLowerCase().trim() === nombreMesa.toLowerCase().trim());
     const newToken = `TK-${Math.random().toString(36).substring(2, 7).toUpperCase()}-${Date.now().toString(36).toUpperCase()}`;
-    if (m) {
-      m.token = newToken;
-      localStorage.setItem(STORAGE_KEYS.MESAS, JSON.stringify(mesas));
-      this.notify();
-    }
+    const mesas = this.getMesas().map((item) => {
+      if (item.nombre.toLowerCase().trim() === nombreMesa.toLowerCase().trim()) {
+        return { ...item, token: newToken };
+      }
+      return item;
+    });
+    this.cloudState.mesas = mesas;
+    this.dispatchLocalListeners();
+    void fbSet('mesas', mesas);
     return newToken;
   }
 
   // --- INSUMOS & RECETAS & ALMACEN ---
   public getInsumos(): Insumo[] {
-    const raw = localStorage.getItem(STORAGE_KEYS.INSUMOS);
-    return raw ? JSON.parse(raw) : DEFAULT_INSUMOS;
+    return Array.isArray(this.cloudState.insumos) ? this.cloudState.insumos : DEFAULT_INSUMOS;
   }
 
   public saveInsumo(insumo: Insumo) {
-    const list = this.getInsumos();
+    const list = [...this.getInsumos()];
     const idx = list.findIndex((i) => i.id === insumo.id);
     if (idx >= 0) list[idx] = insumo;
     else list.push(insumo);
-    localStorage.setItem(STORAGE_KEYS.INSUMOS, JSON.stringify(list));
-    this.notify();
+    this.cloudState.insumos = list;
+    this.dispatchLocalListeners();
+    void fbSet('insumos', list);
   }
 
   public deleteInsumo(id: string) {
     const list = this.getInsumos().filter((i) => i.id !== id);
-    localStorage.setItem(STORAGE_KEYS.INSUMOS, JSON.stringify(list));
-    this.notify();
+    this.cloudState.insumos = list;
+    this.dispatchLocalListeners();
+    void fbSet('insumos', list);
   }
 
   public getRecetas(): Receta[] {
-    const raw = localStorage.getItem(STORAGE_KEYS.RECETAS);
-    return raw ? JSON.parse(raw) : DEFAULT_RECETAS;
+    return Array.isArray(this.cloudState.recetas) ? this.cloudState.recetas : DEFAULT_RECETAS;
   }
 
   public saveReceta(receta: Receta) {
-    const list = this.getRecetas();
+    const list = [...this.getRecetas()];
     const idx = list.findIndex((r) => r.id === receta.id);
     if (idx >= 0) list[idx] = receta;
     else list.push(receta);
-    localStorage.setItem(STORAGE_KEYS.RECETAS, JSON.stringify(list));
-    this.notify();
+    this.cloudState.recetas = list;
+    this.dispatchLocalListeners();
+    void fbSet('recetas', list);
   }
 
   public deleteReceta(id: string) {
     const list = this.getRecetas().filter((r) => r.id !== id);
-    localStorage.setItem(STORAGE_KEYS.RECETAS, JSON.stringify(list));
-    this.notify();
+    this.cloudState.recetas = list;
+    this.dispatchLocalListeners();
+    void fbSet('recetas', list);
   }
 
   public getMovimientosAlmacen(): MovimientoAlmacen[] {
-    const raw = localStorage.getItem(STORAGE_KEYS.MOVS);
-    return raw ? JSON.parse(raw) : [];
+    return Array.isArray(this.cloudState.movs) ? this.cloudState.movs : [];
   }
 
   public addMovimientoAlmacen(mov: MovimientoAlmacen) {
-    const list = this.getMovimientosAlmacen();
+    const list = [...this.getMovimientosAlmacen()];
     list.unshift(mov);
-    localStorage.setItem(STORAGE_KEYS.MOVS, JSON.stringify(list));
+    this.cloudState.movs = list;
 
-    // Update insumo stockActual
-    const insumos = this.getInsumos();
-    const ins = insumos.find((i) => i.nombre === mov.insumo);
-    if (ins) {
-      const delta = mov.tipo === 'ingreso' || mov.tipo === 'tin' ? mov.cant : -mov.cant;
-      ins.stockActual = Math.max(0, (ins.stockActual || 0) + delta);
-      localStorage.setItem(STORAGE_KEYS.INSUMOS, JSON.stringify(insumos));
-    }
-    this.notify();
+    const insumos = this.getInsumos().map((ins) => {
+      if (ins.nombre === mov.insumo) {
+        const delta = mov.tipo === 'ingreso' || mov.tipo === 'tin' ? mov.cant : -mov.cant;
+        return { ...ins, stockActual: Math.max(0, (ins.stockActual || 0) + delta) };
+      }
+      return ins;
+    });
+    this.cloudState.insumos = insumos;
+
+    this.dispatchLocalListeners();
+    void fbSet('movs', list);
+    void fbSet('insumos', insumos);
   }
 
   // --- PERSONAL ---
   public getPersonal(): Personal[] {
-    const raw = localStorage.getItem(STORAGE_KEYS.PERSONAL);
-    return raw ? JSON.parse(raw) : DEFAULT_PERSONAL;
+    return Array.isArray(this.cloudState.personal) ? this.cloudState.personal : DEFAULT_PERSONAL;
   }
 
   public savePersonal(persona: Personal) {
-    const list = this.getPersonal();
+    const list = [...this.getPersonal()];
     const idx = list.findIndex((p) => p.id === persona.id);
     if (idx >= 0) list[idx] = persona;
     else list.push(persona);
-    localStorage.setItem(STORAGE_KEYS.PERSONAL, JSON.stringify(list));
-    this.notify();
+    this.cloudState.personal = list;
+    this.dispatchLocalListeners();
+    void fbSet('personal', list);
   }
 
   public deletePersonal(id: string) {
     const list = this.getPersonal().filter((p) => p.id !== id);
-    localStorage.setItem(STORAGE_KEYS.PERSONAL, JSON.stringify(list));
-    this.notify();
+    this.cloudState.personal = list;
+    this.dispatchLocalListeners();
+    void fbSet('personal', list);
   }
 
   // --- CAJA & CIERRE ---
   public getCajaMovs(): MovimientoCaja[] {
-    const raw = localStorage.getItem(STORAGE_KEYS.CAJA_MOVS);
-    return raw ? JSON.parse(raw) : [];
+    return Array.isArray(this.cloudState.caja_movs) ? this.cloudState.caja_movs : [];
   }
 
   public addCajaMov(mov: MovimientoCaja) {
-    const list = this.getCajaMovs();
+    const list = [...this.getCajaMovs()];
     list.unshift(mov);
-    localStorage.setItem(STORAGE_KEYS.CAJA_MOVS, JSON.stringify(list));
-    this.notify();
+    this.cloudState.caja_movs = list;
+    this.dispatchLocalListeners();
+    void fbSet('caja_movs', list);
   }
 
   public getCierres(): CierreCaja[] {
-    const raw = localStorage.getItem(STORAGE_KEYS.CIERRES);
-    return raw ? JSON.parse(raw) : [];
+    return Array.isArray(this.cloudState.cierres) ? this.cloudState.cierres : [];
   }
 
   public saveCierre(cierre: CierreCaja) {
-    const list = this.getCierres();
+    const list = [...this.getCierres()];
     list.unshift(cierre);
-    localStorage.setItem(STORAGE_KEYS.CIERRES, JSON.stringify(list));
-    this.notify();
+    this.cloudState.cierres = list;
+    this.dispatchLocalListeners();
+    void fbSet('cierres', list);
   }
 
   public getCajaInicial() {
-    const raw = localStorage.getItem(STORAGE_KEYS.CAJA_INICIAL);
-    return raw ? JSON.parse(raw) : { monto: 100, turno: 'Mañana', operador: 'Admin', fecha: new Date().toISOString().slice(0, 10) };
+    return this.cloudState.caja_inicial || DEFAULT_CAJA_INICIAL();
   }
 
   public setCajaInicial(data: { monto: number; turno: string; operador: string; fecha: string }) {
-    localStorage.setItem(STORAGE_KEYS.CAJA_INICIAL, JSON.stringify(data));
-    this.notify();
+    this.cloudState.caja_inicial = data;
+    this.dispatchLocalListeners();
+    void fbSet('caja_inicial', data);
   }
 
   // --- SOCIOS & FIDELIDAD ---
   public getSocios(): Socio[] {
-    const raw = localStorage.getItem(STORAGE_KEYS.SOCIOS);
-    return raw ? JSON.parse(raw) : DEFAULT_SOCIOS;
+    return Array.isArray(this.cloudState.socios) ? this.cloudState.socios : [];
   }
 
   public getSocioByDni(dni: string): Socio | undefined {
@@ -1223,187 +1395,193 @@ class StorageService {
   }
 
   public saveSocio(socio: Socio) {
-    const list = this.getSocios();
+    const list = [...this.getSocios()];
     const idx = list.findIndex((s) => s.dni === socio.dni);
     if (idx >= 0) list[idx] = socio;
     else list.push(socio);
-    localStorage.setItem(STORAGE_KEYS.SOCIOS, JSON.stringify(list));
-    this.notify();
+    this.cloudState.socios = list;
+    this.dispatchLocalListeners();
+    void fbSet('socios', list);
   }
 
   public addSelloSocio(dni: string, nombre?: string, telefono?: string): Socio {
-    const list = this.getSocios();
+    const list = [...this.getSocios()];
     const cleanDni = (dni || '').trim();
     let socio = list.find((s) => s.dni.trim() === cleanDni);
     if (socio) {
-      socio.sellos = (socio.sellos || 0) + 1;
-      socio.totalVisitas = (socio.totalVisitas || 0) + 1;
-      if (nombre && !socio.nombre) socio.nombre = nombre;
-      if (telefono && !socio.telefono) socio.telefono = telefono;
+      socio = {
+        ...socio,
+        sellos: (socio.sellos || 0) + 1,
+        totalVisitas: (socio.totalVisitas || 0) + 1,
+        nombre: nombre && !socio.nombre ? nombre : socio.nombre,
+        telefono: telefono && !socio.telefono ? telefono : socio.telefono,
+      };
+      const idx = list.findIndex((s) => s.dni.trim() === cleanDni);
+      list[idx] = socio;
     } else {
       socio = {
         dni: cleanDni,
         nombre: nombre || `Socio DNI ${cleanDni}`,
-        telefono: telefono || '+51 984 000 000',
+        telefono: telefono || '+51 969 773 064',
         sellos: 1,
         totalVisitas: 1,
         fechaRegistro: new Date().toISOString().slice(0, 10),
       };
       list.unshift(socio);
     }
-    localStorage.setItem(STORAGE_KEYS.SOCIOS, JSON.stringify(list));
-    this.notify('SOCIO_ACTUALIZADO', socio);
+    this.cloudState.socios = list;
+    this.dispatchLocalListeners();
+    void fbSet('socios', list);
     return socio;
   }
 
   public canjearRegaloSocio(dni: string): { success: boolean; socio?: Socio; message: string } {
-    const list = this.getSocios();
+    const list = [...this.getSocios()];
     const cleanDni = (dni || '').trim();
-    const socio = list.find((s) => s.dni.trim() === cleanDni);
-    if (!socio) {
+    const idx = list.findIndex((s) => s.dni.trim() === cleanDni);
+    if (idx < 0) {
       return { success: false, message: 'Socio no encontrado' };
     }
+    const socio = { ...list[idx] };
     if ((socio.sellos || 0) < 10) {
-      return { success: false, message: `El socio tiene ${socio.sellos || 0} sellos. Necesita 10 sellos para canjear su regalito.` };
+      return {
+        success: false,
+        message: `El socio tiene ${socio.sellos || 0} sellos. Necesita 10 sellos para canjear su regalito.`,
+      };
     }
     socio.sellos = Math.max(0, (socio.sellos || 0) - 10);
     (socio as any).canjesRealizados = ((socio as any).canjesRealizados || 0) + 1;
     (socio as any).ultimoCanje = new Date().toISOString().slice(0, 10);
-    localStorage.setItem(STORAGE_KEYS.SOCIOS, JSON.stringify(list));
-    this.notify('PREMIO_CANJEADO', socio);
-    return { success: true, socio, message: '¡Regalito canjeado con éxito! Se reinició el ciclo de 10 sellos.' };
+    list[idx] = socio;
+    this.cloudState.socios = list;
+    this.dispatchLocalListeners();
+    void fbSet('socios', list);
+    return {
+      success: true,
+      socio,
+      message: '¡Regalito canjeado con éxito! Se reinició el ciclo de 10 sellos.',
+    };
   }
 
-  // --- RESERVAS ---
+  // --- RESERVAS (100% FIREBASE RTDB SYNC ADMIN <-> INDEX <-> PUBLICA) ---
   public getReservas(): Reserva[] {
-    const raw = localStorage.getItem(STORAGE_KEYS.RESERVAS);
-    return raw ? JSON.parse(raw) : DEFAULT_RESERVAS;
+    return Array.isArray(this.cloudState.reservas) ? this.cloudState.reservas : [];
   }
 
-  public saveReserva(reserva: Reserva, esNueva: boolean = false) {
-    const list = this.getReservas();
+  public async saveReserva(reserva: Reserva, esNueva: boolean = false): Promise<boolean> {
+    const list = [...this.getReservas()];
     const idx = list.findIndex((r) => r.id === reserva.id);
     const isBrandNew = idx < 0 || esNueva;
-    if (idx >= 0) {
-      list[idx] = reserva;
-    } else {
-      list.unshift(reserva);
-    }
-    localStorage.setItem(STORAGE_KEYS.RESERVAS, JSON.stringify(list));
+    if (idx >= 0) list[idx] = reserva;
+    else list.unshift(reserva);
 
+    this.cloudState.reservas = list;
+    this.cloudState._initialized = true;
+
+    let okAlert = true;
     if (isBrandNew) {
-      const alerta = {
-        reserva,
-        timestamp: Date.now(),
-      };
-      localStorage.setItem('cusq_alerta_nueva_reserva', JSON.stringify(alerta));
-      this.notify('NUEVA_RESERVA', alerta);
+      const alerta = { reserva, timestamp: Date.now() };
+      this.cloudState.alertas.nueva_reserva = alerta;
+      this.dispatchLocalListeners();
+      okAlert = await fbSet('alertas/nueva_reserva', alerta);
     } else {
-      this.notify('RESERVA_ACTUALIZADA', reserva);
+      this.dispatchLocalListeners();
     }
+
+    const okList = await fbSet('reservas', list);
+    void fbSet('_initialized', true);
+    this.firebaseSyncInfo = getFirebaseSyncInfo();
+    this.dispatchLocalListeners();
+    return okList && okAlert;
   }
 
   public getAlertaNuevaReserva(): { reserva: Reserva; timestamp: number } | null {
-    try {
-      const raw = localStorage.getItem('cusq_alerta_nueva_reserva');
-      return raw ? JSON.parse(raw) : null;
-    } catch {
-      return null;
-    }
+    return this.cloudState.alertas?.nueva_reserva || null;
   }
 
   public clearAlertaNuevaReserva() {
-    try {
-      localStorage.removeItem('cusq_alerta_nueva_reserva');
-    } catch {}
-    this.notify('ALERTA_RESERVA_LIMPIADA');
+    this.cloudState.alertas.nueva_reserva = null;
+    this.dispatchLocalListeners();
+    void fbRemove('alertas/nueva_reserva');
   }
 
   public deleteReserva(id: string) {
     const list = this.getReservas().filter((r) => r.id !== id);
-    localStorage.setItem(STORAGE_KEYS.RESERVAS, JSON.stringify(list));
-    this.notify();
+    this.cloudState.reservas = list;
+    this.dispatchLocalListeners();
+    void fbSet('reservas', list);
   }
 
   // --- RESEÑAS ---
   public getResenas(): Resena[] {
-    const raw = localStorage.getItem(STORAGE_KEYS.RESENAS);
-    return raw
-      ? JSON.parse(raw)
-      : [
-          {
-            id: 'r-1',
-            cliente: 'Carlos Mendoza',
-            mesa: 'Mesa 01',
-            calificacion: 5,
-            comentario: '¡El mejor Lomo Saltado de Cusco! La carne estaba en su punto perfecto y la atención fue muy rápida.',
-            fecha: '2024-10-25',
-          },
-          {
-            id: 'r-2',
-            cliente: 'Sophie Dupont',
-            mesa: 'Mesa 02',
-            calificacion: 5,
-            comentario: 'Amazing ceviche with Andean trout and the video menu on phone was so futuristic and fun!',
-            fecha: '2024-10-26',
-          },
-        ];
+    return Array.isArray(this.cloudState.resenas) ? this.cloudState.resenas : [];
   }
 
   public addResena(resena: Resena) {
-    const list = this.getResenas();
+    const list = [...this.getResenas()];
     list.unshift(resena);
-    localStorage.setItem(STORAGE_KEYS.RESENAS, JSON.stringify(list));
-    this.notify();
+    this.cloudState.resenas = list;
+    this.dispatchLocalListeners();
+    void fbSet('resenas', list);
   }
 
   // --- PURGE / RESETS ---
   public purgeComandasHoy() {
-    localStorage.setItem(STORAGE_KEYS.COMANDAS, JSON.stringify([]));
-    // Reset all mesas to libre
     const mesas = this.getMesas().map((m) => ({ ...m, estado: 'libre' as const, comandaActivaId: undefined }));
-    localStorage.setItem(STORAGE_KEYS.MESAS, JSON.stringify(mesas));
-    this.notify();
+    this.cloudState.comandas = [];
+    this.cloudState.mesas = mesas;
+    this.cloudState.mesas_pagadas = {};
+    this.cloudState.alertas.solicitud_pago = null;
+    this.dispatchLocalListeners();
+    void fbSet('comandas', []);
+    void fbSet('mesas', mesas);
+    void fbRemove('mesas_pagadas');
+    void fbRemove('alertas/solicitud_pago');
   }
 
   public purgeVentas() {
-    localStorage.setItem(STORAGE_KEYS.VENTAS, JSON.stringify([]));
-    this.notify();
+    this.cloudState.ventas = [];
+    this.cloudState.factura_actual = null;
+    this.dispatchLocalListeners();
+    void fbSet('ventas', []);
+    void fbRemove('factura_actual');
   }
 
   public purgeReservas() {
-    localStorage.setItem(STORAGE_KEYS.RESERVAS, JSON.stringify([]));
-    localStorage.removeItem('cusq_alerta_nueva_reserva');
-    this.notify();
+    this.cloudState.reservas = [];
+    this.cloudState.alertas.nueva_reserva = null;
+    this.dispatchLocalListeners();
+    void fbSet('reservas', []);
+    void fbRemove('alertas/nueva_reserva');
   }
 
   public purgeSocios() {
-    localStorage.setItem(STORAGE_KEYS.SOCIOS, JSON.stringify([]));
-    this.notify();
+    this.cloudState.socios = [];
+    this.dispatchLocalListeners();
+    void fbSet('socios', []);
   }
 
   public purgeResenas() {
-    localStorage.setItem(STORAGE_KEYS.RESENAS, JSON.stringify([]));
-    this.notify();
+    this.cloudState.resenas = [];
+    this.dispatchLocalListeners();
+    void fbSet('resenas', []);
   }
 
   public resetCorrelativos() {
-    localStorage.setItem(
-      STORAGE_KEYS.SERIES,
-      JSON.stringify({
-        boleta: { serie: 'B001', correlativo: 0 },
-        factura: { serie: 'F001', correlativo: 0 },
-        nota_venta: { serie: 'NV01', correlativo: 0 },
-        nota_credito: { serie: 'FC01', correlativo: 0 },
-        nota_debito: { serie: 'FD01', correlativo: 0 },
-      })
-    );
-    this.notify();
+    const seriesZero = {
+      boleta: { serie: 'B001', correlativo: 0 },
+      factura: { serie: 'F001', correlativo: 0 },
+      nota_venta: { serie: 'NV01', correlativo: 0 },
+      nota_credito: { serie: 'FC01', correlativo: 0 },
+      nota_debito: { serie: 'FD01', correlativo: 0 },
+    };
+    this.cloudState.series = seriesZero;
+    this.dispatchLocalListeners();
+    void fbSet('series', seriesZero);
   }
 
   /**
-   * Reseteo General de Fábrica / Puesta a Cero para Entrega y Alquiler del Sistema de Restaurante.
-   * Deja la plataforma en cero valores lista para que el nuevo cliente comience a operar.
+   * Reseteo General de Fábrica / Puesta a Cero en Firebase RTDB para Entrega y Alquiler.
    */
   public resetGeneralParaEntrega(opciones?: {
     conservarCartaBase?: boolean;
@@ -1425,70 +1603,12 @@ class StorageService {
       ...opciones,
     };
 
-    // 1. Purgar todas las comandas
-    localStorage.setItem(STORAGE_KEYS.COMANDAS, JSON.stringify([]));
-
-    // 2. Liberar todas las mesas a 'libre' sin comanda ni bloqueo
-    const mesas = this.getMesas().map((m) => ({
+    const mesasLimpias = this.getMesas().map((m) => ({
       ...m,
       estado: 'libre' as const,
       comandaActivaId: undefined,
     }));
-    localStorage.setItem(STORAGE_KEYS.MESAS, JSON.stringify(mesas));
 
-    // 3. Purgar todo el historial contable de ventas
-    localStorage.setItem(STORAGE_KEYS.VENTAS, JSON.stringify([]));
-
-    // 4. Purgar caja (movimientos, cierres y fijar caja inicial)
-    localStorage.setItem(STORAGE_KEYS.CAJA_MOVS, JSON.stringify([]));
-    localStorage.setItem(STORAGE_KEYS.CIERRES, JSON.stringify([]));
-    localStorage.setItem(
-      STORAGE_KEYS.CAJA_INICIAL,
-      JSON.stringify({
-        monto: Number(opts.montoCajaInicial) || 0,
-        turno: 'Mañana (07:00 - 15:00)',
-        operador: 'Administrador',
-        fecha: new Date().toISOString().slice(0, 10),
-      })
-    );
-
-    // 5. Purgar movimientos de almacén y compras previas
-    localStorage.setItem(STORAGE_KEYS.MOVS, JSON.stringify([]));
-    localStorage.setItem(STORAGE_KEYS.COMPRAS, JSON.stringify([]));
-
-    // 6. Purgar todas las reservas previas
-    localStorage.setItem(STORAGE_KEYS.RESERVAS, JSON.stringify([]));
-    localStorage.removeItem('cusq_alerta_nueva_reserva');
-    localStorage.removeItem('cusq_solicitud_pago_activa');
-
-    // 7. Purgar socios del Club de Fidelidad y opiniones
-    localStorage.setItem(STORAGE_KEYS.SOCIOS, JSON.stringify([]));
-    localStorage.setItem(STORAGE_KEYS.RESENAS, JSON.stringify([]));
-
-    // 8. Reiniciar series y correlativos a 0 (la primera venta será 000001)
-    localStorage.setItem(
-      STORAGE_KEYS.SERIES,
-      JSON.stringify({
-        boleta: { serie: 'B001', correlativo: 0 },
-        factura: { serie: 'F001', correlativo: 0 },
-        nota_venta: { serie: 'NV01', correlativo: 0 },
-        nota_credito: { serie: 'FC01', correlativo: 0 },
-        nota_debito: { serie: 'FD01', correlativo: 0 },
-      })
-    );
-
-    // 9. Productos / Carta gastronómica
-    if (!opts.conservarCartaBase) {
-      localStorage.setItem(STORAGE_KEYS.PRODUCTOS, JSON.stringify([]));
-      localStorage.setItem(STORAGE_KEYS.INSUMOS, JSON.stringify([]));
-      localStorage.setItem(STORAGE_KEYS.RECETAS, JSON.stringify([]));
-    } else {
-      if (!localStorage.getItem(STORAGE_KEYS.PRODUCTOS)) {
-        localStorage.setItem(STORAGE_KEYS.PRODUCTOS, JSON.stringify(DEFAULT_PRODUCTOS));
-      }
-    }
-
-    // 10. Actualizar configuración comercial del restaurante
     const baseConfig = this.getConfig();
     const nuevaConfig: ConfigRestaurante = {
       ...baseConfig,
@@ -1499,94 +1619,120 @@ class StorageService {
       habilitarComprobantesFiscales: opts.habilitarComprobantesFiscales ?? baseConfig.habilitarComprobantesFiscales ?? true,
       exigirValidacionReniecSunat: opts.exigirValidacionReniecSunat ?? baseConfig.exigirValidacionReniecSunat ?? true,
     };
-    localStorage.setItem(STORAGE_KEYS.CONFIG, JSON.stringify(nuevaConfig));
 
-    // 11. Usuarios del sistema
-    if (opts.resetearUsuarios) {
-      localStorage.setItem(STORAGE_KEYS.USUARIOS, JSON.stringify(DEFAULT_USUARIOS_SISTEMA));
-    }
+    const nextRoot: CloudRootState = {
+      _initialized: true,
+      config: nuevaConfig,
+      productos: opts.conservarCartaBase
+        ? this.cloudState.productos.length > 0
+          ? this.cloudState.productos
+          : [...DEFAULT_PRODUCTOS]
+        : [],
+      comandas: [],
+      ventas: [],
+      factura_actual: null,
+      mesas: mesasLimpias,
+      insumos: opts.conservarCartaBase ? this.cloudState.insumos : [],
+      recetas: opts.conservarCartaBase ? this.cloudState.recetas : [],
+      movs: [],
+      compras: [],
+      personal: this.cloudState.personal,
+      caja_movs: [],
+      cierres: [],
+      caja_inicial: {
+        monto: Number(opts.montoCajaInicial) || 0,
+        turno: 'Mañana (07:00 - 15:00)',
+        operador: 'Administrador',
+        fecha: new Date().toISOString().slice(0, 10),
+      },
+      socios: [],
+      reservas: [],
+      resenas: [],
+      series: {
+        boleta: { serie: 'B001', correlativo: 0 },
+        factura: { serie: 'F001', correlativo: 0 },
+        nota_venta: { serie: 'NV01', correlativo: 0 },
+        nota_credito: { serie: 'FC01', correlativo: 0 },
+        nota_debito: { serie: 'FD01', correlativo: 0 },
+      },
+      usuarios: opts.resetearUsuarios ? [...DEFAULT_USUARIOS_SISTEMA] : this.getUsuariosSistema(),
+      alertas: {
+        solicitud_pago: null,
+        nueva_reserva: null,
+      },
+      mesas_pagadas: {},
+      erp: {},
+    };
 
-    this.notify();
+    this.cloudState = nextRoot;
+    this.dispatchLocalListeners();
+    void fbSet('/', nextRoot);
   }
 
-  // --- GENERIC ERP CRUD COLLECTIONS ---
+  // --- GENERIC ERP CRUD COLLECTIONS (FIREBASE RTDB /erp/{key}) ---
   public getGenericList<T>(key: string, defaultData: T[] = []): T[] {
-    const raw = localStorage.getItem(`cusq_erp_${key}`);
-    if (!raw) {
-      localStorage.setItem(`cusq_erp_${key}`, JSON.stringify(defaultData));
-      return defaultData;
+    const existing = this.cloudState.erp?.[key];
+    if (existing !== undefined) {
+      return normalizeFirebaseList<T>(existing);
     }
-    try {
-      return JSON.parse(raw);
-    } catch {
-      return defaultData;
-    }
+    return defaultData;
   }
 
   public saveGenericItem<T extends { id: string }>(key: string, item: T) {
-    const list = this.getGenericList<T>(key);
+    const list = [...this.getGenericList<T>(key)];
     const idx = list.findIndex((x) => x.id === item.id);
     if (idx >= 0) list[idx] = item;
     else list.unshift(item);
-    localStorage.setItem(`cusq_erp_${key}`, JSON.stringify(list));
-    this.notify();
+    if (!this.cloudState.erp) this.cloudState.erp = {};
+    this.cloudState.erp[key] = list;
+    this.dispatchLocalListeners();
+    void fbSet(`erp/${key}`, list);
   }
 
   public deleteGenericItem<T extends { id: string }>(key: string, id: string) {
     const list = this.getGenericList<T>(key).filter((x) => x.id !== id);
-    localStorage.setItem(`cusq_erp_${key}`, JSON.stringify(list));
-    this.notify();
+    if (!this.cloudState.erp) this.cloudState.erp = {};
+    this.cloudState.erp[key] = list;
+    this.dispatchLocalListeners();
+    void fbSet(`erp/${key}`, list);
   }
 
   // --- USUARIOS Y ROLES DEL SISTEMA (ADMIN, COCINA, MOZO) ---
   public getUsuariosSistema(): UsuarioSistema[] {
-    const raw = localStorage.getItem(STORAGE_KEYS.USUARIOS);
-    if (!raw) {
-      localStorage.setItem(STORAGE_KEYS.USUARIOS, JSON.stringify(DEFAULT_USUARIOS_SISTEMA));
-      return DEFAULT_USUARIOS_SISTEMA;
-    }
-    try {
-      const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_USUARIOS_SISTEMA;
-    } catch {
-      return DEFAULT_USUARIOS_SISTEMA;
-    }
+    const list = this.cloudState.usuarios;
+    return Array.isArray(list) && list.length > 0 ? list : DEFAULT_USUARIOS_SISTEMA;
   }
 
   public saveUsuarioSistema(u: UsuarioSistema) {
-    const list = this.getUsuariosSistema();
+    const list = [...this.getUsuariosSistema()];
     const idx = list.findIndex((x) => x.id === u.id || x.usuario.toLowerCase() === u.usuario.toLowerCase());
     if (idx >= 0) list[idx] = u;
     else list.push(u);
-    localStorage.setItem(STORAGE_KEYS.USUARIOS, JSON.stringify(list));
-    this.notify();
+    this.cloudState.usuarios = list;
+    this.dispatchLocalListeners();
+    void fbSet('usuarios', list);
   }
 
   public validarClave(rol: 'admin' | 'cocina' | 'mozo' | 'cajero', claveIngresada: string, usuarioIngresado?: string): boolean {
     if (!claveIngresada) return false;
     const pin = claveIngresada.trim();
-    // Claves maestras de emergencia
     if (pin === '42423549' || pin === 'regocijo123') return true;
 
     const users = this.getUsuariosSistema();
-    
-    // Si se pasa nombre de usuario específico
+
     if (usuarioIngresado && usuarioIngresado.trim()) {
       const uByName = users.find((u) => u.usuario.toLowerCase() === usuarioIngresado.trim().toLowerCase() && u.activo);
       if (uByName && uByName.clave === pin) return true;
     }
 
-    // Buscar si coincide con cualquier usuario activo con ese rol registrado en el panel
     const matchedUsers = users.filter((u) => u.rol === rol && u.activo);
     if (matchedUsers.some((u) => u.clave === pin)) return true;
 
-    // Si el rol es cocina o mozo, la clave de un usuario administrador registrado también desbloquea
     if (rol !== 'admin') {
       const adminUsers = users.filter((u) => u.rol === 'admin' && u.activo);
       if (adminUsers.some((u) => u.clave === pin)) return true;
     }
 
-    // Claves por defecto de respaldo
     if (rol === 'admin' && (pin === 'admin123' || pin === 'admin')) return true;
     if (rol === 'cocina' && (pin === 'cocina123' || pin === 'cocina')) return true;
     if (rol === 'mozo' && (pin === 'mozo123' || pin === 'mozo')) return true;
@@ -1596,4 +1742,5 @@ class StorageService {
 }
 
 export const storage = new StorageService();
+
 

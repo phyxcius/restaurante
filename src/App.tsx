@@ -68,13 +68,13 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
             <div className="flex gap-2">
               <button
                 onClick={() => {
-                  localStorage.clear();
                   sessionStorage.clear();
+                  storage.connectFirebase();
                   window.location.reload();
                 }}
                 className="flex-1 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs"
               >
-                Restablecer Datos
+                Restablecer Sesión
               </button>
               <button
                 onClick={() => window.location.reload()}
