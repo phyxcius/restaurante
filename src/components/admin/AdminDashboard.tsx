@@ -18,6 +18,8 @@ import {
   ReservaItemPedido,
   ThemeColorsConfig,
   DevApiConfig,
+  CategoriaPlato,
+  LlamadoMozo,
 } from '../../types';
 import { storage, UsuarioSistema } from '../../services/storage';
 import { FirebaseSyncInfo } from '../../services/firebaseDb';
@@ -33,6 +35,7 @@ import {
 import { ErpSubmodules } from './ErpSubmodules';
 import { ClubSocios } from '../club/ClubSocios';
 import { FacturaTicket } from '../factura/FacturaTicket';
+import { MozoPanel } from '../mozo/MozoPanel';
 import { CHUSPA_TECH_LOGO } from '../../constants/chuspaLogo';
 import { isFechaHoy, matchMesa, normalizeDate } from '../../utils/dateUtils';
 import { DishCatalogPickerModal } from '../reservas/DishCatalogPickerModal';
@@ -161,7 +164,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
     iconColor: '#fbbf24',
   });
 
-  // Platos Modal
+  // Platos Modal & Categorías
   const [isDishModalOpen, setIsDishModalOpen] = useState<boolean>(false);
   const [platoEditandoId, setPlatoEditandoId] = useState<string | null>(null);
   const [dishForm, setDishForm] = useState<{
@@ -179,6 +182,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
     imagenUrl: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500',
     videoUrl: '',
   });
+  const [categoriasPlatos, setCategoriasPlatos] = useState<CategoriaPlato[]>(() => storage.getCategorias());
+  const [nuevaCategoriaNombre, setNuevaCategoriaNombre] = useState<string>('');
+  const [nuevaCategoriaIcono, setNuevaCategoriaIcono] = useState<string>('🍲');
+  const [isSavingCategoria, setIsSavingCategoria] = useState<boolean>(false);
+
+  // Venta Directa POS Modal (Mostrador / Llevar / Teléfono / WhatsApp)
+  const [isVentaDirectaOpen, setIsVentaDirectaOpen] = useState<boolean>(false);
+  const [vdCanal, setVdCanal] = useState<'llevar' | 'telefono' | 'whatsapp' | 'delivery'>('llevar');
+  const [vdCliente, setVdCliente] = useState<string>('');
+  const [vdTelefono, setVdTelefono] = useState<string>('');
+  const [vdDireccion, setVdDireccion] = useState<string>('');
+  const [vdMetodoPago, setVdMetodoPago] = useState<string>('Efectivo');
+  const [vdNotas, setVdNotas] = useState<string>('');
+  const [vdSearchQuery, setVdSearchQuery] = useState<string>('');
+  const [vdCategoryFilter, setVdCategoryFilter] = useState<string>('all');
+  const [vdCart, setVdCart] = useState<Array<{ producto: Producto; cantidad: number }>>([]);
+  const [isSavingVentaDirecta, setIsSavingVentaDirecta] = useState<boolean>(false);
 
   // Cobro Modal
   const [comandaCobrando, setComandaCobrando] = useState<Comanda | null>(null);
@@ -262,6 +282,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
   const [productos, setProductos] = useState<Producto[]>(storage.getProductos());
   const [personal, setPersonal] = useState<Personal[]>(storage.getPersonal());
   const [resenas, setResenas] = useState(storage.getResenas());
+  const [llamadosMozo, setLlamadosMozo] = useState<LlamadoMozo[]>(() => storage.getLlamadosMozo());
+  const prevLlamadosMozoIdsRef = useRef<Set<string>>(
+    new Set(storage.getLlamadosMozo().filter((l) => l.estado === 'pendiente').map((l) => l.id))
+  );
   const [usuariosSistema, setUsuariosSistema] = useState<UsuarioSistema[]>(() => storage.getUsuariosSistema());
   const [nuevoUsuarioNombre, setNuevoUsuarioNombre] = useState<string>('');
   const [nuevoUsuarioRol, setNuevoUsuarioRol] = useState<'admin' | 'cocina' | 'mozo' | 'cajero'>('mozo');
@@ -353,10 +377,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
       setSocios(storage.getSocios());
       setReservas(storage.getReservas());
       setProductos(storage.getProductos());
+      setCategoriasPlatos(storage.getCategorias());
       setPersonal(storage.getPersonal());
       setResenas(storage.getResenas());
       setIdentidadForm(storage.getConfig());
       setUsuariosSistema(storage.getUsuariosSistema());
+
+      const nextLlamados = storage.getLlamadosMozo();
+      const nextPendientes = nextLlamados.filter((l) => l.estado === 'pendiente');
+      if (nextPendientes.some((l) => !prevLlamadosMozoIdsRef.current.has(l.id))) {
+        reproducirCampana();
+      }
+      prevLlamadosMozoIdsRef.current = new Set(nextPendientes.map((l) => l.id));
+      setLlamadosMozo(nextLlamados);
+
       const fbInfo = storage.getFirebaseState();
       setFirebaseState(fbInfo);
 
@@ -1260,6 +1294,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
             <i className="fa-solid fa-receipt text-xs text-emerald-400"></i>
             <span>TICKET / BOLETA</span>
           </button>
+
+          {/* 11. PANEL DE CONTROL DE MOZOS */}
+          <button
+            type="button"
+            className={`usqay-menu-trigger ${currentSection === 'mozos' ? 'active' : ''}`}
+            onClick={() => handleNavClick('mozos')}
+            title="Panel de Control de Mozos y Llamados de Mesa en Tiempo Real"
+          >
+            <i className="fa-solid fa-bell-concierge text-xs text-amber-300"></i>
+            <span>MOZOS</span>
+            {llamadosMozo.filter((l) => l.estado === 'pendiente').length > 0 && (
+              <span style={{ background: '#ef4444', color: '#fff', fontSize: '10px', padding: '1px 6px', borderRadius: '10px', fontWeight: 900, marginLeft: '4px' }}>
+                {llamadosMozo.filter((l) => l.estado === 'pendiente').length} 🔔
+              </span>
+            )}
+          </button>
         </nav>
 
         {/* Backdrop for outside click dismissal */}
@@ -1486,6 +1536,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
               </span>
             </button>
 
+            <button
+              className={`nav-item ${currentSection === 'mozos' ? 'active' : ''}`}
+              onClick={() => handleNavClick('mozos')}
+            >
+              <i className="fa-solid fa-user-tie text-amber-400"></i> Panel de Mozos
+              {llamadosMozo.filter((l) => l.estado === 'pendiente').length > 0 && (
+                <span className="badge-live-orders" style={{ background: '#ef4444' }}>
+                  {llamadosMozo.filter((l) => l.estado === 'pendiente').length} 🔔
+                </span>
+              )}
+            </button>
+
             {/* MÓDULO ALMACÉN CON SUBMENÚS */}
             <div className={`nav-dropdown ${openDropdowns.almacen ? 'open' : ''}`} id="dropdownAlmacen">
               <button className="nav-item" onClick={() => toggleDropdown('almacen')}>
@@ -1672,18 +1734,124 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
             </section>
           )}
 
+          {/* PANEL DE MOZOS EMBEBIDO */}
+          {currentSection === 'mozos' && (
+            <section id="viewMozos" style={{ display: 'block' }}>
+              <MozoPanel
+                config={config}
+                embedded
+                onBackToAdmin={() => handleNavClick('comandas')}
+              />
+            </section>
+          )}
+
           {/* B. 1. COMANDAS KDS */}
           {currentSection === 'comandas' && (
             <section id="viewComandas" style={{ display: 'block' }}>
               <div className="view-header">
                 <div>
                   <h1>🛎️ Pantalla KDS: Control de Comandas</h1>
-                  <p>Monitoreo operativo de cocina en tiempo real y despacho por prioridad.</p>
+                  <p>Monitoreo operativo de cocina en tiempo real, venta directa y despacho por prioridad.</p>
                 </div>
-                <button className="btn btn-add" onClick={() => setComandas(storage.getComandas())}>
-                  <i className="fa-solid fa-rotate"></i> Actualizar
-                </button>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    className="btn"
+                    style={{
+                      background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                      color: '#020617',
+                      fontWeight: 900,
+                      border: 'none',
+                    }}
+                    onClick={() => {
+                      setVdCart([]);
+                      setVdCliente('');
+                      setVdTelefono('');
+                      setVdDireccion('');
+                      setVdNotas('');
+                      setVdSearchQuery('');
+                      setVdCategoryFilter('all');
+                      setIsVentaDirectaOpen(true);
+                    }}
+                  >
+                    <i className="fa-solid fa-bolt"></i> ⚡ Venta Directa (Caja / Tel / WhatsApp)
+                  </button>
+                  <button className="btn btn-add" onClick={() => setComandas(storage.getComandas())}>
+                    <i className="fa-solid fa-rotate"></i> Actualizar
+                  </button>
+                </div>
               </div>
+
+              {/* BANNER EN VIVO SI HAY MESAS LLAMANDO AL MOZO */}
+              {llamadosMozo.filter((l) => l.estado === 'pendiente').length > 0 && (
+                <div
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(185,28,28,0.28), rgba(15,23,42,0.95))',
+                    border: '2px solid #f59e0b',
+                    borderRadius: '14px',
+                    padding: '12px 16px',
+                    marginBottom: '14px',
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '10px',
+                    boxShadow: '0 0 20px rgba(245, 158, 11, 0.25)',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '20px' }}>🔔</span>
+                    <strong style={{ color: '#fde68a', fontSize: '13px' }}>
+                      Llamados de Mesa Activos ({llamadosMozo.filter((l) => l.estado === 'pendiente').length}):
+                    </strong>
+                    {llamadosMozo
+                      .filter((l) => l.estado === 'pendiente')
+                      .map((l) => (
+                        <span
+                          key={l.id}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            background: '#7f1d1d',
+                            border: '1px solid #fbbf24',
+                            color: '#fff',
+                            padding: '4px 10px',
+                            borderRadius: '999px',
+                            fontSize: '11.5px',
+                            fontWeight: 800,
+                          }}
+                        >
+                          <span>{l.mesa} ({l.hora})</span>
+                          <button
+                            type="button"
+                            onClick={() => void storage.atenderLlamadoMozo(l.id)}
+                            style={{
+                              background: '#10b981',
+                              color: '#020617',
+                              border: 'none',
+                              borderRadius: '999px',
+                              padding: '2px 7px',
+                              fontSize: '10px',
+                              fontWeight: 900,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            ✔ Atender
+                          </button>
+                        </span>
+                      ))}
+                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-save"
+                    style={{ fontSize: '11px', padding: '6px 12px' }}
+                    onClick={() => handleNavClick('mozos')}
+                  >
+                    Abrir Panel de Mozos ➜
+                  </button>
+                </div>
+              )}
 
               {/* KDS CALENDAR BAR */}
               <div className="kds-calendar-bar">
@@ -1923,10 +2091,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                     }
 
                     if (estaOcupada) {
+                      const tableCallingWaiter =
+                        !!comandaMesa?.llamaMozo ||
+                        llamadosMozo.some(
+                          (l) => l.estado === 'pendiente' && l.mesa.toLowerCase() === m.nombre.toLowerCase()
+                        );
                       return (
                         <div
                           key={m.id}
                           className="usqay-table-card ocupada"
+                          style={
+                            tableCallingWaiter
+                              ? {
+                                  borderColor: '#f59e0b',
+                                  boxShadow: '0 0 18px rgba(245, 158, 11, 0.55)',
+                                }
+                              : undefined
+                          }
                           onClick={() => {
                             if (modoEliminarMesas) {
                               if (confirm(`¿Eliminar ${m.nombre}?`)) {
@@ -1939,6 +2120,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                           }}
                         >
                           <div className="usqay-table-title">{m.nombre.toUpperCase()}</div>
+                          {tableCallingWaiter && (
+                            <div
+                              style={{
+                                background: '#dc2626',
+                                color: '#fff',
+                                fontSize: '10px',
+                                fontWeight: 900,
+                                padding: '2px 8px',
+                                borderRadius: '999px',
+                                marginBottom: '4px',
+                                display: 'inline-block',
+                              }}
+                            >
+                              🔔 LLAMANDO AL MOZO
+                            </div>
+                          )}
                           <div className="usqay-table-mozo">
                             <i className="fa-solid fa-briefcase"></i> {mozoNombre}
                           </div>
@@ -3399,7 +3596,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
               <div className="view-header">
                 <div>
                   <h1>🍽️ Catálogo Visual de la Carta</h1>
-                  <p>Edita nombres, precios, fotos y videos sincronizados en la nube.</p>
+                  <p>Edita nombres, precios, categorías, fotos y videos sincronizados en la nube.</p>
                 </div>
                 <button
                   className="btn btn-add"
@@ -3409,7 +3606,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                       nombre: '',
                       descripcion: '',
                       precio: 35.0,
-                      categoria: 'mains',
+                      categoria: categoriasPlatos[0]?.id || 'mains',
                       imagenUrl: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500',
                       videoUrl: '',
                     });
@@ -3418,6 +3615,148 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                 >
                   <i className="fa-solid fa-plus"></i> Nuevo Plato
                 </button>
+              </div>
+
+              {/* GESTIÓN DE CATEGORÍAS DE PLATOS (SINCRONIZADA CON MENÚ DIGITAL EN CUADRÍCULA Y FILTROS) */}
+              <div
+                className="card"
+                style={{
+                  marginBottom: '18px',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  background: 'rgba(9, 21, 43, 0.85)',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '10px' }}>
+                  <div>
+                    <h3 style={{ fontSize: '14px', fontWeight: 900, color: '#fbbf24', margin: 0 }}>
+                      🏷️ Categorías de Platos (Menú Digital & Cuadrícula)
+                    </h3>
+                    <span style={{ fontSize: '11px', color: '#94a3b8' }}>
+                      Crea categorías personalizadas que aparecerán automáticamente en el Menú Digital y como títulos en Modo Cuadrícula.
+                    </span>
+                  </div>
+                </div>
+
+                {/* Lista de Categorías Activas */}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+                  {categoriasPlatos.map((cat) => {
+                    const isBase = ['entradas', 'mains', 'bebidas', 'postres'].includes(cat.id);
+                    return (
+                      <div
+                        key={cat.id}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          padding: '5px 10px',
+                          borderRadius: '999px',
+                          background: '#0f172a',
+                          border: '1px solid rgba(56, 189, 248, 0.4)',
+                          color: '#f8fafc',
+                          fontSize: '12px',
+                          fontWeight: 700,
+                        }}
+                      >
+                        <span>{cat.icono || '🍽️'}</span>
+                        <span>{cat.nombre}</span>
+                        {!isBase && (
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              if (window.confirm(`¿Eliminar la categoría "${cat.nombre}"?`)) {
+                                await storage.deleteCategoria(cat.id);
+                              }
+                            }}
+                            style={{
+                              background: 'rgba(239,68,68,0.2)',
+                              border: 'none',
+                              color: '#fca5a5',
+                              borderRadius: '50%',
+                              width: '18px',
+                              height: '18px',
+                              fontSize: '10px',
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                            title="Eliminar categoría"
+                          >
+                            ✕
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Formulario Agregar Nueva Categoría */}
+                <form
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    const nombre = nuevaCategoriaNombre.trim();
+                    if (!nombre) return;
+                    const id = nombre
+                      .toLowerCase()
+                      .normalize('NFD')
+                      .replace(/[\u0300-\u036f]/g, '')
+                      .replace(/[^a-z0-9]+/g, '_')
+                      .replace(/^_+|_+$/g, '');
+                    if (!id) return;
+                    setIsSavingCategoria(true);
+                    try {
+                      const ok = await storage.saveCategoria({
+                        id,
+                        nombre,
+                        icono: nuevaCategoriaIcono.trim() || '🍽️',
+                      });
+                      if (ok) {
+                        setNuevaCategoriaNombre('');
+                      } else {
+                        alert('No se pudo guardar la categoría en Firebase.');
+                      }
+                    } finally {
+                      setIsSavingCategoria(false);
+                    }
+                  }}
+                  style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}
+                >
+                  <select
+                    value={nuevaCategoriaIcono}
+                    onChange={(e) => setNuevaCategoriaIcono(e.target.value)}
+                    style={{ width: '78px', padding: '7px 8px', fontSize: '14px' }}
+                    title="Ícono"
+                  >
+                    <option value="🍲">🍲</option>
+                    <option value="🍗">🍗</option>
+                    <option value="🥩">🥩</option>
+                    <option value="🐟">🐟</option>
+                    <option value="🍕">🍕</option>
+                    <option value="🍔">🍔</option>
+                    <option value="🍜">🍜</option>
+                    <option value="🥗">🥗</option>
+                    <option value="🍹">🍹</option>
+                    <option value="☕">☕</option>
+                    <option value="🍰">🍰</option>
+                    <option value="⭐">⭐</option>
+                  </select>
+                  <input
+                    type="text"
+                    placeholder="Nombre de nueva categoría (Ej: Parrillas, Sopas, Combos, Cafés)..."
+                    value={nuevaCategoriaNombre}
+                    onChange={(e) => setNuevaCategoriaNombre(e.target.value)}
+                    style={{ flex: 1, minWidth: '220px' }}
+                  />
+                  <button
+                    type="submit"
+                    className="btn btn-save"
+                    disabled={isSavingCategoria || !nuevaCategoriaNombre.trim()}
+                    style={{ whiteSpace: 'nowrap' }}
+                  >
+                    <i className="fa-solid fa-plus"></i>{' '}
+                    {isSavingCategoria ? 'Guardando...' : 'Agregar Categoría'}
+                  </button>
+                </form>
               </div>
 
               <div className="dishes-grid" id="dishesVisualGrid">
@@ -4340,6 +4679,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                       <span style={{ fontSize: '11px', color: '#94a3b8', display: 'block', marginTop: '4px' }}>
                         * Este enlace se enviará automáticamente en los mensajes de WhatsApp de agradecimiento al cliente y se abrirá en segundo plano en la pantalla de agradecimiento del Menú Digital para captar reseñas positivas.
                       </span>
+                    </div>
+
+                    <div style={{ gridColumn: '1 / -1', background: 'rgba(16, 185, 129, 0.08)', padding: '10px 12px', borderRadius: '10px', border: '1px solid rgba(16, 185, 129, 0.35)' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#34d399', fontWeight: 900 }}>
+                        <i className="fa-solid fa-music text-emerald-400"></i> 🎵 Música Ambiental del Menú Digital (URL MP3 Opcional):
+                      </label>
+                      <input
+                        type="url"
+                        placeholder="Opcional: https://.../musica-ambiente.mp3 (si queda vacío suena melodía Lounge integrada)"
+                        value={identidadForm.musicaAmbienteUrl || ''}
+                        onChange={(e) => setIdentidadForm({ ...identidadForm, musicaAmbienteUrl: e.target.value })}
+                        style={{ marginTop: '4px' }}
+                      />
                     </div>
 
                     <div style={{ gridColumn: '1 / -1', background: 'rgba(14, 165, 233, 0.08)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(56, 189, 248, 0.35)' }}>
@@ -5790,13 +6142,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
               <div>
                 <label>Categoría:</label>
                 <select
-                  value={dishForm.categoria}
+                  value={dishForm.categoria === 'drinks' ? 'bebidas' : dishForm.categoria}
                   onChange={(e) => setDishForm({ ...dishForm, categoria: e.target.value })}
                 >
-                  <option value="mains">Platos Fuertes</option>
-                  <option value="entradas">Entradas</option>
-                  <option value="drinks">Bebidas & Cocteles</option>
-                  <option value="postres">Postres</option>
+                  {categoriasPlatos.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.icono ? `${cat.icono} ` : ''}{cat.nombre}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -5849,6 +6202,406 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                 }}
               >
                 <i className="fa-solid fa-floppy-disk"></i> Guardar Plato
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL VENTA DIRECTA POS (MOSTRADOR / LLEVAR / TELÉFONO / WHATSAPP / DELIVERY) */}
+      {isVentaDirectaOpen && (
+        <div className="modal-overlay" onClick={() => !isSavingVentaDirecta && setIsVentaDirectaOpen(false)}>
+          <div
+            className="modal-box"
+            style={{ maxWidth: '760px', width: '95%', maxHeight: '90vh', overflowY: 'auto' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '10px', marginBottom: '12px' }}>
+              <div>
+                <h3 style={{ color: '#fbbf24', margin: 0, fontSize: '18px' }}>
+                  ⚡ Venta Directa & Pedido Rápido
+                </h3>
+                <span style={{ fontSize: '11.5px', color: '#94a3b8' }}>
+                  Registra pedidos de mostrador (para llevar), teléfono, WhatsApp o delivery directo y cobra al instante.
+                </span>
+              </div>
+              <button
+                type="button"
+                disabled={isSavingVentaDirecta}
+                style={{ background: 'none', border: 'none', color: '#ccc', fontSize: '24px', fontWeight: 'bold', cursor: 'pointer' }}
+                onClick={() => setIsVentaDirectaOpen(false)}
+              >
+                &times;
+              </button>
+            </div>
+
+            {/* Canal de Venta */}
+            <label style={{ display: 'block', marginBottom: '6px' }}>Canal del Pedido:</label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(135px, 1fr))', gap: '8px', marginBottom: '12px' }}>
+              {[
+                { id: 'llevar' as const, label: '🛍️ Para Llevar' },
+                { id: 'telefono' as const, label: '📞 Por Teléfono' },
+                { id: 'whatsapp' as const, label: '💬 Por WhatsApp' },
+                { id: 'delivery' as const, label: '🛵 Delivery Directo' },
+              ].map((ch) => (
+                <button
+                  key={ch.id}
+                  type="button"
+                  onClick={() => setVdCanal(ch.id)}
+                  style={{
+                    padding: '8px 10px',
+                    borderRadius: '10px',
+                    fontSize: '12px',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    border: vdCanal === ch.id ? '2px solid #f59e0b' : '1px solid #334155',
+                    background: vdCanal === ch.id ? 'rgba(245, 158, 11, 0.2)' : '#061122',
+                    color: vdCanal === ch.id ? '#fde68a' : '#cbd5e1',
+                  }}
+                >
+                  {ch.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Datos rápidos del cliente */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px', marginBottom: '12px' }}>
+              <div>
+                <label>Nombre del Cliente:</label>
+                <input
+                  type="text"
+                  placeholder="Ej: Juan Pérez o Cliente Mostrador"
+                  value={vdCliente}
+                  onChange={(e) => setVdCliente(e.target.value)}
+                />
+              </div>
+              <div>
+                <label>Teléfono / WhatsApp (Opcional):</label>
+                <input
+                  type="text"
+                  placeholder="Ej: 969773064"
+                  value={vdTelefono}
+                  onChange={(e) => setVdTelefono(e.target.value)}
+                />
+              </div>
+              <div>
+                <label>Método de Pago:</label>
+                <select value={vdMetodoPago} onChange={(e) => setVdMetodoPago(e.target.value)}>
+                  <option value="Efectivo">💵 Efectivo</option>
+                  <option value="Yape">🟣 Yape</option>
+                  <option value="Plin">🔵 Plin</option>
+                  <option value="Yape / Plin">📱 Yape / Plin</option>
+                  <option value="Tarjeta POS">💳 Tarjeta POS</option>
+                </select>
+              </div>
+            </div>
+
+            {(vdCanal === 'delivery' || vdCanal === 'whatsapp' || vdCanal === 'telefono') && (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '12px' }}>
+                <div>
+                  <label>Dirección / Referencia de Entrega:</label>
+                  <input
+                    type="text"
+                    placeholder="Ej: Av. Pardo 210 / Recoge en tienda"
+                    value={vdDireccion}
+                    onChange={(e) => setVdDireccion(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label>Notas para Cocina / Empaque:</label>
+                  <input
+                    type="text"
+                    placeholder="Ej: Sin ají, cubiertos incluidos..."
+                    value={vdNotas}
+                    onChange={(e) => setVdNotas(e.target.value)}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Selector de Platos del Catálogo */}
+            <div style={{ background: '#061122', border: '1px solid #1e293b', borderRadius: '12px', padding: '12px', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '10px' }}>
+                <input
+                  type="text"
+                  placeholder="🔍 Buscar plato en la carta..."
+                  value={vdSearchQuery}
+                  onChange={(e) => setVdSearchQuery(e.target.value)}
+                  style={{ flex: 1, minWidth: '180px', margin: 0 }}
+                />
+                <select
+                  value={vdCategoryFilter}
+                  onChange={(e) => setVdCategoryFilter(e.target.value)}
+                  style={{ width: '180px', margin: 0 }}
+                >
+                  <option value="all">Todas las categorías</option>
+                  {categoriasPlatos.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.icono} {cat.nombre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(175px, 1fr))', gap: '8px', maxHeight: '220px', overflowY: 'auto', paddingRight: '4px' }}>
+                {productos
+                  .filter((p) => {
+                    if (!p.disponible) return false;
+                    const normCat = p.category.toLowerCase() === 'drinks' ? 'bebidas' : p.category.toLowerCase();
+                    if (vdCategoryFilter !== 'all' && normCat !== vdCategoryFilter.toLowerCase()) return false;
+                    const name = (p.i18n?.es?.name || p.nombre || '').toLowerCase();
+                    return !vdSearchQuery.trim() || name.includes(vdSearchQuery.trim().toLowerCase());
+                  })
+                  .map((p) => {
+                    const name = p.i18n?.es?.name || p.nombre || 'Plato';
+                    const price = Number(p.precioPEN || p.precio || 0);
+                    const inCart = vdCart.find((it) => it.producto.id === p.id);
+                    return (
+                      <div
+                        key={p.id}
+                        style={{
+                          background: inCart ? 'rgba(37, 99, 235, 0.2)' : '#0b1a33',
+                          border: inCart ? '1px solid #38bdf8' : '1px solid #1e293b',
+                          borderRadius: '10px',
+                          padding: '8px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'space-between',
+                          gap: '6px',
+                        }}
+                      >
+                        <div>
+                          <div style={{ fontSize: '12px', fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>{name}</div>
+                          <div style={{ fontSize: '12px', fontWeight: 900, color: '#fbbf24', marginTop: '2px' }}>S/ {price.toFixed(2)}</div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
+                          {inCart ? (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setVdCart((prev) =>
+                                    prev
+                                      .map((it) =>
+                                        it.producto.id === p.id ? { ...it, cantidad: it.cantidad - 1 } : it
+                                      )
+                                      .filter((it) => it.cantidad > 0)
+                                  );
+                                }}
+                                style={{ width: '26px', height: '26px', borderRadius: '6px', background: '#1e293b', border: '1px solid #475569', color: '#fff', fontWeight: 900, cursor: 'pointer' }}
+                              >
+                                -
+                              </button>
+                              <span style={{ fontSize: '13px', fontWeight: 900, color: '#38bdf8' }}>{inCart.cantidad}</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setVdCart((prev) =>
+                                    prev.map((it) =>
+                                      it.producto.id === p.id ? { ...it, cantidad: it.cantidad + 1 } : it
+                                    )
+                                  );
+                                }}
+                                style={{ width: '26px', height: '26px', borderRadius: '6px', background: '#2563eb', border: 'none', color: '#fff', fontWeight: 900, cursor: 'pointer' }}
+                              >
+                                +
+                              </button>
+                            </>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => setVdCart((prev) => [...prev, { producto: p, cantidad: 1 }])}
+                              style={{ width: '100%', padding: '5px', borderRadius: '8px', background: '#1d4ed8', border: 'none', color: '#fff', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}
+                            >
+                              + Agregar
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+
+            {/* Resumen del Pedido Directo */}
+            <div style={{ background: '#09152b', border: '1px solid rgba(245, 158, 11, 0.35)', borderRadius: '10px', padding: '10px 12px', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <strong style={{ fontSize: '13px', color: '#e2e8f0' }}>
+                  Productos seleccionados ({vdCart.reduce((acc, it) => acc + it.cantidad, 0)}):
+                </strong>
+                <strong style={{ fontSize: '18px', color: '#fbbf24' }}>
+                  Total: S/{' '}
+                  {vdCart
+                    .reduce((acc, it) => acc + Number(it.producto.precioPEN || it.producto.precio || 0) * it.cantidad, 0)
+                    .toFixed(2)}
+                </strong>
+              </div>
+              {vdCart.length > 0 && (
+                <div style={{ fontSize: '11.5px', color: '#94a3b8', marginTop: '4px' }}>
+                  {vdCart
+                    .map((it) => `${it.cantidad}x ${it.producto.i18n?.es?.name || it.producto.nombre || 'Plato'}`)
+                    .join(', ')}
+                </div>
+              )}
+            </div>
+
+            {/* Acciones: Cobrar al Momento o Enviar a Cocina */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '10px' }}>
+              <button
+                type="button"
+                disabled={isSavingVentaDirecta || vdCart.length === 0}
+                className="btn"
+                style={{
+                  background: 'linear-gradient(135deg, #2563eb, #0284c7)',
+                  color: '#fff',
+                  fontWeight: 900,
+                  padding: '11px',
+                  border: 'none',
+                  opacity: vdCart.length === 0 ? 0.5 : 1,
+                }}
+                onClick={async () => {
+                  if (vdCart.length === 0 || isSavingVentaDirecta) return;
+                  setIsSavingVentaDirecta(true);
+                  try {
+                    const totalPEN = Number(
+                      vdCart
+                        .reduce(
+                          (acc, it) => acc + Number(it.producto.precioPEN || it.producto.precio || 0) * it.cantidad,
+                          0
+                        )
+                        .toFixed(2)
+                    );
+                    const canalLabel =
+                      vdCanal === 'llevar'
+                        ? 'Llevar Directo'
+                        : vdCanal === 'telefono'
+                        ? 'Pedido Teléfono'
+                        : vdCanal === 'whatsapp'
+                        ? 'Pedido WhatsApp'
+                        : 'Delivery Directo';
+                    const newCmd: Comanda = {
+                      id: `vd-${Date.now()}`,
+                      numero: `VD-${Math.floor(1000 + Math.random() * 9000)}`,
+                      mesa: canalLabel,
+                      cliente: vdCliente.trim() || `Cliente ${canalLabel}`,
+                      productos: vdCart
+                        .map((it) => `${it.cantidad}x ${it.producto.i18n?.es?.name || it.producto.nombre || 'Plato'}`)
+                        .join(', '),
+                      items: vdCart.map((it) => ({
+                        id: it.producto.id,
+                        nombre: it.producto.i18n?.es?.name || it.producto.nombre || 'Plato',
+                        cantidad: it.cantidad,
+                        precio: Number(it.producto.precioPEN || it.producto.precio || 0),
+                      })),
+                      totalPEN,
+                      totalUSD: Number((totalPEN / (config.exchangeRateUSD || 3.75)).toFixed(2)),
+                      total: totalPEN,
+                      estado: 'cocina',
+                      pago: vdMetodoPago,
+                      tipoComprobante:
+                        identidadForm.habilitarComprobantesFiscales === false ? 'Nota de Venta' : 'Boleta',
+                      fecha: new Date().toISOString().slice(0, 10),
+                      hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                      timestamp: Date.now(),
+                      mozo: operatorName,
+                      notas: [vdTelefono ? `Tel: ${vdTelefono}` : '', vdDireccion, vdNotas]
+                        .filter(Boolean)
+                        .join(' | ') || undefined,
+                      canalVenta: vdCanal,
+                    };
+                    const ok = await storage.saveComanda(newCmd);
+                    if (!ok) {
+                      alert('No se pudo registrar la comanda en Firebase.');
+                      return;
+                    }
+                    setIsVentaDirectaOpen(false);
+                    setVdCart([]);
+                    alert(`✔ Pedido ${newCmd.numero} enviado a Cocina KDS.`);
+                  } finally {
+                    setIsSavingVentaDirecta(false);
+                  }
+                }}
+              >
+                <i className="fa-solid fa-fire-burner"></i> 🍳 Registrar y Enviar a Cocina
+              </button>
+
+              <button
+                type="button"
+                disabled={isSavingVentaDirecta || vdCart.length === 0}
+                className="btn btn-save"
+                style={{
+                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  color: '#fff',
+                  fontWeight: 900,
+                  padding: '11px',
+                  border: 'none',
+                  opacity: vdCart.length === 0 ? 0.5 : 1,
+                }}
+                onClick={async () => {
+                  if (vdCart.length === 0 || isSavingVentaDirecta) return;
+                  setIsSavingVentaDirecta(true);
+                  try {
+                    const totalPEN = Number(
+                      vdCart
+                        .reduce(
+                          (acc, it) => acc + Number(it.producto.precioPEN || it.producto.precio || 0) * it.cantidad,
+                          0
+                        )
+                        .toFixed(2)
+                    );
+                    const canalLabel =
+                      vdCanal === 'llevar'
+                        ? 'Llevar Directo'
+                        : vdCanal === 'telefono'
+                        ? 'Pedido Teléfono'
+                        : vdCanal === 'whatsapp'
+                        ? 'Pedido WhatsApp'
+                        : 'Delivery Directo';
+                    const newCmd: Comanda = {
+                      id: `vd-${Date.now()}`,
+                      numero: `VD-${Math.floor(1000 + Math.random() * 9000)}`,
+                      mesa: canalLabel,
+                      cliente: vdCliente.trim() || `Cliente ${canalLabel}`,
+                      productos: vdCart
+                        .map((it) => `${it.cantidad}x ${it.producto.i18n?.es?.name || it.producto.nombre || 'Plato'}`)
+                        .join(', '),
+                      items: vdCart.map((it) => ({
+                        id: it.producto.id,
+                        nombre: it.producto.i18n?.es?.name || it.producto.nombre || 'Plato',
+                        cantidad: it.cantidad,
+                        precio: Number(it.producto.precioPEN || it.producto.precio || 0),
+                      })),
+                      totalPEN,
+                      totalUSD: Number((totalPEN / (config.exchangeRateUSD || 3.75)).toFixed(2)),
+                      total: totalPEN,
+                      estado: 'servido',
+                      despachadoCocina: true,
+                      pago: vdMetodoPago,
+                      tipoComprobante:
+                        identidadForm.habilitarComprobantesFiscales === false ? 'Nota de Venta' : 'Boleta',
+                      fecha: new Date().toISOString().slice(0, 10),
+                      hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                      timestamp: Date.now(),
+                      mozo: operatorName,
+                      notas: [vdTelefono ? `Tel: ${vdTelefono}` : '', vdDireccion, vdNotas]
+                        .filter(Boolean)
+                        .join(' | ') || undefined,
+                      canalVenta: vdCanal,
+                    };
+                    const ok = await storage.saveComanda(newCmd);
+                    if (!ok) {
+                      alert('No se pudo registrar el pedido directo en Firebase.');
+                      return;
+                    }
+                    setIsVentaDirectaOpen(false);
+                    setVdCart([]);
+                    handleOpenCobro(newCmd);
+                  } finally {
+                    setIsSavingVentaDirecta(false);
+                  }
+                }}
+              >
+                <i className="fa-solid fa-cash-register"></i> 💳 Registrar y Cobrar al Momento
               </button>
             </div>
           </div>

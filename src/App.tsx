@@ -6,8 +6,9 @@ import { storage } from './services/storage';
 import { ConfigRestaurante } from './types';
 
 import { ReservasPublica } from './components/reservas/ReservasPublica';
+import { MozoPanel } from './components/mozo/MozoPanel';
 
-export type StationType = 'menu' | 'cocina' | 'admin' | 'reservas';
+export type StationType = 'menu' | 'cocina' | 'admin' | 'reservas' | 'mozo';
 
 const getInitialStation = (): StationType => {
   const path = window.location.pathname.toLowerCase();
@@ -17,6 +18,9 @@ const getInitialStation = (): StationType => {
 
   if (viewParam === 'reservas' || viewParam === 'reserva' || path.includes('reserva') || hash.includes('reserva')) {
     return 'reservas';
+  }
+  if (viewParam === 'mozo' || viewParam === 'mozos' || path.includes('mozo') || hash.includes('mozo')) {
+    return 'mozo';
   }
   if (viewParam === 'cocina' || viewParam === 'kds' || path.includes('cocina') || hash.includes('cocina')) {
     return 'cocina';
@@ -188,6 +192,13 @@ export const App: React.FC = () => {
         {station === 'reservas' && (
           <div className="w-full min-h-screen flex flex-col">
             <ReservasPublica config={config} onBackToMenu={() => switchStation('menu')} />
+          </div>
+        )}
+
+        {/* 5. ESTACIÓN INDEPENDIENTE: PANEL DE CONTROL PARA MOZOS */}
+        {station === 'mozo' && (
+          <div className="w-full min-h-screen flex flex-col">
+            <MozoPanel config={config} />
           </div>
         )}
       </div>

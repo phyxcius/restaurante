@@ -75,6 +75,24 @@ export interface Comanda {
   serie?: string;
   despachadoCocina?: boolean;
   horaDespachoCocina?: string;
+  canalVenta?: 'mesa' | 'llevar' | 'telefono' | 'whatsapp' | 'delivery';
+}
+
+export interface CategoriaPlato {
+  id: string;
+  nombre: string;
+  icono?: string;
+}
+
+export interface LlamadoMozo {
+  id: string;
+  mesa: string;
+  cliente?: string;
+  comandaId?: string;
+  motivo?: string;
+  estado: 'pendiente' | 'atendido';
+  timestamp: number;
+  hora: string;
 }
 
 export interface Venta {
@@ -265,6 +283,8 @@ export interface ConfigRestaurante {
   habilitarComprobantesFiscales?: boolean;
   exigirValidacionReniecSunat?: boolean;
   themeColors?: ThemeColorsConfig;
+  categorias?: CategoriaPlato[];
+  musicaAmbienteUrl?: string;
 }
 
 export interface MesaStatus {

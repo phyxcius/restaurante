@@ -14,6 +14,8 @@ import {
   ConfigRestaurante,
   MesaStatus,
   DevApiConfig,
+  CategoriaPlato,
+  LlamadoMozo,
 } from '../types';
 import { CHUSPA_TECH_LOGO } from '../constants/chuspaLogo';
 import {
@@ -64,6 +66,13 @@ export const DEFAULT_USUARIOS_SISTEMA: UsuarioSistema[] = [
   { id: 'usr-mozo', usuario: 'mozo', nombre: 'Mozo / Salón', rol: 'mozo', clave: 'mozo123', activo: true },
 ];
 
+export const DEFAULT_CATEGORIAS: CategoriaPlato[] = [
+  { id: 'entradas', nombre: 'Entradas', icono: '🥗' },
+  { id: 'mains', nombre: 'Platos Fuertes', icono: '🍖' },
+  { id: 'bebidas', nombre: 'Bebidas & Cocteles', icono: '🍹' },
+  { id: 'postres', nombre: 'Postres', icono: '🍰' },
+];
+
 export const DEFAULT_CONFIG: ConfigRestaurante = {
   nombre: 'La Chuspa Tech',
   eslogan: 'Plataforma Gastronómica Cloud • Soluciones Digitales',
@@ -82,6 +91,7 @@ export const DEFAULT_CONFIG: ConfigRestaurante = {
   habilitarRucCliente: true,
   habilitarComprobantesFiscales: true,
   exigirValidacionReniecSunat: true,
+  categorias: [...DEFAULT_CATEGORIAS],
   themeColors: {
     presetName: 'La Chuspa Tech (Azul & Dorado)',
     primary: '#0056d2',
@@ -743,6 +753,7 @@ interface CloudRootState {
   alertas: {
     solicitud_pago: any | null;
     nueva_reserva: { reserva: Reserva; timestamp: number } | null;
+    llamados_mozo: LlamadoMozo[];
   };
   mesas_pagadas: Record<string, Venta>;
   erp: Record<string, any[]>;
@@ -780,6 +791,7 @@ class StorageService {
     alertas: {
       solicitud_pago: null,
       nueva_reserva: null,
+      llamados_mozo: [],
     },
     mesas_pagadas: {},
     erp: {},
@@ -968,6 +980,9 @@ class StorageService {
       alertas: {
         solicitud_pago: snapshot.alertas?.solicitud_pago || null,
         nueva_reserva: snapshot.alertas?.nueva_reserva || null,
+        llamados_mozo: snapshot.alertas?.llamados_mozo
+          ? normalizeFirebaseList<LlamadoMozo>(snapshot.alertas.llamados_mozo)
+          : [],
       },
       mesas_pagadas: snapshot.mesas_pagadas || {},
       erp: snapshot.erp || {},
@@ -1003,6 +1018,7 @@ class StorageService {
       alertas: {
         solicitud_pago: null,
         nueva_reserva: null,
+        llamados_mozo: [],
       },
       mesas_pagadas: {},
       erp: {},
@@ -1051,6 +1067,53 @@ class StorageService {
     this.dispatchLocalListeners();
     void fbSet('config', DEFAULT_CONFIG);
     return DEFAULT_CONFIG;
+  }
+
+  // --- CATEGORÍAS DE PLATOS (FIREBASE RTDB /config/categorias) ---
+  public getCategorias(): CategoriaPlato[] {
+    const raw = this.cloudState.config?.categorias;
+    if (Array.isArray(raw) && raw.length > 0) {
+      return raw.map((c) => ({
+        id: String(c.id).trim().toLowerCase() === 'drinks' ? 'bebidas' : String(c.id).trim(),
+        nombre: c.nombre || String(c.id),
+        icono: c.icono || '🍽️',
+      }));
+    }
+    return [...DEFAULT_CATEGORIAS];
+  }
+
+  public async saveCategoria(categoria: CategoriaPlato): Promise<boolean> {
+    const cleanId = categoria.id.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+    if (!cleanId) return false;
+    const current = [...this.getCategorias()];
+    const idx = current.findIndex((c) => c.id.toLowerCase() === cleanId);
+    const nextItem: CategoriaPlato = {
+      id: cleanId,
+      nombre: categoria.nombre.trim(),
+      icono: (categoria.icono || '🍽️').trim(),
+    };
+    if (idx >= 0) current[idx] = nextItem;
+    else current.push(nextItem);
+
+    const nextConfig: ConfigRestaurante = {
+      ...this.getConfig(),
+      categorias: current,
+    };
+    this.cloudState.config = nextConfig;
+    this.dispatchLocalListeners();
+    return fbSet('config', nextConfig);
+  }
+
+  public async deleteCategoria(id: string): Promise<boolean> {
+    const cleanId = id.trim().toLowerCase();
+    const current = this.getCategorias().filter((c) => c.id.toLowerCase() !== cleanId);
+    const nextConfig: ConfigRestaurante = {
+      ...this.getConfig(),
+      categorias: current.length > 0 ? current : [...DEFAULT_CATEGORIAS],
+    };
+    this.cloudState.config = nextConfig;
+    this.dispatchLocalListeners();
+    return fbSet('config', nextConfig);
   }
 
   // --- DEV API CONFIG (SUNAT / RENIEC EN FIREBASE RTDB PARA INDEX & ADMIN) ---
@@ -1253,6 +1316,114 @@ class StorageService {
       this.dispatchLocalListeners();
       void fbSet('comandas', list);
     }
+  }
+
+  // --- LLAMADOS DE MESA PARA PANEL DE MOZOS (FIREBASE RTDB /alertas/llamados_mozo) ---
+  public getLlamadosMozo(): LlamadoMozo[] {
+    const list = this.cloudState.alertas?.llamados_mozo;
+    return Array.isArray(list) ? list : [];
+  }
+
+  public async sendLlamadoMozo(params: {
+    mesa: string;
+    cliente?: string;
+    comandaId?: string;
+    motivo?: string;
+  }): Promise<boolean> {
+    const mesaClean = (params.mesa || 'Mesa 01').trim();
+    const existingList = [...this.getLlamadosMozo()];
+    const now = Date.now();
+    const hora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    const nuevo: LlamadoMozo = {
+      id: `mozo-${now}-${Math.random().toString(36).slice(2, 6)}`,
+      mesa: mesaClean,
+      cliente: params.cliente?.trim() || undefined,
+      comandaId: params.comandaId,
+      motivo: params.motivo?.trim() || 'Atención en mesa',
+      estado: 'pendiente',
+      timestamp: now,
+      hora,
+    };
+
+    // Si la misma mesa ya tiene un llamado pendiente reciente, lo actualizamos al frente
+    const filtered = existingList.filter(
+      (x) => !(x.estado === 'pendiente' && x.mesa.toLowerCase() === mesaClean.toLowerCase())
+    );
+    const nextList = [nuevo, ...filtered].slice(0, 60);
+
+    if (!this.cloudState.alertas) {
+      this.cloudState.alertas = { solicitud_pago: null, nueva_reserva: null, llamados_mozo: [] };
+    }
+    this.cloudState.alertas.llamados_mozo = nextList;
+
+    // También marcar llamaMozo en la comanda activa de la mesa si existe
+    const comandasList = [...this.getComandas()];
+    let comandaUpdated = false;
+    const updatedComandas = comandasList.map((c) => {
+      const matchId = params.comandaId && c.id === params.comandaId;
+      const matchMesa =
+        !params.comandaId &&
+        c.mesa.toLowerCase() === mesaClean.toLowerCase() &&
+        c.estado !== 'finalizado' &&
+        c.estado !== 'anulado';
+      if (matchId || matchMesa) {
+        comandaUpdated = true;
+        return { ...c, llamaMozo: true };
+      }
+      return c;
+    });
+    if (comandaUpdated) {
+      this.cloudState.comandas = updatedComandas;
+    }
+
+    this.dispatchLocalListeners();
+
+    const writes: Promise<boolean>[] = [fbSet('alertas/llamados_mozo', nextList)];
+    if (comandaUpdated) {
+      writes.push(fbSet('comandas', updatedComandas));
+    }
+    const results = await Promise.all(writes);
+    return results.every(Boolean);
+  }
+
+  public async atenderLlamadoMozo(id: string): Promise<boolean> {
+    const list = [...this.getLlamadosMozo()];
+    const target = list.find((l) => l.id === id);
+    const nextList = list.map((l) => (l.id === id ? { ...l, estado: 'atendido' as const } : l));
+
+    if (!this.cloudState.alertas) {
+      this.cloudState.alertas = { solicitud_pago: null, nueva_reserva: null, llamados_mozo: [] };
+    }
+    this.cloudState.alertas.llamados_mozo = nextList;
+
+    let comandaUpdated = false;
+    let updatedComandas = this.getComandas();
+    if (target) {
+      updatedComandas = updatedComandas.map((c) => {
+        if (
+          c.llamaMozo &&
+          ((target.comandaId && c.id === target.comandaId) ||
+            c.mesa.toLowerCase() === target.mesa.toLowerCase())
+        ) {
+          comandaUpdated = true;
+          return { ...c, llamaMozo: false };
+        }
+        return c;
+      });
+      if (comandaUpdated) {
+        this.cloudState.comandas = updatedComandas;
+      }
+    }
+
+    this.dispatchLocalListeners();
+
+    const writes: Promise<boolean>[] = [fbSet('alertas/llamados_mozo', nextList)];
+    if (comandaUpdated) {
+      writes.push(fbSet('comandas', updatedComandas));
+    }
+    const results = await Promise.all(writes);
+    return results.every(Boolean);
   }
 
   // --- SINCRONIZACIÓN DE MESA PAGADA / BLOQUEADA ENTRE CAJA Y MENÚ CLIENTE (FIREBASE RTDB) ---
@@ -1689,11 +1860,13 @@ class StorageService {
     this.cloudState.mesas = mesas;
     this.cloudState.mesas_pagadas = {};
     this.cloudState.alertas.solicitud_pago = null;
+    this.cloudState.alertas.llamados_mozo = [];
     this.dispatchLocalListeners();
     void fbSet('comandas', []);
     void fbSet('mesas', mesas);
     void fbRemove('mesas_pagadas');
     void fbRemove('alertas/solicitud_pago');
+    void fbRemove('alertas/llamados_mozo');
   }
 
   public purgeVentas() {
@@ -1817,6 +1990,7 @@ class StorageService {
       alertas: {
         solicitud_pago: null,
         nueva_reserva: null,
+        llamados_mozo: [],
       },
       mesas_pagadas: {},
       erp: {},

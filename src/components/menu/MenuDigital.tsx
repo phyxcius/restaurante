@@ -27,8 +27,9 @@ import {
   MessageCircle,
   Check,
 } from 'lucide-react';
-import { Producto, CartItem, Language, Comanda, ConfigRestaurante, ReservaItemPedido, Socio } from '../../types';
+import { Producto, CartItem, Language, Comanda, ConfigRestaurante, ReservaItemPedido, Socio, CategoriaPlato } from '../../types';
 import { storage } from '../../services/storage';
+import { startAmbientMusic, stopAmbientMusic } from '../../services/ambientMusic';
 import { consultarDNI, consultarRUC } from '../../services/sunatApi';
 import { MENU_TRANSLATIONS } from './menuTranslations';
 import { CHUSPA_TECH_LOGO } from '../../constants/chuspaLogo';
@@ -41,9 +42,11 @@ interface MenuDigitalProps {
 
 export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFactura }) => {
   const [productos, setProductos] = useState<Producto[]>(storage.getProductos());
+  const [categoriasCloud, setCategoriasCloud] = useState<CategoriaPlato[]>(() => storage.getCategorias());
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
   const [isMuted, setIsMuted] = useState<boolean>(true);
+  const [isCallingWaiter, setIsCallingWaiter] = useState<boolean>(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [lang, setLang] = useState<Language>('es');
   const t = MENU_TRANSLATIONS[lang] || MENU_TRANSLATIONS.es;
@@ -188,8 +191,15 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
+    return () => {
+      stopAmbientMusic();
+    };
+  }, []);
+
+  useEffect(() => {
     const checkState = () => {
       setProductos(storage.getProductos());
+      setCategoriasCloud(storage.getCategorias());
       const myOrderId = sessionStorage.getItem('cusq_my_order_id');
       const comandas = storage.getComandas();
 
@@ -265,10 +275,15 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
     setToastMessage(msg);
   };
 
+  const normalizeDishCategory = (cat?: string) => {
+    const c = (cat || 'mains').trim().toLowerCase();
+    return c === 'drinks' ? 'bebidas' : c;
+  };
+
   const filteredDishes = productos.filter((p) => {
     if (!p.disponible) return false;
     if (selectedCategory === 'all') return true;
-    return p.category.toLowerCase() === selectedCategory.toLowerCase();
+    return normalizeDishCategory(p.category) === selectedCategory.toLowerCase();
   });
 
   const currentDish: Producto | undefined = filteredDishes[currentSlideIndex] || filteredDishes[0];
@@ -315,9 +330,17 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
   };
 
   const toggleMute = () => {
-    if (!videoRef.current) return;
-    videoRef.current.muted = !isMuted;
-    setIsMuted(!isMuted);
+    const nextMuted = !isMuted;
+    if (videoRef.current) {
+      videoRef.current.muted = nextMuted;
+    }
+    if (nextMuted) {
+      stopAmbientMusic();
+    } else {
+      startAmbientMusic(config.musicaAmbienteUrl);
+      showToast('🎵 Música ambiental activada');
+    }
+    setIsMuted(nextMuted);
   };
 
   // Touch / Swipe Gesture Handlers for moving up and down like TikTok
@@ -630,19 +653,45 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
     }
   };
 
-  const handleLlamarMozo = () => {
-    if (activeOrder) {
-      storage.callWaiter(activeOrder.id);
+  const handleLlamarMozo = async () => {
+    if (isCallingWaiter) return;
+    setIsCallingWaiter(true);
+    try {
+      const ok = await storage.sendLlamadoMozo({
+        mesa: selectedMesa || 'Mesa 01',
+        cliente: clienteNombre.trim() || activeOrder?.cliente,
+        comandaId: activeOrder?.id,
+        motivo: 'Atención solicitada desde Menú Digital',
+      });
+      if (ok) {
+        showToast(`🔔 ${t.waiterCalledMessage} (${selectedMesa})`);
+      } else {
+        const fbErr = storage.getFirebaseState().lastError;
+        showToast(fbErr || 'No se pudo enviar el llamado al mozo. Verifica conexión.');
+      }
+    } finally {
+      setIsCallingWaiter(false);
     }
-    showToast(t.waiterCalledMessage);
+  };
+
+  const translatedCatLabel = (cat: CategoriaPlato) => {
+    if (lang !== 'es') {
+      if (cat.id === 'entradas') return t.catEntradas;
+      if (cat.id === 'mains') return t.catMains;
+      if (cat.id === 'bebidas') return t.catBebidas;
+      if (cat.id === 'postres') return t.catPostres;
+    }
+    return `${cat.icono ? `${cat.icono} ` : ''}${cat.nombre}`;
   };
 
   const categories = [
-    { id: 'all', label: t.catAll },
-    { id: 'entradas', label: t.catEntradas },
-    { id: 'mains', label: t.catMains },
-    { id: 'bebidas', label: t.catBebidas },
-    { id: 'postres', label: t.catPostres },
+    { id: 'all', label: t.catAll, icono: '🍽️', rawName: t.catAll },
+    ...categoriasCloud.map((c) => ({
+      id: c.id,
+      label: translatedCatLabel(c),
+      icono: c.icono || '🍽️',
+      rawName: c.nombre,
+    })),
   ];
 
   // PAID & LOCKED THANK YOU SCREEN
@@ -1915,34 +1964,59 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
       {/* Top Filter Bar (Reels header) */}
       <div className="sticky top-0 z-30 w-full px-3 py-2 bg-gradient-to-b from-[#071224]/95 via-[#071224]/85 to-transparent flex flex-col gap-2">
         <div className="flex items-center justify-between gap-2">
-          {/* Brand group: Logo Negocio + La Chuspa Tech (logo + texto) */}
-          <div className="flex items-center gap-2">
+          {/* Brand group: Logo Negocio + Nombre del Negocio y Slogan */}
+          <div className="flex items-center gap-2 min-w-0">
             {/* 1. Restaurant Logo */}
-            <div className="w-8 h-8 rounded-full bg-[#071224] border border-amber-400 overflow-hidden flex items-center justify-center shrink-0 shadow">
+            <div className="w-9 h-9 rounded-full bg-[#071224] border-2 border-amber-400 overflow-hidden flex items-center justify-center shrink-0 shadow-md">
               {config.logo && (config.logo.startsWith('data:') || config.logo.startsWith('http') || config.logo.startsWith('/')) ? (
-                <img src={config.logo} alt="Logo" className="w-full h-full object-cover" />
+                <img src={config.logo} alt={config.nombre} className="w-full h-full object-cover" />
               ) : (
                 <span className="text-base">{config.logo || '🍽️'}</span>
               )}
             </div>
 
-            {/* 2. La Chuspa Tech (Logo y Texto) a lado del logo del negocio */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-900/90 border border-amber-400/50 shadow-sm shrink-0">
-              <div className="w-5 h-5 rounded-full bg-white p-0.5 overflow-hidden flex items-center justify-center border border-amber-400 shrink-0">
-                <img
-                  src={CHUSPA_TECH_LOGO}
-                  alt="La Chuspa Tech"
-                  className="w-full h-full object-contain"
-                />
+            {/* 2. Nombre del Negocio y Slogan al lado del Logo */}
+            <div className="min-w-0 flex flex-col">
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs sm:text-sm font-black text-white truncate leading-tight">
+                  {config.nombre || 'La Chuspa Tech'}
+                </span>
+                <span className="px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-400/50 text-[9px] font-black text-amber-300 shrink-0 hidden sm:inline">
+                  {selectedMesa}
+                </span>
               </div>
-              <span className="text-[10px] font-black uppercase text-amber-300 tracking-wider">
-                La Chuspa Tech
+              <span className="text-[10px] text-amber-300/90 font-semibold truncate leading-tight">
+                {config.eslogan || 'Experiencia Gastronómica Digital'}
               </span>
             </div>
           </div>
 
-          {/* Right side: Gesture tutorial & Language (Candado con clave eliminado por solicitud) */}
+          {/* Right side: Quick Mozo Call, Sound, Gesture Help & Language */}
           <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              type="button"
+              onClick={handleLlamarMozo}
+              disabled={isCallingWaiter}
+              className="px-2 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-[11px] flex items-center gap-1 shadow cursor-pointer active:scale-95 transition-all disabled:opacity-60"
+              title="Llamar al Mozo a tu mesa"
+            >
+              <span>🔔</span>
+              <span>Mozo</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={toggleMute}
+              className={`p-1.5 rounded-xl border text-xs flex items-center gap-1 transition-colors cursor-pointer ${
+                isMuted
+                  ? 'bg-slate-900/90 border-slate-700 text-slate-300'
+                  : 'bg-emerald-950/90 border-emerald-400 text-emerald-300'
+              }`}
+              title={isMuted ? 'Activar música ambiental' : 'Silenciar música'}
+            >
+              {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+            </button>
+
             {/* Dedo Gestual Help Button */}
             <button
               type="button"
@@ -2204,11 +2278,13 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
                   </span>
                 </div>
 
-                {/* 5. Sound / Audio Mute Toggle */}
+                {/* 5. Sound / Música Ambiental Toggle */}
                 <button
                   type="button"
                   onClick={toggleMute}
-                  className="w-9 h-9 rounded-full bg-slate-900/80 border border-amber-400/40 text-amber-300 flex items-center justify-center backdrop-blur shadow-lg active:scale-95 cursor-pointer"
+                  className={`w-9 h-9 rounded-full bg-slate-900/80 border flex items-center justify-center backdrop-blur shadow-lg active:scale-95 cursor-pointer ${
+                    isMuted ? 'border-amber-400/40 text-amber-300' : 'border-emerald-400 text-emerald-400 animate-pulse'
+                  }`}
                   title={isMuted ? t.unmute : t.mute}
                 >
                   {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-emerald-400" />}
@@ -2361,58 +2437,106 @@ export const MenuDigital: React.FC<MenuDigitalProps> = ({ config, onNavigateToFa
           )}
         </div>
       ) : (
-        /* GRID / CATALOG VIEW */
-        <div className="flex-1 overflow-y-auto touch-pan-y px-3 py-4 grid grid-cols-2 gap-3 pb-24 scroll-smooth">
-          {filteredDishes.map((prod) => (
-            <div
-              key={prod.id}
-              className="bg-slate-900/90 border border-slate-700/80 rounded-2xl overflow-hidden flex flex-col shadow-lg hover:border-amber-400/60 transition-all"
-            >
-              <div className="relative aspect-square w-full bg-black overflow-hidden group">
-                <img
-                  src={prod.posterUrl}
-                  alt={prod.i18n?.[lang]?.name || prod.i18n?.es?.name || (prod as any)?.nombre || ''}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/75 border border-amber-400 text-[9px] font-black uppercase text-amber-300">
-                  {categories.find((c) => c.id === prod.category)?.label || prod.category}
-                </span>
-                <button
-                  type="button"
-                  onClick={(e) => handleToggleLike(prod.id, e)}
-                  className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 flex items-center justify-center text-white cursor-pointer"
-                >
-                  <Heart className={`w-3.5 h-3.5 ${hasLikedMap[prod.id] ? 'text-red-500 fill-red-500' : 'text-white'}`} />
-                </button>
-              </div>
+        /* GRID / CATALOG VIEW AGRUPADO CON TÍTULOS POR CATEGORÍAS */
+        <div className="flex-1 overflow-y-auto touch-pan-y px-3 py-4 pb-28 scroll-smooth space-y-6">
+          {filteredDishes.length === 0 ? (
+            <div className="flex items-center justify-center py-16 text-slate-400 text-sm">
+              No hay platos en esta categoría.
+            </div>
+          ) : (
+            (() => {
+              const catsToRender =
+                selectedCategory === 'all'
+                  ? categories.filter((c) => c.id !== 'all')
+                  : categories.filter((c) => c.id === selectedCategory);
 
-              <div className="p-3 flex flex-col flex-1 justify-between gap-2">
-                <div>
-                  <h3 className="text-xs sm:text-sm font-black text-white leading-tight font-latina-luxury line-clamp-1">
-                    {prod.i18n?.[lang]?.name || prod.i18n?.es?.name || (prod as any)?.nombre || 'Plato'}
-                  </h3>
-                  <p className="text-[11px] text-slate-400 line-clamp-2 mt-0.5">
-                    {prod.i18n?.[lang]?.desc || prod.i18n?.es?.desc || (prod as any)?.descripcion || ''}
-                  </p>
-                </div>
+              // Incluir cualquier categoría huérfana presente en los platos
+              const knownIds = new Set(catsToRender.map((c) => c.id.toLowerCase()));
+              const extraGroups =
+                selectedCategory === 'all'
+                  ? Array.from(new Set(filteredDishes.map((d) => normalizeDishCategory(d.category))))
+                      .filter((cid) => !knownIds.has(cid))
+                      .map((cid) => ({ id: cid, label: `🍽️ ${cid.toUpperCase()}`, icono: '🍽️', rawName: cid }))
+                  : [];
 
-                <div className="flex items-center justify-between mt-1">
-                  <div>
-                    <span className="text-sm sm:text-base font-black text-amber-400">
-                      S/ {prod.precioPEN.toFixed(2)}
+              const sections = [...catsToRender, ...extraGroups]
+                .map((cat) => ({
+                  cat,
+                  items: filteredDishes.filter(
+                    (p) => normalizeDishCategory(p.category) === cat.id.toLowerCase()
+                  ),
+                }))
+                .filter((sec) => sec.items.length > 0);
+
+              return sections.map(({ cat, items }) => (
+                <div key={cat.id} className="space-y-2.5">
+                  {/* Título de Categoría */}
+                  <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-gradient-to-r from-[#0d1f3d] via-[#09152b] to-transparent border-l-4 border-amber-400 shadow">
+                    <h2 className="text-sm sm:text-base font-black text-amber-300 uppercase tracking-wide flex items-center gap-2 font-latina-luxury">
+                      <span>{cat.label}</span>
+                    </h2>
+                    <span className="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-[10px] font-black text-amber-200">
+                      {items.length} {items.length === 1 ? 'plato' : 'platos'}
                     </span>
                   </div>
-                  <button
-                    onClick={() => addToCart(prod)}
-                    className="p-2 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 text-white font-black text-xs flex items-center justify-center hover:shadow-[0_0_10px_rgba(2,132,199,0.5)] active:scale-90 cursor-pointer"
-                    title={t.addToOrder}
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
+
+                  {/* Cuadrícula de Platos de la Categoría */}
+                  <div className="grid grid-cols-2 gap-3">
+                    {items.map((prod) => (
+                      <div
+                        key={prod.id}
+                        className="bg-slate-900/90 border border-slate-700/80 rounded-2xl overflow-hidden flex flex-col shadow-lg hover:border-amber-400/60 transition-all"
+                      >
+                        <div className="relative aspect-square w-full bg-black overflow-hidden group">
+                          <img
+                            src={prod.posterUrl}
+                            alt={prod.i18n?.[lang]?.name || prod.i18n?.es?.name || (prod as any)?.nombre || ''}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/75 border border-amber-400 text-[9px] font-black uppercase text-amber-300">
+                            {cat.rawName}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={(e) => handleToggleLike(prod.id, e)}
+                            className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 flex items-center justify-center text-white cursor-pointer"
+                          >
+                            <Heart className={`w-3.5 h-3.5 ${hasLikedMap[prod.id] ? 'text-red-500 fill-red-500' : 'text-white'}`} />
+                          </button>
+                        </div>
+
+                        <div className="p-3 flex flex-col flex-1 justify-between gap-2">
+                          <div>
+                            <h3 className="text-xs sm:text-sm font-black text-white leading-tight font-latina-luxury line-clamp-1">
+                              {prod.i18n?.[lang]?.name || prod.i18n?.es?.name || (prod as any)?.nombre || 'Plato'}
+                            </h3>
+                            <p className="text-[11px] text-slate-400 line-clamp-2 mt-0.5">
+                              {prod.i18n?.[lang]?.desc || prod.i18n?.es?.desc || (prod as any)?.descripcion || ''}
+                            </p>
+                          </div>
+
+                          <div className="flex items-center justify-between mt-1">
+                            <div>
+                              <span className="text-sm sm:text-base font-black text-amber-400">
+                                S/ {prod.precioPEN.toFixed(2)}
+                              </span>
+                            </div>
+                            <button
+                              onClick={() => addToCart(prod)}
+                              className="p-2 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 text-white font-black text-xs flex items-center justify-center hover:shadow-[0_0_10px_rgba(2,132,199,0.5)] active:scale-90 cursor-pointer"
+                              title={t.addToOrder}
+                            >
+                              <Plus className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              ));
+            })()
+          )}
         </div>
       )}
 
