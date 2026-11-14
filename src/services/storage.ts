@@ -752,6 +752,7 @@ class StorageService {
   private listeners: (() => void)[] = [];
   private unsubFirebase: (() => void) | null = null;
   private hasSeededCloud = false;
+  private cloudDevApiSynced = false;
   private firebaseSyncInfo: FirebaseSyncInfo = getFirebaseSyncInfo();
 
   private cloudState: CloudRootState = {
@@ -887,16 +888,22 @@ class StorageService {
       ...DEFAULT_DEV_API_CONFIG,
       ...rawDevApi,
     };
+    this.cloudDevApiSynced = !!String(rawDevApi.tokenConsultasDniRuc || '').trim();
 
     // Migración única automática: si la nube aún no tiene tokens pero este navegador los tenía en localStorage, súbelos a Firebase RTDB
-    if (!mergedDevApi.tokenConsultasDniRuc && !mergedDevApi.tokenFacturacion && typeof window !== 'undefined') {
+    if (!this.cloudDevApiSynced && !mergedDevApi.tokenFacturacion && typeof window !== 'undefined') {
       try {
         const legacyRaw = localStorage.getItem('cusq_dev_api_config');
         if (legacyRaw) {
           const parsedLegacy = JSON.parse(legacyRaw);
           if (parsedLegacy?.tokenConsultasDniRuc || parsedLegacy?.tokenFacturacion) {
             mergedDevApi = { ...mergedDevApi, ...parsedLegacy };
-            void fbSet('dev_api', mergedDevApi);
+            void fbSet('dev_api', mergedDevApi).then((ok) => {
+              if (ok && mergedDevApi.tokenConsultasDniRuc) {
+                this.cloudDevApiSynced = true;
+                this.dispatchLocalListeners();
+              }
+            });
           }
         }
       } catch {}
@@ -1047,6 +1054,19 @@ class StorageService {
   }
 
   // --- DEV API CONFIG (SUNAT / RENIEC EN FIREBASE RTDB PARA INDEX & ADMIN) ---
+  public isDevApiSyncedInCloud(): boolean {
+    return this.cloudDevApiSynced;
+  }
+
+  public applyCloudDevApiDirect(cfg: DevApiConfig) {
+    this.cloudState.dev_api = {
+      ...DEFAULT_DEV_API_CONFIG,
+      ...cfg,
+    };
+    this.cloudDevApiSynced = !!String(cfg.tokenConsultasDniRuc || '').trim();
+    this.dispatchLocalListeners();
+  }
+
   public getDevApiConfig(): DevApiConfig {
     const current = this.cloudState.dev_api || DEFAULT_DEV_API_CONFIG;
     if (!current.tokenConsultasDniRuc && !current.tokenFacturacion && typeof window !== 'undefined') {
@@ -1075,7 +1095,10 @@ class StorageService {
       }
     } catch {}
     this.dispatchLocalListeners();
-    return fbSet('dev_api', clean);
+    const ok = await fbSet('dev_api', clean);
+    this.cloudDevApiSynced = ok && !!clean.tokenConsultasDniRuc;
+    this.dispatchLocalListeners();
+    return ok;
   }
 
   // --- PRODUCTOS ---

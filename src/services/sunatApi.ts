@@ -1,6 +1,7 @@
 // Service to query DNI/RUC (ApisPerú / Apis.net.pe) and emit electronic receipts (SUNAT Beta / Producción)
 import { DevApiConfig } from '../types';
 import { storage } from './storage';
+import { getFirebaseDbUrl } from './firebaseDb';
 
 export const DEFAULT_DEV_API_CONFIG: DevApiConfig = {
   entorno: 'beta',
@@ -16,6 +17,54 @@ export function getDevApiConfig(): DevApiConfig {
 
 export async function saveDevApiConfig(cfg: DevApiConfig): Promise<boolean> {
   return storage.saveDevApiConfig(cfg);
+}
+
+/**
+ * Obtiene el token de consultas DNI/RUC desde memoria/Firebase, y si aún no llegó el snapshot raíz,
+ * realiza una consulta REST directa y ligera a `/dev_api.json` para garantizar disponibilidad inmediata en `index`.
+ */
+async function resolveDevApiConfig(overrideToken?: string): Promise<{
+  devCfg: DevApiConfig;
+  token: string;
+  cloudError?: string;
+}> {
+  let devCfg = getDevApiConfig();
+  let token = (overrideToken ?? devCfg.tokenConsultasDniRuc).trim();
+  if (token) {
+    return { devCfg, token };
+  }
+
+  try {
+    const dbUrl = getFirebaseDbUrl();
+    const res = await fetch(`${dbUrl}/dev_api.json`, {
+      method: 'GET',
+      cache: 'no-store',
+    });
+    if (res.status === 401 || res.status === 403) {
+      return {
+        devCfg,
+        token: '',
+        cloudError: 'Firebase rechazó leer el Token de Consultas (/dev_api) por reglas de seguridad.',
+      };
+    }
+    if (res.ok) {
+      const remote = await res.json();
+      if (remote && typeof remote === 'object' && remote.tokenConsultasDniRuc) {
+        devCfg = { ...DEFAULT_DEV_API_CONFIG, ...remote };
+        storage.applyCloudDevApiDirect(devCfg);
+        token = String(devCfg.tokenConsultasDniRuc || '').trim();
+        return { devCfg, token };
+      }
+      return {
+        devCfg,
+        token: '',
+        cloudError:
+          'No hay un Token de Consultas DNI/RUC guardado en Firebase (/dev_api). Abre el Panel Admin → Consola Dev & Reset y pulsa "Guardar Configuración API SUNAT/RENIEC".',
+      };
+    }
+  } catch {}
+
+  return { devCfg, token: '' };
 }
 
 export interface DniLookupResult {
@@ -66,13 +115,13 @@ export async function consultarDNI(dni: string, overrideToken?: string): Promise
     return { success: false, message: 'DNI inválido: debe tener exactamente 8 dígitos numéricos.' };
   }
 
-  const devCfg = getDevApiConfig();
-  const token = (overrideToken ?? devCfg.tokenConsultasDniRuc).trim();
+  const { devCfg, token, cloudError } = await resolveDevApiConfig(overrideToken);
 
   if (!token) {
     return {
       success: false,
       message:
+        cloudError ||
         'No hay un Token de Consultas DNI/RUC configurado en la Consola de Desarrollador. Ingresa el token de "API Consultas DNI/RUC".',
     };
   }
@@ -159,13 +208,13 @@ export async function consultarRUC(ruc: string, overrideToken?: string): Promise
     return { success: false, message: 'RUC inválido: debe tener exactamente 11 dígitos numéricos.' };
   }
 
-  const devCfg = getDevApiConfig();
-  const token = (overrideToken ?? devCfg.tokenConsultasDniRuc).trim();
+  const { devCfg, token, cloudError } = await resolveDevApiConfig(overrideToken);
 
   if (!token) {
     return {
       success: false,
       message:
+        cloudError ||
         'No hay un Token de Consultas DNI/RUC configurado en la Consola de Desarrollador. Ingresa el token de "API Consultas DNI/RUC".',
     };
   }

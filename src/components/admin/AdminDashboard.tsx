@@ -131,6 +131,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
 
   // Developer API SUNAT / RENIEC (ApisPerú Beta / Producción)
   const [devApiForm, setDevApiForm] = useState<DevApiConfig>(() => getDevApiConfig());
+  const [devApiSyncedCloud, setDevApiSyncedCloud] = useState<boolean>(() => storage.isDevApiSyncedInCloud());
   const [showDniToken, setShowDniToken] = useState<boolean>(false);
   const [showFactToken, setShowFactToken] = useState<boolean>(false);
   const [diagnosticoTokens, setDiagnosticoTokens] = useState<DiagnosticoTokensResult | null>(null);
@@ -356,12 +357,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
       setResenas(storage.getResenas());
       setIdentidadForm(storage.getConfig());
       setUsuariosSistema(storage.getUsuariosSistema());
-      setFirebaseState(storage.getFirebaseState());
+      const fbInfo = storage.getFirebaseState();
+      setFirebaseState(fbInfo);
+
+      const isSyncedCloud = storage.isDevApiSyncedInCloud();
+      setDevApiSyncedCloud(isSyncedCloud);
 
       if (!devApiTouchedRef.current) {
         const cloudDev = storage.getDevApiConfig();
         if (cloudDev.tokenConsultasDniRuc || cloudDev.tokenFacturacion) {
           setDevApiForm(cloudDev);
+          if (fbInfo.status === 'connected' && !isSyncedCloud && cloudDev.tokenConsultasDniRuc.trim()) {
+            void saveDevApiConfig(cloudDev);
+          }
         }
       }
 
@@ -5056,6 +5064,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                     <h3 style={{ fontSize: '15px', fontWeight: 900, color: '#38bdf8', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <i className="fa-solid fa-plug-circle-check text-sky-400"></i> API SUNAT / RENIEC (ApisPerú Beta & Producción)
                     </h3>
+                    <div style={{
+                      marginBottom: '10px',
+                      padding: '8px 12px',
+                      borderRadius: '10px',
+                      fontSize: '11.5px',
+                      fontWeight: 700,
+                      background: devApiSyncedCloud ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.14)',
+                      border: `1px solid ${devApiSyncedCloud ? 'rgba(16, 185, 129, 0.45)' : 'rgba(239, 68, 68, 0.5)'}`,
+                      color: devApiSyncedCloud ? '#34d399' : '#fca5a5',
+                    }}>
+                      {devApiSyncedCloud
+                        ? '☁️ Sincronizado en Firebase RTDB (/dev_api): El Menú Digital (index) en celulares ya puede validar DNI y RUC en tiempo real.'
+                        : '⚠️ Este token aún NO está guardado en Firebase RTDB (/dev_api). Pulsa "Guardar Configuración API SUNAT/RENIEC" para que el Menú Digital (index) pueda validar DNI y RUC.'}
+                    </div>
                     <div style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.35)', borderRadius: '10px', padding: '10px 12px', marginBottom: '12px', fontSize: '11px', color: '#fde68a', lineHeight: 1.5 }}>
                       <b>⚠️ Importante sobre Tokens de ApisPerú:</b><br />
                       • <b>Token API Consultas (DNI / RUC):</b> Se obtiene en el menú izquierdo de ApisPerú → <i>"API Consultas DNI/RUC"</i> (endpoint <code>dniruc.apisperu.com</code>).<br />
@@ -5107,7 +5129,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                             type={showDniToken ? 'text' : 'password'}
                             placeholder="Pega aquí el token de API Consultas DNI/RUC (eyJ0eXAi...)"
                             value={devApiForm.tokenConsultasDniRuc}
-                            onChange={(e) => setDevApiForm({ ...devApiForm, tokenConsultasDniRuc: e.target.value })}
+                            onChange={(e) => {
+                              devApiTouchedRef.current = true;
+                              setDevApiForm({ ...devApiForm, tokenConsultasDniRuc: e.target.value });
+                            }}
                             style={{ flex: 1 }}
                           />
                           <button
@@ -5128,7 +5153,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                             type={showFactToken ? 'text' : 'password'}
                             placeholder="Pega aquí el Token de Empresa de Facturación Electrónica (eyJ0eXAi...)"
                             value={devApiForm.tokenFacturacion}
-                            onChange={(e) => setDevApiForm({ ...devApiForm, tokenFacturacion: e.target.value })}
+                            onChange={(e) => {
+                              devApiTouchedRef.current = true;
+                              setDevApiForm({ ...devApiForm, tokenFacturacion: e.target.value });
+                            }}
                             style={{ flex: 1 }}
                           />
                           <button
