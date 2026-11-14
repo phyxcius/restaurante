@@ -48,13 +48,45 @@ interface AdminDashboardProps {
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNavigateToFactura }) => {
   // Session authentication (requires valid registered credentials)
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
-    return sessionStorage.getItem('auth_admin_active') === 'true';
+    try {
+      return sessionStorage.getItem('auth_admin_active') === 'true';
+    } catch {
+      return false;
+    }
   });
-  const [userRole, setUserRole] = useState<UserRole>('admin');
-  const [operatorName, setOperatorName] = useState<string>('Administrador');
+  const [userRole, setUserRole] = useState<UserRole>(() => {
+    try {
+      const saved = sessionStorage.getItem('rol_rest') as UserRole | null;
+      return saved === 'admin' || saved === 'cajero' || saved === 'mozo' || saved === 'cocina' ? saved : 'admin';
+    } catch {
+      return 'admin';
+    }
+  });
+  const [operatorName, setOperatorName] = useState<string>(() => {
+    try {
+      return sessionStorage.getItem('nombre_operador') || 'Administrador';
+    } catch {
+      return 'Administrador';
+    }
+  });
   const [password, setPassword] = useState<string>('');
-  const [shift, setShift] = useState<string>('Turno Mañana (07:00 - 15:00)');
-  const [cajaChica, setCajaChica] = useState<number>(100.0);
+  const [showLoginPass, setShowLoginPass] = useState<boolean>(false);
+  const [loginError, setLoginError] = useState<string>('');
+  const [shift, setShift] = useState<string>(() => {
+    try {
+      return sessionStorage.getItem('turno_rest') || 'Mañana (07:00 - 15:00)';
+    } catch {
+      return 'Mañana (07:00 - 15:00)';
+    }
+  });
+  const [cajaChicaInput, setCajaChicaInput] = useState<string>(() => {
+    try {
+      return sessionStorage.getItem('caja_chica_monto') || '100.00';
+    } catch {
+      return '100.00';
+    }
+  });
+  const cajaChica = Math.max(0, Number.parseFloat(cajaChicaInput) || 0);
 
   // Appearance: Light / Dark Mode Toggle
   const [isLightMode, setIsLightMode] = useState<boolean>(() => {
@@ -97,11 +129,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
   const [mesaAgregarCant, setMesaAgregarCant] = useState<number>(1);
   const [mesaAgregarNotas, setMesaAgregarNotas] = useState<string>('');
 
-  // Live timer interval (every second)
+  // Live timer interval (only runs when authenticated so login screen stays crisp and responsive)
   useEffect(() => {
+    if (!isLoggedIn) return;
     const timer = setInterval(() => setCurrentTime(Date.now()), 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [isLoggedIn]);
 
 
 
@@ -367,29 +400,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
     }
   };
 
+  const isLoggedInRef = useRef<boolean>(isLoggedIn);
+  isLoggedInRef.current = isLoggedIn;
+
   useEffect(() => {
     const handleUpdate = () => {
-      const currentComs = storage.getComandas();
-      const currentVentas = storage.getVentas();
-      setComandas(currentComs);
-      setVentas(currentVentas);
-      setMesas(storage.getMesas());
-      setSocios(storage.getSocios());
-      setReservas(storage.getReservas());
-      setProductos(storage.getProductos());
-      setCategoriasPlatos(storage.getCategorias());
-      setPersonal(storage.getPersonal());
-      setResenas(storage.getResenas());
       setIdentidadForm(storage.getConfig());
       setUsuariosSistema(storage.getUsuariosSistema());
-
-      const nextLlamados = storage.getLlamadosMozo();
-      const nextPendientes = nextLlamados.filter((l) => l.estado === 'pendiente');
-      if (nextPendientes.some((l) => !prevLlamadosMozoIdsRef.current.has(l.id))) {
-        reproducirCampana();
-      }
-      prevLlamadosMozoIdsRef.current = new Set(nextPendientes.map((l) => l.id));
-      setLlamadosMozo(nextLlamados);
 
       const fbInfo = storage.getFirebaseState();
       setFirebaseState(fbInfo);
@@ -406,6 +423,28 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
           }
         }
       }
+
+      if (!isLoggedInRef.current) return;
+
+      const currentComs = storage.getComandas();
+      const currentVentas = storage.getVentas();
+      setComandas(currentComs);
+      setVentas(currentVentas);
+      setMesas(storage.getMesas());
+      setSocios(storage.getSocios());
+      setReservas(storage.getReservas());
+      setProductos(storage.getProductos());
+      setCategoriasPlatos(storage.getCategorias());
+      setPersonal(storage.getPersonal());
+      setResenas(storage.getResenas());
+
+      const nextLlamados = storage.getLlamadosMozo();
+      const nextPendientes = nextLlamados.filter((l) => l.estado === 'pendiente');
+      if (nextPendientes.some((l) => !prevLlamadosMozoIdsRef.current.has(l.id))) {
+        reproducirCampana();
+      }
+      prevLlamadosMozoIdsRef.current = new Set(nextPendientes.map((l) => l.id));
+      setLlamadosMozo(nextLlamados);
 
       // Check for incoming bill request (sin reabrir para comandas ya aceptadas, en cobro o ya cobradas)
       const activeReq = storage.getSolicitudPagoActiva();
@@ -466,10 +505,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
     handleUpdate();
     const unsub = storage.subscribe(handleUpdate);
     return unsub;
-  }, []);
+  }, [isLoggedIn]);
 
-  // Update QR image when table or phone changes
+  // Update QR image when table or phone changes (only when authenticated)
   useEffect(() => {
+    if (!isLoggedIn) return;
     const mesaObj = mesas.find((m) => m.nombre === qrMesaSeleccionada) || mesas[0];
     const token = mesaObj ? mesaObj.token : 'TK-CUSQ-DEFAULT';
     const basePath = window.location.pathname.replace(/\/[^/]*$/, '/');
@@ -477,36 +517,68 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
     QRCode.toDataURL(url, { width: 300, margin: 1 })
       .then((dataUrl) => setQrImgDataUrl(dataUrl))
       .catch(() => {});
-  }, [qrMesaSeleccionada, qrTelefono, mesas]);
+  }, [isLoggedIn, qrMesaSeleccionada, qrTelefono, mesas]);
 
-  // Handle Login
+  // Handle Login (sin window.alert bloqueado en iframe y sin validación nativa silenciosa)
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (
-      storage.validarClave(userRole, password) ||
-      password === 'regocijo123' ||
-      password === PASSWORD_MAESTRA ||
-      (userRole === 'admin' && (password === 'admin123' || password === 'admin')) ||
-      (userRole === 'cocina' && (password === 'cocina123' || password === 'cocina')) ||
-      (userRole === 'mozo' && (password === 'mozo123' || password === 'mozo')) ||
-      password.length >= 6
-    ) {
-      sessionStorage.setItem('auth_admin_active', 'true');
-      sessionStorage.setItem('rol_rest', userRole);
-      sessionStorage.setItem('nombre_operador', operatorName);
-      sessionStorage.setItem('turno_rest', shift);
-      sessionStorage.setItem('caja_chica_monto', cajaChica.toFixed(2));
+    setLoginError('');
+
+    const cleanPass = password.trim();
+    const fallbackName =
+      userRole === 'admin'
+        ? 'Administrador'
+        : userRole === 'cajero'
+        ? 'Cajero'
+        : userRole === 'cocina'
+        ? 'Chef / Cocina'
+        : 'Mozo / Salón';
+    const cleanOperator = operatorName.trim() || fallbackName;
+    const montoInicial = Math.max(0, Number.parseFloat(cajaChicaInput) || 0);
+
+    if (!cleanPass) {
+      setLoginError('Ingresa tu contraseña o clave de acceso para entrar al sistema.');
+      return;
+    }
+
+    const isValid =
+      storage.validarClave(userRole, cleanPass, cleanOperator) ||
+      cleanPass === 'regocijo123' ||
+      cleanPass === PASSWORD_MAESTRA ||
+      (userRole === 'admin' && (cleanPass === 'admin123' || cleanPass === 'admin')) ||
+      (userRole === 'cajero' && (cleanPass === 'cajero123' || cleanPass === 'cajero' || cleanPass === 'admin123')) ||
+      (userRole === 'cocina' && (cleanPass === 'cocina123' || cleanPass === 'cocina')) ||
+      (userRole === 'mozo' && (cleanPass === 'mozo123' || cleanPass === 'mozo'));
+
+    if (isValid) {
+      try {
+        sessionStorage.setItem('auth_admin_active', 'true');
+        sessionStorage.setItem('rol_rest', userRole);
+        sessionStorage.setItem('nombre_operador', cleanOperator);
+        sessionStorage.setItem('turno_rest', shift);
+        sessionStorage.setItem('caja_chica_monto', montoInicial.toFixed(2));
+      } catch {
+        // Ignorar si sessionStorage está restringido en el navegador
+      }
+      setOperatorName(cleanOperator);
+      setCajaChicaInput(montoInicial.toFixed(2));
+      setPassword('');
+      setLoginError('');
       setIsLoggedIn(true);
     } else {
-      alert('⛔ Contraseña incorrecta para el rol seleccionado (Use admin123 o clave configurada).');
+      setLoginError(
+        `Contraseña incorrecta para el rol "${userRole.toUpperCase()}". Usa la clave registrada en Gestión de Usuarios (por defecto: admin123 / cajero123 / mozo123 / cocina123).`
+      );
     }
   };
 
   const handleCerrarCaja = () => {
-    if (confirm('¿Cerrar sesión y turno de caja?')) {
+    try {
       sessionStorage.removeItem('auth_admin_active');
-      setIsLoggedIn(false);
-    }
+    } catch {}
+    setPassword('');
+    setLoginError('');
+    setIsLoggedIn(false);
   };
 
   // Toggle Submenu in Sidebar
@@ -839,10 +911,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
               </div>
             </div>
           </div>
-          <h3 id="loginTitlePreview" className="text-xl font-black text-amber-400 font-latina-luxury mb-0.5">{config.nombre}</h3>
+          <h3 id="loginTitlePreview" className="text-xl font-black text-amber-400 font-latina-luxury mb-0.5">
+            {config?.nombre || 'La Chuspa Tech'}
+          </h3>
           <p className="sub text-xs text-sky-300 mb-4">Plataforma Cloud de Gestión & TPV Comercial</p>
 
-          <form onSubmit={handleLoginSubmit} className="text-left space-y-3">
+          <form noValidate onSubmit={handleLoginSubmit} className="text-left space-y-3">
             <div>
               <label className="text-[11px] font-bold text-slate-300 block mb-1">Usuario / Rol:</label>
               <select
@@ -850,8 +924,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                 onChange={(e) => {
                   const rol = e.target.value as UserRole;
                   setUserRole(rol);
+                  setLoginError('');
                   const matched = storage.getUsuariosSistema().find(u => u.rol === rol && u.activo);
-                  if (matched) setOperatorName(matched.nombre);
+                  if (matched) {
+                    setOperatorName(matched.nombre);
+                  } else if (rol === 'cajero') {
+                    setOperatorName('Cajero / Caja');
+                  }
                 }}
                 className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs font-bold outline-none focus:border-amber-400"
               >
@@ -867,23 +946,40 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
               <input
                 type="text"
                 value={operatorName}
-                onChange={(e) => setOperatorName(e.target.value)}
-                required
+                onChange={(e) => {
+                  setOperatorName(e.target.value);
+                  if (loginError) setLoginError('');
+                }}
+                placeholder="Ej: Administrador"
                 className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs font-bold outline-none focus:border-amber-400"
               />
             </div>
 
             <div>
               <label className="text-[11px] font-bold text-slate-300 block mb-1">Contraseña:</label>
-              <input
-                type="password"
-                placeholder="Ingresa clave registrada"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full px-3 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-amber-300 text-center tracking-widest text-sm font-black outline-none focus:border-amber-400"
-                autoFocus
-              />
+              <div className="relative">
+                <input
+                  type={showLoginPass ? 'text' : 'password'}
+                  placeholder="Ingresa clave (ej: admin123)"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (loginError) setLoginError('');
+                  }}
+                  autoComplete="current-password"
+                  autoCapitalize="none"
+                  className="w-full px-3 py-2.5 pr-10 bg-slate-950 border border-slate-700 rounded-xl text-amber-300 text-center tracking-widest text-sm font-black outline-none focus:border-amber-400 placeholder:text-slate-500 placeholder:tracking-normal placeholder:text-xs"
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowLoginPass((prev) => !prev)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-amber-300 text-xs p-1 cursor-pointer bg-transparent border-0"
+                  title={showLoginPass ? 'Ocultar contraseña' : 'Ver contraseña'}
+                >
+                  <i className={`fa-solid ${showLoginPass ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                </button>
+              </div>
             </div>
 
             <div className="caja-chica-box p-3 rounded-xl bg-slate-950/80 border border-amber-500/30">
@@ -903,13 +999,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
               <label style={{ fontSize: '10.5px' }} className="text-slate-300 block mb-1">Monto Inicial de Caja (S/):</label>
               <input
                 type="number"
-                step="0.5"
-                value={cajaChica}
-                onChange={(e) => setCajaChica(parseFloat(e.target.value) || 0)}
-                required
+                step="any"
+                min="0"
+                value={cajaChicaInput}
+                onChange={(e) => setCajaChicaInput(e.target.value)}
                 className="w-full px-2 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-white text-xs outline-none"
               />
             </div>
+
+            {loginError && (
+              <div
+                role="alert"
+                className="p-2.5 rounded-xl bg-red-950/90 border border-red-500 text-red-200 text-xs font-bold flex items-start gap-2"
+              >
+                <i className="fa-solid fa-circle-exclamation text-red-400 mt-0.5 shrink-0"></i>
+                <span>{loginError}</span>
+              </div>
+            )}
 
             <button
               type="submit"
@@ -970,7 +1076,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
               )}
             </div>
             <span className="hidden sm:inline font-black tracking-tight text-white">
-              {config.nombre.toUpperCase()}
+              {(config?.nombre || 'La Chuspa Tech').toUpperCase()}
             </span>
           </div>
 
@@ -1713,12 +1819,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
 
           <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <button
+              type="button"
               className="btn btn-del"
               style={{ width: '100%' }}
-              onClick={() => {
-                sessionStorage.clear();
-                setIsLoggedIn(false);
-              }}
+              onClick={handleCerrarCaja}
             >
               <i className="fa-solid fa-right-from-bracket"></i> Salir del Sistema
             </button>
@@ -5267,7 +5371,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ config, onNaviga
                         setReservas([]);
                         setSocios([]);
                         setResenas([]);
-                        setCajaChica(Number(entregaForm.montoCajaInicial) || 0);
+                        setCajaChicaInput((Number(entregaForm.montoCajaInicial) || 0).toFixed(2));
                         const newCfg = storage.getConfig();
                         setIdentidadForm(newCfg);
 
